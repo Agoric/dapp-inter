@@ -1,0 +1,5 @@
+node_modules
+_agstate/*
+!_agstate/agoric-servers
+_agstate/agoric-servers/*
+!_agstate/agoric-servers/package.json
