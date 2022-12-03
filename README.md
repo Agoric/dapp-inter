@@ -1,6 +1,6 @@
-# dapp-psm
+# Inter Protocol UI
 
-UI for Inter Protocol Vaults, BLD Boost, Liquidations, etc.
+User application for Agoric Inter Protocol--Vaults, BLD Boost, Liquidations, etc.
 
 ## Development
 

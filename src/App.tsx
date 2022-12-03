@@ -1,4 +1,3 @@
-import './installSesLockdown';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -14,9 +13,7 @@ const App = () => {
         hideProgressBar={true}
         autoClose={false}
       ></ToastContainer>
-      <div>
-        Hello, Inter Protocol!
-      </div>
+      <div>Hello, Inter Protocol!</div>
     </>
   );
 };

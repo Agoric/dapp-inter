@@ -7,6 +7,7 @@ export default mergeConfig(
   defineConfig({
     test: {
       setupFiles: ['src/installSesLockdown.ts'],
+      environment: 'happy-dom',
     },
-  })
+  }),
 );
