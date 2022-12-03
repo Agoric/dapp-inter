@@ -9,8 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint src",
     "format": "prettier --write . && yarn lint --fix",
-    "test": "vitest --passWithNoTests",
-    "coverage": "vitest run --coverage --passWithNoTests"
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@endo/eventual-send": "^0.16.0",
