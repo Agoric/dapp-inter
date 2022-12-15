@@ -1,3 +1,4 @@
+import NetworkDropdown from 'components/NetworkDropdown';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -13,7 +14,9 @@ const App = () => {
         hideProgressBar={true}
         autoClose={false}
       ></ToastContainer>
-      <div>Hello, Inter Protocol!</div>
+      <div className="p-4 flex w-full max-w-7xl justify-end m-auto">
+        <NetworkDropdown />
+      </div>
     </>
   );
 };
