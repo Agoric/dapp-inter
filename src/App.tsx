@@ -1,8 +1,19 @@
 import NetworkDropdown from 'components/NetworkDropdown';
 import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import Vaults from 'views/Vaults';
+import ErrorPage from 'views/ErrorPage';
 
+import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <Vaults />,
+    errorElement: <ErrorPage />,
+  },
+]);
 
 const App = () => {
   return (
@@ -14,8 +25,13 @@ const App = () => {
         hideProgressBar={true}
         autoClose={false}
       ></ToastContainer>
-      <div className="p-4 flex w-full max-w-7xl justify-end m-auto">
-        <NetworkDropdown />
+      <div className="w-screen max-w-7xl m-auto">
+        <div className="flex w-full justify-end p-4">
+          <NetworkDropdown />
+        </div>
+        <div className="w-full">
+          <RouterProvider router={router} />
+        </div>
       </div>
     </>
   );
