@@ -4,7 +4,7 @@ type RouteError = { statusText: string; message: string };
 
 const ErrorPage = () => {
   const error = useRouteError() as RouteError;
-  console.error(error);
+  console.error('Error page:', error);
 
   return (
     <div id="error-page">
