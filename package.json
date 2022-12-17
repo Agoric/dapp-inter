@@ -13,6 +13,8 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
+    "@agoric/casting": "^0.3.3-dev-8f7b353.0",
+    "@agoric/wallet-backend": "^0.13.4-dev-8f7b353.0",
     "@endo/eventual-send": "^0.16.0",
     "@endo/init": "^0.5.43",
     "@headlessui/react": "^1.6.6",

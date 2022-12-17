@@ -1,3 +1,5 @@
+import { atom } from 'jotai';
+
 // Until casting supports querying keys https://github.com/Agoric/agoric-sdk/issues/6690
 export const fetchVstorageKeys = (
   rpcAddr: string,
@@ -31,4 +33,16 @@ export const fetchRPCAddr = async (netconfigURL: string) => {
   const { rpcAddrs } = await response.json();
 
   return rpcAddrs[Math.floor(Math.random() * rpcAddrs.length)];
+};
+
+export const mapAtom = <K, V>() => {
+  const innerAtom = atom<Map<K, V>>(new Map());
+
+  return atom(
+    get => get(innerAtom),
+    (get, set, newEntries: Iterable<any>) => {
+      const old = get(innerAtom).entries();
+      set(innerAtom, new Map([...old, ...newEntries]));
+    },
+  );
 };

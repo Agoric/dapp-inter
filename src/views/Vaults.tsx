@@ -1,8 +1,15 @@
-import { useAtomValue } from 'jotai';
-import { networkConfigAtom } from 'store/app';
-import { fetchRPCAddr, fetchVstorageKeys } from 'util';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
+import { importContextAtom, leaderAtom, networkConfigAtom } from 'store/app';
+import { fetchRPCAddr, fetchVstorageKeys } from 'utils';
 import { useQuery } from 'react-query';
 import { useEffect } from 'react';
+import {
+  managerIdsAtom,
+  managerMetricsAtom,
+  managerParamsAtom,
+  managersAtom,
+} from 'store/vaults';
+import { watchVaultManager } from 'service/vaults';
 
 const Vaults = () => {
   const netConfig = useAtomValue(networkConfigAtom);
@@ -20,6 +27,7 @@ const Vaults = () => {
     queryKey: `${path}:${rpcAddr.data}`,
     queryFn: () => fetchVstorageKeys(rpcAddr.data, path),
     enabled: !!rpcAddr.data,
+    refetchInterval: 1000 * 60 * 5 /* every 5 minutes */,
   });
   if (vaultFactoryKeys.isError) {
     console.error(vaultFactoryKeys.error);
@@ -28,14 +36,45 @@ const Vaults = () => {
   const isLoading =
     (vaultFactoryKeys.isLoading || vaultFactoryKeys.isIdle) && !rpcAddr.isError;
 
-  const managerIds = (vaultFactoryKeys.data?.children ?? []).filter(
-    (child: string) => child.startsWith('manager'),
-  );
+  const newManagerIds = (
+    (vaultFactoryKeys.data?.children as Array<string>) ?? []
+  ).filter((child: string) => child.startsWith('manager'));
+
+  const [setManagers, setManagerMetrics, setManagerParams] = [
+    useSetAtom(managersAtom),
+    useSetAtom(managerMetricsAtom),
+    useSetAtom(managerParamsAtom),
+  ];
+
+  const [managerIds, setManagerIds] = useAtom(managerIdsAtom);
+  const importContext = useAtomValue(importContextAtom);
+  const leader = useAtomValue(leaderAtom);
 
   useEffect(() => {
-    if (!managerIds.length) return;
-    // TODO: Use casting to watch each managers metrics and governed params, storing data in jotai.
-  }, [managerIds]);
+    let hasUpdates = false;
+    newManagerIds.forEach(managerId => {
+      if (!managerIds?.has(managerId)) {
+        hasUpdates = true;
+        watchVaultManager(leader, importContext.fromBoard, managerId, {
+          setManagers,
+          setManagerMetrics,
+          setManagerParams,
+        });
+      }
+      if (hasUpdates) {
+        setManagerIds(new Set(newManagerIds));
+      }
+    });
+  }, [
+    newManagerIds,
+    managerIds,
+    setManagerIds,
+    leader,
+    importContext.fromBoard,
+    setManagers,
+    setManagerMetrics,
+    setManagerParams,
+  ]);
 
   return (
     <>
