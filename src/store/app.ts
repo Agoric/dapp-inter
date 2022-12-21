@@ -3,7 +3,6 @@ import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { atomWithStore } from 'jotai-zustand';
 import { makeImportContext } from 'utils/marshal-contexts';
-import { makeLeader } from '@agoric/casting';
 import create from 'zustand/vanilla';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
 
@@ -38,4 +37,4 @@ export const networkConfigAtom = atomWithStorage(
 
 export const importContextAtom = atom(() => makeImportContext());
 
-export const leaderAtom = atom(get => makeLeader(get(networkConfigAtom).url));
+export const leaderAtom = atom(null);

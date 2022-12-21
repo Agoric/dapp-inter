@@ -74,4 +74,3 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
     displayBrandIcon,
   };
 };
-

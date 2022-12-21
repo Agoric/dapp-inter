@@ -16,6 +16,7 @@ const Vaults = () => {
   const { fromBoard: unserializer } = useAtomValue(importContextAtom);
 
   useEffect(() => {
+    if (!leader) return;
     const cleanup = watchVaultFactory(netConfig.url, unserializer, leader);
 
     return () => {

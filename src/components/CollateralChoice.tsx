@@ -3,9 +3,6 @@ import { displayFunctionsAtom } from 'store/app';
 import { useVaultStore } from 'store/vaults';
 
 const CollateralChoice = ({ id }: { id: string }) => {
-  const { displayAmount, displayPercent, displayBrandPetname } =
-    useAtomValue(displayFunctionsAtom);
-
   const {
     vaultGovernedParams,
     vaultLoadingErrors,
@@ -14,14 +11,21 @@ const CollateralChoice = ({ id }: { id: string }) => {
   } = useVaultStore();
 
   const error = vaultLoadingErrors.get(id);
-  if (error) {
+  const displayFunctions = useAtomValue(displayFunctionsAtom);
+  if (error || !displayFunctions) {
     return (
       <div>
-        <h3>Vault ID: {id}</h3>
-        <p>Error: {error.toString()}</p>
+        <>
+          <h3>Vault ID: {id}</h3>
+          {error && <p>Error: {error.toString()}</p>}
+          {!displayFunctions && <p>Error: unable to display asset</p>}
+        </>
       </div>
     );
   }
+
+  const { displayAmount, displayBrandPetname, displayPercent } =
+    displayFunctions;
 
   const manager = vaultManagers.get(id);
   const metrics = vaultMetrics.get(id);
@@ -36,7 +40,9 @@ const CollateralChoice = ({ id }: { id: string }) => {
         {displayBrandPetname(params.DebtLimit.value.brand)}
       </p>
       <p>Interest rate: {displayPercent(params.InterestRate.value, 2)}%</p>
-      <p>Compounded interest: {displayPercent(manager.compoundedInterest)}%</p>
+      <p>
+        Compounded interest: {displayPercent(manager.compoundedInterest, 2)}%
+      </p>
       <p>
         Latest interest update:{' '}
         {new Date(Number(manager.latestInterestUpdate) * 1000).toUTCString()}
