@@ -6,6 +6,10 @@ import ErrorPage from 'views/ErrorPage';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';
+import { useEffect } from 'react';
+import { watchVbank } from 'service/vbank';
+import { useAtomValue } from 'jotai';
+import { importContextAtom, leaderAtom } from 'store/app';
 
 const router = createBrowserRouter([
   {
@@ -16,6 +20,13 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
+  const { fromBoard: unserializer } = useAtomValue(importContextAtom);
+  const leader = useAtomValue(leaderAtom);
+
+  useEffect(() => {
+    watchVbank(unserializer, leader);
+  }, []);
+
   return (
     <>
       <ToastContainer

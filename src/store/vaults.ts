@@ -3,7 +3,7 @@ import create from 'zustand';
 interface VaultState {
   vaultIdsLoadingError: string | null;
   vaultLoadingErrors: Map<string, unknown>;
-  vaultManagerIds: string[];
+  vaultManagerIds: string[] | null;
   vaultManagers: Map<string, unknown>;
   vaultGovernedParams: Map<string, unknown>;
   vaultMetrics: Map<string, unknown>;
@@ -16,7 +16,7 @@ interface VaultState {
 export const useVaultStore = create<VaultState>()(set => ({
   vaultIdsLoadingError: null,
   vaultLoadingErrors: new Map(),
-  vaultManagerIds: Array<string>(),
+  vaultManagerIds: null,
   vaultManagers: new Map(),
   vaultGovernedParams: new Map<string, unknown>(),
   vaultMetrics: new Map<string, unknown>(),

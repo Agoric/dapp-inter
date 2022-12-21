@@ -13,8 +13,11 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "@agoric/casting": "^0.3.3",
+    "@agoric/casting": "^0.3.3-dev-f5341af.0",
+    "@agoric/ertp": "^0.15.4-dev-f5341af.0",
     "@agoric/store": "^0.8.4",
+    "@agoric/ui-components": "^0.3.4-dev-f5341af.0",
+    "@agoric/zoe": "^0.25.4-dev-f5341af.0",
     "@endo/eventual-send": "^0.16.0",
     "@endo/init": "^0.5.43",
     "@endo/marshal": "^0.8.1",
@@ -22,6 +25,7 @@
     "clsx": "^1.2.1",
     "framer-motion": "^7.2.1",
     "jotai": "^1.8.0",
+    "jotai-zustand": "^0.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.4.0",

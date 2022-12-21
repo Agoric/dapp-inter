@@ -1,7 +1,14 @@
 import { useAtomValue } from 'jotai';
-import { importContextAtom, leaderAtom, networkConfigAtom } from 'store/app';
+import {
+  appAtom,
+  importContextAtom,
+  leaderAtom,
+  networkConfigAtom,
+} from 'store/app';
 import { useEffect } from 'react';
 import { watchVaultFactory } from 'service/vaults';
+import CollateralChoices from 'components/CollateralChoices';
+import { useVaultStore } from 'store/vaults';
 
 const Vaults = () => {
   const netConfig = useAtomValue(networkConfigAtom);
@@ -16,10 +23,20 @@ const Vaults = () => {
     };
   }, [leader, netConfig.url, unserializer]);
 
+  const { vaultIdsLoadingError, vaultManagerIds } = useVaultStore();
+  const { watchVbankError, brandToInfo } = useAtomValue(appAtom);
+
   return (
     <>
       <h1>Vaults</h1>
-      <div></div>
+      {vaultIdsLoadingError && <div>{vaultIdsLoadingError}</div>}
+      {watchVbankError && <div>{watchVbankError}</div>}
+      {!vaultIdsLoadingError &&
+        !watchVbankError &&
+        !(vaultManagerIds && brandToInfo) && (
+          <div>Loading collateral choices...</div>
+        )}
+      {vaultManagerIds && brandToInfo && <CollateralChoices />}
     </>
   );
 };

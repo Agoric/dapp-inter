@@ -1,10 +1,11 @@
-import { fetchRPCAddr, fetchVstorageKeys } from 'utils';
+import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import { useVaultStore } from 'store/vaults';
 import { makeFollower, iterateLatest } from '@agoric/casting';
+import type { Marshal } from '@endo/marshal';
 
 export const watchVaultFactory = (
   netconfigUrl: string,
-  unserializer: unknown,
+  unserializer: Marshal<unknown>,
   leader: unknown,
 ) => {
   // TODO: Clean up followers when isStopped === true.
@@ -17,7 +18,7 @@ export const watchVaultFactory = (
     const path = `:published.vaultFactory.${id}.governance`;
     const f = makeBoardFollower(path);
     for await (const { value } of iterateLatest(f)) {
-      console.log('got update', path, value);
+      console.debug('got update', path, value);
       useVaultStore.getState().setVaultGovernedParams(id, value.current);
     }
   };
@@ -26,7 +27,7 @@ export const watchVaultFactory = (
     const path = `:published.vaultFactory.${id}.metrics`;
     const f = makeBoardFollower(path);
     for await (const { value } of iterateLatest(f)) {
-      console.log('got update', path, value);
+      console.debug('got update', path, value);
       useVaultStore.getState().setVaultMetrics(id, value);
     }
   };
@@ -38,7 +39,7 @@ export const watchVaultFactory = (
     const path = `:published.vaultFactory.${id}`;
     const f = makeBoardFollower(path);
     for await (const { value } of iterateLatest(f)) {
-      console.log('got update', path, value);
+      console.debug('got update', path, value);
       useVaultStore.getState().setVaultManager(id, value);
     }
   };
