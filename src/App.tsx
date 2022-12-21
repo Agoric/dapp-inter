@@ -1,5 +1,4 @@
 import NetworkDropdown from 'components/NetworkDropdown';
-import { QueryClient, QueryClientProvider } from 'react-query';
 import { ToastContainer } from 'react-toastify';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Vaults from 'views/Vaults';
@@ -16,11 +15,9 @@ const router = createBrowserRouter([
   },
 ]);
 
-const queryClient = new QueryClient();
-
 const App = () => {
   return (
-    <QueryClientProvider client={queryClient}>
+    <>
       <ToastContainer
         position={'bottom-right'}
         closeOnClick={false}
@@ -36,7 +33,7 @@ const App = () => {
           <RouterProvider router={router} />
         </div>
       </div>
-    </QueryClientProvider>
+    </>
   );
 };
 
