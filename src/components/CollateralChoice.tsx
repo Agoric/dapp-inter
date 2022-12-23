@@ -8,9 +8,18 @@ const CollateralChoice = ({ id }: { id: string }) => {
     vaultLoadingErrors,
     vaultManagers,
     vaultMetrics,
+    prices,
+    priceErrors,
   } = useVaultStore();
 
-  const error = vaultLoadingErrors.get(id);
+  const manager = vaultManagers.get(id);
+  const metrics = vaultMetrics.get(id);
+  const params = vaultGovernedParams.get(id);
+  const price = prices.get((metrics as any)?.retainedCollateral?.brand);
+
+  const error =
+    vaultLoadingErrors.get(id) ||
+    priceErrors.get((metrics as any)?.retainedCollateral?.brand);
   const displayFunctions = useAtomValue(displayFunctionsAtom);
   if (error || !displayFunctions) {
     return (
@@ -24,17 +33,21 @@ const CollateralChoice = ({ id }: { id: string }) => {
     );
   }
 
-  const { displayAmount, displayBrandPetname, displayPercent } =
-    displayFunctions;
+  const isLoading = !(manager && metrics && params && price);
+  const {
+    displayAmount,
+    displayBrandPetname,
+    displayPercent,
+    displayPrice,
+    displayPriceTimestamp,
+  } = displayFunctions;
 
-  const manager = vaultManagers.get(id);
-  const metrics = vaultMetrics.get(id);
-  const params = vaultGovernedParams.get(id);
-  const isLoading = !(manager && metrics && params);
   const content = isLoading ? (
     <div>Loading...</div>
   ) : (
     <>
+      <p>Asset price: {displayPrice(price)}</p>
+      <p>Last price update: {displayPriceTimestamp(price)}</p>
       <p>
         Debt limit: {displayAmount(params.DebtLimit.value)}{' '}
         {displayBrandPetname(params.DebtLimit.value.brand)}

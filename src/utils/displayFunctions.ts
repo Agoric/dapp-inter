@@ -65,12 +65,24 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const displayBrandIcon = (brand?: Brand | null) =>
     getLogoForBrandPetname(getPetname(brand));
 
+  const displayPrice = (price: any) => {
+    return (
+      '$' + stringifyValue(price.value[0].amountOut.value, AssetKind.NAT, 6)
+    );
+  };
+
+  const displayPriceTimestamp = (price: any) => {
+    return new Date(Number(price.value[0].timestamp) * 1000).toUTCString();
+  };
+
   return {
+    displayPriceTimestamp,
     displayPercent,
     displayBrandPetname,
     displayRatio,
     displayAmount,
     getDecimalPlaces,
     displayBrandIcon,
+    displayPrice,
   };
 };

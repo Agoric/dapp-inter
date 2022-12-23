@@ -1,5 +1,8 @@
 import create from 'zustand';
 
+// Ambient
+import '@agoric/ertp/src/types';
+
 interface VaultState {
   vaultIdsLoadingError: string | null;
   vaultLoadingErrors: Map<string, unknown>;
@@ -7,6 +10,10 @@ interface VaultState {
   vaultManagers: Map<string, unknown>;
   vaultGovernedParams: Map<string, unknown>;
   vaultMetrics: Map<string, unknown>;
+  prices: Map<Brand, unknown>;
+  priceErrors: Map<Brand, unknown>;
+  setPrice: (brand: Brand, price: unknown) => void;
+  setPriceError: (brand: Brand, e: unknown) => void;
   setVaultLoadingError: (id: string, error: unknown) => void;
   setVaultManager: (id: string, manager: unknown) => void;
   setVaultGovernedParams: (id: string, params: unknown) => void;
@@ -20,6 +27,8 @@ export const useVaultStore = create<VaultState>()(set => ({
   vaultManagers: new Map(),
   vaultGovernedParams: new Map<string, unknown>(),
   vaultMetrics: new Map<string, unknown>(),
+  prices: new Map<Brand, unknown>(),
+  priceErrors: new Map<Brand, unknown>(),
   setVaultLoadingError: (id: string, error: unknown) =>
     set(state => {
       const newErrors = new Map(state.vaultLoadingErrors);
@@ -43,5 +52,17 @@ export const useVaultStore = create<VaultState>()(set => ({
       const newMetrics = new Map(state.vaultMetrics);
       newMetrics.set(id, metrics);
       return { vaultMetrics: newMetrics };
+    }),
+  setPrice: (brand: Brand, price: unknown) =>
+    set(state => {
+      const newPrices = new Map(state.prices);
+      newPrices.set(brand, price);
+      return { prices: newPrices };
+    }),
+  setPriceError: (brand: Brand, e: unknown) =>
+    set(state => {
+      const newPriceErrors = new Map(state.priceErrors);
+      newPriceErrors.set(brand, e);
+      return { priceErrors: newPriceErrors };
     }),
 }));
