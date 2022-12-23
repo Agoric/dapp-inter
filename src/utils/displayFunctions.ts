@@ -1,3 +1,5 @@
+// Ambient
+import '@agoric/ertp/src/types';
 import {
   stringifyRatioAsPercent,
   stringifyRatio,
@@ -5,9 +7,8 @@ import {
 } from '@agoric/ui-components';
 import { AssetKind } from '@agoric/ertp';
 import type { BrandInfo } from 'store/app';
-
-// Ambient
-import '@agoric/ertp/src/types';
+import type { QuoteAmount, Ratio } from 'store/vaults';
+import type { Brand, Amount } from '@agoric/ertp/src/types';
 
 const getLogoForBrandPetname = (brandPetname: string) => {
   switch (brandPetname) {
@@ -40,7 +41,7 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const getPetname = (brand?: Brand | null) =>
     (brand && brandToInfo.get(brand)?.petname) ?? '';
 
-  const displayPercent = (ratio: any, placesToShow: number) => {
+  const displayPercent = (ratio: Ratio, placesToShow: number) => {
     return stringifyRatioAsPercent(ratio, getDecimalPlaces, placesToShow);
   };
 
@@ -48,11 +49,11 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
     return displayPetname(getPetname(brand));
   };
 
-  const displayRatio = (ratio: any, placesToShow: number) => {
+  const displayRatio = (ratio: Ratio, placesToShow: number) => {
     return stringifyRatio(ratio, getDecimalPlaces, placesToShow);
   };
 
-  const displayAmount = (amount: any, placesToShow?: number) => {
+  const displayAmount = (amount: Amount, placesToShow?: number) => {
     const decimalPlaces = getDecimalPlaces(amount.brand);
     return stringifyValue(
       amount.value,
@@ -65,13 +66,13 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const displayBrandIcon = (brand?: Brand | null) =>
     getLogoForBrandPetname(getPetname(brand));
 
-  const displayPrice = (price: any) => {
+  const displayPrice = (price: QuoteAmount) => {
     return (
       '$' + stringifyValue(price.value[0].amountOut.value, AssetKind.NAT, 6)
     );
   };
 
-  const displayPriceTimestamp = (price: any) => {
+  const displayPriceTimestamp = (price: QuoteAmount) => {
     return new Date(Number(price.value[0].timestamp) * 1000).toUTCString();
   };
 

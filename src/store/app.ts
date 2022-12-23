@@ -5,9 +5,7 @@ import { atomWithStore } from 'jotai-zustand';
 import { makeImportContext } from 'utils/marshal-contexts';
 import create from 'zustand/vanilla';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
-
-// Ambient
-import '@agoric/ertp/src/types';
+import type { DisplayInfo, Brand } from '@agoric/ertp/src/types';
 
 export type BrandInfo = DisplayInfo<'nat'> & {
   petname: string;

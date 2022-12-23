@@ -14,10 +14,11 @@
   },
   "dependencies": {
     "@agoric/casting": "^0.3.3-dev-f5341af.0",
-    "@agoric/ertp": "^0.15.4-dev-f5341af.0",
+    "@agoric/ertp": "^0.15.4-dev-0d0f8f3.0",
+    "@agoric/inter-protocol": "^0.13.2-dev-0d0f8f3.0",
     "@agoric/store": "^0.8.4",
     "@agoric/ui-components": "^0.3.4-dev-f5341af.0",
-    "@agoric/zoe": "^0.25.4-dev-f5341af.0",
+    "@agoric/zoe": "^0.25.4-dev-0d0f8f3.0",
     "@endo/eventual-send": "^0.16.0",
     "@endo/init": "^0.5.43",
     "@endo/marshal": "^0.8.1",

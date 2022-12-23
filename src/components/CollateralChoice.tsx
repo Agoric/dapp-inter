@@ -15,11 +15,10 @@ const CollateralChoice = ({ id }: { id: string }) => {
   const manager = vaultManagers.get(id);
   const metrics = vaultMetrics.get(id);
   const params = vaultGovernedParams.get(id);
-  const price = prices.get((metrics as any)?.retainedCollateral?.brand);
+  const brand = metrics?.retainedCollateral?.brand;
+  const price = brand && prices.get(brand);
 
-  const error =
-    vaultLoadingErrors.get(id) ||
-    priceErrors.get((metrics as any)?.retainedCollateral?.brand);
+  const error = vaultLoadingErrors.get(id) || (brand && priceErrors.get(brand));
   const displayFunctions = useAtomValue(displayFunctionsAtom);
   if (error || !displayFunctions) {
     return (

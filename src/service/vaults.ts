@@ -1,11 +1,10 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import { useVaultStore } from 'store/vaults';
 import { makeFollower, iterateLatest } from '@agoric/casting';
+import { appStore } from 'store/app';
 import type { Marshal } from '@endo/marshal';
-import { appStore, BrandInfo } from 'store/app';
-
-// Ambient
-import '@agoric/ertp/src/types';
+import type { BrandInfo } from 'store/app';
+import type { Brand } from '@agoric/ertp/src/types';
 
 const issuerPetnameToPriceFeed = new Map<string, string>([
   ['IbcATOM', 'ATOM-USD_price_feed'],
@@ -14,21 +13,23 @@ const issuerPetnameToPriceFeed = new Map<string, string>([
 // Subscribes to price feeds for new brands.
 const watchPriceFeeds = (unserializer: Marshal<unknown>, leader: unknown) => {
   let isStopped = false;
-  const brandsToWatch = new Set();
-  const watchedBrands = new Set();
+  const brandsToWatch = new Set<Brand>();
+  const watchedBrands = new Set<Brand>();
   let brandToInfo: Map<Brand, BrandInfo> | null = null;
 
   const watchFeed = async (brand: Brand) => {
     const { petname } = brandToInfo?.get(brand) ?? {};
     if (brandToInfo && !petname) {
+      // brandToInfo was loaded but missing this asset, not good.
       throw new Error('Missing display info for brand ' + brand);
     }
-    const priceFeed = issuerPetnameToPriceFeed.get(petname);
+    const priceFeed = issuerPetnameToPriceFeed.get(petname ?? '');
     if (!priceFeed) {
-      if (brandToInfo) {
-        throw new Error('Missing price feed for brand ' + brand);
+      if (petname) {
+        // issuerPetnameToPriceFeed is missing this asset, not good.
+        throw new Error('Missing price feed for brand ' + petname);
       }
-      // Otherwise wait to get called again after brandToInfo loads.
+      // brandToInfo must be null, try again after it loads.
       return;
     }
 
@@ -50,7 +51,6 @@ const watchPriceFeeds = (unserializer: Marshal<unknown>, leader: unknown) => {
         console.error('Error watching brand price feed', brand, e);
         useVaultStore.getState().setPriceError(brand, e);
       });
-      watchedBrands.add(brand);
     });
   };
 
@@ -60,7 +60,7 @@ const watchPriceFeeds = (unserializer: Marshal<unknown>, leader: unknown) => {
   });
 
   const unsubVaultStore = useVaultStore.subscribe(({ vaultMetrics }) => {
-    vaultMetrics.forEach((metrics: any) =>
+    vaultMetrics.forEach(metrics =>
       brandsToWatch.add(metrics.retainedCollateral.brand),
     );
     watchNewBrands();
