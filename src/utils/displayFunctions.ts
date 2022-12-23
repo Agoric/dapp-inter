@@ -1,5 +1,3 @@
-// Ambient
-import '@agoric/ertp/src/types';
 import {
   stringifyRatioAsPercent,
   stringifyRatio,
