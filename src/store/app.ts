@@ -2,7 +2,7 @@ import { networkConfigs } from 'config';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { atomWithStore } from 'jotai-zustand';
-import { makeImportContext } from 'utils/marshal-contexts';
+import { makeImportContext } from '@agoric/wallet/api/src/marshal-contexts';
 import create from 'zustand/vanilla';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
 import type { DisplayInfo, Brand } from '@agoric/ertp/src/types';

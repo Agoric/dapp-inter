@@ -1,5 +1,5 @@
 // Until casting supports querying keys https://github.com/Agoric/agoric-sdk/issues/6690
-export const fetchVstorageKeys = (
+export const fetchVstorageKeys = async (
   rpcAddr: string,
   path: string,
   height?: number,
@@ -17,11 +17,9 @@ export const fetchVstorageKeys = (
     }),
   };
 
-  return fetch(rpcAddr, options)
-    .then(res => res.json())
-    .then(
-      d => d.result.response.value && JSON.parse(atob(d.result.response.value)),
-    );
+  const res = await fetch(rpcAddr, options);
+  const d = await res.json();
+  return d.result.response.value && JSON.parse(atob(d.result.response.value));
 };
 
 export const fetchRPCAddr = async (netconfigURL: string) => {
