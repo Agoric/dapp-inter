@@ -1,57 +1,37 @@
 import { useAtomValue } from 'jotai';
-import { networkConfigAtom } from 'store/app';
-import { fetchRPCAddr, fetchVstorageKeys } from 'util';
-import { useQuery } from 'react-query';
+import { appAtom, leaderAtom, networkConfigAtom } from 'store/app';
 import { useEffect } from 'react';
+import { watchVaultFactory } from 'service/vaults';
+import CollateralChoices from 'components/CollateralChoices';
+import { useVaultStore } from 'store/vaults';
 
 const Vaults = () => {
   const netConfig = useAtomValue(networkConfigAtom);
-  const rpcAddr = useQuery({
-    queryKey: `rpcAddrs:${netConfig?.url}`,
-    queryFn: () => fetchRPCAddr(netConfig?.url),
-    enabled: !!netConfig?.url,
-  });
-  if (rpcAddr.isError) {
-    console.error(rpcAddr.error);
-  }
-
-  const path = 'published.vaultFactory';
-  const vaultFactoryKeys = useQuery({
-    queryKey: `${path}:${rpcAddr.data}`,
-    queryFn: () => fetchVstorageKeys(rpcAddr.data, path),
-    enabled: !!rpcAddr.data,
-  });
-  if (vaultFactoryKeys.isError) {
-    console.error(vaultFactoryKeys.error);
-  }
-
-  const isLoading =
-    (vaultFactoryKeys.isLoading || vaultFactoryKeys.isIdle) && !rpcAddr.isError;
-
-  const managerIds = (vaultFactoryKeys.data?.children ?? []).filter(
-    (child: string) => child.startsWith('manager'),
-  );
+  const leader = useAtomValue(leaderAtom);
 
   useEffect(() => {
-    if (!managerIds.length) return;
-    // TODO: Use casting to watch each managers metrics and governed params, storing data in jotai.
-  }, [managerIds]);
+    if (!leader) return;
+    const cleanup = watchVaultFactory(netConfig.url);
+
+    return () => {
+      cleanup();
+    };
+  }, [leader, netConfig]);
+
+  const { vaultIdsLoadingError, vaultManagerIds } = useVaultStore();
+  const { watchVbankError, brandToInfo } = useAtomValue(appAtom);
 
   return (
     <>
       <h1>Vaults</h1>
-      <div>
-        {isLoading && 'Loading collateral options...'}
-        {rpcAddr.isError && (
-          <div>Error reading RPC address from netConfig {netConfig?.url}</div>
+      {vaultIdsLoadingError && <div>{vaultIdsLoadingError}</div>}
+      {watchVbankError && <div>{watchVbankError}</div>}
+      {!vaultIdsLoadingError &&
+        !watchVbankError &&
+        !(vaultManagerIds && brandToInfo) && (
+          <div>Loading collateral choices...</div>
         )}
-        {vaultFactoryKeys.isError && (
-          <div>Error querying collaterals from chain via {rpcAddr.data}</div>
-        )}
-        {!isLoading && !rpcAddr.isError && !vaultFactoryKeys.isError && (
-          <div>Collateral Options: {managerIds}</div>
-        )}
-      </div>
+      {vaultManagerIds && brandToInfo && <CollateralChoices />}
     </>
   );
 };

@@ -1,0 +1,13 @@
+diff --git a/node_modules/@agoric/wallet/api/src/marshal-contexts.js b/node_modules/@agoric/wallet/api/src/marshal-contexts.js
+index 007d733..c4e8066 100644
+--- a/node_modules/@agoric/wallet/api/src/marshal-contexts.js
++++ b/node_modules/@agoric/wallet/api/src/marshal-contexts.js
+@@ -287,7 +287,7 @@ export const makeImportContext = (makePresence = defaultMakePresence) => {
+      * @param {string} iface
+      */
+     fromBoard: (slot, iface) => {
+-      isBoardId(slot) || Fail`bad board slot ${q(slot)}`;
++      isBoardId(slot) || slot === null || Fail`bad board slot ${q(slot)}`; // Prevents throwing if we receive a null slot, just ignore.
+       return provideVal(boardObjects, slot, iface);
+     },
+ 

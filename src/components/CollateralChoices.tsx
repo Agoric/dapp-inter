@@ -1,5 +1,16 @@
+import { useVaultStore } from 'store/vaults';
+import CollateralChoice from './CollateralChoice';
+
 const CollateralChoices = () => {
-  return <h2>Open a new vault:</h2>;
+  const { vaultManagerIds } = useVaultStore();
+
+  return (
+    <>
+      <h2>Open a new vault:</h2>
+      {vaultManagerIds &&
+        vaultManagerIds.map(id => <CollateralChoice key={id} id={id} />)}
+    </>
+  );
 };
 
 export default CollateralChoices;

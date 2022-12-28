@@ -10,22 +10,31 @@
     "lint": "eslint src",
     "format": "prettier --write . && yarn lint --fix",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "postinstall": "patch-package"
   },
   "dependencies": {
+    "@agoric/casting": "^0.3.3-dev-0153ef0.0",
+    "@agoric/ertp": "^0.15.4-dev-0d0f8f3.0",
+    "@agoric/ui-components": "^0.3.4-dev-f5341af.0",
+    "@agoric/wallet": "^0.17.1-dev-0153ef0.0",
     "@endo/eventual-send": "^0.16.0",
     "@endo/init": "^0.5.43",
+    "@endo/marshal": "^0.8.1",
     "@headlessui/react": "^1.6.6",
     "clsx": "^1.2.1",
     "framer-motion": "^7.2.1",
     "jotai": "^1.8.0",
+    "jotai-zustand": "^0.1.0",
+    "patch-package": "^6.5.0",
+    "postinstall-postinstall": "^2.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.4.0",
     "react-loader-spinner": "^5.2.0",
-    "react-query": "^3.39.2",
     "react-router-dom": "^6.4.5",
-    "react-toastify": "^9.0.8"
+    "react-toastify": "^9.0.8",
+    "zustand": "^4.1.5"
   },
   "devDependencies": {
     "@testing-library/react": "^13.4.0",
