@@ -1,18 +1,31 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
-import { useVaultStore } from 'store/vaults';
+import {
+  QuoteAmount,
+  useVaultStore,
+  VaultManager,
+  VaultMetrics,
+} from 'store/vaults';
 import { makeFollower, iterateLatest } from '@agoric/casting';
 import { appStore } from 'store/app';
-import type { Marshal } from '@endo/marshal';
 import type { BrandInfo } from 'store/app';
-import type { Brand } from '@agoric/ertp/src/types';
+import type { Brand, Amount } from '@agoric/ertp/src/types';
+import type { Ratio } from 'store/vaults';
 
 const issuerPetnameToPriceFeed = new Map<string, string>([
   ['IbcATOM', 'ATOM-USD_price_feed'],
 ]);
 
+type ValuePossessor<T> = {
+  value: T;
+};
+
+type PriceFeedUpdate = ValuePossessor<{ quoteAmount: QuoteAmount }>;
+
 // Subscribes to price feeds for new brands.
-const watchPriceFeeds = (unserializer: Marshal<unknown>, leader: unknown) => {
+const watchPriceFeeds = () => {
   let isStopped = false;
+  const { leader, importContext } = appStore.getState();
+
   const brandsToWatch = new Set<Brand>();
   const watchedBrands = new Set<Brand>();
   let brandToInfo: Map<Brand, BrandInfo> | null = null;
@@ -34,9 +47,11 @@ const watchPriceFeeds = (unserializer: Marshal<unknown>, leader: unknown) => {
     }
 
     const path = `:published.priceFeed.${priceFeed}`;
-    const f = makeFollower(path, leader, { unserializer });
+    const f = makeFollower(path, leader, {
+      unserializer: importContext.fromBoard,
+    });
     watchedBrands.add(brand);
-    for await (const { value } of iterateLatest(f)) {
+    for await (const { value } of iterateLatest<PriceFeedUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
       useVaultStore.getState().setPrice(brand, value.quoteAmount);
@@ -73,30 +88,56 @@ const watchPriceFeeds = (unserializer: Marshal<unknown>, leader: unknown) => {
   };
 };
 
-export const watchVaultFactory = (
-  netconfigUrl: string,
-  unserializer: Marshal<unknown>,
-  leader: unknown,
-) => {
+type GovernedParamsUpdate = {
+  value: {
+    current: {
+      DebtLimit: ValuePossessor<Amount<'nat'>>;
+      InterestRate: ValuePossessor<Ratio>;
+      LiquidationPenalty: ValuePossessor<Ratio>;
+      LiquidationMargin: ValuePossessor<Ratio>;
+      LoanFee: ValuePossessor<Ratio>;
+    };
+  };
+};
+
+type MetricsUpdate = ValuePossessor<VaultMetrics>;
+
+type VaultManagerUpdate = ValuePossessor<VaultManager>;
+
+export const watchVaultFactory = (netconfigUrl: string) => {
   let isStopped = false;
+  const { leader, importContext } = appStore.getState();
 
   const makeBoardFollower = (path: string) =>
-    makeFollower(path, leader, { unserializer });
+    makeFollower(path, leader, { unserializer: importContext.fromBoard });
 
   const watchGovernedParams = async (id: string) => {
     const path = `:published.vaultFactory.${id}.governance`;
     const f = makeBoardFollower(path);
-    for await (const { value } of iterateLatest(f)) {
+    for await (const { value } of iterateLatest<GovernedParamsUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
-      useVaultStore.getState().setVaultGovernedParams(id, value.current);
+      const { current } = value;
+      const debtLimit = current.DebtLimit.value;
+      const interestRate = current.InterestRate.value;
+      const liquidationPenalty = current.LiquidationPenalty.value;
+      const liquidationMargin = current.LiquidationMargin.value;
+      const loanFee = current.LoanFee.value;
+
+      useVaultStore.getState().setVaultGovernedParams(id, {
+        debtLimit,
+        interestRate,
+        liquidationMargin,
+        liquidationPenalty,
+        loanFee,
+      });
     }
   };
 
   const watchMetrics = async (id: string) => {
     const path = `:published.vaultFactory.${id}.metrics`;
     const f = makeBoardFollower(path);
-    for await (const { value } of iterateLatest(f)) {
+    for await (const { value } of iterateLatest<MetricsUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
       useVaultStore.getState().setVaultMetrics(id, value);
@@ -109,7 +150,7 @@ export const watchVaultFactory = (
 
     const path = `:published.vaultFactory.${id}`;
     const f = makeBoardFollower(path);
-    for await (const { value } of iterateLatest(f)) {
+    for await (const { value } of iterateLatest<VaultManagerUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
       useVaultStore.getState().setVaultManager(id, value);
@@ -155,7 +196,7 @@ export const watchVaultFactory = (
   };
 
   startWatching();
-  const stopWatchingPriceFeeds = watchPriceFeeds(unserializer, leader);
+  const stopWatchingPriceFeeds = watchPriceFeeds();
 
   return () => {
     isStopped = true;

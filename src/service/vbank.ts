@@ -1,4 +1,3 @@
-import type { Marshal } from '@endo/marshal';
 import { appStore } from 'store/app';
 import { iterateLatest, makeFollower } from '@agoric/casting';
 import type { DisplayInfo, Brand } from '@agoric/ertp/src/types';
@@ -9,16 +8,21 @@ type VbankInfo = {
   issuerName: string;
 };
 
-export const watchVbank = (unserializer: Marshal<unknown>, leader: unknown) => {
+type VbankUpdate = { value: Array<[string, VbankInfo]> };
+
+export const watchVbank = () => {
   const path = ':published.agoricNames.vbankAsset';
+  const { importContext, leader } = appStore.getState();
 
   const watch = async () => {
-    const f = makeFollower(path, leader, { unserializer });
+    const f = makeFollower(path, leader, {
+      unserializer: importContext.fromBoard,
+    });
 
-    for await (const { value } of iterateLatest(f)) {
+    for await (const { value } of iterateLatest<VbankUpdate>(f)) {
       console.debug('got update', path, value);
       const brandToInfo = new Map(
-        (value as Array<[string, VbankInfo]>).map(entry => [
+        value.map(entry => [
           entry[1].brand,
           { ...entry[1].displayInfo, petname: entry[1].issuerName },
         ]),

@@ -8,20 +8,12 @@ export type Ratio = {
 
 export type QuoteAmount = Amount<'set'>;
 
-export type RatioValue = {
-  value: Ratio;
-};
-
-export type AmountValue = {
-  value: Amount<'nat'>;
-};
-
 export type VaultParams = {
-  DebtLimit: AmountValue;
-  InterestRate: RatioValue;
-  LiquidationPenalty: RatioValue;
-  LiquidationMargin: RatioValue;
-  LoanFee: RatioValue;
+  debtLimit: Amount<'nat'>;
+  interestRate: Ratio;
+  liquidationPenalty: Ratio;
+  liquidationMargin: Ratio;
+  loanFee: Ratio;
 };
 
 export type VaultMetrics = {

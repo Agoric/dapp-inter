@@ -7,7 +7,7 @@ import ErrorPage from 'views/ErrorPage';
 import { useEffect } from 'react';
 import { watchVbank } from 'service/vbank';
 import { useAtomValue, useAtom } from 'jotai';
-import { importContextAtom, leaderAtom, networkConfigAtom } from 'store/app';
+import { leaderAtom, networkConfigAtom } from 'store/app';
 import { makeLeader } from '@agoric/casting';
 
 import 'react-toastify/dist/ReactToastify.css';
@@ -22,7 +22,6 @@ const router = createBrowserRouter([
 ]);
 
 const App = () => {
-  const { fromBoard: unserializer } = useAtomValue(importContextAtom);
   const netConfig = useAtomValue(networkConfigAtom);
   const [leader, setLeader] = useAtom(leaderAtom);
   const [error, setError] = useState<unknown | null>(null);
@@ -35,7 +34,7 @@ const App = () => {
         const newLeader = await makeLeader(netConfig.url);
         if (isCancelled) return;
         setLeader(newLeader);
-        watchVbank(unserializer, newLeader);
+        watchVbank();
       } catch (e) {
         if (isCancelled) return;
         setError(e);
@@ -46,7 +45,7 @@ const App = () => {
     return () => {
       isCancelled = true;
     };
-  }, [setError, unserializer, leader, netConfig, setLeader]);
+  }, [setError, leader, netConfig, setLeader]);
 
   return (
     <>

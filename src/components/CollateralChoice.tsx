@@ -48,10 +48,10 @@ const CollateralChoice = ({ id }: { id: string }) => {
       <p>Asset price: {displayPrice(price)}</p>
       <p>Last price update: {displayPriceTimestamp(price)}</p>
       <p>
-        Debt limit: {displayAmount(params.DebtLimit.value)}{' '}
-        {displayBrandPetname(params.DebtLimit.value.brand)}
+        Debt limit: {displayAmount(params.debtLimit)}{' '}
+        {displayBrandPetname(params.debtLimit.brand)}
       </p>
-      <p>Interest rate: {displayPercent(params.InterestRate.value, 2)}%</p>
+      <p>Interest rate: {displayPercent(params.interestRate, 2)}%</p>
       <p>
         Compounded interest: {displayPercent(manager.compoundedInterest, 2)}%
       </p>
@@ -59,14 +59,11 @@ const CollateralChoice = ({ id }: { id: string }) => {
         Latest interest update:{' '}
         {new Date(Number(manager.latestInterestUpdate) * 1000).toUTCString()}
       </p>
+      <p>Liquidation margin: {displayPercent(params.liquidationMargin, 2)}%</p>
       <p>
-        Liquidation margin: {displayPercent(params.LiquidationMargin.value, 2)}%
+        Liquidation penalty: {displayPercent(params.liquidationPenalty, 2)}%
       </p>
-      <p>
-        Liquidation penalty:{' '}
-        {displayPercent(params.LiquidationPenalty.value, 2)}%
-      </p>
-      <p>Loan fee: {displayPercent(params.LoanFee.value, 2)}%</p>
+      <p>Loan fee: {displayPercent(params.loanFee, 2)}%</p>
       <p>Number of active vaults: {metrics.numActiveVaults}</p>
       <p>Number of liquidating vaults: {metrics.numLiquidatingVaults}</p>
       <p>
