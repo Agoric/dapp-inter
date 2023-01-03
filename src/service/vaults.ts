@@ -1,6 +1,6 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import {
-  QuoteAmount,
+  PriceQuote,
   useVaultStore,
   VaultManager,
   VaultMetrics,
@@ -19,7 +19,7 @@ type ValuePossessor<T> = {
   value: T;
 };
 
-type PriceFeedUpdate = ValuePossessor<{ quoteAmount: QuoteAmount }>;
+type PriceFeedUpdate = ValuePossessor<PriceQuote>;
 
 // Subscribes to price feeds for new brands.
 const watchPriceFeeds = () => {
@@ -54,7 +54,7 @@ const watchPriceFeeds = () => {
     for await (const { value } of iterateLatest<PriceFeedUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
-      useVaultStore.getState().setPrice(brand, value.quoteAmount);
+      useVaultStore.getState().setPrice(brand, value);
     }
   };
 

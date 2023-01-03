@@ -5,7 +5,7 @@ import {
 } from '@agoric/ui-components';
 import { AssetKind } from '@agoric/ertp';
 import type { BrandInfo } from 'store/app';
-import type { QuoteAmount, Ratio } from 'store/vaults';
+import type { PriceQuote, Ratio } from 'store/vaults';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 
 const getLogoForBrandPetname = (brandPetname: string) => {
@@ -64,14 +64,12 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const displayBrandIcon = (brand?: Brand | null) =>
     getLogoForBrandPetname(getPetname(brand));
 
-  const displayPrice = (price: QuoteAmount) => {
-    return (
-      '$' + stringifyValue(price.value[0].amountOut.value, AssetKind.NAT, 6)
-    );
+  const displayPrice = (price: PriceQuote) => {
+    return '$' + stringifyValue(price.amountOut.value, AssetKind.NAT, 2);
   };
 
-  const displayPriceTimestamp = (price: QuoteAmount) => {
-    return new Date(Number(price.value[0].timestamp) * 1000).toUTCString();
+  const displayPriceTimestamp = (price: PriceQuote) => {
+    return new Date(Number(price.timestamp) * 1000).toUTCString();
   };
 
   return {
