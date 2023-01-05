@@ -6,7 +6,9 @@ export type Ratio = {
   denominator: Amount<'nat'>;
 };
 
-export type QuoteAmount = Amount<'set'>;
+// XXX PriceDescription type not exported from zoe package
+import { getPriceDescription } from '@agoric/zoe/src/contractSupport';
+export type PriceDescription = ReturnType<typeof getPriceDescription>;
 
 export type VaultParams = {
   debtLimit: Amount<'nat'>;
@@ -40,9 +42,9 @@ interface VaultState {
   vaultManagers: Map<string, VaultManager>;
   vaultGovernedParams: Map<string, VaultParams>;
   vaultMetrics: Map<string, VaultMetrics>;
-  prices: Map<Brand, QuoteAmount>;
+  prices: Map<Brand, PriceDescription>;
   priceErrors: Map<Brand, unknown>;
-  setPrice: (brand: Brand, price: QuoteAmount) => void;
+  setPrice: (brand: Brand, price: PriceDescription) => void;
   setPriceError: (brand: Brand, e: unknown) => void;
   setVaultLoadingError: (id: string, error: unknown) => void;
   setVaultManager: (id: string, manager: VaultManager) => void;
@@ -57,7 +59,7 @@ export const useVaultStore = create<VaultState>()(set => ({
   vaultManagers: new Map(),
   vaultGovernedParams: new Map<string, VaultParams>(),
   vaultMetrics: new Map<string, VaultMetrics>(),
-  prices: new Map<Brand, QuoteAmount>(),
+  prices: new Map<Brand, PriceDescription>(),
   priceErrors: new Map<Brand, unknown>(),
   setVaultLoadingError: (id: string, error: unknown) =>
     set(state => {
@@ -83,7 +85,7 @@ export const useVaultStore = create<VaultState>()(set => ({
       newMetrics.set(id, metrics);
       return { vaultMetrics: newMetrics };
     }),
-  setPrice: (brand: Brand, price: QuoteAmount) =>
+  setPrice: (brand: Brand, price: PriceDescription) =>
     set(state => {
       const newPrices = new Map(state.prices);
       newPrices.set(brand, price);

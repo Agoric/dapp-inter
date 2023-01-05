@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
 import { useVaultStore } from 'store/vaults';
+import NewVault from './NewVault';
 
 const CollateralChoice = ({ id }: { id: string }) => {
   const {
@@ -94,6 +95,7 @@ const CollateralChoice = ({ id }: { id: string }) => {
         {displayAmount(metrics.totalShortfallReceived)}{' '}
         {displayBrandPetname(metrics.totalShortfallReceived.brand)}
       </p>
+      <NewVault id={id} />
     </>
   );
 
