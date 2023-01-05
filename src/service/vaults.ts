@@ -1,6 +1,6 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import {
-  PriceQuote,
+  PriceDescription,
   useVaultStore,
   VaultManager,
   VaultMetrics,
@@ -19,7 +19,7 @@ type ValuePossessor<T> = {
   value: T;
 };
 
-type PriceFeedUpdate = ValuePossessor<PriceQuote>;
+type PriceFeedUpdate = ValuePossessor<PriceDescription>;
 
 // Subscribes to price feeds for new brands.
 const watchPriceFeeds = () => {
