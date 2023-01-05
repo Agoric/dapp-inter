@@ -10,3 +10,14 @@ declare module '@agoric/ui-components' {
 declare module '@agoric/wallet/api/src/marshal-contexts' {
   export const makeImportContext;
 }
+
+declare module '@agoric/web-components' {
+  export const makeAgoricKeplrConnection;
+  export const AgoricKeplrConnectionErrors;
+  export const BridgeProtocol;
+}
+
+declare module '@agoric/web-components/react' {
+  export const makeReactAgoricWalletConnection;
+  export const makeReactDappWalletBridge;
+}
