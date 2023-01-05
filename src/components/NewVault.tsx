@@ -1,6 +1,8 @@
 import { useVaultStore } from 'store/vaults';
 
-const NewVault = ({ id }: { id: string }) => {
+type Props = { id: string };
+
+const NewVault = ({ id }: Props) => {
   const {
     vaultGovernedParams,
     vaultLoadingErrors,
@@ -18,13 +20,12 @@ const NewVault = ({ id }: { id: string }) => {
 
   const error = vaultLoadingErrors.get(id) || (brand && priceErrors.get(brand));
 
-  const isLoading =
-    !(manager && metrics && params && price) || error != undefined;
+  const isReady = manager && metrics && params && price && error === undefined;
 
   return (
     <button
       className="bg-purple-500 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded"
-      disabled={isLoading}
+      disabled={!isReady}
     >
       Borrow 10 IST
     </button>
