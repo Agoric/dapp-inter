@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import ConnectWalletButton from 'components/ConnectWalletButton';
 import NetworkDropdown from 'components/NetworkDropdown';
+import OfferSignerBridge from 'components/OfferSignerBridge';
 import { ToastContainer } from 'react-toastify';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Vaults from 'views/Vaults';
@@ -58,7 +60,11 @@ const App = () => {
       ></ToastContainer>
       <div className="w-screen max-w-7xl m-auto">
         <div className="flex w-full justify-end p-4">
-          <NetworkDropdown />
+          <div className="flex flex-row space-x-2">
+            <NetworkDropdown />
+            <ConnectWalletButton />
+            <OfferSignerBridge />
+          </div>
         </div>
         <div className="w-full">
           {error ? (

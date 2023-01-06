@@ -4,7 +4,7 @@ import { makeReactDappWalletBridge } from '@agoric/web-components/react';
 import { Id, toast } from 'react-toastify';
 import { useSetAtom, useAtomValue } from 'jotai';
 import {
-  walletBridgeAtom,
+  offerSignerAtom,
   chainConnectionAtom,
   bridgeHrefAtom,
   walletUiHrefAtom,
@@ -45,7 +45,7 @@ const DappWalletBridge = makeReactDappWalletBridge(React);
 
 const WalletBridge = () => {
   const setIsDappApproved = useSetAtom(setIsDappApprovedAtom);
-  const setWalletBridge = useSetAtom(walletBridgeAtom);
+  const setOfferSigner = useSetAtom(offerSignerAtom);
   const chainConnection = useAtomValue(chainConnectionAtom);
   const warningToastId = useRef<Id | null>(null);
   const connectionSuccessfulToastId = useRef<Id | null>(null);
@@ -102,9 +102,9 @@ const WalletBridge = () => {
     if (!isDappApproved) {
       requestDappConnection('Inter Protocol PSM');
       showWarningToast();
-      setWalletBridge({ addOffer, isDappApproved: false });
+      setOfferSigner({ addOffer, isDappApproved: false });
     } else {
-      setWalletBridge({ addOffer, isDappApproved: true });
+      setOfferSigner({ addOffer, isDappApproved: true });
       showConnectionSuccessfulToast();
     }
   };

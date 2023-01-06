@@ -5,9 +5,11 @@ import { atomWithStore } from 'jotai-zustand';
 import { makeImportContext } from '@agoric/wallet/api/src/marshal-contexts';
 import create from 'zustand/vanilla';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
+import { makeWalletService } from 'service/wallet';
 import type { DisplayInfo, Brand } from '@agoric/ertp/src/types';
 import type { Marshal } from '@endo/marshal';
 import type { Leader } from '@agoric/casting';
+import type { PursesJSONState } from '@agoric/wallet-backend';
 
 export type BrandInfo = DisplayInfo<'nat'> & {
   petname: string;
@@ -27,9 +29,10 @@ export type OfferConfig = {
 export type ChainConnection = {
   chainId: string;
   address: string;
+  pursesNotifier: unknown;
 };
 
-export type WalletBridge = {
+export type OfferSigner = {
   isDappApproved: boolean;
   addOffer?: (offer: OfferConfig) => void;
 };
@@ -39,8 +42,11 @@ interface AppState {
   watchVbankError: string | null;
   importContext: ImportContext;
   leader: Leader | null;
+  isWalletConnectionInProgress: boolean;
   chainConnection: ChainConnection | null;
-  walletBridge: WalletBridge;
+  offerSigner: OfferSigner;
+  purses: PursesJSONState[] | null;
+  walletService: ReturnType<typeof makeWalletService>;
 }
 
 export const appStore = create<AppState>()(() => ({
@@ -48,8 +54,11 @@ export const appStore = create<AppState>()(() => ({
   watchVbankError: null,
   importContext: makeImportContext(),
   leader: null,
+  isWalletConnectionInProgress: false,
   chainConnection: null,
-  walletBridge: { isDappApproved: false },
+  offerSigner: { isDappApproved: false },
+  purses: null,
+  walletService: makeWalletService(),
 }));
 
 export const appAtom = atomWithStore(appStore);
@@ -59,9 +68,15 @@ export const displayFunctionsAtom = atom(get => {
   return brandToInfo && makeDisplayFunctions(brandToInfo);
 });
 
-export const walletBridgeAtom = atom(
-  get => get(appAtom).walletBridge,
-  (_get, set, newBridge: WalletBridge) =>
+export const walletServiceAtom = atom(get => get(appAtom).walletService);
+
+export const isWalletConnectionInProgressAtom = atom(
+  get => get(appAtom).isWalletConnectionInProgress,
+);
+
+export const offerSignerAtom = atom(
+  get => get(appAtom).offerSigner,
+  (_get, set, newBridge: OfferSigner) =>
     set(appAtom, state => ({ ...state, walletBridge: newBridge })),
 );
 
@@ -70,7 +85,7 @@ export const setIsDappApprovedAtom = atom(
   (_get, set, isDappApproved: boolean) =>
     set(appAtom, state => ({
       ...state,
-      walletBridge: { ...state.walletBridge, isDappApproved },
+      offerSigner: { ...state.offerSigner, isDappApproved },
     })),
 );
 
