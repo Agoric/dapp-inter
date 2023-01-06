@@ -1,4 +1,9 @@
-import { networkConfigs } from 'config';
+import {
+  branchBridgeHref,
+  localBridgeHref,
+  networkConfigs,
+  prodBridgeHref,
+} from 'config';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { atomWithStore } from 'jotai-zustand';
@@ -106,11 +111,6 @@ export const networkConfigAtom = atomWithStorage(
   'agoric-network-config',
   networkConfigs.mainnet,
 );
-
-const prodBridgeHref = 'https://wallet.agoric.app/wallet/bridge.html';
-const localBridgeHref = 'http://localhost:3000/wallet/bridge.html';
-const branchBridgeHref = (branchName: string) =>
-  `https://${branchName}.wallet-app.pages.dev/wallet/bridge.html`;
 
 const usp = new URLSearchParams(window.location.search);
 const wallet = usp.get('wallet');

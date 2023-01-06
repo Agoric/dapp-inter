@@ -19,6 +19,7 @@ const ConnectWalletButton = () => {
     if (isConnectionInProgress) {
       return 'Connecting';
     } else if (chainConnection) {
+      // TODO, add a way to call walletService.disconnect.
       return 'Keplr Connected';
     }
     return 'Connect Keplr';

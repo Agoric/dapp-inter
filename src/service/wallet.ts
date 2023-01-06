@@ -54,10 +54,9 @@ export const makeWalletService = () => {
 
     if (isWalletConnectionInProgress || chainConnection) return;
 
-    let connection;
     appStore.setState({ isWalletConnectionInProgress: true });
     try {
-      connection = await makeAgoricKeplrConnection(
+      const connection = await makeAgoricKeplrConnection(
         networkConfigUrl,
         importContext,
       );

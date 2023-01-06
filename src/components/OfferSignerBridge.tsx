@@ -12,6 +12,7 @@ import {
 } from 'store/app';
 import type { OfferConfig } from 'store/app';
 
+// UNTIL https://github.com/Agoric/agoric-sdk/issues/6591
 type BridgeReadyMessage = {
   detail: {
     data: {
@@ -99,12 +100,11 @@ const WalletBridge = () => {
     const {
       detail: { isDappApproved, requestDappConnection, addOffer },
     } = ev;
+    setOfferSigner({ addOffer, isDappApproved });
     if (!isDappApproved) {
-      requestDappConnection('Inter Protocol PSM');
+      requestDappConnection('Inter Protocol UI');
       showWarningToast();
-      setOfferSigner({ addOffer, isDappApproved: false });
     } else {
-      setOfferSigner({ addOffer, isDappApproved: true });
       showConnectionSuccessfulToast();
     }
   };
@@ -130,9 +130,8 @@ const WalletBridge = () => {
   };
 
   const onBridgeMessage = (ev: BridgeMessage) => {
-    const data = ev.detail.data;
-    const type = data.type;
-    switch (type) {
+    const { data } = ev.detail;
+    switch (data.type) {
       case BridgeProtocol.dappApprovalChanged:
         setIsDappApproved(data.isDappApproved);
         if (data.isDappApproved) {
