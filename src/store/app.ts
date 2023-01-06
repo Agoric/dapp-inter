@@ -70,6 +70,8 @@ export const displayFunctionsAtom = atom(get => {
 
 export const walletServiceAtom = atom(get => get(appAtom).walletService);
 
+export const pursesAtom = atom(get => get(appAtom).purses);
+
 export const isWalletConnectionInProgressAtom = atom(
   get => get(appAtom).isWalletConnectionInProgress,
 );

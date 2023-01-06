@@ -49,14 +49,18 @@ export const makeWalletService = () => {
   };
 
   const connect = async (networkConfigUrl: string) => {
-    const { isWalletConnectionInProgress, chainConnection } =
+    const { isWalletConnectionInProgress, chainConnection, importContext } =
       appStore.getState();
+
     if (isWalletConnectionInProgress || chainConnection) return;
 
     let connection;
     appStore.setState({ isWalletConnectionInProgress: true });
     try {
-      connection = await makeAgoricKeplrConnection(networkConfigUrl);
+      connection = await makeAgoricKeplrConnection(
+        networkConfigUrl,
+        importContext,
+      );
       appStore.setState({ chainConnection: connection });
       stopWatchingPurses = watchPurses(connection);
       clearToast();
