@@ -101,11 +101,11 @@ const WalletBridge = () => {
       detail: { isDappApproved, requestDappConnection, addOffer },
     } = ev;
     setOfferSigner({ addOffer, isDappApproved });
-    if (!isDappApproved) {
+    if (isDappApproved) {
+      showConnectionSuccessfulToast();
+    } else {
       requestDappConnection('Inter Protocol UI');
       showWarningToast();
-    } else {
-      showConnectionSuccessfulToast();
     }
   };
 
