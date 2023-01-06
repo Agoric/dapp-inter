@@ -24,3 +24,9 @@ export const networkConfigs = {
     url: 'http://wallet.agoric.app/wallet/network-config',
   },
 };
+
+export const prodSignerHref = 'https://wallet.agoric.app/wallet/';
+export const prodBridgeHref = prodSignerHref + 'bridge.html';
+export const localBridgeHref = 'http://localhost:3000/wallet/bridge.html';
+export const branchBridgeHref = (branchName: string) =>
+  `https://${branchName}.wallet-app.pages.dev/wallet/bridge.html`;

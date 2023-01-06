@@ -1,7 +1,8 @@
 import { useAtomValue } from 'jotai';
-import { displayFunctionsAtom } from 'store/app';
+import { displayFunctionsAtom, pursesAtom } from 'store/app';
 import { useVaultStore } from 'store/vaults';
 import NewVault from './NewVault';
+import type { Amount } from '@agoric/ertp/src/types';
 
 const CollateralChoice = ({ id }: { id: string }) => {
   const {
@@ -13,6 +14,7 @@ const CollateralChoice = ({ id }: { id: string }) => {
     priceErrors,
   } = useVaultStore();
 
+  const purses = useAtomValue(pursesAtom);
   const manager = vaultManagers.get(id);
   const metrics = vaultMetrics.get(id);
   const params = vaultGovernedParams.get(id);
@@ -41,6 +43,19 @@ const CollateralChoice = ({ id }: { id: string }) => {
     displayPrice,
     displayPriceTimestamp,
   } = displayFunctions;
+
+  const purseBalance = (() => {
+    if (purses === null) {
+      return '<Wallet not connected>';
+    }
+    const purse = purses.find(p => p.brand === brand);
+    if (!purse) {
+      return '0 ' + displayBrandPetname(brand);
+    }
+    return `${displayAmount(
+      purse.currentAmount as Amount<'nat'>,
+    )} ${displayBrandPetname(brand)}`;
+  })();
 
   const content = isLoading ? (
     <div>Loading...</div>
@@ -95,6 +110,7 @@ const CollateralChoice = ({ id }: { id: string }) => {
         {displayAmount(metrics.totalShortfallReceived)}{' '}
         {displayBrandPetname(metrics.totalShortfallReceived.brand)}
       </p>
+      <p>Purse Balance: {purseBalance}</p>
       <NewVault id={id} />
     </>
   );
