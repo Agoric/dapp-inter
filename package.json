@@ -18,7 +18,7 @@
     "@agoric/ertp": "^0.15.4-dev-0d0f8f3.0",
     "@agoric/ui-components": "^0.3.4-dev-f5341af.0",
     "@agoric/wallet": "^0.17.1-dev-0153ef0.0",
-    "@agoric/web-components": "^0.5.1-dev-f39eda5.0",
+    "@agoric/web-components": "^0.5.1-dev-669ad6d.0",
     "@endo/eventual-send": "^0.16.0",
     "@endo/init": "^0.5.43",
     "@endo/marshal": "^0.8.1",
