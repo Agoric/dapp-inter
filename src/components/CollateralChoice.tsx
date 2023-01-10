@@ -12,6 +12,8 @@ const CollateralChoice = ({ id }: { id: string }) => {
     vaultMetrics,
     prices,
     priceErrors,
+    vaultFactoryParams,
+    vaultFactoryParamsLoadingError,
   } = useVaultStore();
 
   const purses = useAtomValue(pursesAtom);
@@ -21,7 +23,10 @@ const CollateralChoice = ({ id }: { id: string }) => {
   const brand = metrics?.retainedCollateral?.brand;
   const price = brand && prices.get(brand);
 
-  const error = vaultLoadingErrors.get(id) || (brand && priceErrors.get(brand));
+  const error =
+    vaultLoadingErrors.get(id) ||
+    (brand && priceErrors.get(brand)) ||
+    vaultFactoryParamsLoadingError;
   const displayFunctions = useAtomValue(displayFunctionsAtom);
   if (error || !displayFunctions) {
     return (
@@ -35,7 +40,13 @@ const CollateralChoice = ({ id }: { id: string }) => {
     );
   }
 
-  const isLoading = !(manager && metrics && params && price);
+  const isLoading = !(
+    manager &&
+    metrics &&
+    params &&
+    price &&
+    vaultFactoryParams
+  );
   const {
     displayAmount,
     displayBrandPetname,
@@ -110,7 +121,11 @@ const CollateralChoice = ({ id }: { id: string }) => {
         {displayAmount(metrics.totalShortfallReceived)}{' '}
         {displayBrandPetname(metrics.totalShortfallReceived.brand)}
       </p>
-      <p>Purse Balance: {purseBalance}</p>
+      <p>Purse balance: {purseBalance}</p>
+      <p>
+        Minimum initial debt: {displayAmount(vaultFactoryParams.minInitialDebt)}{' '}
+        {displayBrandPetname(vaultFactoryParams.minInitialDebt.brand)}
+      </p>
       <NewVault id={id} />
     </>
   );

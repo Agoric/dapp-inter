@@ -88,21 +88,25 @@ const watchPriceFeeds = () => {
   };
 };
 
-type GovernedParamsUpdate = {
-  value: {
-    current: {
-      DebtLimit: ValuePossessor<Amount<'nat'>>;
-      InterestRate: ValuePossessor<Ratio>;
-      LiquidationPenalty: ValuePossessor<Ratio>;
-      LiquidationMargin: ValuePossessor<Ratio>;
-      LoanFee: ValuePossessor<Ratio>;
-    };
+type GovernedParamsUpdate = ValuePossessor<{
+  current: {
+    DebtLimit: ValuePossessor<Amount<'nat'>>;
+    InterestRate: ValuePossessor<Ratio>;
+    LiquidationPenalty: ValuePossessor<Ratio>;
+    LiquidationMargin: ValuePossessor<Ratio>;
+    LoanFee: ValuePossessor<Ratio>;
   };
-};
+}>;
 
 type MetricsUpdate = ValuePossessor<VaultMetrics>;
 
 type VaultManagerUpdate = ValuePossessor<VaultManager>;
+
+type VaultFactoryParamsUpdate = ValuePossessor<{
+  current: { MinInitialDebt: ValuePossessor<Amount<'nat'>> };
+}>;
+
+type AgoricInstancesUpdate = ValuePossessor<Array<[string, unknown]>>;
 
 export const watchVaultFactory = (netconfigUrl: string) => {
   let isStopped = false;
@@ -157,6 +161,37 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
+  const watchVaultFactoryParams = async () => {
+    const path = ':published.vaultFactory.governance';
+    const f = makeBoardFollower(path);
+    for await (const { value } of iterateLatest<VaultFactoryParamsUpdate>(f)) {
+      if (isStopped) break;
+      console.debug('got update', path, value);
+      useVaultStore.setState({
+        vaultFactoryParams: {
+          minInitialDebt: value.current.MinInitialDebt.value,
+        },
+      });
+    }
+  };
+
+  const watchVaultFactoryInstanceHandle = async () => {
+    const path = ':published.agoricNames.instance';
+    const f = makeBoardFollower(path);
+    for await (const { value } of iterateLatest<AgoricInstancesUpdate>(f)) {
+      if (isStopped) break;
+      console.debug('got update', path, value);
+      const vaultFactoryInstanceHandle = value.find(
+        ([instanceName]) => instanceName === 'VaultFactory',
+      );
+      assert(
+        vaultFactoryInstanceHandle,
+        'Missing VaultFactory from agoricNames.instances',
+      );
+      useVaultStore.setState({ vaultFactoryInstanceHandle });
+    }
+  };
+
   const startWatching = async () => {
     let rpc;
     try {
@@ -193,6 +228,20 @@ export const watchVaultFactory = (netconfigUrl: string) => {
         useVaultStore.getState().setVaultLoadingError(id, e);
       }),
     );
+    watchVaultFactoryParams().catch(e => {
+      console.error('Error watching vault factory governed params', e);
+      useVaultStore.setState({
+        vaultFactoryParamsLoadingError:
+          'Error loading vault factorys governed parameters',
+      });
+    });
+    watchVaultFactoryInstanceHandle().catch(e => {
+      console.error('Error watching agoric instances', e);
+      useVaultStore.setState({
+        vaultFactoryInstanceHandleLoadingError:
+          'Error loading vault factory instance id',
+      });
+    });
   };
 
   startWatching();
