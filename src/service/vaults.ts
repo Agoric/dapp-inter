@@ -10,6 +10,8 @@ import { appStore } from 'store/app';
 import type { BrandInfo } from 'store/app';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 import type { Ratio } from 'store/vaults';
+import { toast } from 'react-toastify';
+import { CapData } from '@endo/marshal';
 
 const issuerPetnameToPriceFeed = new Map<string, string>([
   ['IbcATOM', 'ATOM-USD_price_feed'],
@@ -181,14 +183,11 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     for await (const { value } of iterateLatest<AgoricInstancesUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
-      const vaultFactoryInstanceHandle = value.find(
+      const instanceEntry = value.find(
         ([instanceName]) => instanceName === 'VaultFactory',
       );
-      assert(
-        vaultFactoryInstanceHandle,
-        'Missing VaultFactory from agoricNames.instances',
-      );
-      useVaultStore.setState({ vaultFactoryInstanceHandle });
+      assert(instanceEntry, 'Missing VaultFactory from agoricNames.instances');
+      useVaultStore.setState({ vaultFactoryInstanceHandle: instanceEntry[1] });
     }
   };
 
@@ -251,4 +250,47 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     isStopped = true;
     stopWatchingPriceFeeds();
   };
+};
+
+export const makeOpenVaultOffer = async (
+  fundPursePetname: string,
+  toLock: bigint,
+  intoPursePetname: string,
+  toBorrow: bigint,
+) => {
+  const INVITATION_METHOD = 'makeLoanInvitation';
+
+  const { vaultFactoryInstanceHandle } = useVaultStore.getState();
+  const { importContext, offerSigner } = appStore.getState();
+  const serializedInstance = importContext.fromBoard.serialize(
+    vaultFactoryInstanceHandle,
+  ) as CapData<'Instance'>;
+
+  const offerConfig = {
+    publicInvitationMaker: INVITATION_METHOD,
+    instanceHandle: serializedInstance,
+    proposalTemplate: {
+      give: {
+        Collateral: {
+          pursePetname: fundPursePetname,
+          value: Number(toLock),
+        },
+      },
+      want: {
+        Minted: {
+          pursePetname: intoPursePetname,
+          value: Number(toBorrow),
+        },
+      },
+    },
+  };
+
+  try {
+    assert(offerSigner.addOffer);
+    offerSigner.addOffer(offerConfig);
+    console.log('Offer proposed', offerConfig);
+  } catch (e: unknown) {
+    console.error(e);
+    toast.error('Unable to propose offer.');
+  }
 };
