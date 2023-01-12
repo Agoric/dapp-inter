@@ -40,13 +40,7 @@ const CollateralChoice = ({ id }: { id: string }) => {
     );
   }
 
-  const isLoading = !(
-    manager &&
-    metrics &&
-    params &&
-    price &&
-    vaultFactoryParams
-  );
+  const isReady = manager && metrics && params && price && vaultFactoryParams;
   const {
     displayAmount,
     displayBrandPetname,
@@ -68,9 +62,7 @@ const CollateralChoice = ({ id }: { id: string }) => {
     )} ${displayBrandPetname(brand)}`;
   })();
 
-  const content = isLoading ? (
-    <div>Loading...</div>
-  ) : (
+  const content = isReady ? (
     <>
       <p>Asset price: {displayPrice(price)}</p>
       <p>Last price update: {displayPriceTimestamp(price)}</p>
@@ -128,6 +120,8 @@ const CollateralChoice = ({ id }: { id: string }) => {
       </p>
       <NewVault id={id} />
     </>
+  ) : (
+    <div>Loading...</div>
   );
 
   return (

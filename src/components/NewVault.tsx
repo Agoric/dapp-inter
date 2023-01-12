@@ -26,29 +26,32 @@ const NewVault = ({ id }: Props) => {
     (brand && priceErrors.get(brand)) ||
     vaultFactoryParamsLoadingError;
 
-  const offerSigner = useAtomValue(offerSignerAtom);
-  const isReady =
-    manager &&
-    metrics &&
-    params &&
-    price &&
-    !error &&
-    offerSigner.isDappApproved;
-
   const purses = useAtomValue(pursesAtom);
   const istPurse = purses?.find(p => p.brand === metrics?.totalDebt?.brand);
   const collateralPurse = purses?.find(
     p => p.brand === metrics?.retainedCollateral?.brand,
   );
 
-  const IST_TO_BORROW = 5_000_000n; // 5 IST
+  const offerSigner = useAtomValue(offerSignerAtom);
+  const isReady =
+    manager &&
+    metrics &&
+    params &&
+    price &&
+    istPurse &&
+    collateralPurse &&
+    !error &&
+    offerSigner.isDappApproved;
 
-  // TODO: Calculate these based on user inputs and actual prices and liquidation ratios.
+  // XXX: Calculate these based on user inputs and actual prices and liquidation ratios.
+  const IST_TO_BORROW = 5_000_000n; // 5 IST
+  const COLLATERAL_TO_LOCK = 10_000_000_000n; // 1 million IbcATOM
   const proposeOffer = () => {
+    assert(isReady);
     makeOpenVaultOffer(
-      collateralPurse?.pursePetname,
-      10_000_000_000n,
-      istPurse?.pursePetname,
+      collateralPurse.pursePetname,
+      COLLATERAL_TO_LOCK,
+      istPurse.pursePetname,
       IST_TO_BORROW,
     );
   };

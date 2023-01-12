@@ -8,6 +8,11 @@ import type { BrandInfo } from 'store/app';
 import type { PriceDescription, Ratio } from 'store/vaults';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 
+// XXX: Kludge until we get a price authority with the same brands vault
+// manager uses https://github.com/Agoric/agoric-sdk/issues/6765.
+const PRICE_BRAND_UNIT_AMOUNT = 1_000_000n;
+const USD_BRAND_DECIMALS = 6;
+
 const getLogoForBrandPetname = (brandPetname: string) => {
   switch (brandPetname) {
     case 'IST':
@@ -65,8 +70,6 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
     getLogoForBrandPetname(getPetname(brand));
 
   const displayPrice = (price: PriceDescription) => {
-    const PRICE_BRAND_UNIT_AMOUNT = 1_000_000n;
-    const USD_BRAND_DECIMALS = 6;
     const givenUnitsOfBrandIn = price.amountIn.value / PRICE_BRAND_UNIT_AMOUNT;
     const pricePerUnitOfBrandIn = price.amountOut.value / givenUnitsOfBrandIn;
     return (
