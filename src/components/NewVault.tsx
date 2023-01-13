@@ -8,7 +8,7 @@ type Props = { id: string };
 const NewVault = ({ id }: Props) => {
   const {
     vaultGovernedParams,
-    vaultLoadingErrors,
+    vaultManagerLoadingErrors,
     vaultManagers,
     vaultMetrics,
     prices,
@@ -22,7 +22,7 @@ const NewVault = ({ id }: Props) => {
   const price = brand && prices.get(brand);
 
   const error =
-    vaultLoadingErrors.get(id) ||
+    vaultManagerLoadingErrors.get(id) ||
     (brand && priceErrors.get(brand)) ||
     vaultFactoryParamsLoadingError;
 

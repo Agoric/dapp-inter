@@ -1,7 +1,9 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import {
+  keyForVault,
   PriceDescription,
   useVaultStore,
+  VaultInfoChainData,
   VaultManager,
   VaultMetrics,
 } from 'store/vaults';
@@ -110,6 +112,8 @@ type VaultFactoryParamsUpdate = ValuePossessor<{
 
 type AgoricInstancesUpdate = ValuePossessor<Array<[string, unknown]>>;
 
+type VaultUpdate = ValuePossessor<VaultInfoChainData>;
+
 export const watchVaultFactory = (netconfigUrl: string) => {
   let isStopped = false;
   const { leader, importContext } = appStore.getState();
@@ -140,6 +144,50 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
+  const watchVault = async (managerId: string, vaultId: string) => {
+    const { leader, importContext } = appStore.getState();
+    const path = `:published.vaultFactory.${managerId}.vaults.${vaultId}`;
+    const f = makeFollower(path, leader, {
+      unserializer: importContext.fromBoard,
+    });
+
+    for await (const { value } of iterateLatest<VaultUpdate>(f)) {
+      if (isStopped) break;
+      console.debug('got update', path, value);
+      useVaultStore
+        .getState()
+        .setVault(keyForVault(managerId, vaultId), { managerId, ...value });
+    }
+  };
+
+  // XXX: Filter only by user's vaults when possible https://github.com/Agoric/agoric-sdk/issues/6665.
+  const watchVaults = async (managerId: string, rpc: string) => {
+    let vaultIds;
+    try {
+      const res = await fetchVstorageKeys(
+        rpc,
+        `published.vaultFactory.${managerId}.vaults`,
+      );
+      vaultIds = res.children as string[];
+      assert(vaultIds);
+    } catch (e) {
+      if (isStopped) return;
+      const msg = `Error fetching vault ids for ${managerId}`;
+      console.error(msg, e);
+      return;
+    }
+    if (isStopped) return;
+
+    vaultIds.forEach(vaultId =>
+      watchVault(managerId, vaultId).catch(e => {
+        console.error(`Error watching vault ${managerId} ${vaultId}`);
+        useVaultStore
+          .getState()
+          .setVaultError(keyForVault(managerId, vaultId), e);
+      }),
+    );
+  };
+
   const watchMetrics = async (id: string) => {
     const path = `:published.vaultFactory.${id}.metrics`;
     const f = makeBoardFollower(path);
@@ -150,7 +198,8 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
-  const watchManager = async (id: string) => {
+  const watchManager = async (id: string, rpc: string) => {
+    watchVaults(id, rpc);
     watchGovernedParams(id);
     watchMetrics(id);
 
@@ -192,14 +241,14 @@ export const watchVaultFactory = (netconfigUrl: string) => {
   };
 
   const startWatching = async () => {
-    let rpc;
+    let rpc: string;
     try {
       rpc = await fetchRPCAddr(netconfigUrl);
     } catch (e) {
       if (isStopped) return;
       const msg = 'Error fetching RPC address from network config';
       console.error(msg, netconfigUrl, e);
-      useVaultStore.setState({ vaultIdsLoadingError: msg });
+      useVaultStore.setState({ managerIdsLoadingError: msg });
       return;
     }
     if (isStopped) return;
@@ -215,16 +264,16 @@ export const watchVaultFactory = (netconfigUrl: string) => {
       if (isStopped) return;
       const msg = 'Error fetching vault managers';
       console.error(msg, e);
-      useVaultStore.setState({ vaultIdsLoadingError: msg });
+      useVaultStore.setState({ managerIdsLoadingError: msg });
       return;
     }
     if (isStopped) return;
 
     useVaultStore.setState({ vaultManagerIds: managerIds });
     managerIds.forEach(id =>
-      watchManager(id).catch(e => {
+      watchManager(id, rpc).catch(e => {
         console.error('Error watching vault manager id', id, e);
-        useVaultStore.getState().setVaultLoadingError(id, e);
+        useVaultStore.getState().setVaultManagerLoadingError(id, e);
       }),
     );
     watchVaultFactoryParams().catch(e => {

@@ -18,15 +18,15 @@ const Vaults = () => {
     };
   }, [leader, netConfig]);
 
-  const { vaultIdsLoadingError, vaultManagerIds } = useVaultStore();
+  const { managerIdsLoadingError, vaultManagerIds } = useVaultStore();
   const { watchVbankError, brandToInfo } = useAtomValue(appAtom);
 
   return (
     <>
       <h1>Vaults</h1>
-      {vaultIdsLoadingError && <div>{vaultIdsLoadingError}</div>}
+      {managerIdsLoadingError && <div>{managerIdsLoadingError}</div>}
       {watchVbankError && <div>{watchVbankError}</div>}
-      {!vaultIdsLoadingError &&
+      {!managerIdsLoadingError &&
         !watchVbankError &&
         !(vaultManagerIds && brandToInfo) && (
           <div>Loading collateral choices...</div>
