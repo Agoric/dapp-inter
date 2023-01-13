@@ -40,7 +40,7 @@ export type VaultFactoryParams = {
 };
 
 export type VaultInfoChainData = {
-  debtSnapShot: {
+  debtSnapshot: {
     debt: Amount<'nat'>;
     interest: Ratio;
   };
@@ -52,7 +52,7 @@ export type VaultInfo = VaultInfoChainData & {
   managerId: string;
 };
 
-type VaultKey = string;
+export type VaultKey = string;
 export const keyForVault = (managerId: string, vaultId: string) =>
   `${managerId}.${vaultId}` as VaultKey;
 
