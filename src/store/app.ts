@@ -83,8 +83,8 @@ export const isWalletConnectionInProgressAtom = atom(
 
 export const offerSignerAtom = atom(
   get => get(appAtom).offerSigner,
-  (_get, set, newBridge: OfferSigner) =>
-    set(appAtom, state => ({ ...state, walletBridge: newBridge })),
+  (_get, set, offerSigner: OfferSigner) =>
+    set(appAtom, state => ({ ...state, offerSigner })),
 );
 
 export const setIsDappApprovedAtom = atom(

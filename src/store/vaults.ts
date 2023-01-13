@@ -35,8 +35,14 @@ export type VaultManager = {
   latestInterestUpdate: bigint;
 };
 
+export type VaultFactoryParams = {
+  minInitialDebt: Amount<'nat'>;
+};
+
 interface VaultState {
   vaultIdsLoadingError: string | null;
+  vaultFactoryParamsLoadingError: string | null;
+  vaultFactoryInstanceHandleLoadingError: string | null;
   vaultLoadingErrors: Map<string, unknown>;
   vaultManagerIds: string[] | null;
   vaultManagers: Map<string, VaultManager>;
@@ -44,6 +50,8 @@ interface VaultState {
   vaultMetrics: Map<string, VaultMetrics>;
   prices: Map<Brand, PriceDescription>;
   priceErrors: Map<Brand, unknown>;
+  vaultFactoryParams: VaultFactoryParams | null;
+  vaultFactoryInstanceHandle: unknown;
   setPrice: (brand: Brand, price: PriceDescription) => void;
   setPriceError: (brand: Brand, e: unknown) => void;
   setVaultLoadingError: (id: string, error: unknown) => void;
@@ -54,9 +62,13 @@ interface VaultState {
 
 export const useVaultStore = create<VaultState>()(set => ({
   vaultIdsLoadingError: null,
+  vaultFactoryParamsLoadingError: null,
+  vaultFactoryInstanceHandleLoadingError: null,
   vaultLoadingErrors: new Map(),
   vaultManagerIds: null,
   vaultManagers: new Map(),
+  vaultFactoryParams: null,
+  vaultFactoryInstanceHandle: null,
   vaultGovernedParams: new Map<string, VaultParams>(),
   vaultMetrics: new Map<string, VaultMetrics>(),
   prices: new Map<Brand, PriceDescription>(),

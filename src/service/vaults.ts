@@ -10,6 +10,8 @@ import { appStore } from 'store/app';
 import type { BrandInfo } from 'store/app';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 import type { Ratio } from 'store/vaults';
+import { toast } from 'react-toastify';
+import { CapData } from '@endo/marshal';
 
 const issuerPetnameToPriceFeed = new Map<string, string>([
   ['IbcATOM', 'ATOM-USD_price_feed'],
@@ -88,21 +90,25 @@ const watchPriceFeeds = () => {
   };
 };
 
-type GovernedParamsUpdate = {
-  value: {
-    current: {
-      DebtLimit: ValuePossessor<Amount<'nat'>>;
-      InterestRate: ValuePossessor<Ratio>;
-      LiquidationPenalty: ValuePossessor<Ratio>;
-      LiquidationMargin: ValuePossessor<Ratio>;
-      LoanFee: ValuePossessor<Ratio>;
-    };
+type GovernedParamsUpdate = ValuePossessor<{
+  current: {
+    DebtLimit: ValuePossessor<Amount<'nat'>>;
+    InterestRate: ValuePossessor<Ratio>;
+    LiquidationPenalty: ValuePossessor<Ratio>;
+    LiquidationMargin: ValuePossessor<Ratio>;
+    LoanFee: ValuePossessor<Ratio>;
   };
-};
+}>;
 
 type MetricsUpdate = ValuePossessor<VaultMetrics>;
 
 type VaultManagerUpdate = ValuePossessor<VaultManager>;
+
+type VaultFactoryParamsUpdate = ValuePossessor<{
+  current: { MinInitialDebt: ValuePossessor<Amount<'nat'>> };
+}>;
+
+type AgoricInstancesUpdate = ValuePossessor<Array<[string, unknown]>>;
 
 export const watchVaultFactory = (netconfigUrl: string) => {
   let isStopped = false;
@@ -157,6 +163,34 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
+  const watchVaultFactoryParams = async () => {
+    const path = ':published.vaultFactory.governance';
+    const f = makeBoardFollower(path);
+    for await (const { value } of iterateLatest<VaultFactoryParamsUpdate>(f)) {
+      if (isStopped) break;
+      console.debug('got update', path, value);
+      useVaultStore.setState({
+        vaultFactoryParams: {
+          minInitialDebt: value.current.MinInitialDebt.value,
+        },
+      });
+    }
+  };
+
+  const watchVaultFactoryInstanceHandle = async () => {
+    const path = ':published.agoricNames.instance';
+    const f = makeBoardFollower(path);
+    for await (const { value } of iterateLatest<AgoricInstancesUpdate>(f)) {
+      if (isStopped) break;
+      console.debug('got update', path, value);
+      const instanceEntry = value.find(
+        ([instanceName]) => instanceName === 'VaultFactory',
+      );
+      assert(instanceEntry, 'Missing VaultFactory from agoricNames.instances');
+      useVaultStore.setState({ vaultFactoryInstanceHandle: instanceEntry[1] });
+    }
+  };
+
   const startWatching = async () => {
     let rpc;
     try {
@@ -193,6 +227,20 @@ export const watchVaultFactory = (netconfigUrl: string) => {
         useVaultStore.getState().setVaultLoadingError(id, e);
       }),
     );
+    watchVaultFactoryParams().catch(e => {
+      console.error('Error watching vault factory governed params', e);
+      useVaultStore.setState({
+        vaultFactoryParamsLoadingError:
+          'Error loading vault factorys governed parameters',
+      });
+    });
+    watchVaultFactoryInstanceHandle().catch(e => {
+      console.error('Error watching agoric instances', e);
+      useVaultStore.setState({
+        vaultFactoryInstanceHandleLoadingError:
+          'Error loading vault factory instance id',
+      });
+    });
   };
 
   startWatching();
@@ -202,4 +250,47 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     isStopped = true;
     stopWatchingPriceFeeds();
   };
+};
+
+export const makeOpenVaultOffer = async (
+  fundPursePetname: string,
+  toLock: bigint,
+  intoPursePetname: string,
+  toBorrow: bigint,
+) => {
+  const INVITATION_METHOD = 'makeLoanInvitation';
+
+  const { vaultFactoryInstanceHandle } = useVaultStore.getState();
+  const { importContext, offerSigner } = appStore.getState();
+  const serializedInstance = importContext.fromBoard.serialize(
+    vaultFactoryInstanceHandle,
+  ) as CapData<'Instance'>;
+
+  const offerConfig = {
+    publicInvitationMaker: INVITATION_METHOD,
+    instanceHandle: serializedInstance,
+    proposalTemplate: {
+      give: {
+        Collateral: {
+          pursePetname: fundPursePetname,
+          value: Number(toLock),
+        },
+      },
+      want: {
+        Minted: {
+          pursePetname: intoPursePetname,
+          value: Number(toBorrow),
+        },
+      },
+    },
+  };
+
+  try {
+    assert(offerSigner.addOffer);
+    offerSigner.addOffer(offerConfig);
+    console.log('Offer proposed', offerConfig);
+  } catch (e: unknown) {
+    console.error(e);
+    toast.error('Unable to propose offer.');
+  }
 };

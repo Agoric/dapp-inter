@@ -5,8 +5,13 @@ import {
 } from '@agoric/ui-components';
 import { AssetKind } from '@agoric/ertp';
 import type { BrandInfo } from 'store/app';
-import type { PriceQuote, Ratio } from 'store/vaults';
+import type { PriceDescription, Ratio } from 'store/vaults';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
+
+// XXX: Kludge until we get a price authority with the same brands vault
+// manager uses https://github.com/Agoric/agoric-sdk/issues/6765.
+const PRICE_BRAND_UNIT_AMOUNT = 1_000_000n;
+const USD_BRAND_DECIMALS = 6;
 
 const getLogoForBrandPetname = (brandPetname: string) => {
   switch (brandPetname) {
@@ -64,11 +69,16 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const displayBrandIcon = (brand?: Brand | null) =>
     getLogoForBrandPetname(getPetname(brand));
 
-  const displayPrice = (price: PriceQuote) => {
-    return '$' + stringifyValue(price.amountOut.value, AssetKind.NAT, 2);
+  const displayPrice = (price: PriceDescription) => {
+    const givenUnitsOfBrandIn = price.amountIn.value / PRICE_BRAND_UNIT_AMOUNT;
+    const pricePerUnitOfBrandIn = price.amountOut.value / givenUnitsOfBrandIn;
+    return (
+      '$' +
+      stringifyValue(pricePerUnitOfBrandIn, AssetKind.NAT, USD_BRAND_DECIMALS)
+    );
   };
 
-  const displayPriceTimestamp = (price: PriceQuote) => {
+  const displayPriceTimestamp = (price: PriceDescription) => {
     return new Date(Number(price.timestamp) * 1000).toUTCString();
   };
 
