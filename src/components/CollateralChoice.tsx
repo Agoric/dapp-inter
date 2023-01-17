@@ -7,7 +7,7 @@ import type { Amount } from '@agoric/ertp/src/types';
 const CollateralChoice = ({ id }: { id: string }) => {
   const {
     vaultGovernedParams,
-    vaultLoadingErrors,
+    vaultManagerLoadingErrors,
     vaultManagers,
     vaultMetrics,
     prices,
@@ -24,7 +24,7 @@ const CollateralChoice = ({ id }: { id: string }) => {
   const price = brand && prices.get(brand);
 
   const error =
-    vaultLoadingErrors.get(id) ||
+    vaultManagerLoadingErrors.get(id) ||
     (brand && priceErrors.get(brand)) ||
     vaultFactoryParamsLoadingError;
   const displayFunctions = useAtomValue(displayFunctionsAtom);
