@@ -5,30 +5,30 @@ import { displayFunctionsAtom } from 'store/app';
 import type { VaultKey } from 'store/vaults';
 
 type Props = {
-  id: VaultKey;
+  vaultKey: VaultKey;
 };
 
-const VaultSummary = ({ id }: Props) => {
+const VaultSummary = ({ vaultKey }: Props) => {
   const { vaults, errors } = useVaultStore(state => ({
     vaults: state.vaults,
     errors: state.vaultErrors,
   }));
-  const vault = vaults.get(id);
-  const error = errors.get(id);
+  const vault = vaults.get(vaultKey);
+  const error = errors.get(vaultKey);
   const displayFunctions = useAtomValue(displayFunctionsAtom);
 
   return useMemo(() => {
-    assert(vault, `Cannot render summary for nonexistent vault ${id}`);
+    assert(vault, `Cannot render summary for nonexistent vault ${vaultKey}`);
     assert(
       displayFunctions,
-      `Cannot render summary for vault ${id} - missing vbank asset info.`,
+      `Cannot render summary for vault ${vaultKey} - missing vbank asset info.`,
     );
     const { displayAmount, displayBrandPetname } = displayFunctions;
 
     if (error) {
       return (
         <div className="p-4 pt-2 border border-black border-solid">
-          <h3>{id}</h3>
+          <h3>{vaultKey}</h3>
           <p>Error: {error.toString()}</p>
         </div>
       );
@@ -37,7 +37,7 @@ const VaultSummary = ({ id }: Props) => {
     // TODO: Calculate and display total debt correctly.
     return (
       <div className="p-4 pt-2 border border-black border-solid">
-        <h3>{id}</h3>
+        <h3>{vaultKey}</h3>
         <p>Status: {vault.vaultState}</p>
         <p>
           Locked: {displayAmount(vault.locked)}{' '}
@@ -45,7 +45,7 @@ const VaultSummary = ({ id }: Props) => {
         </p>
       </div>
     );
-  }, [vault, error, id, displayFunctions]);
+  }, [vault, error, vaultKey, displayFunctions]);
 };
 
 export default VaultSummary;

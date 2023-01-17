@@ -7,7 +7,9 @@ const ManageVaults = () => {
   const vaults = useVaultStore(state => state.vaults);
   const displayFunctions = useAtomValue(displayFunctionsAtom);
   const content = displayFunctions ? (
-    [...vaults.entries()].map(([key]) => <VaultSummary id={key} key={key} />)
+    [...vaults.entries()].map(([key]) => (
+      <VaultSummary key={key} vaultKey={key} />
+    ))
   ) : (
     <p>Loading...</p>
   );

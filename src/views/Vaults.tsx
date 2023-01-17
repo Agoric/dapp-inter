@@ -6,16 +6,14 @@ import CollateralChoices from 'components/CollateralChoices';
 import ManageVaults from 'components/ManageVaults';
 import { useVaultStore } from 'store/vaults';
 
-const Modes = {
-  create: 0,
-  manage: 1,
-};
+enum Mode {
+  Create,
+  Manage,
+}
 
 const Vaults = () => {
   const netConfig = useAtomValue(networkConfigAtom);
   const leader = useAtomValue(leaderAtom);
-  const [mode, setMode] = useState(Modes.create);
-
   useEffect(() => {
     if (!leader) return;
     const cleanup = watchVaultFactory(netConfig.url);
@@ -27,54 +25,36 @@ const Vaults = () => {
 
   const { managerIdsLoadingError, vaultManagerIds } = useVaultStore();
   const { watchVbankError, brandToInfo } = useAtomValue(appAtom);
+  const [mode, setMode] = useState(Mode.Create);
 
-  const create = (
-    <>
-      {!managerIdsLoadingError &&
-        !watchVbankError &&
-        !(vaultManagerIds && brandToInfo) && (
-          <div>Loading collateral choices...</div>
-        )}
-      {vaultManagerIds && brandToInfo && <CollateralChoices />}
-    </>
-  );
+  const contentForMode = {
+    [Mode.Create]: () => (
+      <>
+        {!managerIdsLoadingError &&
+          !watchVbankError &&
+          !(vaultManagerIds && brandToInfo) && (
+            <div>Loading collateral choices...</div>
+          )}
+        {vaultManagerIds && brandToInfo && <CollateralChoices />}
+      </>
+    ),
+    [Mode.Manage]: () => <ManageVaults />,
+  };
+  const content = contentForMode[mode]();
 
-  const manage = <ManageVaults />;
-
-  const buttonText = (() => {
-    switch (mode) {
-      case Modes.create:
-        return 'Back to Manage Vaults';
-      case Modes.manage:
-        return 'Add New Vault';
-      default:
-        return 'Manage Vaults';
-    }
-  })();
-
-  const content = (() => {
-    switch (mode) {
-      case Modes.create:
-        return create;
-      case Modes.manage:
-        return manage;
-      default:
-        return create;
-    }
-  })();
-
-  const switchMode = useCallback(() => {
-    switch (mode) {
-      case Modes.create:
-        setMode(Modes.manage);
-        break;
-      case Modes.manage:
-        setMode(Modes.create);
-        break;
-      default:
-        setMode(Modes.manage);
-    }
-  }, [mode]);
+  const manageVaultsButtonProps = {
+    text: 'Manage Vaults',
+    onClick: useCallback(() => setMode(Mode.Manage), [setMode]),
+  };
+  const createVaultButtonProps = {
+    text: 'Add New Vault',
+    onClick: useCallback(() => setMode(Mode.Create), [setMode]),
+  };
+  const buttonPropsForMode = {
+    [Mode.Create]: manageVaultsButtonProps,
+    [Mode.Manage]: createVaultButtonProps,
+  };
+  const buttonProps = buttonPropsForMode[mode];
 
   return (
     <>
@@ -82,9 +62,9 @@ const Vaults = () => {
       <div className="w-full flex justify-end">
         <button
           className="text-gray-50 font-medium text-xs uppercase flex flex-row justify-center items-center p-3 bg-purple-400 rounded-md"
-          onClick={switchMode}
+          onClick={buttonProps.onClick}
         >
-          {buttonText}
+          {buttonProps.text}
         </button>
       </div>
       {managerIdsLoadingError && <div>{managerIdsLoadingError}</div>}
