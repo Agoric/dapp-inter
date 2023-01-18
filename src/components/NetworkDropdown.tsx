@@ -45,13 +45,10 @@ const NetworkDropdown = () => {
   ));
 
   return (
-    <Menu as="div" className="relative inline-block text-left">
-      <Menu.Button className="inline-flex w-full justify-center rounded-md bg-black bg-opacity-5 px-4 py-3 text-md font-medium text-primary hover:bg-opacity-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
+    <Menu as="div" className="relative inline-block text-left h-11">
+      <Menu.Button className="inline-flex w-full justify-center items-center rounded-md bg-black bg-opacity-5 px-4 h-full text-md font-medium hover:bg-opacity-10 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75">
         {networkConfig.label}
-        <FiChevronDown
-          className="ml-2 -mr-1 h-6 w-5 text-primary"
-          aria-hidden="true"
-        />
+        <FiChevronDown className="ml-2 -mr-1 h-6 w-5" aria-hidden="true" />
       </Menu.Button>
       <Transition
         as={Fragment}

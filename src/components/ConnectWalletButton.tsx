@@ -20,16 +20,20 @@ const ConnectWalletButton = () => {
       return 'Connecting';
     } else if (chainConnection) {
       // TODO, add a way to call walletService.disconnect.
-      return 'Keplr Connected';
+      return `...${chainConnection.address.substring(
+        chainConnection.address.length - 7,
+      )} Connected`;
     }
-    return 'Connect Keplr';
+    return 'Connect Wallet';
   })();
 
   return (
     <button
       className={clsx(
-        'border border-primary group inline-flex items-center rounded-md px-3 py-2 bg-transparent text-base font-medium text-primary',
-        !isConnectionInProgress && !chainConnection && 'hover:bg-gray-100',
+        'uppercase box-border border-2 border-mineShaft h-11 inline-flex items-center justify-center rounded-[4px] w-44 py-2 bg-transparent text-xs font-black',
+        !isConnectionInProgress &&
+          !chainConnection &&
+          'hover:bg-black hover:bg-opacity-5',
       )}
       onClick={() => walletService.connect(url)}
     >
@@ -37,7 +41,7 @@ const ConnectWalletButton = () => {
         {status}
         {isConnectionInProgress && (
           <div className="ml-1">
-            <Oval color="#c084fc" height={18} width={18} />
+            <Oval color="var(--color-mineShaft)" height={18} width={18} />
           </div>
         )}
       </>

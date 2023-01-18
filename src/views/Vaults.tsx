@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { watchVaultFactory } from 'service/vaults';
 import CollateralChoices from 'components/CollateralChoices';
 import ManageVaults from 'components/ManageVaults';
+import MainContentCard from 'components/MainContentCard';
 import { useVaultStore } from 'store/vaults';
 
 enum Mode {
@@ -56,12 +57,28 @@ const Vaults = () => {
   };
   const buttonProps = buttonPropsForMode[mode];
 
+  const subheader = (
+    <div className="h-full flex flex-row items-center">
+      <div className="ml-16 h-fit">
+        <span className="font-medium font-serif text-[#736D6D] mr-2">
+          IST Outstanding
+        </span>
+        <span className="font-bold font-serif text-mineShaft">$ --</span>
+      </div>
+      <div className="ml-16 h-fit">
+        <span className="font-medium font-serif text-[#736D6D] mr-2">
+          Total Value Locked
+        </span>
+        <span className="font-bold font-serif text-mineShaft">$ --</span>
+      </div>
+    </div>
+  );
+
   return (
-    <>
-      <h1>Vaults</h1>
+    <MainContentCard subheader={subheader}>
       <div className="w-full flex justify-end">
         <button
-          className="text-gray-50 font-medium text-xs uppercase flex flex-row justify-center items-center p-3 bg-purple-400 rounded-md"
+          className="text-[#f9fafe] text-xs uppercase flex flex-row justify-center items-center p-3 bg-interPurple rounded-md shadow-[0_10px_14px_-4px_rgba(183,135,245,0.3)]"
           onClick={buttonProps.onClick}
         >
           {buttonProps.text}
@@ -70,7 +87,7 @@ const Vaults = () => {
       {managerIdsLoadingError && <div>{managerIdsLoadingError}</div>}
       {watchVbankError && <div>{watchVbankError}</div>}
       {content}
-    </>
+    </MainContentCard>
   );
 };
 
