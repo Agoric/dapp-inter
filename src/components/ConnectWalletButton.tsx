@@ -2,12 +2,16 @@ import { useAtomValue } from 'jotai';
 import { Oval } from 'react-loader-spinner';
 
 import {
+  ChainConnection,
   chainConnectionAtom,
   isWalletConnectionInProgressAtom,
   networkConfigAtom,
   walletServiceAtom,
 } from 'store/app';
 import clsx from 'clsx';
+
+const truncatedAddress = (chainConnection: ChainConnection) =>
+  chainConnection.address.substring(chainConnection.address.length - 7);
 
 const ConnectWalletButton = () => {
   const walletService = useAtomValue(walletServiceAtom);
@@ -20,9 +24,7 @@ const ConnectWalletButton = () => {
       return 'Connecting';
     } else if (chainConnection) {
       // TODO, add a way to call walletService.disconnect.
-      return `...${chainConnection.address.substring(
-        chainConnection.address.length - 7,
-      )} Connected`;
+      return `...${truncatedAddress(chainConnection)} Connected`;
     }
     return 'Connect Wallet';
   })();
