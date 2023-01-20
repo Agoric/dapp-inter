@@ -1,5 +1,5 @@
 import { makeAsyncIterableFromNotifier as iterateNotifier } from '@agoric/notifier';
-import { appStore } from 'store/app';
+import { appStore, ChainConnection, chainConnectionAtom } from 'store/app';
 import { toast } from 'react-toastify';
 import SmartWalletNotFoundToast from 'components/SmartWalletNotFoundToast';
 import {
@@ -8,7 +8,7 @@ import {
 } from '@agoric/web-components';
 import type { Id as ToastId, ToastContent, ToastOptions } from 'react-toastify';
 
-export const watchPurses = (chainConnection: { pursesNotifier: unknown }) => {
+export const watchPurses = (chainConnection: ChainConnection) => {
   let isCancelled = false;
 
   const watch = async () => {
@@ -30,12 +30,38 @@ export const watchPurses = (chainConnection: { pursesNotifier: unknown }) => {
   };
 };
 
+export const watchPublicSubscribers = (chainConnection: ChainConnection) => {
+  let isCancelled = false;
+
+  const watch = async () => {
+    const n = chainConnection.publicSubscribersNotifier;
+
+    for await (const offerIdsToPublicSubscribers of iterateNotifier(n)) {
+      if (isCancelled) return;
+      console.debug(
+        'got offer ids to public subscribers',
+        offerIdsToPublicSubscribers,
+      );
+      appStore.setState({ offerIdsToPublicSubscribers });
+    }
+  };
+  watch().catch((err: Error) => {
+    toast.error('There was a problem reading your vault info from the chain.');
+    console.error('got watchPublicSubscribers err', err);
+  });
+
+  return () => {
+    isCancelled = true;
+  };
+};
+
 type ConnectionError = {
   message: string;
 };
 
 export const makeWalletService = () => {
   let stopWatchingPurses: () => void;
+  let stopWatchingPublicSubscribers: () => void;
   let toastId: ToastId;
 
   const clearToast = () => {
@@ -62,6 +88,7 @@ export const makeWalletService = () => {
       );
       appStore.setState({ chainConnection: connection });
       stopWatchingPurses = watchPurses(connection);
+      stopWatchingPublicSubscribers = watchPublicSubscribers(connection);
       clearToast();
     } catch (e: unknown) {
       clearToast();
@@ -86,9 +113,13 @@ export const makeWalletService = () => {
 
   const disconnect = () => {
     stopWatchingPurses && stopWatchingPurses();
-    appStore.setState({ purses: null });
-    appStore.setState({ chainConnection: null });
-    appStore.setState({ offerSigner: { isDappApproved: false } });
+    stopWatchingPublicSubscribers && stopWatchingPublicSubscribers();
+    appStore.setState({
+      offerIdsToPublicSubscribers: null,
+      purses: null,
+      chainConnection: null,
+      offerSigner: { isDappApproved: false },
+    });
   };
 
   return { connect, disconnect };

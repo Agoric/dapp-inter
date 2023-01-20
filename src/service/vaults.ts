@@ -8,7 +8,7 @@ import {
   VaultMetrics,
 } from 'store/vaults';
 import { makeFollower, iterateLatest } from '@agoric/casting';
-import { appStore } from 'store/app';
+import { appStore, VStorageKey } from 'store/app';
 import type { BrandInfo } from 'store/app';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 import type { Ratio } from 'store/vaults';
@@ -92,6 +92,60 @@ const watchPriceFeeds = () => {
   };
 };
 
+type VaultSubscribers = {
+  asset: VStorageKey;
+  vault: VStorageKey;
+};
+
+const watchUserVaults = () => {
+  let isStopped = false;
+  const watchedVaults = new Set<string>();
+
+  const watchVault = async (offerId: string, subsciber: VStorageKey) => {
+    const { leader, importContext } = appStore.getState();
+    const f = makeFollower(subsciber, leader, {
+      unserializer: importContext.fromBoard,
+    });
+
+    for await (const { value } of iterateLatest<VaultUpdate>(f)) {
+      if (isStopped) break;
+      console.debug('got update', subsciber, value);
+      useVaultStore
+        .getState()
+        .setVault(offerId, { ...value, managerId: 'unknown' });
+    }
+  };
+
+  const watchNewVaults = async (
+    subscribers: Record<string, Record<string, VStorageKey>>,
+  ) => {
+    Object.entries(subscribers).forEach(([offerId, subscribers]) => {
+      // XXX: This assumes all entries are vault offers, should filter somehow.
+      if (!watchedVaults.has(offerId)) {
+        watchedVaults.add(offerId);
+        const vaultSubscriber = (subscribers as VaultSubscribers).vault;
+
+        watchVault(offerId, vaultSubscriber).catch(e => {
+          console.error(`Error watching vault ${offerId} ${vaultSubscriber}`);
+          useVaultStore.getState().setVaultError(offerId, e);
+        });
+      }
+    });
+  };
+
+  const unsubAppStore = appStore.subscribe(
+    ({ offerIdsToPublicSubscribers: value }) => {
+      if (value === null) return;
+      watchNewVaults(value);
+    },
+  );
+
+  return () => {
+    isStopped = true;
+    unsubAppStore();
+  };
+};
+
 type GovernedParamsUpdate = ValuePossessor<{
   current: {
     DebtLimit: ValuePossessor<Amount<'nat'>>;
@@ -144,50 +198,6 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
-  const watchVault = async (managerId: string, vaultId: string) => {
-    const { leader, importContext } = appStore.getState();
-    const path = `:published.vaultFactory.${managerId}.vaults.${vaultId}`;
-    const f = makeFollower(path, leader, {
-      unserializer: importContext.fromBoard,
-    });
-
-    for await (const { value } of iterateLatest<VaultUpdate>(f)) {
-      if (isStopped) break;
-      console.debug('got update', path, value);
-      useVaultStore
-        .getState()
-        .setVault(keyForVault(managerId, vaultId), { managerId, ...value });
-    }
-  };
-
-  // XXX: Filter only by user's vaults when possible https://github.com/Agoric/agoric-sdk/issues/6665.
-  const watchVaults = async (managerId: string, rpc: string) => {
-    let vaultIds;
-    try {
-      const res = await fetchVstorageKeys(
-        rpc,
-        `published.vaultFactory.${managerId}.vaults`,
-      );
-      vaultIds = res.children as string[];
-      assert(vaultIds);
-    } catch (e) {
-      if (isStopped) return;
-      const msg = `Error fetching vault ids for ${managerId}`;
-      console.error(msg, e);
-      return;
-    }
-    if (isStopped) return;
-
-    vaultIds.forEach(vaultId =>
-      watchVault(managerId, vaultId).catch(e => {
-        console.error(`Error watching vault ${managerId} ${vaultId}`);
-        useVaultStore
-          .getState()
-          .setVaultError(keyForVault(managerId, vaultId), e);
-      }),
-    );
-  };
-
   const watchMetrics = async (id: string) => {
     const path = `:published.vaultFactory.${id}.metrics`;
     const f = makeBoardFollower(path);
@@ -198,8 +208,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
-  const watchManager = async (id: string, rpc: string) => {
-    watchVaults(id, rpc);
+  const watchManager = async (id: string) => {
     watchGovernedParams(id);
     watchMetrics(id);
 
@@ -271,7 +280,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
 
     useVaultStore.setState({ vaultManagerIds: managerIds });
     managerIds.forEach(id =>
-      watchManager(id, rpc).catch(e => {
+      watchManager(id).catch(e => {
         console.error('Error watching vault manager id', id, e);
         useVaultStore.getState().setVaultManagerLoadingError(id, e);
       }),
@@ -294,10 +303,12 @@ export const watchVaultFactory = (netconfigUrl: string) => {
 
   startWatching();
   const stopWatchingPriceFeeds = watchPriceFeeds();
+  const stopWatchingUserVaults = watchUserVaults();
 
   return () => {
     isStopped = true;
     stopWatchingPriceFeeds();
+    stopWatchingUserVaults();
   };
 };
 
@@ -307,7 +318,7 @@ export const makeOpenVaultOffer = async (
   intoPursePetname: string,
   toBorrow: bigint,
 ) => {
-  const INVITATION_METHOD = 'makeLoanInvitation';
+  const INVITATION_METHOD = 'makeVaultInvitation';
 
   const { vaultFactoryInstanceHandle } = useVaultStore.getState();
   const { importContext, offerSigner } = appStore.getState();

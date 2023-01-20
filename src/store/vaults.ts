@@ -8,6 +8,7 @@ export type Ratio = {
 
 // XXX PriceDescription type not exported from zoe package
 import { getPriceDescription } from '@agoric/zoe/src/contractSupport';
+import type { VStorageKey } from './app';
 export type PriceDescription = ReturnType<typeof getPriceDescription>;
 
 export type VaultParams = {
@@ -71,6 +72,7 @@ interface VaultState {
   priceErrors: Map<Brand, unknown>;
   vaultFactoryParams: VaultFactoryParams | null;
   vaultFactoryInstanceHandle: unknown;
+  userVaultIds: VStorageKey[] | null;
   setPrice: (brand: Brand, price: PriceDescription) => void;
   setPriceError: (brand: Brand, e: unknown) => void;
   setVaultManagerLoadingError: (id: string, error: unknown) => void;
@@ -96,6 +98,7 @@ export const useVaultStore = create<VaultState>()(set => ({
   priceErrors: new Map<Brand, unknown>(),
   vaults: new Map<VaultKey, VaultInfo>(),
   vaultErrors: new Map<VaultKey, unknown>(),
+  userVaultIds: null,
   setVaultManagerLoadingError: (id: string, error: unknown) =>
     set(state => {
       const newErrors = new Map(state.vaultManagerLoadingErrors);

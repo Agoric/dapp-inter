@@ -32,11 +32,18 @@ export type ChainConnection = {
   chainId: string;
   address: string;
   pursesNotifier: unknown;
+  publicSubscribersNotifier: unknown;
 };
 
 export type OfferSigner = {
   isDappApproved: boolean;
   addOffer?: (offer: OfferConfig) => void;
+};
+
+export type VStorageKey = {
+  storeName: string;
+  storeSubkey: string;
+  dataPrefixBytes: string;
 };
 
 interface AppState {
@@ -49,6 +56,10 @@ interface AppState {
   offerSigner: OfferSigner;
   purses: PursesJSONState[] | null;
   walletService: ReturnType<typeof makeWalletService>;
+  offerIdsToPublicSubscribers: Record<
+    string,
+    Record<string, VStorageKey>
+  > | null;
 }
 
 export const appStore = create<AppState>()(() => ({
@@ -61,6 +72,7 @@ export const appStore = create<AppState>()(() => ({
   offerSigner: { isDappApproved: false },
   purses: null,
   walletService: makeWalletService(),
+  offerIdsToPublicSubscribers: null,
 }));
 
 export const appAtom = atomWithStore(appStore);
