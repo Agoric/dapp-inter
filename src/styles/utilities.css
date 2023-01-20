@@ -1,14 +1,6 @@
 @tailwind utilities;
 
 @layer utilities {
-  .position-swap-icon {
-    top: 93.5%;
-  }
-
-  .position-swap-icon-remove {
-    top: 41%;
-  }
-
   /* hiding arrows from number input */
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {

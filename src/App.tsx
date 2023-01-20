@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import ConnectWalletButton from 'components/ConnectWalletButton';
-import NetworkDropdown from 'components/NetworkDropdown';
 import OfferSignerBridge from 'components/OfferSignerBridge';
 import { ToastContainer } from 'react-toastify';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
@@ -14,12 +12,21 @@ import { makeLeader } from '@agoric/casting';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';
+import Root from 'views/Root';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Vaults />,
+    element: <Root />,
     errorElement: <ErrorPage />,
+    children: [
+      {
+        index: true,
+        element: <Vaults />,
+        errorElement: <ErrorPage />,
+        path: '/vaults',
+      },
+    ],
   },
 ]);
 
@@ -50,7 +57,7 @@ const App = () => {
   }, [setError, leader, netConfig, setLeader]);
 
   return (
-    <>
+    <div>
       <ToastContainer
         position={'bottom-right'}
         closeOnClick={false}
@@ -58,26 +65,18 @@ const App = () => {
         hideProgressBar={true}
         autoClose={false}
       ></ToastContainer>
+      <OfferSignerBridge />
       <div className="w-screen max-w-7xl m-auto">
-        <div className="flex w-full justify-end p-4">
-          <div className="flex flex-row space-x-2">
-            <NetworkDropdown />
-            <ConnectWalletButton />
-            <OfferSignerBridge />
-          </div>
-        </div>
-        <div className="w-full">
-          {error ? (
-            <>
-              <div>Error connecting to chain</div>
-              <details>{error.toString()}</details>
-            </>
-          ) : (
-            <RouterProvider router={router} />
-          )}
-        </div>
+        {error ? (
+          <>
+            <div>Error connecting to chain</div>
+            <details>{error.toString()}</details>
+          </>
+        ) : (
+          <RouterProvider router={router} />
+        )}
       </div>
-    </>
+    </div>
   );
 };
 
