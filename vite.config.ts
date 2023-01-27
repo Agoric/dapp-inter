@@ -4,6 +4,7 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: './',
   optimizeDeps: {
     include: ['@endo/init'],
     esbuildOptions: { target: 'es2020', supported: { bigint: true } },
