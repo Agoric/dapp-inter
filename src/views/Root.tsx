@@ -58,7 +58,9 @@ const Root = () => {
           <ConnectWalletButton />
         </div>
       </div>
-      {shouldRedirectToVaults && <Navigate to="/vaults"></Navigate>}
+      {shouldRedirectToVaults && (
+        <Navigate replace={true} to="/vaults"></Navigate>
+      )}
       <Outlet />
     </>
   );
