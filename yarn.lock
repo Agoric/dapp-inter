@@ -16,10 +16,10 @@
   resolved "https://registry.yarnpkg.com/@agoric/assert/-/assert-0.5.2-dev-1adb7a2.0.tgz#bc9636b589fc88f6d4cc75f1ac2ac724d27afbc9"
   integrity sha512-as/LPZHyrFCi2i1Cmm+zGkLzvJDnclSerLLAfu3MH26UztB7e7ZDOLtkgEVJvK/FGpR/ltrKbwz2IdbLpAdMTA==
 
-"@agoric/assert@0.5.2-dev-669ad6d.0+669ad6d":
-  version "0.5.2-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/assert/-/assert-0.5.2-dev-669ad6d.0.tgz#91ea15ddd228d2209179103dae1337267baa07e8"
-  integrity sha512-yUPwL6fqdsdtmVdQqw9s6+2O5HXt317GXdzKrMkzqJyEXNEPsFqFHRrsMJoVZZFje3Xi1r37dPVE6i2QSCwcUg==
+"@agoric/assert@0.5.2-dev-99e3b9a.0+99e3b9a":
+  version "0.5.2-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/assert/-/assert-0.5.2-dev-99e3b9a.0.tgz#5cef11658974f21d0b1255f792e8cd6d0da019d9"
+  integrity sha512-Hy8wdSSKAirCtzMYjpZDAP6KgUZjAnG0eBsSJbmV8KLZEdbK+hFd5DgOerT49QPuK3WjTnVdNDOdoNyilwq3mg==
 
 "@agoric/babel-generator@^7.17.4", "@agoric/babel-generator@^7.17.6":
   version "7.17.6"
@@ -42,16 +42,15 @@
     "@endo/far" "^0.2.14"
     "@endo/marshal" "^0.8.1"
 
-"@agoric/cache@0.2.4-dev-669ad6d.0+669ad6d":
-  version "0.2.4-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/cache/-/cache-0.2.4-dev-669ad6d.0.tgz#9e5ef9321858128c486863590924ed4359e78792"
-  integrity sha512-sXDDzJGAOZiHXfvyASC6HcS0PjMO6HvLLciL25qp74GeN7WQl6LWrHLYG04kOh+rPsH2IGTzH859Y9CAVmdFKw==
+"@agoric/cache@0.2.4-dev-99e3b9a.0+99e3b9a":
+  version "0.2.4-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/cache/-/cache-0.2.4-dev-99e3b9a.0.tgz#4c34eff1e1099cf1576e4940425b95464f586b25"
+  integrity sha512-6nMBkwyYS2o4OeL35vw7VkSxBpqU5FikC1OJMdFV4QvOaQBj0drr/F3N8WctIyOgHT38iFWN2lNxZ0WwXmyahQ==
   dependencies:
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
-    "@agoric/notifier" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/store" "0.8.4-dev-669ad6d.0+669ad6d"
-    "@agoric/vat-data" "0.4.4-dev-669ad6d.0+669ad6d"
-    "@agoric/vats" "0.13.1-dev-669ad6d.0+669ad6d"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/notifier" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/store" "0.8.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/vat-data" "0.4.4-dev-99e3b9a.0+99e3b9a"
     "@endo/far" "^0.2.14"
     "@endo/marshal" "^0.8.1"
 
@@ -102,12 +101,12 @@
   resolved "https://registry.yarnpkg.com/@agoric/ertp/-/ertp-0.15.4-dev-669ad6d.0.tgz#64fd055e68f1dfb593a846594134c2e4ba03b2bb"
   integrity sha512-SEDJaYspEu1pEhSQ83oX1QHALX51FtueBDIxVpl8uhs3BmzZ1MUhsudL1fQYxk07cvbJBDmr52D+Qyyaftr31A==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
     "@agoric/nat" "^4.1.0"
-    "@agoric/notifier" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/store" "0.8.4-dev-669ad6d.0+669ad6d"
-    "@agoric/swingset-vat" "0.30.3-dev-669ad6d.0+669ad6d"
-    "@agoric/vat-data" "0.4.4-dev-669ad6d.0+669ad6d"
+    "@agoric/notifier" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/store" "0.8.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/swingset-vat" "0.30.3-dev-99e3b9a.0+99e3b9a"
+    "@agoric/vat-data" "0.4.4-dev-99e3b9a.0+99e3b9a"
     "@endo/eventual-send" "^0.16.8"
     "@endo/far" "^0.2.14"
     "@endo/marshal" "^0.8.1"
@@ -134,21 +133,21 @@
     "@endo/marshal" "^0.8.1"
     "@endo/promise-kit" "^0.2.52"
 
-"@agoric/governance@0.9.2-dev-669ad6d.0+669ad6d":
-  version "0.9.2-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/governance/-/governance-0.9.2-dev-669ad6d.0.tgz#128c0c0bb3a413312edce59f3d8eaa7aa6046c57"
-  integrity sha512-hLC1krgLbH5BK4Gmioh94RRmCoAIhMTQUnT9j7RdxjgJZwQpiGQUn70K0npVmmLAQVTgPoz38+w6dkbGEfpnow==
+"@agoric/governance@0.9.2-dev-99e3b9a.0+99e3b9a":
+  version "0.9.2-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/governance/-/governance-0.9.2-dev-99e3b9a.0.tgz#b28770fd0884c283f17a84b49a7bbc5547768f6a"
+  integrity sha512-Vp9XsGumSPbO+2j0ojI0tQGhTCWh9lJ17CIWTXuFI6q/xsxCBjxvLPegSieCIHmdFEKVr/o784U8vfIK1sDo1w==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/ertp" "0.15.4-dev-669ad6d.0+669ad6d"
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/ertp" "0.15.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
     "@agoric/nat" "^4.1.0"
-    "@agoric/notifier" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/store" "0.8.4-dev-669ad6d.0+669ad6d"
-    "@agoric/swingset-vat" "0.30.3-dev-669ad6d.0+669ad6d"
-    "@agoric/vat-data" "0.4.4-dev-669ad6d.0+669ad6d"
-    "@agoric/vats" "0.13.1-dev-669ad6d.0+669ad6d"
-    "@agoric/zoe" "0.25.4-dev-669ad6d.0+669ad6d"
+    "@agoric/notifier" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/store" "0.8.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/swingset-vat" "0.30.3-dev-99e3b9a.0+99e3b9a"
+    "@agoric/vat-data" "0.4.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/vats" "0.13.1-dev-99e3b9a.0+99e3b9a"
+    "@agoric/zoe" "0.25.4-dev-99e3b9a.0+99e3b9a"
     "@endo/captp" "^2.0.18"
     "@endo/eventual-send" "^0.16.8"
     "@endo/far" "^0.2.14"
@@ -179,22 +178,22 @@
     "@endo/nat" "^4.1.23"
     "@endo/promise-kit" "^0.2.52"
 
-"@agoric/inter-protocol@0.13.2-dev-669ad6d.0+669ad6d":
-  version "0.13.2-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/inter-protocol/-/inter-protocol-0.13.2-dev-669ad6d.0.tgz#7e9ca49d15f0befe2d6da5ae0ed394978458ec89"
-  integrity sha512-pu/5v8TrcFJ76W5k/EbgHZ6MvNzU5ONf6gjOCEGHadXdbdM6LhvGF2XwKqifFJsP/qMEjq4JK5LLov7sCMoyYQ==
+"@agoric/inter-protocol@0.13.2-dev-99e3b9a.0+99e3b9a":
+  version "0.13.2-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/inter-protocol/-/inter-protocol-0.13.2-dev-99e3b9a.0.tgz#226a89563c43545e4f2767320908607a09c2a024"
+  integrity sha512-dITazotRnQvkxSEDeuQPH1LSvpb9RqxzkxlREMsOUChfWSgmQ5sA6TqErztwokWXFNS5UIVuI7Jyo52YrJSvtw==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/ertp" "0.15.4-dev-669ad6d.0+669ad6d"
-    "@agoric/governance" "0.9.2-dev-669ad6d.0+669ad6d"
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/ertp" "0.15.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/governance" "0.9.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
     "@agoric/nat" "^4.1.0"
-    "@agoric/notifier" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/store" "0.8.4-dev-669ad6d.0+669ad6d"
-    "@agoric/swingset-vat" "0.30.3-dev-669ad6d.0+669ad6d"
-    "@agoric/vat-data" "0.4.4-dev-669ad6d.0+669ad6d"
-    "@agoric/vats" "0.13.1-dev-669ad6d.0+669ad6d"
-    "@agoric/zoe" "0.25.4-dev-669ad6d.0+669ad6d"
+    "@agoric/notifier" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/store" "0.8.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/swingset-vat" "0.30.3-dev-99e3b9a.0+99e3b9a"
+    "@agoric/vat-data" "0.4.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/vats" "0.13.1-dev-99e3b9a.0+99e3b9a"
+    "@agoric/zoe" "0.25.4-dev-99e3b9a.0+99e3b9a"
     "@endo/bundle-source" "^2.4.2"
     "@endo/captp" "^2.0.18"
     "@endo/eventual-send" "^0.16.8"
@@ -213,10 +212,10 @@
     "@endo/promise-kit" "^0.2.52"
     jessie.js "^0.3.2"
 
-"@agoric/internal@0.2.2-dev-669ad6d.0+669ad6d":
-  version "0.2.2-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/internal/-/internal-0.2.2-dev-669ad6d.0.tgz#f8dba712db88a6dc82974f2ec9fc422a99c5e59e"
-  integrity sha512-9L4wByFo3C2Y44qjlWTD9GuvXlrTDvXbuey2sfO7BbNgNPlBV5Mc/QuiMvUVTsZAa/OaSETGfOBVAiy6iMJ8Gg==
+"@agoric/internal@0.2.2-dev-99e3b9a.0+99e3b9a":
+  version "0.2.2-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/internal/-/internal-0.2.2-dev-99e3b9a.0.tgz#cbbe135f9eb6b2e08d7bed32fa924c0b759187f4"
+  integrity sha512-5YW0z68EhkHPT8IOfJiL1VEvRgVrSwGG4aCaDtkulg+Zq6qYgMq8RboQa2+iq1lAzU4hkmc9Lq3LXOukuXe1OA==
   dependencies:
     "@endo/eventual-send" "^0.16.8"
     "@endo/marshal" "^0.8.1"
@@ -243,17 +242,17 @@
     "@endo/marshal" "^0.8.1"
     "@endo/promise-kit" "^0.2.52"
 
-"@agoric/notifier@0.5.2-dev-669ad6d.0+669ad6d":
-  version "0.5.2-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/notifier/-/notifier-0.5.2-dev-669ad6d.0.tgz#d80ddf2b730df5b54456c656f1c080157b7b7975"
-  integrity sha512-5C8gF+ae1unVCUH2bX4r07Sx5SVyfVTpRHvc84sJ23pRa+F6OR2tZadh2MJGCSz//BM/jH4idNod31m4fDkcPw==
+"@agoric/notifier@0.5.2-dev-99e3b9a.0+99e3b9a":
+  version "0.5.2-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/notifier/-/notifier-0.5.2-dev-99e3b9a.0.tgz#46cff7eda1dd01947f7aa9ac0201fee8baadd000"
+  integrity sha512-C09+//7iWA4uyMpxpDZqpYBmpIRc9fe7UTP9IFzrPQyHKvaqMI+SRqpHB9eMpqmyCBjmHqUs2uKUGuV3r91PfQ==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
-    "@agoric/store" "0.8.4-dev-669ad6d.0+669ad6d"
-    "@agoric/swing-store" "0.8.2-dev-669ad6d.0+669ad6d"
-    "@agoric/swingset-vat" "0.30.3-dev-669ad6d.0+669ad6d"
-    "@agoric/vat-data" "0.4.4-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/store" "0.8.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/swing-store" "0.8.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/swingset-vat" "0.30.3-dev-99e3b9a.0+99e3b9a"
+    "@agoric/vat-data" "0.4.4-dev-99e3b9a.0+99e3b9a"
     "@endo/eventual-send" "^0.16.8"
     "@endo/marshal" "^0.8.1"
     "@endo/promise-kit" "^0.2.52"
@@ -285,12 +284,12 @@
     "@agoric/assert" "0.5.2-dev-1adb7a2.0+1adb7a2"
     "@endo/marshal" "^0.8.1"
 
-"@agoric/sharing-service@0.2.7-dev-669ad6d.0+669ad6d":
-  version "0.2.7-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/sharing-service/-/sharing-service-0.2.7-dev-669ad6d.0.tgz#cdee2a9e9b99b924e003839ea49d25a9eb941ffa"
-  integrity sha512-xb/GJ3gF7MoAnAP2+mHk5SeMl1ZR4hytQOs9ebm3R5WmXAEJCs0F6H75WZ71f2kJ/o9CfKRPXzDLqWsHY0kDHw==
+"@agoric/sharing-service@0.2.7-dev-99e3b9a.0+99e3b9a":
+  version "0.2.7-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/sharing-service/-/sharing-service-0.2.7-dev-99e3b9a.0.tgz#b70d1f42ef432fed7cb401fbf1a390d32b4ca357"
+  integrity sha512-EEuNQWYv1AKW1HEf+ZUm+eZlL7YLWHxAFV1TDJJtRD+/hMCcp8UCeVbCtC6bwu4ATRzdbhPKLMm9ByuErWPOaQ==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
     "@endo/marshal" "^0.8.1"
 
 "@agoric/smart-wallet@0.4.3-dev-1adb7a2.0+1adb7a2", "@agoric/smart-wallet@^0.4.3-dev-1adb7a2.0":
@@ -335,14 +334,15 @@
     "@endo/promise-kit" "^0.2.52"
     "@fast-check/ava" "^1.1.3"
 
-"@agoric/store@0.8.4-dev-669ad6d.0+669ad6d":
-  version "0.8.4-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/store/-/store-0.8.4-dev-669ad6d.0.tgz#b8923a94b4e0ee5f63ef489d1cbabc9e9d2b5657"
-  integrity sha512-RvsdwrBOU98bG0vIDYVhWA/0Wpz37v8OGEOTLGci9LEyAcSM/DJQ9OqJrdtSogJfCXGsckKeYk6GCD8o9B8HXw==
+"@agoric/store@0.8.4-dev-99e3b9a.0+99e3b9a":
+  version "0.8.4-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/store/-/store-0.8.4-dev-99e3b9a.0.tgz#b68b96aaaefbc8dc997081d698b5084f8b01d988"
+  integrity sha512-R22FAoAdIIaq0+xybBjO/ZECHVHxQOix8EFCj2UYjFgUcRoNFZzNQPlEsurl2MfcCxQpX55+9uHu2eKLIwu7Xw==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
     "@endo/eventual-send" "^0.16.8"
+    "@endo/far" "^0.2.14"
     "@endo/marshal" "^0.8.1"
     "@endo/promise-kit" "^0.2.52"
     "@fast-check/ava" "^1.1.3"
@@ -357,13 +357,13 @@
     better-sqlite3 "^7.5.0"
     tmp "^0.2.1"
 
-"@agoric/swing-store@0.8.2-dev-669ad6d.0+669ad6d":
-  version "0.8.2-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/swing-store/-/swing-store-0.8.2-dev-669ad6d.0.tgz#03814eba0950351c083b379cb097c2960f4e2052"
-  integrity sha512-PrykU97tdoL7wSWLfZd6YICAerOL7TIQa31Tv8oTdKgb7apVdMaK3X3W/Bgt9fSdVbeQDEfyNHrMsuvAqzrsRg==
+"@agoric/swing-store@0.8.2-dev-99e3b9a.0+99e3b9a":
+  version "0.8.2-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/swing-store/-/swing-store-0.8.2-dev-99e3b9a.0.tgz#b11b7e73ccf0dff8dd5f0ebdfd508147d35cf42d"
+  integrity sha512-nMCNtOBVHuNz+u28G1PYqBOf/YyhuUtAwfugD+BRARSreE7HoOEuF5XvNlwvreSyG6T6nwqQs1YbVknptWb8jw==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
     better-sqlite3 "^7.5.0"
     tmp "^0.2.1"
 
@@ -397,19 +397,19 @@
     microtime "^3.1.0"
     semver "^6.3.0"
 
-"@agoric/swingset-vat@0.30.3-dev-669ad6d.0+669ad6d":
-  version "0.30.3-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/swingset-vat/-/swingset-vat-0.30.3-dev-669ad6d.0.tgz#11d5a74e045473ce2d0ef1d348e5df75ac73fedf"
-  integrity sha512-KR4iBOKVc2HDzcWc/G6PAA5NoO80qJzKQQoEoK1kI06XyL+KUnC5LCZi+ORmvcOLLmC9pqi008Q3/s6yWnDLEg==
+"@agoric/swingset-vat@0.30.3-dev-99e3b9a.0+99e3b9a":
+  version "0.30.3-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/swingset-vat/-/swingset-vat-0.30.3-dev-99e3b9a.0.tgz#f2a29d2446b5757f2682b0031c8fad2551000a28"
+  integrity sha512-D2Q2ie8rTsBMT41bgroRhjQvIIAXwfmzMMZL/VC/MEM/EaOTOTyTh2uLtgu2k9FW4bs5hB69EXoY1S20NmLSmA==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
     "@agoric/nat" "^4.1.0"
-    "@agoric/notifier" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/store" "0.8.4-dev-669ad6d.0+669ad6d"
-    "@agoric/swing-store" "0.8.2-dev-669ad6d.0+669ad6d"
-    "@agoric/vat-data" "0.4.4-dev-669ad6d.0+669ad6d"
-    "@agoric/xsnap" "0.13.3-dev-669ad6d.0+669ad6d"
+    "@agoric/notifier" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/store" "0.8.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/swing-store" "0.8.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/vat-data" "0.4.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/xsnap" "0.13.3-dev-99e3b9a.0+99e3b9a"
     "@endo/base64" "^0.2.28"
     "@endo/bundle-source" "^2.4.2"
     "@endo/captp" "^2.0.18"
@@ -423,7 +423,7 @@
     "@endo/promise-kit" "^0.2.52"
     "@endo/zip" "^0.2.28"
     anylogger "^0.21.0"
-    import-meta-resolve "^1.1.1"
+    import-meta-resolve "^2.2.1"
     microtime "^3.1.0"
     semver "^6.3.0"
 
@@ -448,14 +448,14 @@
     "@agoric/internal" "0.2.2-dev-1adb7a2.0+1adb7a2"
     "@agoric/store" "0.8.4-dev-1adb7a2.0+1adb7a2"
 
-"@agoric/vat-data@0.4.4-dev-669ad6d.0+669ad6d":
-  version "0.4.4-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/vat-data/-/vat-data-0.4.4-dev-669ad6d.0.tgz#2446d6d79d64d50df036b2e129c8da8eb4c78b87"
-  integrity sha512-obD9nV/wus7mUDhNtW/JIyvwsK9I2nsHTrgiWKNWwORdOQWv2hOpWQHkJFpgmzJ0cZSu8BNR2rdLpAgcMXvurg==
+"@agoric/vat-data@0.4.4-dev-99e3b9a.0+99e3b9a":
+  version "0.4.4-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/vat-data/-/vat-data-0.4.4-dev-99e3b9a.0.tgz#1e57bc8793e591d762e3be1505f32f2b81626ebb"
+  integrity sha512-WIeoNfF6SUTwHCeE4Zr5qCqgC6zIZKloS694QYVC9dIulHLyIsK5te1hXCh0SoNRJHnxI3hoJuMor1MBUP2hnQ==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
-    "@agoric/store" "0.8.4-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/store" "0.8.4-dev-99e3b9a.0+99e3b9a"
 
 "@agoric/vats@0.13.1-dev-1adb7a2.0+1adb7a2":
   version "0.13.1-dev-1adb7a2.0"
@@ -479,24 +479,22 @@
     "@endo/marshal" "^0.8.1"
     "@endo/promise-kit" "^0.2.52"
 
-"@agoric/vats@0.13.1-dev-669ad6d.0+669ad6d":
-  version "0.13.1-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/vats/-/vats-0.13.1-dev-669ad6d.0.tgz#79de4fa2b8d7faf676195f71dc7d0bbf90ab0676"
-  integrity sha512-KAIXG+eRZXtcgkXPlvo5XDKERrNXvEAxZU0WfTGtXRUkYon6wsMFg4D2HxYkACHVM9i0BBTXzamXP/XfPjC1uw==
+"@agoric/vats@0.13.1-dev-99e3b9a.0+99e3b9a":
+  version "0.13.1-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/vats/-/vats-0.13.1-dev-99e3b9a.0.tgz#fb059c9a585c88129b0f10ec7684569292f58d6c"
+  integrity sha512-q8OHPez9CBBLyKGh7JXaioUJnY+s+G1eidKof0TkvOEGI5BlCzvtqWL1mVoy/0ybghVDAuECAlVp/h4EMlulMQ==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/ertp" "0.15.4-dev-669ad6d.0+669ad6d"
-    "@agoric/governance" "0.9.2-dev-669ad6d.0+669ad6d"
-    "@agoric/inter-protocol" "0.13.2-dev-669ad6d.0+669ad6d"
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/ertp" "0.15.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/governance" "0.9.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/inter-protocol" "0.13.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
     "@agoric/nat" "^4.1.0"
-    "@agoric/notifier" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/pegasus" "0.7.7-dev-669ad6d.0+669ad6d"
-    "@agoric/sharing-service" "0.2.7-dev-669ad6d.0+669ad6d"
-    "@agoric/store" "0.8.4-dev-669ad6d.0+669ad6d"
-    "@agoric/swingset-vat" "0.30.3-dev-669ad6d.0+669ad6d"
-    "@agoric/wallet-backend" "0.13.4-dev-669ad6d.0+669ad6d"
-    "@agoric/zoe" "0.25.4-dev-669ad6d.0+669ad6d"
+    "@agoric/notifier" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/sharing-service" "0.2.7-dev-99e3b9a.0+99e3b9a"
+    "@agoric/store" "0.8.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/swingset-vat" "0.30.3-dev-99e3b9a.0+99e3b9a"
+    "@agoric/zoe" "0.25.4-dev-99e3b9a.0+99e3b9a"
     "@endo/far" "^0.2.14"
     "@endo/import-bundle" "^0.3.0"
     "@endo/init" "^0.5.52"
@@ -577,13 +575,13 @@
     glob "^7.1.6"
     rollup-plugin-string "^3.0.0"
 
-"@agoric/xsnap@0.13.3-dev-669ad6d.0+669ad6d":
-  version "0.13.3-dev-669ad6d.0"
-  resolved "https://registry.yarnpkg.com/@agoric/xsnap/-/xsnap-0.13.3-dev-669ad6d.0.tgz#67bde55d76a018a667174a8b56d42e3750bb2d2d"
-  integrity sha512-buGw+lj7WDXmU5/uZSDx3CSs4HgxKSTATgbIhGiV2OY5phisk8M0iakUuTJ+M07krq8GujgFr2aXjD+lpUy94A==
+"@agoric/xsnap@0.13.3-dev-99e3b9a.0+99e3b9a":
+  version "0.13.3-dev-99e3b9a.0"
+  resolved "https://registry.yarnpkg.com/@agoric/xsnap/-/xsnap-0.13.3-dev-99e3b9a.0.tgz#56883663c947d8155fc862aa478f581708d89172"
+  integrity sha512-NtgVKIePtPT0pO9V5OZLJ+zA65TKzYgldBg6/9rMROR69TbTw5uF9s/NSYiY4dJtNqM/zlmyP7bwWB/47igEqA==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
     "@endo/bundle-source" "^2.4.2"
     "@endo/eventual-send" "^0.16.8"
     "@endo/init" "^0.5.52"
@@ -619,15 +617,14 @@
   resolved "https://registry.yarnpkg.com/@agoric/zoe/-/zoe-0.25.4-dev-669ad6d.0.tgz#0fbddf3f9efab064528a2c1f61f1788509f24ab9"
   integrity sha512-DtGaeFKYWywZ0MPdIR1g8wSXX8zE97F8ik6CLQMQ47oXxQeK20HtztNj6FW0NziA4LbOQGt5TrVY4/+FgERz5A==
   dependencies:
-    "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/ertp" "0.15.4-dev-669ad6d.0+669ad6d"
-    "@agoric/internal" "0.2.2-dev-669ad6d.0+669ad6d"
+    "@agoric/assert" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/ertp" "0.15.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/internal" "0.2.2-dev-99e3b9a.0+99e3b9a"
     "@agoric/nat" "^4.1.0"
-    "@agoric/notifier" "0.5.2-dev-669ad6d.0+669ad6d"
-    "@agoric/store" "0.8.4-dev-669ad6d.0+669ad6d"
-    "@agoric/swingset-vat" "0.30.3-dev-669ad6d.0+669ad6d"
-    "@agoric/vat-data" "0.4.4-dev-669ad6d.0+669ad6d"
-    "@agoric/vats" "0.13.1-dev-669ad6d.0+669ad6d"
+    "@agoric/notifier" "0.5.2-dev-99e3b9a.0+99e3b9a"
+    "@agoric/store" "0.8.4-dev-99e3b9a.0+99e3b9a"
+    "@agoric/swingset-vat" "0.30.3-dev-99e3b9a.0+99e3b9a"
+    "@agoric/vat-data" "0.4.4-dev-99e3b9a.0+99e3b9a"
     "@endo/bundle-source" "^2.4.2"
     "@endo/eventual-send" "^0.16.8"
     "@endo/far" "^0.2.14"
@@ -1431,10 +1428,17 @@
   resolved "https://registry.yarnpkg.com/@lit-labs/react/-/react-1.1.1.tgz#88a4320d357dcdfd7c7e276f809e3453a124cbbc"
   integrity sha512-9TC+/ZWb6BJlWCyUr14FKFlaGnyKpeEDorufXozQgke/VoVrslUQNaL7nBmrAWdNrmzx5jWgi8lFmWwrxMjnlA==
 
-"@lit/reactive-element@^1.3.0", "@lit/reactive-element@^1.5.0":
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/@lit/reactive-element/-/reactive-element-1.5.0.tgz#344cc33f2d1491d094b8ef824a9fe31d150d2375"
-  integrity sha512-fQh9FDK0LPTwDk+0HhSZEtb8K0LTN1wXerwpGrWA+a8tWulYRDLI4vQDWp4GOIsewn0572KYV/oZ3+492D7osA==
+"@lit-labs/ssr-dom-shim@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@lit-labs/ssr-dom-shim/-/ssr-dom-shim-1.0.0.tgz#427e19a2765681fd83411cd72c55ba80a01e0523"
+  integrity sha512-ic93MBXfApIFTrup4a70M/+ddD8xdt2zxxj9sRwHQzhS9ag/syqkD8JPdTXsc1gUy2K8TTirhlCqyTEM/sifNw==
+
+"@lit/reactive-element@^1.3.0", "@lit/reactive-element@^1.6.0":
+  version "1.6.1"
+  resolved "https://registry.yarnpkg.com/@lit/reactive-element/-/reactive-element-1.6.1.tgz#0d958b6d479d0e3db5fc1132ecc4fa84be3f0b93"
+  integrity sha512-va15kYZr7KZNNPZdxONGQzpUr+4sxVu7V/VG7a8mRfPPXUyhEYj5RzXCQmGrlP3tAh0L3HHm5AjBMFYRqlM9SA==
+  dependencies:
+    "@lit-labs/ssr-dom-shim" "^1.0.0"
 
 "@motionone/animation@^10.13.1":
   version "10.14.0"
@@ -3172,7 +3176,7 @@ eslint@^8.22.0:
     strip-json-comments "^3.1.0"
     text-table "^0.2.0"
 
-esm@agoric-labs/esm#Agoric-built:
+esm@agoric-labs/esm#Agoric-built, "esm@github:agoric-labs/esm#Agoric-built":
   version "3.2.25"
   resolved "https://codeload.github.com/agoric-labs/esm/tar.gz/3603726ad4636b2f865f463188fcaade6375638e"
 
@@ -4200,21 +4204,21 @@ lit-element@^3.2.0:
     "@lit/reactive-element" "^1.3.0"
     lit-html "^2.2.0"
 
-lit-html@^2.2.0, lit-html@^2.5.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/lit-html/-/lit-html-2.5.0.tgz#9d4c0bb3652a6b10bc4ccdb627dfa9eff1215474"
-  integrity sha512-bLHosg1XL3JRUcKdSVI0sLCs0y1wWrj2sqqAN3cZ7bDDPNgmDHH29RV48x6Wz3ZmkxIupaE+z7uXSZ/pXWAO1g==
+lit-html@^2.2.0, lit-html@^2.6.0:
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/lit-html/-/lit-html-2.6.1.tgz#eb29f0b0c2ab54ea77379db11fc011b0c71f1cda"
+  integrity sha512-Z3iw+E+3KKFn9t2YKNjsXNEu/LRLI98mtH/C6lnFg7kvaqPIzPn124Yd4eT/43lyqrejpc5Wb6BHq3fdv4S8Rw==
   dependencies:
     "@types/trusted-types" "^2.0.2"
 
 lit@^2.0.2:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/lit/-/lit-2.5.0.tgz#3a425d69ff8483effb2026957b86ae45de0bc51a"
-  integrity sha512-DtnUP6vR3l4Q8nRPPNBD+UxbAhwJPeky+OVbi3pdgMqm0g57xFSl1Sj64D1rIB+nVNdiVVg8YxB0hqKjvdadZA==
+  version "2.6.1"
+  resolved "https://registry.yarnpkg.com/lit/-/lit-2.6.1.tgz#5951a2098b9bde5b328c73b55c15fdc0eefd96d7"
+  integrity sha512-DT87LD64f8acR7uVp7kZfhLRrHkfC/N4BVzAtnw9Yg8087mbBJ//qedwdwX0kzDbxgPccWRW6mFwGbRQIxy0pw==
   dependencies:
-    "@lit/reactive-element" "^1.5.0"
+    "@lit/reactive-element" "^1.6.0"
     lit-element "^3.2.0"
-    lit-html "^2.5.0"
+    lit-html "^2.6.0"
 
 local-pkg@^0.4.2:
   version "0.4.2"

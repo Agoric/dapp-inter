@@ -1,6 +1,5 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import {
-  keyForVault,
   PriceDescription,
   useVaultStore,
   VaultInfoChainData,
@@ -103,7 +102,7 @@ const watchUserVaults = () => {
 
   const watchVault = async (offerId: string, subsciber: VStorageKey) => {
     const { leader, importContext } = appStore.getState();
-    const f = makeFollower(subsciber, leader, {
+    const f = makeFollower(`:${subsciber}`, leader, {
       unserializer: importContext.fromBoard,
     });
 
@@ -126,7 +125,10 @@ const watchUserVaults = () => {
         const vaultSubscriber = (subscribers as VaultSubscribers).vault;
 
         watchVault(offerId, vaultSubscriber).catch(e => {
-          console.error(`Error watching vault ${offerId} ${vaultSubscriber}`);
+          console.error(
+            `Error watching vault ${offerId} ${vaultSubscriber}`,
+            e,
+          );
           useVaultStore.getState().setVaultError(offerId, e);
         });
       }
@@ -313,10 +315,8 @@ export const watchVaultFactory = (netconfigUrl: string) => {
 };
 
 export const makeOpenVaultOffer = async (
-  fundPursePetname: string,
-  toLock: bigint,
-  intoPursePetname: string,
-  toBorrow: bigint,
+  toLock: Amount<'nat'>,
+  toBorrow: Amount<'nat'>,
 ) => {
   const INVITATION_METHOD = 'makeVaultInvitation';
 
@@ -325,6 +325,12 @@ export const makeOpenVaultOffer = async (
   const serializedInstance = importContext.fromBoard.serialize(
     vaultFactoryInstanceHandle,
   ) as CapData<'Instance'>;
+  const serializedToLock = importContext.fromBoard.serialize(
+    toLock,
+  ) as CapData<'Amount'>;
+  const serializedtoBorrow = importContext.fromBoard.serialize(
+    toBorrow,
+  ) as CapData<'Amount'>;
 
   const offerConfig = {
     publicInvitationMaker: INVITATION_METHOD,
@@ -332,14 +338,12 @@ export const makeOpenVaultOffer = async (
     proposalTemplate: {
       give: {
         Collateral: {
-          pursePetname: fundPursePetname,
-          value: Number(toLock),
+          amount: serializedToLock,
         },
       },
       want: {
         Minted: {
-          pursePetname: intoPursePetname,
-          value: Number(toBorrow),
+          amount: serializedtoBorrow,
         },
       },
     },

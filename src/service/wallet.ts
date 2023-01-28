@@ -1,5 +1,5 @@
 import { makeAsyncIterableFromNotifier as iterateNotifier } from '@agoric/notifier';
-import { appStore, ChainConnection, chainConnectionAtom } from 'store/app';
+import { appStore, ChainConnection } from 'store/app';
 import { toast } from 'react-toastify';
 import SmartWalletNotFoundToast from 'components/SmartWalletNotFoundToast';
 import {
