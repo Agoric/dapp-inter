@@ -21,7 +21,7 @@ export const networkConfigs = {
   },
   localhost: {
     label: 'Local Network',
-    url: 'http://wallet.agoric.app/wallet/network-config',
+    url: 'https://wallet.agoric.app/wallet/network-config',
   },
 };
 
