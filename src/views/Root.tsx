@@ -41,7 +41,7 @@ const Root = () => {
       <div className="flex w-full justify-between h-24">
         <div className="flex flex-row space-x-10">
           <img
-            src="/inter-protocol-logo.svg"
+            src="./inter-protocol-logo.svg"
             alt="Inter Protocol Logo"
             height="48"
             width="174"
@@ -58,7 +58,9 @@ const Root = () => {
           <ConnectWalletButton />
         </div>
       </div>
-      {shouldRedirectToVaults && <Navigate to="/vaults"></Navigate>}
+      {shouldRedirectToVaults && (
+        <Navigate replace={true} to="/vaults"></Navigate>
+      )}
       <Outlet />
     </>
   );

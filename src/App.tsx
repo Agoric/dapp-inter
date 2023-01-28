@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import OfferSignerBridge from 'components/OfferSignerBridge';
 import { ToastContainer } from 'react-toastify';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { RouterProvider, createHashRouter } from 'react-router-dom';
 import Vaults from 'views/Vaults';
 import ErrorPage from 'views/ErrorPage';
 import { useEffect } from 'react';
@@ -14,7 +14,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';
 import Root from 'views/Root';
 
-const router = createBrowserRouter([
+const router = createHashRouter([
   {
     path: '/',
     element: <Root />,
