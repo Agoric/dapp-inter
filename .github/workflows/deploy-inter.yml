@@ -38,10 +38,17 @@ jobs:
         filebaseBucket: ${{ secrets.FILEBASE_BUCKET }}
         filebaseKey: ${{ secrets.FILEBASE_KEY }}
         filebaseSecret: ${{ secrets.FILEBASE_SECRET }}
-    - uses: mshick/add-pr-comment@a65df5f64fc741e91c59b8359a4bc56e57aaf5b1   #v2
+    - name: Convert IPFS Hash
+      id: ipfsv1
+      run: |
+        echo "v1hash=$(npx --yes cid-tool@3.0.0 base32 ${{ steps.ipfs.outputs.ipfs }})" >> $GITHUB_OUTPUT
+    - name: Add IPFS info to PR
+      uses: mshick/add-pr-comment@a65df5f64fc741e91c59b8359a4bc56e57aaf5b1   #v2
       with:
         message: |
           IPFS hash: `${{ steps.ipfs.outputs.ipfs }}`
+          IPFS v1 hash: `${{ steps.ipfsv1.outputs.v1hash }}`
           Gateways: 
-          - https://cloudflare-ipfs.com/ipfs/${{ steps.ipfs.outputs.ipfs }}/
-          - https://ipfs.io/ipfs/${{ steps.ipfs.outputs.ipfs }}/
+          - https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.cf-ipfs.com/
+          - https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.dweb.link/
+          - https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.4everland.io/
