@@ -54,6 +54,13 @@ export type VaultInfo = VaultInfoChainData & {
   isLoading: boolean;
 };
 
+export type VaultKey = string;
+export const keyForVault = (managerId: string, vaultId: string) =>
+  `${managerId}.${vaultId}` as VaultKey;
+
+// XXX: find a way to get this from zoe.
+export type PriceQuote = unknown;
+
 interface VaultState {
   managerIdsLoadingError: string | null;
   vaultFactoryParamsLoadingError: string | null;
@@ -69,7 +76,7 @@ interface VaultState {
   priceErrors: Map<Brand, unknown>;
   vaultFactoryParams: VaultFactoryParams | null;
   vaultFactoryInstanceHandle: unknown;
-  setPrice: (brand: Brand, price: PriceDescription) => void;
+  setPrice: (brand: Brand, priceQuote: PriceQuote) => void;
   setPriceError: (brand: Brand, e: unknown) => void;
   setVaultManagerLoadingError: (id: string, error: unknown) => void;
   setVaultManager: (id: string, manager: VaultManager) => void;
@@ -123,10 +130,10 @@ export const useVaultStore = create<VaultState>()(set => ({
       newMetrics.set(id, metrics);
       return { vaultMetrics: newMetrics };
     }),
-  setPrice: (brand: Brand, price: PriceDescription) =>
+  setPrice: (brand: Brand, priceQuote: PriceQuote) =>
     set(state => {
       const newPrices = new Map(state.prices);
-      newPrices.set(brand, price);
+      newPrices.set(brand, getPriceDescription(priceQuote));
       return { prices: newPrices };
     }),
   setPriceError: (brand: Brand, e: unknown) =>
