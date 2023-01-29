@@ -7,7 +7,7 @@ import {
   VaultMetrics,
 } from 'store/vaults';
 import { makeFollower, iterateLatest } from '@agoric/casting';
-import { appStore, VStorageKey } from 'store/app';
+import { appStore } from 'store/app';
 import type { BrandInfo } from 'store/app';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 import type { Ratio } from 'store/vaults';
@@ -92,46 +92,61 @@ const watchPriceFeeds = () => {
 };
 
 type VaultSubscribers = {
-  asset: VStorageKey;
-  vault: VStorageKey;
+  asset: string;
+  vault: string;
 };
 
 const watchUserVaults = () => {
   let isStopped = false;
   const watchedVaults = new Set<string>();
 
-  const watchVault = async (offerId: string, subsciber: VStorageKey) => {
+  const watchVault = async (
+    offerId: string,
+    subscriber: string,
+    managerId: string,
+  ) => {
+    useVaultStore.getState().markVaultForLoading(offerId, managerId);
+
     const { leader, importContext } = appStore.getState();
-    const f = makeFollower(`:${subsciber}`, leader, {
+    const f = makeFollower(`:${subscriber}`, leader, {
       unserializer: importContext.fromBoard,
     });
 
     for await (const { value } of iterateLatest<VaultUpdate>(f)) {
       if (isStopped) break;
-      console.debug('got update', subsciber, value);
+      console.debug('got update', subscriber, value);
       useVaultStore
         .getState()
-        .setVault(offerId, { ...value, managerId: 'unknown' });
+        .setVault(offerId, { ...value, managerId, isLoading: false });
     }
   };
 
   const watchNewVaults = async (
-    subscribers: Record<string, Record<string, VStorageKey>>,
+    subscribers: Record<string, Record<string, string>>,
   ) => {
-    Object.entries(subscribers).forEach(([offerId, subscribers]) => {
-      // XXX: This assumes all entries are vault offers, should filter somehow.
-      if (!watchedVaults.has(offerId)) {
-        watchedVaults.add(offerId);
-        const vaultSubscriber = (subscribers as VaultSubscribers).vault;
+    if (!useVaultStore.getState().vaults) {
+      useVaultStore.setState({ vaults: new Map() });
+    }
 
-        watchVault(offerId, vaultSubscriber).catch(e => {
-          console.error(
-            `Error watching vault ${offerId} ${vaultSubscriber}`,
-            e,
-          );
-          useVaultStore.getState().setVaultError(offerId, e);
-        });
+    Object.entries(subscribers).forEach(([offerId, subscribers]) => {
+      // XXX: If a third party contract returns a similar looking offer result,
+      // it could trick the UI into thinking the user has a vault. Is there a
+      // better way to filter for real vaults the user owns?
+      const vaultSubscriber = (subscribers as VaultSubscribers).vault;
+      if (!vaultSubscriber || watchedVaults.has(offerId)) {
+        return;
       }
+
+      watchedVaults.add(offerId);
+      const managerId = (subscribers as VaultSubscribers).asset
+        .split('.')
+        .pop();
+      assert(managerId);
+
+      watchVault(offerId, vaultSubscriber, managerId).catch(e => {
+        console.error(`Error watching vault ${offerId} ${vaultSubscriber}`, e);
+        useVaultStore.getState().setVaultError(offerId, e);
+      });
     });
   };
 

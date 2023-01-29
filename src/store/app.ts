@@ -40,12 +40,6 @@ export type OfferSigner = {
   addOffer?: (offer: OfferConfig) => void;
 };
 
-export type VStorageKey = {
-  storeName: string;
-  storeSubkey: string;
-  dataPrefixBytes: string;
-};
-
 interface AppState {
   brandToInfo: Map<Brand, BrandInfo> | null;
   watchVbankError: string | null;
@@ -56,10 +50,7 @@ interface AppState {
   offerSigner: OfferSigner;
   purses: PursesJSONState[] | null;
   walletService: ReturnType<typeof makeWalletService>;
-  offerIdsToPublicSubscribers: Record<
-    string,
-    Record<string, VStorageKey>
-  > | null;
+  offerIdsToPublicSubscribers: Record<string, Record<string, string>> | null;
 }
 
 export const appStore = create<AppState>()(() => ({
@@ -76,6 +67,10 @@ export const appStore = create<AppState>()(() => ({
 }));
 
 export const appAtom = atomWithStore(appStore);
+
+export const offerIdsToPublicSubscribersAtom = atom(
+  get => get(appAtom).offerIdsToPublicSubscribers,
+);
 
 export const displayFunctionsAtom = atom(get => {
   const brandToInfo = get(appAtom).brandToInfo;

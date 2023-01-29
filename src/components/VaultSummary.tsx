@@ -2,42 +2,48 @@ import { useMemo } from 'react';
 import { useVaultStore } from 'store/vaults';
 import { useAtomValue } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
-import type { VaultKey } from 'store/vaults';
+import SkeletonVaultSummary from 'components/SkeletonVaultSummary';
 
 type Props = {
-  vaultKey: VaultKey;
+  offerId: string;
 };
 
-const VaultSummary = ({ vaultKey }: Props) => {
+const VaultSummary = ({ offerId }: Props) => {
   const { vaults, errors } = useVaultStore(state => ({
     vaults: state.vaults,
     errors: state.vaultErrors,
   }));
-  const vault = vaults.get(vaultKey);
-  const error = errors.get(vaultKey);
+  const vault = vaults?.get(offerId);
+  const error = errors.get(offerId);
   const displayFunctions = useAtomValue(displayFunctionsAtom);
 
   return useMemo(() => {
-    assert(vault, `Cannot render summary for nonexistent vault ${vaultKey}`);
+    assert(vault, `Cannot render summary for nonexistent vault ${offerId}`);
     assert(
       displayFunctions,
-      `Cannot render summary for vault ${vaultKey} - missing vbank asset info.`,
+      `Cannot render summary for vault ${offerId} - missing vbank asset info.`,
     );
     const { displayAmount, displayBrandPetname } = displayFunctions;
 
     if (error) {
       return (
         <div className="p-4 pt-2 border border-black border-solid">
-          <h3>{vaultKey}</h3>
+          <h3>{offerId}</h3>
           <p>Error: {error.toString()}</p>
         </div>
       );
     }
 
+    if (vault.isLoading) {
+      return <SkeletonVaultSummary />;
+    }
+
+    assert(vault.locked, 'Vault must be loading still');
+
     // TODO: Calculate and display total debt correctly.
     return (
       <div className="p-4 pt-2 border border-black border-solid">
-        <h3>{vaultKey}</h3>
+        <h3>{offerId}</h3>
         <p>Status: {vault.vaultState}</p>
         <p>
           Locked: {displayAmount(vault.locked)}{' '}
@@ -45,7 +51,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
         </p>
       </div>
     );
-  }, [vault, error, vaultKey, displayFunctions]);
+  }, [vault, error, offerId, displayFunctions]);
 };
 
 export default VaultSummary;
