@@ -6,6 +6,7 @@ import CollateralChoices from 'components/CollateralChoices';
 import ManageVaults from 'components/ManageVaults';
 import MainContentCard from 'components/MainContentCard';
 import { useVaultStore } from 'store/vaults';
+import { FaPlusCircle } from 'react-icons/fa';
 
 enum Mode {
   Create,
@@ -48,7 +49,12 @@ const Vaults = () => {
     onClick: useCallback(() => setMode(Mode.Manage), [setMode]),
   };
   const createVaultButtonProps = {
-    text: 'Add New Vault',
+    text: (
+      <>
+        <FaPlusCircle size={16} />
+        <span>&nbsp;&nbsp;Add new vault</span>
+      </>
+    ),
     onClick: useCallback(() => setMode(Mode.Create), [setMode]),
   };
   const buttonPropsForMode = {
