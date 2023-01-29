@@ -7,22 +7,19 @@ import {
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { atomWithStore } from 'jotai-zustand';
-import { makeImportContext } from '@agoric/wallet/api/src/marshal-contexts';
+import {
+  ImportContext,
+  makeImportContext,
+} from '@agoric/smart-wallet/src/marshal-contexts';
 import create from 'zustand/vanilla';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
 import { makeWalletService } from 'service/wallet';
 import type { DisplayInfo, Brand } from '@agoric/ertp/src/types';
-import type { Marshal } from '@endo/marshal';
 import type { Leader } from '@agoric/casting';
 import type { PursesJSONState } from '@agoric/wallet-backend';
 
 export type BrandInfo = DisplayInfo<'nat'> & {
   petname: string;
-};
-
-export type ImportContext = {
-  fromBoard: Marshal<unknown>;
-  fromWallet: Marshal<unknown>;
 };
 
 export type OfferConfig = {

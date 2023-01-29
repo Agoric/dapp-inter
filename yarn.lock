@@ -81,7 +81,7 @@
   dependencies:
     protobufjs "^7.0.0"
 
-"@agoric/ertp@0.15.4-dev-1adb7a2.0+1adb7a2", "@agoric/ertp@^0.15.4-dev-1adb7a2.0":
+"@agoric/ertp@0.15.4-dev-1adb7a2.0+1adb7a2":
   version "0.15.4-dev-1adb7a2.0"
   resolved "https://registry.yarnpkg.com/@agoric/ertp/-/ertp-0.15.4-dev-1adb7a2.0.tgz#8b58513648f89e6c40964cb941d4a3c82d730ff4"
   integrity sha512-wxf23ZEwFbQ5uUmFz+h1FeOjxGnIkZ4a24zGKzdi3CxOr2ldkducfJ9q/rVtTWIAGauWEfhpbi9qPnUZm+eOeQ==
@@ -97,7 +97,7 @@
     "@endo/marshal" "^0.8.1"
     "@endo/promise-kit" "^0.2.52"
 
-"@agoric/ertp@0.15.4-dev-669ad6d.0+669ad6d":
+"@agoric/ertp@0.15.4-dev-669ad6d.0+669ad6d", "@agoric/ertp@^0.15.4-dev-1adb7a2.0":
   version "0.15.4-dev-669ad6d.0"
   resolved "https://registry.yarnpkg.com/@agoric/ertp/-/ertp-0.15.4-dev-669ad6d.0.tgz#64fd055e68f1dfb593a846594134c2e4ba03b2bb"
   integrity sha512-SEDJaYspEu1pEhSQ83oX1QHALX51FtueBDIxVpl8uhs3BmzZ1MUhsudL1fQYxk07cvbJBDmr52D+Qyyaftr31A==
@@ -293,7 +293,7 @@
     "@agoric/assert" "0.5.2-dev-669ad6d.0+669ad6d"
     "@endo/marshal" "^0.8.1"
 
-"@agoric/smart-wallet@0.4.3-dev-1adb7a2.0+1adb7a2":
+"@agoric/smart-wallet@0.4.3-dev-1adb7a2.0+1adb7a2", "@agoric/smart-wallet@^0.4.3-dev-1adb7a2.0":
   version "0.4.3-dev-1adb7a2.0"
   resolved "https://registry.yarnpkg.com/@agoric/smart-wallet/-/smart-wallet-0.4.3-dev-1adb7a2.0.tgz#4cc9b5d743e210350f90a4b2df53f0f593388664"
   integrity sha512-xryExmNhIyZUdGeAe5IPXELyb0ib+9MwbyD9TnaYpi39Rlq9gBci+kjO0L8kbGPRe9VDGx/noAJuw/If7FaTRA==
@@ -3172,7 +3172,7 @@ eslint@^8.22.0:
     strip-json-comments "^3.1.0"
     text-table "^0.2.0"
 
-"esm@github:agoric-labs/esm#Agoric-built":
+esm@agoric-labs/esm#Agoric-built:
   version "3.2.25"
   resolved "https://codeload.github.com/agoric-labs/esm/tar.gz/3603726ad4636b2f865f463188fcaade6375638e"
 

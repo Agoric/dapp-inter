@@ -7,10 +7,6 @@ declare module '@agoric/ui-components' {
   export const stringifyRatio;
 }
 
-declare module '@agoric/wallet/api/src/marshal-contexts' {
-  export const makeImportContext;
-}
-
 // UNTIL https://github.com/Agoric/agoric-sdk/issues/6591
 declare module '@agoric/web-components' {
   export const makeAgoricKeplrConnection;

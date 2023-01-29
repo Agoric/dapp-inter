@@ -16,6 +16,7 @@
   "dependencies": {
     "@agoric/casting": "^0.3.3-dev-1adb7a2.0",
     "@agoric/ertp": "^0.15.4-dev-1adb7a2.0",
+    "@agoric/smart-wallet": "^0.4.3-dev-1adb7a2.0",
     "@agoric/ui-components": "^0.3.4-dev-1adb7a2.0",
     "@agoric/wallet": "^0.17.1-dev-1adb7a2.0",
     "@agoric/web-components": "^0.5.1-dev-1adb7a2.0",
