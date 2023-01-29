@@ -14,11 +14,13 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@agoric/casting": "^0.3.3-dev-0153ef0.0",
-    "@agoric/ertp": "^0.15.4-dev-0d0f8f3.0",
-    "@agoric/ui-components": "^0.3.4-dev-f5341af.0",
-    "@agoric/wallet": "^0.17.1-dev-0153ef0.0",
-    "@agoric/web-components": "^0.5.1-dev-669ad6d.0",
+    "@agoric/casting": "^0.3.3-dev-1adb7a2.0",
+    "@agoric/ertp": "^0.15.4-dev-1adb7a2.0",
+    "@agoric/smart-wallet": "^0.4.3-dev-1adb7a2.0",
+    "@agoric/ui-components": "^0.3.4-dev-1adb7a2.0",
+    "@agoric/wallet": "^0.17.1-dev-1adb7a2.0",
+    "@agoric/web-components": "^0.5.1-dev-1adb7a2.0",
+    "@agoric/zoe": "^0.25.4-dev-1adb7a2.0",
     "@endo/eventual-send": "^0.16.0",
     "@endo/init": "^0.5.43",
     "@endo/marshal": "^0.8.1",
