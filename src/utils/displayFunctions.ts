@@ -3,15 +3,14 @@ import {
   stringifyRatio,
   stringifyValue,
 } from '@agoric/ui-components';
-import { AssetKind } from '@agoric/ertp';
+import { AssetKind, AmountMath } from '@agoric/ertp';
+import {
+  floorMultiplyBy,
+  makeRatioFromAmounts,
+} from '@agoric/zoe/src/contractSupport';
 import type { BrandInfo } from 'store/app';
 import type { PriceDescription, Ratio } from 'store/vaults';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
-
-// XXX: Kludge until we get a price authority with the same brands vault
-// manager uses https://github.com/Agoric/agoric-sdk/issues/6765.
-const PRICE_BRAND_UNIT_AMOUNT = 1_000_000n;
-const USD_BRAND_DECIMALS = 6;
 
 const getLogoForBrandPetname = (brandPetname: string) => {
   switch (brandPetname) {
@@ -70,12 +69,22 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
     getLogoForBrandPetname(getPetname(brand));
 
   const displayPrice = (price: PriceDescription) => {
-    const givenUnitsOfBrandIn = price.amountIn.value / PRICE_BRAND_UNIT_AMOUNT;
-    const pricePerUnitOfBrandIn = price.amountOut.value / givenUnitsOfBrandIn;
-    return (
-      '$' +
-      stringifyValue(pricePerUnitOfBrandIn, AssetKind.NAT, USD_BRAND_DECIMALS)
+    const { amountIn, amountOut } = price;
+    const { brand: brandIn } = amountIn;
+    const brandInDecimals = getDecimalPlaces(brandIn);
+    assert(brandInDecimals);
+
+    const unitAmountOfBrandIn = AmountMath.make(
+      brandIn,
+      10n ** BigInt(brandInDecimals),
     );
+
+    const brandOutAmountPerUnitOfBrandIn = floorMultiplyBy(
+      unitAmountOfBrandIn,
+      makeRatioFromAmounts(amountOut, amountIn),
+    );
+
+    return '$' + displayAmount(brandOutAmountPerUnitOfBrandIn);
   };
 
   const displayPriceTimestamp = (price: PriceDescription) => {

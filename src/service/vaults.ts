@@ -1,6 +1,5 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import {
-  PriceDescription,
   useVaultStore,
   VaultInfoChainData,
   VaultManager,
@@ -8,52 +7,39 @@ import {
 } from 'store/vaults';
 import { makeFollower, iterateLatest } from '@agoric/casting';
 import { appStore } from 'store/app';
-import type { BrandInfo } from 'store/app';
-import type { Brand, Amount } from '@agoric/ertp/src/types';
-import type { Ratio } from 'store/vaults';
 import { toast } from 'react-toastify';
 import { CapData } from '@endo/marshal';
-
-const issuerPetnameToPriceFeed = new Map<string, string>([
-  ['IbcATOM', 'ATOM-USD_price_feed'],
-]);
+import type { Brand, Amount } from '@agoric/ertp/src/types';
+import type { Ratio, PriceQuote } from 'store/vaults';
 
 type ValuePossessor<T> = {
   value: T;
 };
 
-type PriceFeedUpdate = ValuePossessor<PriceDescription>;
+type PriceFeedUpdate = ValuePossessor<{
+  quoteAmount: PriceQuote;
+  quotePayment: unknown;
+}>;
 
 // Subscribes to price feeds for new brands.
 const watchPriceFeeds = () => {
   let isStopped = false;
   const { leader, importContext } = appStore.getState();
 
-  const brandsToWatch = new Set<Brand>();
+  // Map of collateral brands to any manager that publishes a price quote of
+  // that brand. If two managers have the same brand, their price quotes are
+  // the same (denoted in IST), so we only need to watch one.
+  const brandsToWatch = new Map<Brand, string>();
+
   const watchedBrands = new Set<Brand>();
-  let brandToInfo: Map<Brand, BrandInfo> | null = null;
 
-  const watchFeed = async (brand: Brand) => {
-    const { petname } = brandToInfo?.get(brand) ?? {};
-    if (brandToInfo && !petname) {
-      // brandToInfo was loaded but missing this asset, not good.
-      throw new Error('Missing display info for brand ' + brand);
-    }
-    const priceFeed = issuerPetnameToPriceFeed.get(petname ?? '');
-    if (!priceFeed) {
-      if (petname) {
-        // issuerPetnameToPriceFeed is missing this asset, not good.
-        throw new Error('Missing price feed for brand ' + petname);
-      }
-      // brandToInfo must be null, try again after it loads.
-      return;
-    }
-
-    const path = `:published.priceFeed.${priceFeed}`;
+  const watchFeed = async (brand: Brand, managerId: string) => {
+    watchedBrands.add(brand);
+    const path = `:published.vaultFactory.${managerId}.quotes`;
     const f = makeFollower(path, leader, {
       unserializer: importContext.fromBoard,
     });
-    watchedBrands.add(brand);
+
     for await (const { value } of iterateLatest<PriceFeedUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
@@ -62,31 +48,28 @@ const watchPriceFeeds = () => {
   };
 
   const watchNewBrands = () => {
-    brandsToWatch.forEach((brand: Brand) => {
+    brandsToWatch.forEach((managerId, brand) => {
       if (watchedBrands.has(brand)) return;
 
-      watchFeed(brand).catch((e: unknown) => {
+      watchFeed(brand, managerId).catch((e: unknown) => {
         console.error('Error watching brand price feed', brand, e);
         useVaultStore.getState().setPriceError(brand, e);
       });
     });
   };
 
-  const unsubAppStore = appStore.subscribe(({ brandToInfo: value }) => {
-    brandToInfo = value;
-    watchNewBrands();
-  });
-
   const unsubVaultStore = useVaultStore.subscribe(({ vaultMetrics }) => {
-    vaultMetrics.forEach(metrics =>
-      brandsToWatch.add(metrics.retainedCollateral.brand),
-    );
+    vaultMetrics.forEach((metrics, managerId) => {
+      const { brand } = metrics.retainedCollateral;
+      if (!brandsToWatch.has(brand)) {
+        brandsToWatch.set(metrics.retainedCollateral.brand, managerId);
+      }
+    });
     watchNewBrands();
   });
 
   return () => {
     isStopped = true;
-    unsubAppStore();
     unsubVaultStore();
   };
 };
