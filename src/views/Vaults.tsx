@@ -1,17 +1,26 @@
 import { useAtomValue } from 'jotai';
 import { appAtom, leaderAtom, networkConfigAtom } from 'store/app';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { watchVaultFactory } from 'service/vaults';
 import CollateralChoices from 'components/CollateralChoices';
 import ManageVaults from 'components/ManageVaults';
 import MainContentCard from 'components/MainContentCard';
-import { useVaultStore } from 'store/vaults';
-import { FaPlusCircle } from 'react-icons/fa';
+import { useVaultStore, viewModeAtom, ViewMode } from 'store/vaults';
 
-enum Mode {
-  Create,
-  Manage,
-}
+type PathDescriptionProps = { mode: ViewMode };
+
+const PathDescription = ({ mode }: PathDescriptionProps) => {
+  if (mode === ViewMode.Create) {
+    return (
+      <span>
+        <span className="text-[#9193A5]">Vaults&nbsp;&nbsp;/&nbsp;&nbsp;</span>
+        Creating Vault
+      </span>
+    );
+  }
+
+  return <></>;
+};
 
 const Vaults = () => {
   const netConfig = useAtomValue(networkConfigAtom);
@@ -27,10 +36,10 @@ const Vaults = () => {
 
   const { managerIdsLoadingError, vaultManagerIds } = useVaultStore();
   const { watchVbankError, brandToInfo } = useAtomValue(appAtom);
-  const [mode, setMode] = useState(Mode.Create);
+  const mode = useAtomValue(viewModeAtom);
 
   const contentForMode = {
-    [Mode.Create]: () => (
+    [ViewMode.Create]: () => (
       <>
         {!managerIdsLoadingError &&
           !watchVbankError &&
@@ -40,28 +49,9 @@ const Vaults = () => {
         {vaultManagerIds && brandToInfo && <CollateralChoices />}
       </>
     ),
-    [Mode.Manage]: () => <ManageVaults />,
+    [ViewMode.Manage]: () => <ManageVaults />,
   };
   const content = contentForMode[mode]();
-
-  const manageVaultsButtonProps = {
-    text: 'Manage Vaults',
-    onClick: useCallback(() => setMode(Mode.Manage), [setMode]),
-  };
-  const createVaultButtonProps = {
-    text: (
-      <>
-        <FaPlusCircle size={16} />
-        <span>&nbsp;&nbsp;Add new vault</span>
-      </>
-    ),
-    onClick: useCallback(() => setMode(Mode.Create), [setMode]),
-  };
-  const buttonPropsForMode = {
-    [Mode.Create]: manageVaultsButtonProps,
-    [Mode.Manage]: createVaultButtonProps,
-  };
-  const buttonProps = buttonPropsForMode[mode];
 
   const subheader = (
     <div className="h-full flex flex-row items-center">
@@ -82,13 +72,8 @@ const Vaults = () => {
 
   return (
     <MainContentCard subheader={subheader}>
-      <div className="w-full flex justify-end">
-        <button
-          className="text-[#f9fafe] text-xs uppercase flex flex-row justify-center items-center p-3 bg-interPurple rounded-md shadow-[0_10px_14px_-4px_rgba(183,135,245,0.3)]"
-          onClick={buttonProps.onClick}
-        >
-          {buttonProps.text}
-        </button>
+      <div className="font-medium text-[15px] h-4">
+        <PathDescription mode={mode} />
       </div>
       {managerIdsLoadingError && <div>{managerIdsLoadingError}</div>}
       {watchVbankError && <div>{watchVbankError}</div>}
