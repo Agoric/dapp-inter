@@ -1,3 +1,4 @@
+import { AmountMath } from '@agoric/ertp';
 import { useAtomValue } from 'jotai';
 import { makeOpenVaultOffer } from 'service/vaults';
 import { offerSignerAtom, pursesAtom } from 'store/app';
@@ -49,10 +50,8 @@ const NewVault = ({ id }: Props) => {
   const proposeOffer = () => {
     assert(isReady);
     makeOpenVaultOffer(
-      collateralPurse.pursePetname,
-      COLLATERAL_TO_LOCK,
-      istPurse.pursePetname,
-      IST_TO_BORROW,
+      AmountMath.make(collateralPurse.brand, COLLATERAL_TO_LOCK),
+      AmountMath.make(istPurse.brand, IST_TO_BORROW),
     );
   };
 

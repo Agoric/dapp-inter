@@ -40,21 +40,19 @@ export type VaultFactoryParams = {
 };
 
 export type VaultInfoChainData = {
-  debtSnapshot: {
+  debtSnapshot?: {
     debt: Amount<'nat'>;
     interest: Ratio;
   };
-  locked: Amount<'nat'>;
-  vaultState: string;
+  locked?: Amount<'nat'>;
+  vaultState?: string;
 };
 
 export type VaultInfo = VaultInfoChainData & {
+  createdByOfferId: string;
   managerId: string;
+  isLoading: boolean;
 };
-
-export type VaultKey = string;
-export const keyForVault = (managerId: string, vaultId: string) =>
-  `${managerId}.${vaultId}` as VaultKey;
 
 interface VaultState {
   managerIdsLoadingError: string | null;
@@ -65,8 +63,8 @@ interface VaultState {
   vaultManagers: Map<string, VaultManager>;
   vaultGovernedParams: Map<string, VaultParams>;
   vaultMetrics: Map<string, VaultMetrics>;
-  vaults: Map<VaultKey, VaultInfo>;
-  vaultErrors: Map<VaultKey, unknown>;
+  vaults: Map<string, VaultInfo> | null;
+  vaultErrors: Map<string, unknown>;
   prices: Map<Brand, PriceDescription>;
   priceErrors: Map<Brand, unknown>;
   vaultFactoryParams: VaultFactoryParams | null;
@@ -77,8 +75,13 @@ interface VaultState {
   setVaultManager: (id: string, manager: VaultManager) => void;
   setVaultGovernedParams: (id: string, params: VaultParams) => void;
   setVaultMetrics: (id: string, metrics: VaultMetrics) => void;
-  setVault: (key: VaultKey, vault: VaultInfo) => void;
-  setVaultError: (key: VaultKey, error: unknown) => void;
+  setVault: (vaultKey: string, vault: VaultInfo) => void;
+  setVaultError: (vaultKey: string, error: unknown) => void;
+  markVaultForLoading: (
+    vaultKey: string,
+    managerId: string,
+    createdByOfferId: string,
+  ) => void;
 }
 
 export const useVaultStore = create<VaultState>()(set => ({
@@ -94,8 +97,8 @@ export const useVaultStore = create<VaultState>()(set => ({
   vaultMetrics: new Map<string, VaultMetrics>(),
   prices: new Map<Brand, PriceDescription>(),
   priceErrors: new Map<Brand, unknown>(),
-  vaults: new Map<VaultKey, VaultInfo>(),
-  vaultErrors: new Map<VaultKey, unknown>(),
+  vaults: null,
+  vaultErrors: new Map<string, unknown>(),
   setVaultManagerLoadingError: (id: string, error: unknown) =>
     set(state => {
       const newErrors = new Map(state.vaultManagerLoadingErrors);
@@ -132,16 +135,30 @@ export const useVaultStore = create<VaultState>()(set => ({
       newPriceErrors.set(brand, e);
       return { priceErrors: newPriceErrors };
     }),
-  setVault: (key: VaultKey, vault: VaultInfo) =>
+  setVault: (vaultKey: string, vault: VaultInfo) =>
     set(state => {
       const newVaults = new Map(state.vaults);
-      newVaults.set(key, vault);
+      newVaults.set(vaultKey, vault);
       return { vaults: newVaults };
     }),
-  setVaultError: (key: VaultKey, e: unknown) =>
+  setVaultError: (vaultKey: string, e: unknown) =>
     set(state => {
       const newVaultErrors = new Map(state.vaultErrors);
-      newVaultErrors.set(key, e);
+      newVaultErrors.set(vaultKey, e);
       return { vaultErrors: newVaultErrors };
+    }),
+  markVaultForLoading: (
+    vaultKey: string,
+    managerId: string,
+    createdByOfferId: string,
+  ) =>
+    set(state => {
+      // Only set the vault as loading if it doesn't exist yet.
+      if (state.vaults?.get(vaultKey)) {
+        return {};
+      }
+      const newVaults = new Map(state.vaults);
+      newVaults.set(vaultKey, { isLoading: true, managerId, createdByOfferId });
+      return { vaults: newVaults };
     }),
 }));

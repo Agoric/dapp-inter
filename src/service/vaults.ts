@@ -1,6 +1,5 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import {
-  keyForVault,
   PriceDescription,
   useVaultStore,
   VaultInfoChainData,
@@ -92,6 +91,86 @@ const watchPriceFeeds = () => {
   };
 };
 
+type VaultSubscribers = {
+  asset: string;
+  vault: string;
+};
+
+/**
+ * Ex. `asset: 'published.vaultFactory.manager0'` -> `'manager0'`.
+ */
+const getManagerIdFromSubscribers = (subscribers: VaultSubscribers) =>
+  subscribers.asset.split('.').pop();
+
+const watchUserVaults = () => {
+  let isStopped = false;
+  const watchedVaults = new Set<string>();
+
+  const watchVault = async (
+    offerId: string,
+    subscriber: string,
+    managerId: string,
+  ) => {
+    useVaultStore.getState().markVaultForLoading(offerId, managerId, offerId);
+
+    const { leader, importContext } = appStore.getState();
+    const f = makeFollower(`:${subscriber}`, leader, {
+      unserializer: importContext.fromBoard,
+    });
+
+    for await (const { value } of iterateLatest<VaultUpdate>(f)) {
+      if (isStopped) break;
+      console.debug('got update', subscriber, value);
+      useVaultStore.getState().setVault(offerId, {
+        ...value,
+        managerId,
+        isLoading: false,
+        createdByOfferId: offerId,
+      });
+    }
+  };
+
+  const watchNewVaults = async (
+    subscribers: Record<string, Record<string, string>>,
+  ) => {
+    if (!useVaultStore.getState().vaults) {
+      useVaultStore.setState({ vaults: new Map() });
+    }
+
+    Object.entries(subscribers).forEach(([offerId, subscribers]) => {
+      // XXX: If a third party contract returns a similar looking offer result,
+      // it could trick the UI into thinking the user has a vault. A better way
+      // to filter offers will be needed in MN-3.
+      const vaultSubscriber = (subscribers as VaultSubscribers).vault;
+      if (!vaultSubscriber || watchedVaults.has(offerId)) {
+        return;
+      }
+      watchedVaults.add(offerId);
+      const managerId = getManagerIdFromSubscribers(
+        subscribers as VaultSubscribers,
+      );
+      assert(managerId);
+
+      watchVault(offerId, vaultSubscriber, managerId).catch(e => {
+        console.error(`Error watching vault ${offerId} ${vaultSubscriber}`, e);
+        useVaultStore.getState().setVaultError(offerId, e);
+      });
+    });
+  };
+
+  const unsubAppStore = appStore.subscribe(
+    ({ offerIdsToPublicSubscribers: value }) => {
+      if (value === null) return;
+      watchNewVaults(value);
+    },
+  );
+
+  return () => {
+    isStopped = true;
+    unsubAppStore();
+  };
+};
+
 type GovernedParamsUpdate = ValuePossessor<{
   current: {
     DebtLimit: ValuePossessor<Amount<'nat'>>;
@@ -144,50 +223,6 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
-  const watchVault = async (managerId: string, vaultId: string) => {
-    const { leader, importContext } = appStore.getState();
-    const path = `:published.vaultFactory.${managerId}.vaults.${vaultId}`;
-    const f = makeFollower(path, leader, {
-      unserializer: importContext.fromBoard,
-    });
-
-    for await (const { value } of iterateLatest<VaultUpdate>(f)) {
-      if (isStopped) break;
-      console.debug('got update', path, value);
-      useVaultStore
-        .getState()
-        .setVault(keyForVault(managerId, vaultId), { managerId, ...value });
-    }
-  };
-
-  // XXX: Filter only by user's vaults when possible https://github.com/Agoric/agoric-sdk/issues/6665.
-  const watchVaults = async (managerId: string, rpc: string) => {
-    let vaultIds;
-    try {
-      const res = await fetchVstorageKeys(
-        rpc,
-        `published.vaultFactory.${managerId}.vaults`,
-      );
-      vaultIds = res.children as string[];
-      assert(vaultIds);
-    } catch (e) {
-      if (isStopped) return;
-      const msg = `Error fetching vault ids for ${managerId}`;
-      console.error(msg, e);
-      return;
-    }
-    if (isStopped) return;
-
-    vaultIds.forEach(vaultId =>
-      watchVault(managerId, vaultId).catch(e => {
-        console.error(`Error watching vault ${managerId} ${vaultId}`);
-        useVaultStore
-          .getState()
-          .setVaultError(keyForVault(managerId, vaultId), e);
-      }),
-    );
-  };
-
   const watchMetrics = async (id: string) => {
     const path = `:published.vaultFactory.${id}.metrics`;
     const f = makeBoardFollower(path);
@@ -198,8 +233,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
-  const watchManager = async (id: string, rpc: string) => {
-    watchVaults(id, rpc);
+  const watchManager = async (id: string) => {
     watchGovernedParams(id);
     watchMetrics(id);
 
@@ -271,7 +305,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
 
     useVaultStore.setState({ vaultManagerIds: managerIds });
     managerIds.forEach(id =>
-      watchManager(id, rpc).catch(e => {
+      watchManager(id).catch(e => {
         console.error('Error watching vault manager id', id, e);
         useVaultStore.getState().setVaultManagerLoadingError(id, e);
       }),
@@ -294,26 +328,32 @@ export const watchVaultFactory = (netconfigUrl: string) => {
 
   startWatching();
   const stopWatchingPriceFeeds = watchPriceFeeds();
+  const stopWatchingUserVaults = watchUserVaults();
 
   return () => {
     isStopped = true;
     stopWatchingPriceFeeds();
+    stopWatchingUserVaults();
   };
 };
 
 export const makeOpenVaultOffer = async (
-  fundPursePetname: string,
-  toLock: bigint,
-  intoPursePetname: string,
-  toBorrow: bigint,
+  toLock: Amount<'nat'>,
+  toBorrow: Amount<'nat'>,
 ) => {
-  const INVITATION_METHOD = 'makeLoanInvitation';
+  const INVITATION_METHOD = 'makeVaultInvitation';
 
   const { vaultFactoryInstanceHandle } = useVaultStore.getState();
   const { importContext, offerSigner } = appStore.getState();
   const serializedInstance = importContext.fromBoard.serialize(
     vaultFactoryInstanceHandle,
   ) as CapData<'Instance'>;
+  const serializedToLock = importContext.fromBoard.serialize(
+    toLock,
+  ) as CapData<'Amount'>;
+  const serializedtoBorrow = importContext.fromBoard.serialize(
+    toBorrow,
+  ) as CapData<'Amount'>;
 
   const offerConfig = {
     publicInvitationMaker: INVITATION_METHOD,
@@ -321,14 +361,12 @@ export const makeOpenVaultOffer = async (
     proposalTemplate: {
       give: {
         Collateral: {
-          pursePetname: fundPursePetname,
-          value: Number(toLock),
+          amount: serializedToLock,
         },
       },
       want: {
         Minted: {
-          pursePetname: intoPursePetname,
-          value: Number(toBorrow),
+          amount: serializedtoBorrow,
         },
       },
     },

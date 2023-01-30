@@ -32,6 +32,7 @@ export type ChainConnection = {
   chainId: string;
   address: string;
   pursesNotifier: unknown;
+  publicSubscribersNotifier: unknown;
 };
 
 export type OfferSigner = {
@@ -49,6 +50,7 @@ interface AppState {
   offerSigner: OfferSigner;
   purses: PursesJSONState[] | null;
   walletService: ReturnType<typeof makeWalletService>;
+  offerIdsToPublicSubscribers: Record<string, Record<string, string>> | null;
 }
 
 export const appStore = create<AppState>()(() => ({
@@ -61,9 +63,14 @@ export const appStore = create<AppState>()(() => ({
   offerSigner: { isDappApproved: false },
   purses: null,
   walletService: makeWalletService(),
+  offerIdsToPublicSubscribers: null,
 }));
 
 export const appAtom = atomWithStore(appStore);
+
+export const offerIdsToPublicSubscribersAtom = atom(
+  get => get(appAtom).offerIdsToPublicSubscribers,
+);
 
 export const displayFunctionsAtom = atom(get => {
   const brandToInfo = get(appAtom).brandToInfo;

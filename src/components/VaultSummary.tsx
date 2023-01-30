@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { useVaultStore } from 'store/vaults';
 import { useAtomValue } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
-import type { VaultKey } from 'store/vaults';
+import SkeletonVaultSummary from 'components/SkeletonVaultSummary';
 
 type Props = {
-  vaultKey: VaultKey;
+  vaultKey: string;
 };
 
 const VaultSummary = ({ vaultKey }: Props) => {
@@ -13,7 +13,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
     vaults: state.vaults,
     errors: state.vaultErrors,
   }));
-  const vault = vaults.get(vaultKey);
+  const vault = vaults?.get(vaultKey);
   const error = errors.get(vaultKey);
   const displayFunctions = useAtomValue(displayFunctionsAtom);
 
@@ -33,6 +33,12 @@ const VaultSummary = ({ vaultKey }: Props) => {
         </div>
       );
     }
+
+    if (vault.isLoading) {
+      return <SkeletonVaultSummary />;
+    }
+
+    assert(vault.locked, 'Vault must be loading still');
 
     // TODO: Calculate and display total debt correctly.
     return (
