@@ -58,7 +58,7 @@ export type VaultKey = string;
 export const keyForVault = (managerId: string, vaultId: string) =>
   `${managerId}.${vaultId}` as VaultKey;
 
-// XXX: find a way to get this from zoe.
+// UNTIL: We get this from zoe https://github.com/Agoric/agoric-sdk/pull/6884
 export type PriceQuote = unknown;
 
 interface VaultState {

@@ -26,9 +26,9 @@ const watchPriceFeeds = () => {
   let isStopped = false;
   const { leader, importContext } = appStore.getState();
 
-  // Map of brands to any manager that publishes a price quote of that brand.
-  // If two managers have the same brand, their price quotes are the same, so
-  // we only need to watch one.
+  // Map of collateral brands to any manager that publishes a price quote of
+  // that brand. If two managers have the same brand, their price quotes are
+  // the same (denoted in IST), so we only need to watch one.
   const brandsToWatch = new Map<Brand, string>();
 
   const watchedBrands = new Set<Brand>();
