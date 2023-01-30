@@ -44,8 +44,8 @@ const ManageVaults = () => {
     return <EmptyView isShimmering={true}>Loading your vaults...</EmptyView>;
   }
 
-  const content = [...vaults.entries()].map(([offerId]) => (
-    <VaultSummary key={offerId} offerId={offerId} />
+  const content = [...vaults.keys()].map(vaultKey => (
+    <VaultSummary key={vaultKey} vaultKey={vaultKey} />
   ));
 
   return <div className="flex gap-4 flex-wrap p-1">{content}</div>;

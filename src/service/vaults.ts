@@ -96,6 +96,12 @@ type VaultSubscribers = {
   vault: string;
 };
 
+/**
+ * Ex. `asset: 'published.vaultFactory.manager0'` -> `'manager0'`.
+ */
+const getManagerIdFromSubscribers = (subscribers: VaultSubscribers) =>
+  subscribers.asset.split('.').pop();
+
 const watchUserVaults = () => {
   let isStopped = false;
   const watchedVaults = new Set<string>();
@@ -105,7 +111,7 @@ const watchUserVaults = () => {
     subscriber: string,
     managerId: string,
   ) => {
-    useVaultStore.getState().markVaultForLoading(offerId, managerId);
+    useVaultStore.getState().markVaultForLoading(offerId, managerId, offerId);
 
     const { leader, importContext } = appStore.getState();
     const f = makeFollower(`:${subscriber}`, leader, {
@@ -115,9 +121,12 @@ const watchUserVaults = () => {
     for await (const { value } of iterateLatest<VaultUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', subscriber, value);
-      useVaultStore
-        .getState()
-        .setVault(offerId, { ...value, managerId, isLoading: false });
+      useVaultStore.getState().setVault(offerId, {
+        ...value,
+        managerId,
+        isLoading: false,
+        createdByOfferId: offerId,
+      });
     }
   };
 
@@ -130,17 +139,16 @@ const watchUserVaults = () => {
 
     Object.entries(subscribers).forEach(([offerId, subscribers]) => {
       // XXX: If a third party contract returns a similar looking offer result,
-      // it could trick the UI into thinking the user has a vault. Is there a
-      // better way to filter for real vaults the user owns?
+      // it could trick the UI into thinking the user has a vault. A better way
+      // to filter offers will be needed in MN-3.
       const vaultSubscriber = (subscribers as VaultSubscribers).vault;
       if (!vaultSubscriber || watchedVaults.has(offerId)) {
         return;
       }
-
       watchedVaults.add(offerId);
-      const managerId = (subscribers as VaultSubscribers).asset
-        .split('.')
-        .pop();
+      const managerId = getManagerIdFromSubscribers(
+        subscribers as VaultSubscribers,
+      );
       assert(managerId);
 
       watchVault(offerId, vaultSubscriber, managerId).catch(e => {
