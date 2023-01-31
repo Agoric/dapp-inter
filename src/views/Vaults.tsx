@@ -4,7 +4,7 @@ import { useEffect } from 'react';
 import { watchVaultFactory } from 'service/vaults';
 import CollateralChoices from 'components/CreateVault';
 import ManageVaults from 'components/ManageVaults';
-import MainContentCard from 'components/MainContentCard';
+import MainContentWrapper from 'components/MainContentWrapper';
 import { useVaultStore, viewModeAtom, ViewMode } from 'store/vaults';
 
 type PathDescriptionProps = { mode: ViewMode };
@@ -58,14 +58,14 @@ const Vaults = () => {
   const content = contentForMode[mode]();
 
   return (
-    <MainContentCard>
+    <MainContentWrapper>
       <div className="font-medium text-[15px] h-4">
         <PathDescription mode={mode} />
       </div>
       {managerIdsLoadingError && <div>{managerIdsLoadingError}</div>}
       {watchVbankError && <div>{watchVbankError}</div>}
       {content}
-    </MainContentCard>
+    </MainContentWrapper>
   );
 };
 

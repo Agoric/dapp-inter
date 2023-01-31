@@ -14,7 +14,7 @@ const TickerItem = ({ label, value }: TickerItemProps) => (
 
 type Props = PropsWithChildren<{ header?: ReactNode }>;
 
-const MainContentCard = ({ children, header }: Props) => {
+const MainContentWrapper = ({ children, header }: Props) => {
   const subheader = (
     <div className="h-full flex flex-row items-center flex-wrap">
       <TickerItem label="IST Outstanding (Vaults)" value="--" />
@@ -36,4 +36,4 @@ const MainContentCard = ({ children, header }: Props) => {
   );
 };
 
-export default MainContentCard;
+export default MainContentWrapper;

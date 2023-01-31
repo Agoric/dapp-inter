@@ -8,12 +8,9 @@ const ConfigureNewVault = () => {
         Choose your vault parameters.
       </p>
       <div className="mt-12 flex gap-x-20 gap-y-6 flex-wrap">
-        <AmountInput
-          label="Atom to lock up *"
-          error="Need to obtain funds"
-        ></AmountInput>
-        <AmountInput label="Collateralization ratio *"></AmountInput>
-        <AmountInput label="IST to receive *" isDisabled></AmountInput>
+        <AmountInput label="Atom to lock up *" error="Need to obtain funds" />
+        <AmountInput label="Collateralization ratio *" />
+        <AmountInput label="IST to receive *" disabled />
       </div>
       <p className="mt-12 italic font-serif text-[#666980] text-sm leading-[22px]">
         A vault creation fee will be charged on vault creation.
