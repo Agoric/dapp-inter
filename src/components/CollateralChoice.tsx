@@ -71,7 +71,8 @@ const CollateralChoice = ({ id }: CollateralChoiceParams) => {
 
   const logoSrc = displayBrandIcon(metrics.totalCollateral.brand);
 
-  // TODO: Come up with a naming scheme after rc0.
+  // TODO: Come up with a naming scheme after rc0
+  // https://github.com/Agoric/agoric-sdk/issues/6518
   const collateralTitle = 'ATOM';
 
   return (
