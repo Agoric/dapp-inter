@@ -2,9 +2,9 @@ import { useAtomValue } from 'jotai';
 import { appAtom, leaderAtom, networkConfigAtom } from 'store/app';
 import { useEffect } from 'react';
 import { watchVaultFactory } from 'service/vaults';
-import CollateralChoices from 'components/CollateralChoices';
+import CollateralChoices from 'components/CreateVault';
 import ManageVaults from 'components/ManageVaults';
-import MainContentCard from 'components/MainContentCard';
+import MainContentWrapper from 'components/MainContentWrapper';
 import { useVaultStore, viewModeAtom, ViewMode } from 'store/vaults';
 
 type PathDescriptionProps = { mode: ViewMode };
@@ -17,6 +17,10 @@ const PathDescription = ({ mode }: PathDescriptionProps) => {
         Creating Vault
       </span>
     );
+  }
+
+  if (mode === ViewMode.Manage) {
+    return <span className="text-[#9193A5]">Vaults</span>;
   }
 
   return <></>;
@@ -53,32 +57,15 @@ const Vaults = () => {
   };
   const content = contentForMode[mode]();
 
-  const subheader = (
-    <div className="h-full flex flex-row items-center">
-      <div className="ml-16 h-fit">
-        <span className="font-medium font-serif text-[#736D6D] mr-2">
-          IST Outstanding
-        </span>
-        <span className="font-bold font-serif text-mineShaft">$ --</span>
-      </div>
-      <div className="ml-16 h-fit">
-        <span className="font-medium font-serif text-[#736D6D] mr-2">
-          Total Value Locked
-        </span>
-        <span className="font-bold font-serif text-mineShaft">$ --</span>
-      </div>
-    </div>
-  );
-
   return (
-    <MainContentCard subheader={subheader}>
+    <MainContentWrapper>
       <div className="font-medium text-[15px] h-4">
         <PathDescription mode={mode} />
       </div>
       {managerIdsLoadingError && <div>{managerIdsLoadingError}</div>}
       {watchVbankError && <div>{watchVbankError}</div>}
       {content}
-    </MainContentCard>
+    </MainContentWrapper>
   );
 };
 

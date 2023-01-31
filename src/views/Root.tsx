@@ -37,8 +37,8 @@ const Root = () => {
   const shouldRedirectToVaults = pathname === '/';
 
   return (
-    <>
-      <div className="flex w-full justify-between h-24">
+    <div className="flex flex-col min-h-screen">
+      <div className="flex max-w-7xl justify-between flex-wrap-reverse gap-2">
         <div className="flex flex-row space-x-10">
           <img
             src="./inter-protocol-logo.svg"
@@ -47,13 +47,13 @@ const Root = () => {
             width="174"
           />
           <nav>
-            <ul className="h-full flex flex-row space-x-12">
+            <ul className="h-24 flex flex-row space-x-12">
               <NavItem label="Vaults" href="/vaults" />
               <NavItem label="Liquidations" href="/liquidations" />
             </ul>
           </nav>
         </div>
-        <div className="flex flex-row space-x-2 items-center mr-6">
+        <div className="flex flex-row space-x-2 items-center mr-6 m-2">
           <NetworkDropdown />
           <ConnectWalletButton />
         </div>
@@ -62,7 +62,7 @@ const Root = () => {
         <Navigate replace={true} to="/vaults"></Navigate>
       )}
       <Outlet />
-    </>
+    </div>
   );
 };
 
