@@ -1,10 +1,22 @@
 import { useAtomValue } from 'jotai';
-import { displayFunctionsAtom, pursesAtom } from 'store/app';
+import { displayFunctionsAtom } from 'store/app';
 import { useVaultStore } from 'store/vaults';
-import NewVault from './NewVault';
-import type { Amount } from '@agoric/ertp/src/types';
+import { AmountMath } from '@agoric/ertp';
 
-const CollateralChoice = ({ id }: { id: string }) => {
+type TableTowParams = { left: string; right: string };
+
+const TableRow = ({ left, right }: TableTowParams) => {
+  return (
+    <tr className="h-7 text-sm">
+      <td className="text-[#A3A5B9]">{left}</td>
+      <td className="text-right font-extrabold">{right}</td>
+    </tr>
+  );
+};
+
+type CollateralChoiceParams = { id: string };
+
+const CollateralChoice = ({ id }: CollateralChoiceParams) => {
   const {
     vaultGovernedParams,
     vaultManagerLoadingErrors,
@@ -16,7 +28,6 @@ const CollateralChoice = ({ id }: { id: string }) => {
     vaultFactoryParamsLoadingError,
   } = useVaultStore();
 
-  const purses = useAtomValue(pursesAtom);
   const manager = vaultManagers.get(id);
   const metrics = vaultMetrics.get(id);
   const params = vaultGovernedParams.get(id);
@@ -41,93 +52,60 @@ const CollateralChoice = ({ id }: { id: string }) => {
   }
 
   const isReady = manager && metrics && params && price && vaultFactoryParams;
+
+  if (!isReady) {
+    return (
+      <div className="w-fit p-4 pt-2 border border-solid border-black">
+        Loading...
+      </div>
+    );
+  }
   const {
     displayAmount,
     displayBrandPetname,
     displayPercent,
-    displayPrice,
-    displayPriceTimestamp,
+    displayBrandIcon,
   } = displayFunctions;
 
-  const purseBalance = (() => {
-    if (purses === null) {
-      return '<Wallet not connected>';
-    }
-    const purse = purses.find(p => p.brand === brand);
-    if (!purse) {
-      return '0 ' + displayBrandPetname(brand);
-    }
-    return `${displayAmount(
-      purse.currentAmount as Amount<'nat'>,
-    )} ${displayBrandPetname(brand)}`;
-  })();
+  const istAvailable = AmountMath.subtract(params.debtLimit, metrics.totalDebt);
 
-  const content = isReady ? (
-    <>
-      <p>Asset price: {displayPrice(price)}</p>
-      <p>Last price update: {displayPriceTimestamp(price)}</p>
-      <p>
-        Debt limit: {displayAmount(params.debtLimit)}{' '}
-        {displayBrandPetname(params.debtLimit.brand)}
-      </p>
-      <p>Interest rate: {displayPercent(params.interestRate, 2)}%</p>
-      <p>
-        Compounded interest: {displayPercent(manager.compoundedInterest, 2)}%
-      </p>
-      <p>
-        Latest interest update:{' '}
-        {new Date(Number(manager.latestInterestUpdate) * 1000).toUTCString()}
-      </p>
-      <p>Liquidation margin: {displayPercent(params.liquidationMargin, 2)}%</p>
-      <p>
-        Liquidation penalty: {displayPercent(params.liquidationPenalty, 2)}%
-      </p>
-      <p>Loan fee: {displayPercent(params.loanFee, 2)}%</p>
-      <p>Number of active vaults: {metrics.numActiveVaults}</p>
-      <p>Number of liquidating vaults: {metrics.numLiquidatingVaults}</p>
-      <p>
-        Number of liquidations completed: {metrics.numLiquidationsCompleted}
-      </p>
-      <p>
-        Retained collateral: {displayAmount(metrics.retainedCollateral)}{' '}
-        {displayBrandPetname(metrics.retainedCollateral.brand)}
-      </p>
-      <p>
-        Total collateral: {displayAmount(metrics.totalCollateral)}{' '}
-        {displayBrandPetname(metrics.totalCollateral.brand)}
-      </p>
-      <p>
-        Total debt: {displayAmount(metrics.totalDebt)}{' '}
-        {displayBrandPetname(metrics.totalDebt.brand)}
-      </p>
-      <p>
-        Total overage received: {displayAmount(metrics.totalOverageReceived)}{' '}
-        {displayBrandPetname(metrics.totalOverageReceived.brand)}
-      </p>
-      <p>
-        Total proceeds received: {displayAmount(metrics.totalProceedsReceived)}{' '}
-        {displayBrandPetname(metrics.totalProceedsReceived.brand)}
-      </p>
-      <p>
-        Total shortfall received:{' '}
-        {displayAmount(metrics.totalShortfallReceived)}{' '}
-        {displayBrandPetname(metrics.totalShortfallReceived.brand)}
-      </p>
-      <p>Purse balance: {purseBalance}</p>
-      <p>
-        Minimum initial debt: {displayAmount(vaultFactoryParams.minInitialDebt)}{' '}
-        {displayBrandPetname(vaultFactoryParams.minInitialDebt.brand)}
-      </p>
-      <NewVault id={id} />
-    </>
-  ) : (
-    <div>Loading...</div>
-  );
+  const logoSrc = displayBrandIcon(metrics.totalCollateral.brand);
+
+  const collateralTitle =
+    displayBrandPetname(metrics.totalCollateral.brand).replace('Ibc', '') +
+    '-' +
+    id.substring('manager'.length);
 
   return (
-    <div className="w-fit p-4 pt-2 border border-solid border-black">
-      <h3 className="font-semibold mb-1">Vault Manager ID: {id}</h3>
-      {content}
+    <div className="w-fit px-6 pt-2 pb-4 bg-white rounded-[10.7px] shadow-[0_25px_35.6px_0_rgba(116,116,116,0.25)]">
+      <img
+        className="mx-auto my-2"
+        height="48"
+        width="48"
+        src={logoSrc}
+        alt={displayBrandPetname(metrics.totalCollateral.brand)}
+      ></img>
+      <h3 className="text-center text-xl font-medium font-serif">
+        {collateralTitle}
+      </h3>
+      <table className="table-auto border-spacing-4 mt-4">
+        <tbody>
+          <TableRow
+            left="Interest Rate"
+            right={`${displayPercent(params.interestRate, 2)}%`}
+          />
+          <TableRow
+            left="IST Available"
+            right={`${displayAmount(istAvailable)} ${displayBrandPetname(
+              params.debtLimit.brand,
+            )}`}
+          />
+          <TableRow
+            left="Liquidation Ratio"
+            right={`${displayPercent(params.liquidationMargin, 2)}%`}
+          />
+        </tbody>
+      </table>
     </div>
   );
 };

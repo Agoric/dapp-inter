@@ -9,7 +9,7 @@ const MainContentCard = ({ children, header, subheader }: Props) => {
       <div className="w-full h-[1px] bg-[#f4cd0c]" />
       <div className="w-full h-[1px] bg-[#ffe252]" />
       <div className="bg-interYellow h-12">{subheader}</div>
-      <div className="p-8">{children}</div>
+      <div className="p-8 pt-4">{children}</div>
     </div>
   );
 };

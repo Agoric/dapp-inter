@@ -15,21 +15,9 @@ import type { Brand, Amount } from '@agoric/ertp/src/types';
 const getLogoForBrandPetname = (brandPetname: string) => {
   switch (brandPetname) {
     case 'IST':
-      return 'IST.png';
-    case 'USDC_axl':
-      return 'USDC_axl.png';
-    case 'USDC_grv':
-      return 'USDC_grv.webp';
-    case 'USDT_axl':
-      return 'USDT_axl.png';
-    case 'USDT_grv':
-      return 'USDT_grv.webp';
-    case 'DAI_axl':
-      return 'DAI_axl.png';
-    case 'DAI_grv':
-      return 'DAI_grv.png';
-    default:
-      return 'default.png';
+      return './IST.png';
+    case 'IbcATOM':
+      return './cosmos-atom-logo.svg';
   }
 };
 
