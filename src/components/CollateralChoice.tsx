@@ -71,10 +71,8 @@ const CollateralChoice = ({ id }: CollateralChoiceParams) => {
 
   const logoSrc = displayBrandIcon(metrics.totalCollateral.brand);
 
-  const collateralTitle =
-    displayBrandPetname(metrics.totalCollateral.brand).replace('Ibc', '') +
-    '-' +
-    id.substring('manager'.length);
+  // TODO: Come up with a naming scheme after rc0.
+  const collateralTitle = 'ATOM';
 
   return (
     <div className="w-fit px-6 pt-2 pb-4 bg-white rounded-[10.7px] shadow-[0_25px_35.6px_0_rgba(116,116,116,0.25)]">
@@ -90,6 +88,7 @@ const CollateralChoice = ({ id }: CollateralChoiceParams) => {
       </h3>
       <table className="table-auto border-spacing-4 mt-4">
         <tbody>
+          <TableRow left="Min. Collat. Ratio" right={`-- %`} />
           <TableRow
             left="Interest Rate"
             right={`${displayPercent(params.interestRate, 2)}%`}
