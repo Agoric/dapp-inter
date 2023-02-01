@@ -1,7 +1,9 @@
 import { useCallback } from 'react';
 import { useVaultStore, ViewMode, viewModeAtom } from 'store/vaults';
 import { useAtomValue, useSetAtom } from 'jotai';
-import CollateralChoice from 'components/CollateralChoice';
+import CollateralChoice, {
+  SkeletonCollateralChoice,
+} from 'components/CollateralChoice';
 import ConfigureNewVault from 'components/ConfigureNewVault';
 import NewVaultOfferSummary from 'components/NewVaultOfferSummary';
 import {
@@ -12,7 +14,7 @@ import {
 } from 'store/createVault';
 import { compareRatios } from 'utils/vaultMath';
 import { AmountMath } from '@agoric/ertp';
-import { pursesAtom } from 'store/app';
+import { displayFunctionsAtom, pursesAtom } from 'store/app';
 import type { Amount } from '@agoric/ertp/src/types';
 
 const useVaultInputValidation = () => {
@@ -87,6 +89,7 @@ const useVaultInputValidation = () => {
 };
 
 const CreateVault = () => {
+  const displayFunctions = useAtomValue(displayFunctionsAtom);
   const setMode = useSetAtom(viewModeAtom);
   const { vaultManagerIds } = useVaultStore();
 
@@ -116,12 +119,16 @@ const CreateVault = () => {
             Choose Collateral
           </div>
           <div className="flex flex-row flex-wrap gap-[18.5px]">
-            {vaultManagerIds ? (
-              vaultManagerIds.map(id => <CollateralChoice key={id} id={id} />)
+            {vaultManagerIds && displayFunctions ? (
+              vaultManagerIds.map(id => (
+                <CollateralChoice
+                  key={id}
+                  id={id}
+                  displayFunctions={displayFunctions}
+                />
+              ))
             ) : (
-              <div className="h-[248px] font-serif text-[#666980]">
-                Fetching collateral choices...
-              </div>
+              <SkeletonCollateralChoice />
             )}
           </div>
           <ConfigureNewVault inputErrors={inputErrors} />

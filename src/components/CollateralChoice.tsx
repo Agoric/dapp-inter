@@ -1,10 +1,10 @@
-import { useAtom, useAtomValue } from 'jotai';
-import { displayFunctionsAtom } from 'store/app';
+import { useAtom } from 'jotai';
 import { useVaultStore } from 'store/vaults';
 import { AmountMath } from '@agoric/ertp';
 import { selectedCollateralIdAtom } from 'store/createVault';
 import clsx from 'clsx';
 import { useEffect } from 'react';
+import type { DisplayFunctions } from 'store/app';
 
 type TableTowParams = { left: string; right: string };
 
@@ -17,9 +17,33 @@ const TableRow = ({ left, right }: TableTowParams) => {
   );
 };
 
-type CollateralChoiceParams = { id: string };
+const cardClasses = clsx(
+  'w-fit px-6 pt-2 pb-4 bg-white rounded-[10.7px] cursor-pointer',
+  'shadow-[0_25px_35.6px_0_rgba(116,116,116,0.25)] box-border',
+  'outline-2 outline-offset-2 border-2',
+);
 
-const CollateralChoice = ({ id }: CollateralChoiceParams) => {
+export const SkeletonCollateralChoice = () => {
+  return (
+    <div className={clsx(cardClasses, 'border-transparent')}>
+      <div className="bg-gray-100 h-12 w-12 rounded-full animate-pulse my-2 mx-auto"></div>
+      <div className="bg-gray-100 h-7 w-20 rounded-lg animate-pulse my-5 mx-auto"></div>
+      <div className="mt-4">
+        <div className="bg-gray-100 h-4 w-48 rounded-md animate-pulse my-2"></div>
+        <div className="bg-gray-100 h-4 w-48 rounded-md animate-pulse my-2"></div>
+        <div className="bg-gray-100 h-4 w-48 rounded-md animate-pulse my-2"></div>
+        <div className="bg-gray-100 h-4 w-48 rounded-md animate-pulse my-2"></div>
+      </div>
+    </div>
+  );
+};
+
+type CollateralChoiceParams = {
+  id: string;
+  displayFunctions: DisplayFunctions;
+};
+
+const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
   const [selectedCollateralId, setSelectedCollateralId] = useAtom(
     selectedCollateralIdAtom,
   );
@@ -46,9 +70,8 @@ const CollateralChoice = ({ id }: CollateralChoiceParams) => {
     vaultManagerLoadingErrors.get(id) ||
     (brand && priceErrors.get(brand)) ||
     vaultFactoryParamsLoadingError;
-  const displayFunctions = useAtomValue(displayFunctionsAtom);
   const isReady = manager && metrics && params && price && vaultFactoryParams;
-  const shouldShowError = error || !displayFunctions;
+  const shouldShowError = error;
 
   useEffect(() => {
     // Auto-select if only vault manager after loading.
@@ -65,23 +88,15 @@ const CollateralChoice = ({ id }: CollateralChoiceParams) => {
 
   if (shouldShowError) {
     return (
-      <div>
-        <>
-          <h3>Vault ID: {id}</h3>
-          {error && <p>Error: {error.toString()}</p>}
-          {!displayFunctions && <p>Error: unable to display asset</p>}
-        </>
+      <div className={clsx(cardClasses, 'h-[248px] w-60 border-transparent  ')}>
+        <p>Error: {error && error.toString()}</p>
       </div>
     );
   }
 
   if (!isReady) {
     // TODO: Implement a better looking skeleton component.
-    return (
-      <div className="h-[248px] p-4 pt-2 border border-solid border-black">
-        Loading...
-      </div>
-    );
+    return <SkeletonCollateralChoice />;
   }
   const {
     displayAmount,
@@ -129,7 +144,7 @@ const CollateralChoice = ({ id }: CollateralChoiceParams) => {
           />
           <TableRow
             left="IST Available"
-            right={`${displayAmount(istAvailable)} ${displayBrandPetname(
+            right={`${displayAmount(istAvailable, 2)} ${displayBrandPetname(
               params.debtLimit.brand,
             )}`}
           />
