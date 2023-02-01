@@ -1,7 +1,6 @@
 import AmountInput from 'components/AmountInput';
 import RatioPercentInput from 'components/RatioPercentInput';
 import { useAtom, useAtomValue } from 'jotai';
-import { useEffect } from 'react';
 import {
   collateralizationRatioAtom,
   selectedCollateralIdAtom,
@@ -9,51 +8,6 @@ import {
   valueToReceiveAtom,
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
-import type { Ratio } from 'store/vaults';
-import {
-  floorDivideBy,
-  floorMultiplyBy,
-  makeRatioFromAmounts,
-} from '@agoric/zoe/src/contractSupport';
-import { AmountMath } from '@agoric/ertp';
-
-const computeToReceive = (
-  priceRate: Ratio,
-  collateralizationRatio: Ratio,
-  toLock: bigint,
-  defaultCollateralization: Ratio,
-) => {
-  const collateralizationRatioOrDefault =
-    collateralizationRatio.numerator.value === 0n
-      ? defaultCollateralization
-      : collateralizationRatio;
-
-  const lockedPrice = floorMultiplyBy(
-    AmountMath.make(priceRate.denominator.brand, toLock),
-    priceRate,
-  );
-
-  return floorDivideBy(lockedPrice, collateralizationRatioOrDefault).value;
-};
-
-const computeToLock = (
-  priceRate: Ratio,
-  collateralizationRatio: Ratio,
-  toReceive: bigint,
-  defaultCollateralization: Ratio,
-) => {
-  const collateralizationRatioOrDefault =
-    collateralizationRatio.numerator.value === 0n
-      ? defaultCollateralization
-      : collateralizationRatio;
-
-  const receiveMargin = floorMultiplyBy(
-    AmountMath.make(priceRate.numerator.brand, toReceive),
-    collateralizationRatioOrDefault,
-  );
-
-  return floorDivideBy(receiveMargin, priceRate).value;
-};
 
 const ConfigureNewVault = () => {
   const { metrics, params, prices } = useVaultStore(vaults => ({
@@ -70,83 +24,27 @@ const ConfigureNewVault = () => {
 
   const selectedCollateralId = useAtomValue(selectedCollateralIdAtom);
 
-  const collateralBrand =
+  const selectedMetrics =
     selectedCollateralId && metrics?.has(selectedCollateralId)
-      ? metrics.get(selectedCollateralId)?.retainedCollateral.brand
+      ? metrics.get(selectedCollateralId)
       : null;
 
-  const borrowedBrand =
-    selectedCollateralId && metrics?.has(selectedCollateralId)
-      ? metrics.get(selectedCollateralId)?.totalDebt.brand
-      : null;
+  const collateralBrand = selectedMetrics
+    ? selectedMetrics.retainedCollateral.brand
+    : null;
+
+  const hasPriceFeed = !!collateralBrand && prices.has(collateralBrand);
+
+  const borrowedBrand = selectedMetrics
+    ? selectedMetrics.totalDebt.brand
+    : null;
 
   const selectedParams =
     selectedCollateralId && params?.has(selectedCollateralId)
       ? params.get(selectedCollateralId)
       : null;
 
-  // TODO: Set this to min. collat. ratio when available.
-  const defaultCollateralizationRatio =
-    selectedParams && selectedParams.liquidationMargin;
-
-  const collateralPriceDescription =
-    collateralBrand && prices.get(collateralBrand);
-
-  const priceRate =
-    collateralPriceDescription &&
-    makeRatioFromAmounts(
-      collateralPriceDescription.amountOut,
-      collateralPriceDescription.amountIn,
-    );
-
-  const canHandleInputs = !!priceRate && !!defaultCollateralizationRatio;
-
-  const onLockedValueChange = (value: bigint) => {
-    if (!canHandleInputs) return;
-
-    const toReceive = computeToReceive(
-      priceRate,
-      collateralizationRatio,
-      value,
-      defaultCollateralizationRatio,
-    );
-
-    setValueToReceive(toReceive);
-    setValueToLock(value);
-  };
-
-  const onReceivedValueChange = (value: bigint) => {
-    if (!canHandleInputs) return;
-
-    const toLock = computeToLock(
-      priceRate,
-      collateralizationRatio,
-      value,
-      defaultCollateralizationRatio,
-    );
-
-    setValueToLock(toLock);
-    setValueToReceive(value);
-  };
-
-  const onCollateralizationRatioChange = (value: Ratio) => {
-    if (!canHandleInputs) return;
-
-    const toReceive = computeToReceive(
-      priceRate,
-      value,
-      valueToLock ?? 0n,
-      defaultCollateralizationRatio,
-    );
-
-    setValueToReceive(toReceive);
-    setCollateralizationRatio(value);
-  };
-
-  // Set defaults when new collateral type is selected.
-  useEffect(() => {
-    setCollateralizationRatio(defaultCollateralizationRatio);
-  }, [defaultCollateralizationRatio, setCollateralizationRatio]);
+  const isInputReady = hasPriceFeed && !!selectedParams && !!selectedMetrics;
 
   return (
     <div className="mt-8 px-12 py-8 bg-white rounded-[20px] shadow-[0_40px_40px_0_rgba(116,116,116,0.25)]">
@@ -156,23 +54,23 @@ const ConfigureNewVault = () => {
       </p>
       <div className="mt-12 flex gap-x-20 gap-y-6 flex-wrap">
         <AmountInput
-          onChange={onLockedValueChange}
+          onChange={setValueToLock}
           brand={collateralBrand}
           value={valueToLock}
-          disabled={!canHandleInputs}
+          disabled={!isInputReady}
           label="Atom to lock up *"
         />
         <RatioPercentInput
-          onChange={onCollateralizationRatioChange}
+          onChange={setCollateralizationRatio}
           value={collateralizationRatio}
-          disabled={!canHandleInputs}
+          disabled={!isInputReady}
           label="Collateralization percent *"
         />
         <AmountInput
-          onChange={onReceivedValueChange}
+          onChange={setValueToReceive}
           brand={borrowedBrand}
           value={valueToReceive}
-          disabled={!canHandleInputs}
+          disabled={!isInputReady}
           label="IST to receive *"
         />
       </div>
