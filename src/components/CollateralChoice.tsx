@@ -115,9 +115,16 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
 
   const isSelected = selectedCollateralId === id;
 
+  const onClick = () => {
+    if (isSelected) {
+      setSelectedCollateralId(null);
+    } else {
+      setSelectedCollateralId(id);
+    }
+  };
   return (
     <button
-      onClick={() => setSelectedCollateralId(id)}
+      onClick={onClick}
       className={clsx(
         'w-fit px-6 pt-2 pb-4 bg-white rounded-[10.7px] cursor-pointer',
         'shadow-[0_25px_35.6px_0_rgba(116,116,116,0.25)] box-border',

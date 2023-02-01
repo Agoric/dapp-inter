@@ -133,8 +133,15 @@ export const collateralizationRatioAtom = atom(
 
 export const selectedCollateralIdAtom = atom(
   get => get(selectedCollateralIdInternal),
-  (_get, set, selectedCollateralId: string) => {
+  (_get, set, selectedCollateralId: string | null) => {
     set(selectedCollateralIdInternal, selectedCollateralId);
+
+    if (selectedCollateralId === null) {
+      set(valueToReceiveInternal, null);
+      set(valueToLockInternal, null);
+      set(collateralizationRatioInternal, null);
+      return;
+    }
 
     const { priceRate, defaultCollateralizationRatio } =
       getVaultInputData(selectedCollateralId);

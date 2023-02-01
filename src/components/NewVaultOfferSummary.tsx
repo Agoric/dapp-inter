@@ -81,12 +81,12 @@ const NewVaultOfferSummary = ({ inputErrors }: Props) => {
 
   const interestRateForDisplay =
     displayPercent && selectedParams
-      ? `${displayPercent(selectedParams.interestRate, 0)}%`
+      ? `${displayPercent(selectedParams.interestRate, 2)}%`
       : '--';
 
   const creationFeeForDisplay =
     displayPercent && selectedParams
-      ? `${displayPercent(selectedParams.loanFee, 0)}%`
+      ? `${displayPercent(selectedParams.loanFee, 2)}%`
       : '--';
 
   const liquidationRatioForDisplay =
