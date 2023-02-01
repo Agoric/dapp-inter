@@ -1,4 +1,5 @@
 import clsx from 'clsx';
+import { VaultCreationErrors } from 'store/createVault';
 
 type TableRowProps = {
   left: string;
@@ -14,8 +15,16 @@ const TableRow = ({ left, right }: TableRowProps) => {
   );
 };
 
-const NewVaultOfferSummary = () => {
-  const isDisabled = true;
+type Props = {
+  inputErrors: VaultCreationErrors;
+};
+
+const NewVaultOfferSummary = ({ inputErrors }: Props) => {
+  const { collateralizationRatioError, toLockError, toReceiveError } =
+    inputErrors;
+
+  const isDisabled =
+    collateralizationRatioError || toLockError || toReceiveError;
 
   return (
     <div className="pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">

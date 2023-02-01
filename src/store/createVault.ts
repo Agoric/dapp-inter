@@ -41,6 +41,12 @@ const getVaultInputData = (selectedCollateralId: string) => {
   return { defaultCollateralizationRatio, priceRate };
 };
 
+export type VaultCreationErrors = {
+  toLockError?: string;
+  toReceiveError?: string;
+  collateralizationRatioError?: string;
+};
+
 export const valueToLockAtom = atom(
   get => get(valueToLockInternal),
   (get, set, value: bigint) => {
