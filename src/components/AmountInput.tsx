@@ -1,35 +1,65 @@
-import clsx from 'clsx';
+import { useState } from 'react';
+import { useAtomValue } from 'jotai';
+import { displayFunctionsAtom } from 'store/app';
+import { stringifyValue, parseAsValue } from '@agoric/ui-components';
+import { AssetKind } from '@agoric/ertp';
+import type { Brand } from '@agoric/ertp/src/types';
+import StyledInput from './StyledInput';
 
 type Props = {
+  value?: bigint | null;
   label?: string;
   error?: string;
+  brand?: Brand | null;
+  onChange: (value: bigint) => void;
   disabled?: boolean;
 };
 
-const AmountInput = ({ label, error, disabled = false }: Props) => {
+const AmountInput = ({
+  value,
+  onChange,
+  brand,
+  label,
+  error,
+  disabled = false,
+}: Props) => {
+  const { getDecimalPlaces } = useAtomValue(displayFunctionsAtom) ?? {};
+
+  const decimalPlaces =
+    (brand && getDecimalPlaces && getDecimalPlaces(brand)) ?? 0;
+
+  const amountString = stringifyValue(value, AssetKind.NAT, decimalPlaces);
+
+  const [fieldString, setFieldString] = useState(
+    value === null ? '' : amountString,
+  );
+
+  const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = ev => {
+    const str = ev.target?.value?.replace('-', '').replace('e', '');
+    setFieldString(str);
+
+    const parsed = parseAsValue(str, AssetKind.NAT, decimalPlaces);
+    onChange(parsed);
+  };
+
+  const displayString =
+    value === parseAsValue(fieldString, AssetKind.NAT, decimalPlaces)
+      ? fieldString
+      : amountString;
+
   return (
-    <div>
-      <div className="uppercase text-[#F4CCAE] text-xs leading-[19px] my-[2px]">
-        {label}
-      </div>
-      <div
-        className={clsx(
-          'w-fit transition rounded p-[2px] bg-gradient-to-r shadow-[0_12px_20px_-8px_#F0F0F0] focus-within:shadow-[0_12px_20px_-8px_rgba(255,83,0,0.2)]',
-          disabled
-            ? 'from-[#D9D9D9] to-[#A8A8A8]'
-            : 'from-[#FF7A1A] to-[#FFD81A]',
-        )}
-      >
-        <input
-          type="number"
-          placeholder="0.00"
-          min="0"
-          disabled={disabled}
-          className="p-2 bg-white rounded-sm outline-none text-sm font-medium w-64 placeholder:font-normal text-right"
-        ></input>
-      </div>
-      <div className="text-[#E22951] font-serif text-sm mt-2">{error}</div>
-    </div>
+    <StyledInput
+      label={label}
+      error={error}
+      inputProps={{
+        type: 'number',
+        placeholder: '0.00',
+        min: '0',
+        disabled,
+        value: displayString,
+        onChange: handleInputChange,
+      }}
+    />
   );
 };
 
