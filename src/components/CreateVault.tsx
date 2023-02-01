@@ -12,7 +12,7 @@ import {
   valueToLockAtom,
   valueToReceiveAtom,
 } from 'store/createVault';
-import { compareRatios } from 'utils/vaultMath';
+import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio.js';
 import { AmountMath } from '@agoric/ertp';
 import { displayFunctionsAtom, pursesAtom } from 'store/app';
 import type { Amount } from '@agoric/ertp/src/types';
@@ -41,7 +41,7 @@ const useVaultInputValidation = () => {
     const defaultCollateralizationRatio = selectedParams.liquidationMargin;
     if (
       collateralizationRatio.numerator.value === 0n ||
-      compareRatios(defaultCollateralizationRatio, collateralizationRatio) > 0
+      !ratioGTE(collateralizationRatio, defaultCollateralizationRatio)
     ) {
       collateralizationRatioError = 'Below minimum';
     }

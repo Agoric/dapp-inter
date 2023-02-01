@@ -42,25 +42,3 @@ export const computeToLock = (
 
   return floorDivideBy(receiveMargin, priceRate).value;
 };
-
-/**
- * Returns negative if left < right, 0 if left = right,
- * positive if left < right.
- */
-export const compareRatios = (left: Ratio, right: Ratio) => {
-  assert(
-    left.numerator.brand === right.numerator.brand &&
-      left.denominator.brand === right.denominator.brand,
-    'Cannot compare ratios of different brands',
-  );
-
-  const leftNumerator = left.numerator.value;
-  const leftDenominator = left.denominator.value;
-  const rightNumerator = right.numerator.value;
-  const rightDenominator = right.denominator.value;
-
-  return (
-    (leftNumerator * rightDenominator - rightNumerator * leftDenominator) /
-    (leftDenominator * rightDenominator)
-  );
-};
