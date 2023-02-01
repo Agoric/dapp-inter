@@ -99,21 +99,17 @@ const NewVaultOfferSummary = ({ inputErrors }: Props) => {
       ? `${displayPercent(collateralizationRatio, 0)}%`
       : '--';
 
-  const hasErrors = !!(
-    collateralizationRatioError ||
-    toLockError ||
-    toReceiveError
-  );
+  const hasErrors =
+    collateralizationRatioError || toLockError || toReceiveError;
 
-  const canCreateVault = !!(
+  const canCreateVault =
     !hasErrors &&
     selectedMetrics &&
     selectedParams &&
     factoryParams &&
     depositAmount &&
     borrowAmount &&
-    offerSigner?.isDappApproved
-  );
+    offerSigner?.isDappApproved;
 
   const createVault = () => {
     makeOpenVaultOffer(depositAmount, borrowAmount);

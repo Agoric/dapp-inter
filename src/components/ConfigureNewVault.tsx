@@ -42,7 +42,7 @@ const ConfigureNewVault = ({ inputErrors }: Props) => {
     ? selectedMetrics.retainedCollateral.brand
     : null;
 
-  const hasPriceFeed = !!(collateralBrand && prices.has(collateralBrand));
+  const hasPriceFeed = collateralBrand && prices.has(collateralBrand);
 
   const borrowedBrand = selectedMetrics
     ? selectedMetrics.totalDebt.brand
@@ -53,7 +53,11 @@ const ConfigureNewVault = ({ inputErrors }: Props) => {
       ? params.get(selectedCollateralId)
       : null;
 
-  const isInputReady = !!(hasPriceFeed && selectedParams && selectedMetrics);
+  const isInputReady: boolean = !!(
+    hasPriceFeed &&
+    selectedParams &&
+    selectedMetrics
+  );
 
   return (
     <div className="mt-8 px-12 py-8 bg-white rounded-[20px] shadow-[0_40px_40px_0_rgba(116,116,116,0.25)]">
