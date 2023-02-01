@@ -76,8 +76,9 @@ const CollateralChoice = ({ id }: CollateralChoiceParams) => {
   }
 
   if (!isReady) {
+    // TODO: Implement a better looking skeleton component.
     return (
-      <div className="w-fit p-4 pt-2 border border-solid border-black">
+      <div className="h-[248px] p-4 pt-2 border border-solid border-black">
         Loading...
       </div>
     );

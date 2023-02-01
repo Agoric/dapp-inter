@@ -116,8 +116,13 @@ const CreateVault = () => {
             Choose Collateral
           </div>
           <div className="flex flex-row flex-wrap gap-[18.5px]">
-            {vaultManagerIds &&
-              vaultManagerIds.map(id => <CollateralChoice key={id} id={id} />)}
+            {vaultManagerIds ? (
+              vaultManagerIds.map(id => <CollateralChoice key={id} id={id} />)
+            ) : (
+              <div className="h-[248px] font-serif text-[#666980]">
+                Fetching collateral choices...
+              </div>
+            )}
           </div>
           <ConfigureNewVault inputErrors={inputErrors} />
         </div>
