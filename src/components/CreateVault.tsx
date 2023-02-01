@@ -63,19 +63,24 @@ const useVaultInputValidation = () => {
 
   const minInitialDebt = vaultFactoryParams?.minInitialDebt?.value ?? 0n;
 
-  if (!valueToReceive || valueToReceive < minInitialDebt) {
-    toReceiveError = 'Below minimum';
+  if (selectedCollateralId && minInitialDebt > 0n) {
+    if (!valueToReceive || valueToReceive < minInitialDebt) {
+      toReceiveError = 'Below minimum';
+    }
   }
 
-  const collateralPurse = (purses ?? []).find(
-    ({ brand }) => brand === selectedMetrics?.totalCollateral.brand,
-  );
+  if (selectedMetrics) {
+    const collateralPurse = (purses ?? []).find(
+      ({ brand }) => brand === selectedMetrics.totalCollateral.brand,
+    );
 
-  if (
-    !collateralPurse ||
-    (collateralPurse.currentAmount as Amount<'nat'>).value < (valueToLock ?? 0n)
-  ) {
-    toLockError = 'Need to obtain funds';
+    if (
+      !collateralPurse ||
+      (collateralPurse.currentAmount as Amount<'nat'>).value <
+        (valueToLock ?? 0n)
+    ) {
+      toLockError = 'Need to obtain funds';
+    }
   }
 
   return { toLockError, toReceiveError, collateralizationRatioError };
