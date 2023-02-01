@@ -175,4 +175,4 @@ export const useVaultStore = create<VaultState>()(set => ({
     }),
 }));
 
-export const viewModeAtom = atom(ViewMode.Manage);
+export const viewModeAtom = atom(ViewMode.Create);

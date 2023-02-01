@@ -61,7 +61,7 @@ const useVaultInputValidation = () => {
     }
   }
 
-  const minInitialDebt = vaultFactoryParams?.minInitialDebt ?? 0n;
+  const minInitialDebt = vaultFactoryParams?.minInitialDebt?.value ?? 0n;
 
   if (!valueToReceive || valueToReceive < minInitialDebt) {
     toReceiveError = 'Below minimum';
