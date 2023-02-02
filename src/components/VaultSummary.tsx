@@ -93,7 +93,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
     // TODO: Calculate and display total debt correctly.
     return (
       <div className="cursor-pointer shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition hover:scale-105">
-        <div className="flex justify-between mt-14 mx-8 mb-10 items-center">
+        <div className="flex justify-between mt-14 mx-8 mb-10 items-center flex-wrap">
           <div className="flex items-end gap-4">
             <img
               height="80"

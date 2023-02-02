@@ -53,8 +53,10 @@ const Vaults = () => {
       <div className="font-medium text-[15px] h-4">
         <PathDescription mode={mode} />
       </div>
-      {managerIdsLoadingError && <div>{managerIdsLoadingError}</div>}
-      {watchVbankError && <div>{watchVbankError}</div>}
+      <div className="text-red-600 text-lg mt-4">
+        {managerIdsLoadingError && <div>{managerIdsLoadingError}</div>}
+        {watchVbankError && <div>{watchVbankError}</div>}
+      </div>
       {content}
     </MainContentWrapper>
   );
