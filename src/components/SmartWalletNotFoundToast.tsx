@@ -10,7 +10,7 @@ export default (
       rel="noreferrer"
     >
       {prodSignerHref}
-    </a>
-    then try again.{' '}
+    </a>{' '}
+    then try again.
   </p>
 );
