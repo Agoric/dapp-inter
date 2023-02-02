@@ -2,7 +2,51 @@ import { useMemo } from 'react';
 import { useVaultStore } from 'store/vaults';
 import { useAtomValue } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
-import SkeletonVaultSummary from 'components/SkeletonVaultSummary';
+import clsx from 'clsx';
+
+export const SkeletonVaultSummary = () => (
+  <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
+    <div className="flex justify-between mt-14 mx-8 mb-10 items-center">
+      <div className="flex items-end gap-4">
+        <div className="h-20 w-20 bg-gray-200 rounded-full transition animate-pulse" />
+        <div className="flex flex-col gap-2 justify-end">
+          <div className="h-[38px] w-32 bg-gray-200 rounded transition animate-pulse" />
+          <div className="text-[#A3A5B9] h-3 w-6 bg-gray-200 rounded transition animate-pulse" />
+        </div>
+      </div>
+      <div className="h-[38px] w-52 bg-gray-200 rounded transition animate-pulse" />
+    </div>
+    <div className="bg-[#F0F0F0] h-[1px] w-full" />
+    <div className="mx-11 mt-5 mb-5">
+      <div className="w-full rounded bg-gray-200 h-4 my-4 transition animate-pulse" />
+      <div className="w-full rounded bg-gray-200 h-4 my-4 transition animate-pulse" />
+      <div className="w-full rounded bg-gray-200 h-4 my-4 transition animate-pulse" />
+    </div>
+    <div className="flex justify-around gap-3 mx-[30px] mb-[30px]">
+      <div className="h-[72px] flex-auto bg-gray-200 rounded-lg transition animate-pulse" />
+      <div className="h-[72px] flex-auto bg-gray-200 rounded-lg transition animate-pulse" />
+      <div className="h-[72px] flex-auto bg-gray-200 rounded-lg transition animate-pulse" />
+    </div>
+  </div>
+);
+
+const bigTextClasses = 'text-[32px] leading-[38px] font-semibold';
+
+const subpanelClasses =
+  'px-5 py-3 flex-auto bg-white flex flex-col content-between gap-1 text-center rounded-lg border-solid border-2 shadow-[0_10px_12px_-6px_#F0F0F0] text-sm';
+
+type TableRowProps = {
+  left: string;
+  right: string;
+  light?: boolean;
+};
+
+const TableRow = ({ left, right, light = false }: TableRowProps) => (
+  <tr className={clsx('leading-7', light && 'text-[#A3A5B9]')}>
+    <td className="text-left">{left}</td>
+    <td className="text-right font-black">{right}</td>
+  </tr>
+);
 
 type Props = {
   vaultKey: string;
@@ -23,7 +67,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
       displayFunctions,
       `Cannot render summary for vault ${vaultKey} - missing vbank asset info.`,
     );
-    const { displayAmount, displayBrandPetname } = displayFunctions;
+    const { displayBrandPetname, displayBrandIcon } = displayFunctions;
 
     if (error) {
       return (
@@ -40,15 +84,64 @@ const VaultSummary = ({ vaultKey }: Props) => {
 
     assert(vault.locked, 'Vault must be loading still');
 
+    const brandIcon = displayBrandIcon(vault.locked.brand);
+    const brandPetname = displayBrandPetname(vault.locked.brand);
+
+    // TODO: Update dynamically.
+    const collateralLabel = 'ATOM';
+
     // TODO: Calculate and display total debt correctly.
     return (
-      <div className="p-4 pt-2 border border-black border-solid">
-        <h3>{vaultKey}</h3>
-        <p>Status: {vault.vaultState}</p>
-        <p>
-          Locked: {displayAmount(vault.locked)}{' '}
-          {displayBrandPetname(vault.locked.brand)}
-        </p>
+      <div className="cursor-pointer shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition hover:scale-105">
+        <div className="flex justify-between mt-14 mx-8 mb-10 items-center">
+          <div className="flex items-end gap-4">
+            <img
+              height="80"
+              width="80"
+              alt={brandPetname}
+              src={brandIcon}
+            ></img>
+            <div className="flex flex-col justify-end">
+              <div className={bigTextClasses}>{collateralLabel}</div>
+              <div className="text-[#A3A5B9] text-sm">
+                #{vault.indexWithinManager}
+              </div>
+            </div>
+          </div>
+          <div className={bigTextClasses}>$12,323 USD</div>
+        </div>
+        <div className="bg-[#F0F0F0] h-[1px] w-full" />
+        <div className="mx-11 mt-3 mb-5">
+          <table className="w-full">
+            <tbody>
+              <TableRow
+                left="Current Collateral Price"
+                right="$1,234"
+                light={true}
+              />
+              <TableRow
+                left="Last Collateral Price Update"
+                right="8:00 PM"
+                light={true}
+              />
+              <TableRow left="Liquidation Price" right="$1,234" />
+            </tbody>
+          </table>
+        </div>
+        <div className="flex justify-around gap-3 mx-[30px] mb-[30px]">
+          <div className={subpanelClasses}>
+            <span className="text-[#A3A5B9]">Int. Rate</span>
+            <span className="font-extrabold">2%</span>
+          </div>
+          <div className={subpanelClasses}>
+            <span className="text-[#A3A5B9]">Debt</span>
+            <span className="font-extrabold">0.89 IST</span>
+          </div>
+          <div className={subpanelClasses}>
+            <span className="text-[#A3A5B9]">Collat. Locked ($ value)</span>
+            <span className="font-extrabold text-[#00B1A6]">$32.00 USD</span>
+          </div>
+        </div>
       </div>
     );
   }, [vault, error, vaultKey, displayFunctions]);

@@ -1,3 +1,4 @@
+import createStore from 'zustand/vanilla';
 import create from 'zustand';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 import { atom } from 'jotai';
@@ -57,6 +58,7 @@ export type VaultInfo = VaultInfoChainData & {
   createdByOfferId: string;
   managerId: string;
   isLoading: boolean;
+  indexWithinManager: number;
 };
 
 export type VaultKey = string;
@@ -93,10 +95,11 @@ interface VaultState {
     vaultKey: string,
     managerId: string,
     createdByOfferId: string,
+    indexWithinManager: number,
   ) => void;
 }
 
-export const useVaultStore = create<VaultState>()(set => ({
+export const vaultStore = createStore<VaultState>()(set => ({
   managerIdsLoadingError: null,
   vaultFactoryParamsLoadingError: null,
   vaultFactoryInstanceHandleLoadingError: null,
@@ -163,6 +166,7 @@ export const useVaultStore = create<VaultState>()(set => ({
     vaultKey: string,
     managerId: string,
     createdByOfferId: string,
+    indexWithinManager: number,
   ) =>
     set(state => {
       // Only set the vault as loading if it doesn't exist yet.
@@ -170,9 +174,16 @@ export const useVaultStore = create<VaultState>()(set => ({
         return {};
       }
       const newVaults = new Map(state.vaults);
-      newVaults.set(vaultKey, { isLoading: true, managerId, createdByOfferId });
+      newVaults.set(vaultKey, {
+        isLoading: true,
+        managerId,
+        createdByOfferId,
+        indexWithinManager,
+      });
       return { vaults: newVaults };
     }),
 }));
 
 export const viewModeAtom = atom(ViewMode.Create);
+
+export const useVaultStore = create(vaultStore);

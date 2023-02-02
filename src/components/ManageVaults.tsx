@@ -1,30 +1,27 @@
-import clsx from 'clsx';
 import { chainConnectionAtom, displayFunctionsAtom } from 'store/app';
 import { useCallback } from 'react';
 import { useVaultStore, viewModeAtom, ViewMode } from 'store/vaults';
 import VaultSummary from 'components/VaultSummary';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { FaPlusCircle } from 'react-icons/fa';
+import VaultSymbol from 'svg/vault-symbol';
 import type { PropsWithChildren } from 'react';
 
-type EmptyViewProps = PropsWithChildren<{ isShimmering?: boolean }>;
-
-const EmptyView = ({ children, isShimmering = false }: EmptyViewProps) => {
+const EmptyView = ({ children }: PropsWithChildren) => {
   return (
-    <div
-      className={clsx(
-        'flex flex-col items-center justify-center overflow-hidden opacity-80',
-        isShimmering && 'animate-pulse',
-      )}
-    >
-      <img
-        className="relative -top-20 opacity-70"
-        width="600px"
-        height="600px"
-        src="./donut-lock.png"
-        alt="vaults unavailable"
-      ></img>
-      <div className="relative -top-36 text-lg opa">{children}</div>
+    <div className="mt-8 mx-auto w-full relative">
+      <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center">
+        <div className="text-gray-500 shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-lg text-lg p-6 bg-white">
+          {children}
+        </div>
+      </div>
+      <div className="opacity-30 mt-10 mx-auto w-fit">
+        <img
+          className="object-none object-[bottom_-220px_left_-210px] h-[620px] w-[860px]"
+          src="./donut-lock.png"
+          alt="vaults unavailable"
+        ></img>
+      </div>
     </div>
   );
 };
@@ -50,12 +47,16 @@ const ManageVaults = () => {
   if (!chainConnection) {
     content = <EmptyView>Connect your wallet to manage your vaults.</EmptyView>;
   } else if (vaults?.size === 0) {
-    content = <EmptyView>You have not opened any vaults yet.</EmptyView>;
+    content = <EmptyView>You have not opened any vaults yet</EmptyView>;
   } else if (!(vaults && displayFunctions)) {
-    content = <EmptyView isShimmering={true}>Loading your vaults...</EmptyView>;
+    content = (
+      <EmptyView>
+        <span className="animate-pulse">Loading your vaults...</span>
+      </EmptyView>
+    );
   } else {
     content = (
-      <div className="flex gap-4 flex-wrap p-1">
+      <div className="mt-12 flex flex-wrap gap-x-6 gap-y-8 justify-center xl:justify-start xl:px-2">
         {[...vaults.keys()].map(vaultKey => (
           <VaultSummary key={vaultKey} vaultKey={vaultKey} />
         ))}
@@ -66,9 +67,16 @@ const ManageVaults = () => {
   return (
     <>
       <div className="w-full flex justify-between mt-6">
-        <div className="font-serif font-medium text-2xl">My Vaults</div>
+        <div className="font-serif font-medium text-2xl">
+          <div className="flex items-center gap-3">
+            <span className="fill-interYellow align-bottom relative top-[1px]">
+              <VaultSymbol />
+            </span>
+            <span>My Vaults {vaults?.size && `(${vaults?.size})`}</span>
+          </div>
+        </div>
         <button
-          className="text-[#f9fafe] text-xs uppercase flex flex-row justify-center items-center p-3 bg-interPurple rounded-md shadow-[0_10px_14px_-4px_rgba(183,135,245,0.3)]"
+          className="text-[#f9fafe] text-xs uppercase flex flex-row justify-center items-center p-3 bg-interPurple rounded-md shadow-[0_10px_14px_-4px_rgba(183,135,245,0.3)] hover:opacity-80 active:opacity-60"
           onClick={buttonProps.onClick}
         >
           {buttonProps.text}
