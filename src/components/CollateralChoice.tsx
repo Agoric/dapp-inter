@@ -88,7 +88,12 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
 
   if (shouldShowError) {
     return (
-      <div className={clsx(cardClasses, 'h-[248px] w-60 border-transparent  ')}>
+      <div
+        className={clsx(
+          cardClasses,
+          'h-[248px] w-60 border-transparent text-lg text-red-500 pt-3',
+        )}
+      >
         <p>Error: {error && error.toString()}</p>
       </div>
     );

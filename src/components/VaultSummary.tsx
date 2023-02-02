@@ -71,8 +71,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
 
     if (error) {
       return (
-        <div className="p-4 pt-2 border border-black border-solid">
-          <h3>{vaultKey}</h3>
+        <div className="text-lg text-red-500 p-8 shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
           <p>Error: {error.toString()}</p>
         </div>
       );
