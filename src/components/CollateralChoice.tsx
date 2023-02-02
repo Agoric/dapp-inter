@@ -122,6 +122,13 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
       setSelectedCollateralId(id);
     }
   };
+
+  // This for all intents and purposes has the role of a button, even though
+  // its conntent doesn't fit the content categories of a button:
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#technical_summary
+  //
+  // Perhaps the cards that you click to select are an a11y anti-pattern, could
+  // be something to revisit.
   return (
     <button
       onClick={onClick}
