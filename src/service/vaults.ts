@@ -75,7 +75,6 @@ const watchPriceFeeds = () => {
 };
 
 type VaultSubscribers = {
-  asset: string;
   vault: string;
 };
 
@@ -83,7 +82,10 @@ type VaultSubscribers = {
  * Ex. `asset: 'published.vaultFactory.manager0'` -> `'manager0'`.
  */
 const getManagerIdFromSubscribers = (subscribers: VaultSubscribers) =>
-  subscribers.asset.split('.').pop();
+  subscribers.vault.split('.').find(node => node.includes('manager'));
+
+const getIndexFromVaultPath = (subscriberPath: string) =>
+  Number(subscriberPath.split('.').pop()?.replace('vault', ''));
 
 const watchUserVaults = () => {
   let isStopped = false;
@@ -94,7 +96,11 @@ const watchUserVaults = () => {
     subscriber: string,
     managerId: string,
   ) => {
-    useVaultStore.getState().markVaultForLoading(offerId, managerId, offerId);
+    const indexWithinManager = getIndexFromVaultPath(subscriber);
+
+    useVaultStore
+      .getState()
+      .markVaultForLoading(offerId, managerId, offerId, indexWithinManager);
 
     const { leader, importContext } = appStore.getState();
     const f = makeFollower(`:${subscriber}`, leader, {
@@ -109,6 +115,7 @@ const watchUserVaults = () => {
         managerId,
         isLoading: false,
         createdByOfferId: offerId,
+        indexWithinManager: indexWithinManager,
       });
     }
   };

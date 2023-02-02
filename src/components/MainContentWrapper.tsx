@@ -31,7 +31,7 @@ const MainContentWrapper = ({ children, header }: Props) => {
       <div className="w-full h-[1px] bg-[#f4cd0c]" />
       <div className="w-full h-[1px] bg-[#ffe252]" />
       <div className="bg-interYellow">{subheader}</div>
-      <div className="p-10 pt-4">{children}</div>
+      <div className="p-2 pt-4 md:p-10">{children}</div>
     </div>
   );
 };

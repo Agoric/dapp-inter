@@ -18,7 +18,7 @@ const TableRow = ({ left, right }: TableTowParams) => {
 };
 
 const cardClasses = clsx(
-  'w-fit px-6 pt-2 pb-4 bg-white rounded-[10.7px] cursor-pointer',
+  'w-fit px-6 pt-2 pb-4 bg-white rounded-[10.7px]',
   'shadow-[0_25px_35.6px_0_rgba(116,116,116,0.25)] box-border',
   'outline-2 outline-offset-2 border-2',
 );
@@ -88,7 +88,12 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
 
   if (shouldShowError) {
     return (
-      <div className={clsx(cardClasses, 'h-[248px] w-60 border-transparent  ')}>
+      <div
+        className={clsx(
+          cardClasses,
+          'h-[248px] w-60 border-transparent text-lg text-red-500 pt-3',
+        )}
+      >
         <p>Error: {error && error.toString()}</p>
       </div>
     );
@@ -135,7 +140,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
       className={clsx(
         'w-fit px-6 pt-2 pb-4 bg-white rounded-[10.7px] cursor-pointer',
         'shadow-[0_25px_35.6px_0_rgba(116,116,116,0.25)] box-border',
-        'outline-2 outline-offset-2 border-2',
+        'outline-2 outline-offset-2 border-2 hover:scale-105 transition',
         isSelected ? 'border-[#00B1A6]' : 'border-transparent',
       )}
     >
