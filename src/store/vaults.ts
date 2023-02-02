@@ -2,14 +2,13 @@ import create from 'zustand';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 import { atom } from 'jotai';
 
-export type Ratio = {
-  numerator: Amount<'nat'>;
-  denominator: Amount<'nat'>;
-};
-
 // XXX PriceDescription type not exported from zoe package
-import { getPriceDescription } from '@agoric/zoe/src/contractSupport';
+import {
+  getPriceDescription,
+  makeRatio,
+} from '@agoric/zoe/src/contractSupport';
 export type PriceDescription = ReturnType<typeof getPriceDescription>;
+export type Ratio = ReturnType<typeof makeRatio>;
 
 export enum ViewMode {
   Create,
@@ -176,4 +175,4 @@ export const useVaultStore = create<VaultState>()(set => ({
     }),
 }));
 
-export const viewModeAtom = atom(ViewMode.Manage);
+export const viewModeAtom = atom(ViewMode.Create);

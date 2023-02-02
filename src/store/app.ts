@@ -72,6 +72,8 @@ export const offerIdsToPublicSubscribersAtom = atom(
   get => get(appAtom).offerIdsToPublicSubscribers,
 );
 
+export type DisplayFunctions = ReturnType<typeof makeDisplayFunctions>;
+
 export const displayFunctionsAtom = atom(get => {
   const brandToInfo = get(appAtom).brandToInfo;
   return brandToInfo && makeDisplayFunctions(brandToInfo);

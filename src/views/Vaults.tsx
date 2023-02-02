@@ -38,21 +38,12 @@ const Vaults = () => {
     };
   }, [leader, netConfig]);
 
-  const { managerIdsLoadingError, vaultManagerIds } = useVaultStore();
-  const { watchVbankError, brandToInfo } = useAtomValue(appAtom);
+  const { managerIdsLoadingError } = useVaultStore();
+  const { watchVbankError } = useAtomValue(appAtom);
   const mode = useAtomValue(viewModeAtom);
 
   const contentForMode = {
-    [ViewMode.Create]: () => (
-      <>
-        {!managerIdsLoadingError &&
-          !watchVbankError &&
-          !(vaultManagerIds && brandToInfo) && (
-            <div>Loading collateral choices...</div>
-          )}
-        {vaultManagerIds && brandToInfo && <CollateralChoices />}
-      </>
-    ),
+    [ViewMode.Create]: () => <CollateralChoices />,
     [ViewMode.Manage]: () => <ManageVaults />,
   };
   const content = contentForMode[mode]();
