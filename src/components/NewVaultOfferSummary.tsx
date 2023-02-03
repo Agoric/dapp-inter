@@ -1,6 +1,7 @@
 import { AmountMath } from '@agoric/ertp';
 import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
+import { useMemo } from 'react';
 import { makeOpenVaultOffer } from 'service/vaults';
 import { displayFunctionsAtom, offerSignerAtom } from 'store/app';
 import {
@@ -115,6 +116,17 @@ const NewVaultOfferSummary = ({ inputErrors }: Props) => {
     makeOpenVaultOffer(depositAmount, borrowAmount);
   };
 
+  const createButtonLabel = useMemo(() => {
+    if (!offerSigner?.addOffer) {
+      return 'Connect Wallet';
+    }
+    if (!offerSigner?.isDappApproved) {
+      return 'Enable Dapp in Wallet';
+    }
+
+    return 'Create Vault';
+  }, [offerSigner]);
+
   return (
     <div className="pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">
       <div className="px-8">
@@ -168,7 +180,7 @@ const NewVaultOfferSummary = ({ inputErrors }: Props) => {
               : 'bg-[#C1C3D7] cursor-not-allowed',
           )}
         >
-          Create Vault
+          {createButtonLabel}
         </button>
       </div>
     </div>
