@@ -38,3 +38,11 @@ declare module '@agoric/wallet-backend' {
     currentAmount: unknown;
   };
 }
+
+declare module '@agoric/inter-protocol/src/interest-math' {
+  export const calculateCurrentDebt: (
+    debtSnapshot: Amount<'nat'>,
+    interestSnapshot: Ratio,
+    currentCompoundedInterest: Ratio,
+  ) => Amount<'nat'>;
+}

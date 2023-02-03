@@ -1,8 +1,13 @@
 import { useMemo } from 'react';
 import { useVaultStore } from 'store/vaults';
-import { useAtomValue } from 'jotai';
-import { displayFunctionsAtom } from 'store/app';
+import { DisplayFunctions } from 'store/app';
+import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
+import {
+  ceilMultiplyBy,
+  makeRatioFromAmounts,
+} from '@agoric/zoe/src/contractSupport';
 import clsx from 'clsx';
+import { AmountMath } from '@agoric/ertp';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
@@ -50,24 +55,52 @@ const TableRow = ({ left, right, light = false }: TableRowProps) => (
 
 type Props = {
   vaultKey: string;
+  displayFunctions: DisplayFunctions;
 };
 
-const VaultSummary = ({ vaultKey }: Props) => {
-  const { vaults, errors } = useVaultStore(state => ({
+const VaultSummary = ({ vaultKey, displayFunctions }: Props) => {
+  const {
+    vaults,
+    errors,
+    prices,
+    priceErrors,
+    vaultMetrics,
+    vaultGovernedParams,
+    vaultManagerLoadingErrors,
+    managers,
+  } = useVaultStore(state => ({
     vaults: state.vaults,
+    vaultMetrics: state.vaultMetrics,
+    vaultGovernedParams: state.vaultGovernedParams,
     errors: state.vaultErrors,
+    prices: state.prices,
+    priceErrors: state.priceErrors,
+    vaultManagerLoadingErrors: state.vaultManagerLoadingErrors,
+    managers: state.vaultManagers,
   }));
+
   const vault = vaults?.get(vaultKey);
-  const error = errors.get(vaultKey);
-  const displayFunctions = useAtomValue(displayFunctionsAtom);
+  assert(vault, `Cannot render summary for nonexistent vault ${vaultKey}`);
+
+  const metrics = vaultMetrics?.get(vault?.managerId ?? '');
+  const params = vaultGovernedParams?.get(vault?.managerId ?? '');
+  const brand = metrics?.totalCollateral?.brand;
+  const price = brand && prices.get(brand);
+  const manager = managers.get(vault?.managerId ?? '');
+  const error =
+    errors.get(vaultKey) ||
+    (brand && priceErrors.get(brand)) ||
+    vaultManagerLoadingErrors.get(vault?.managerId ?? '');
 
   return useMemo(() => {
-    assert(vault, `Cannot render summary for nonexistent vault ${vaultKey}`);
-    assert(
-      displayFunctions,
-      `Cannot render summary for vault ${vaultKey} - missing vbank asset info.`,
-    );
-    const { displayBrandPetname, displayBrandIcon } = displayFunctions;
+    const {
+      displayBrandPetname,
+      displayBrandIcon,
+      displayPrice,
+      displayPriceTimestamp,
+      displayAmount,
+      displayPercent,
+    } = displayFunctions;
 
     if (error) {
       return (
@@ -77,14 +110,45 @@ const VaultSummary = ({ vaultKey }: Props) => {
       );
     }
 
-    if (vault.isLoading) {
+    if (vault.isLoading || !price || !metrics || !params || !manager) {
       return <SkeletonVaultSummary />;
     }
 
-    assert(vault.locked, 'Vault must be loading still');
+    const { locked, debtSnapshot } = vault;
+    assert(locked && debtSnapshot, 'Vault must be loading still');
 
-    const brandIcon = displayBrandIcon(vault.locked.brand);
-    const brandPetname = displayBrandPetname(vault.locked.brand);
+    const brandIcon = displayBrandIcon(locked.brand);
+    const brandPetname = displayBrandPetname(locked.brand);
+
+    const totalDebt = calculateCurrentDebt(
+      debtSnapshot.debt,
+      debtSnapshot.interest,
+      manager.compoundedInterest,
+    );
+
+    const totalLockedValue = ceilMultiplyBy(
+      locked,
+      makeRatioFromAmounts(price.amountOut, price.amountIn),
+    );
+
+    const maximumLockedValueForLiquidation = ceilMultiplyBy(
+      totalDebt,
+      params.liquidationMargin,
+    );
+
+    const maximumLockedPriceForLiquidation = {
+      amountIn: locked,
+      amountOut: maximumLockedValueForLiquidation,
+    };
+
+    let netValueSignum;
+    let netVaultValue;
+    if (AmountMath.isGTE(totalLockedValue, totalDebt)) {
+      netVaultValue = AmountMath.subtract(totalLockedValue, totalDebt);
+    } else {
+      netVaultValue = AmountMath.subtract(totalDebt, totalLockedValue);
+      netValueSignum = '-';
+    }
 
     // TODO: Update dynamically.
     const collateralLabel = 'ATOM';
@@ -107,7 +171,9 @@ const VaultSummary = ({ vaultKey }: Props) => {
               </div>
             </div>
           </div>
-          <div className={bigTextClasses}>$12,323 USD</div>
+          <div className={bigTextClasses}>
+            {netValueSignum}${displayAmount(netVaultValue, 2)} USD
+          </div>
         </div>
         <div className="bg-[#F0F0F0] h-[1px] w-full" />
         <div className="mx-11 mt-3 mb-5">
@@ -115,35 +181,45 @@ const VaultSummary = ({ vaultKey }: Props) => {
             <tbody>
               <TableRow
                 left="Current Collateral Price"
-                right="$1,234"
+                right={displayPrice(price)}
                 light={true}
               />
               <TableRow
                 left="Last Collateral Price Update"
-                right="8:00 PM"
+                right={displayPriceTimestamp(price)}
                 light={true}
               />
-              <TableRow left="Liquidation Price" right="$1,234" />
+              <TableRow
+                left="Liquidation Price"
+                right={displayPrice(maximumLockedPriceForLiquidation)}
+              />
             </tbody>
           </table>
         </div>
         <div className="flex justify-around gap-3 mx-[30px] mb-[30px]">
           <div className={subpanelClasses}>
             <span className="text-[#A3A5B9]">Int. Rate</span>
-            <span className="font-extrabold">2%</span>
+            <span className="font-extrabold">
+              {displayPercent(params.interestRate, 2)}%
+            </span>
           </div>
           <div className={subpanelClasses}>
             <span className="text-[#A3A5B9]">Debt</span>
-            <span className="font-extrabold">0.89 IST</span>
+            <span className="font-extrabold">
+              {displayAmount(totalDebt, 2)}{' '}
+              {displayBrandPetname(totalDebt.brand)}
+            </span>
           </div>
           <div className={subpanelClasses}>
             <span className="text-[#A3A5B9]">Collat. Locked ($ value)</span>
-            <span className="font-extrabold text-[#00B1A6]">$32.00 USD</span>
+            <span className="font-extrabold text-[#00B1A6]">
+              ${displayAmount(totalLockedValue, 2)} USD
+            </span>
           </div>
         </div>
       </div>
     );
-  }, [vault, error, vaultKey, displayFunctions]);
+  }, [displayFunctions, error, vault, price, metrics, params, manager]);
 };
 
 export default VaultSummary;

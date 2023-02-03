@@ -59,7 +59,11 @@ const ManageVaults = () => {
     content = (
       <div className="mt-12 flex flex-wrap gap-x-6 gap-y-8 justify-center xl:justify-start xl:px-2">
         {[...vaults.keys()].map(vaultKey => (
-          <VaultSummary key={vaultKey} vaultKey={vaultKey} />
+          <VaultSummary
+            key={vaultKey}
+            vaultKey={vaultKey}
+            displayFunctions={displayFunctions}
+          />
         ))}
       </div>
     );
