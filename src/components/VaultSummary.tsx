@@ -8,6 +8,7 @@ import {
 } from '@agoric/zoe/src/contractSupport';
 import clsx from 'clsx';
 import { AmountMath } from '@agoric/ertp';
+import { addCommas } from 'utils/displayFunctions';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
@@ -172,7 +173,7 @@ const VaultSummary = ({ vaultKey, displayFunctions }: Props) => {
             </div>
           </div>
           <div className={bigTextClasses}>
-            {netValueSignum}${displayAmount(netVaultValue, 2)} USD
+            {netValueSignum}${addCommas(displayAmount(netVaultValue, 2))} USD
           </div>
         </div>
         <div className="bg-[#F0F0F0] h-[1px] w-full" />
@@ -206,14 +207,14 @@ const VaultSummary = ({ vaultKey, displayFunctions }: Props) => {
           <div className={subpanelClasses}>
             <span className="text-[#A3A5B9]">Debt</span>
             <span className="font-extrabold">
-              {displayAmount(totalDebt, 2)}{' '}
+              {addCommas(displayAmount(totalDebt, 2))}{' '}
               {displayBrandPetname(totalDebt.brand)}
             </span>
           </div>
           <div className={subpanelClasses}>
             <span className="text-[#A3A5B9]">Collat. Locked ($ value)</span>
             <span className="font-extrabold text-[#00B1A6]">
-              ${displayAmount(totalLockedValue, 2)} USD
+              ${addCommas(displayAmount(totalLockedValue, 2))} USD
             </span>
           </div>
         </div>

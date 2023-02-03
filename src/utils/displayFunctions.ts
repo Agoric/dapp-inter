@@ -28,6 +28,24 @@ const wellKnownPetnames: Record<string, string> = {
 
 export const displayPetname = (pn: string) =>
   wellKnownPetnames[pn] ?? (Array.isArray(pn) ? pn.join('.') : pn);
+export const addCommas = (stringifiedValue: string) => {
+  const [whole, decimals] = stringifiedValue.split('.');
+  const figures = whole.split('');
+
+  const chunks = [];
+  const chunkSize = 3;
+  let currentChunk = '';
+
+  while (figures.length) {
+    for (let i = 0; i < chunkSize && figures.length; i++) {
+      currentChunk = figures.pop() + currentChunk;
+    }
+    chunks.push(currentChunk);
+    currentChunk = '';
+  }
+
+  return chunks.reverse().join(',') + (decimals ? '.' + decimals : '');
+};
 
 export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const getDecimalPlaces = (brand: Brand) =>
@@ -77,7 +95,7 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
       makeRatioFromAmounts(amountOut, amountIn),
     );
 
-    return '$' + displayAmount(brandOutAmountPerUnitOfBrandIn);
+    return '$' + addCommas(displayAmount(brandOutAmountPerUnitOfBrandIn));
   };
 
   const displayPriceTimestamp = (price: PriceDescription) => {
