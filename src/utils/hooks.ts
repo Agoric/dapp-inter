@@ -20,6 +20,7 @@ export const usePurseBalanceDisplay = (brand?: Brand<'nat'> | null) => {
     return `${displayAmount(
       purse.currentAmount as Amount<'nat'>,
       2,
+      'locale',
     )} ${displayBrandPetname(brand)}`;
   }, [brand, displayAmount, displayBrandPetname, purses]);
 };

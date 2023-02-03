@@ -166,7 +166,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
             right={`${displayAmount(
               istAvailable,
               2,
-              true,
+              'locale',
             )} ${displayBrandPetname(params.debtLimit.brand)}`}
           />
           <TableRow

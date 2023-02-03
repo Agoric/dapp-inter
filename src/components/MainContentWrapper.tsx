@@ -69,8 +69,8 @@ const MainContentWrapper = ({ children, header }: Props) => {
           },
         );
 
-        totalDebtForDisplay = `${displayAmount(totalDebt, 0, true, true)}`;
-        tvlForDisplay = `${displayAmount(totalLocked, 0, true, true)}`;
+        totalDebtForDisplay = `${displayAmount(totalDebt, 0, 'usd')}`;
+        tvlForDisplay = `${displayAmount(totalLocked, 0, 'usd')}`;
         numVaultsForDisplay = new Intl.NumberFormat().format(numVaults);
       }
     }

@@ -28,24 +28,6 @@ const wellKnownPetnames: Record<string, string> = {
 
 export const displayPetname = (pn: string) =>
   wellKnownPetnames[pn] ?? (Array.isArray(pn) ? pn.join('.') : pn);
-export const addCommas = (stringifiedValue: string) => {
-  const [whole, decimals] = stringifiedValue.split('.');
-  const figures = whole.split('');
-
-  const chunks = [];
-  const chunkSize = 3;
-  let currentChunk = '';
-
-  while (figures.length) {
-    for (let i = 0; i < chunkSize && figures.length; i++) {
-      currentChunk = figures.pop() + currentChunk;
-    }
-    chunks.push(currentChunk);
-    currentChunk = '';
-  }
-
-  return chunks.reverse().join(',') + (decimals ? '.' + decimals : '');
-};
 
 export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const getDecimalPlaces = (brand: Brand) =>
@@ -69,13 +51,8 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const displayAmount = (
     amount: Amount,
     placesToShow?: number,
-    localeFormat: boolean = false,
-    usdFormat: boolean = false,
+    format?: 'usd' | 'locale',
   ) => {
-    if (usdFormat) {
-      assert(localeFormat, 'Must use locale format for USD');
-    }
-
     const decimalPlaces = getDecimalPlaces(amount.brand);
     const parsed = stringifyValue(
       amount.value,
@@ -84,13 +61,14 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
       placesToShow,
     );
 
-    if (localeFormat) {
+    if (format) {
       assert(
         typeof placesToShow !== 'undefined',
         'Must specify decimal places for locale number format',
       );
 
-      const usdOpts = usdFormat ? { style: 'currency', currency: 'USD' } : {};
+      const usdOpts =
+        format === 'usd' ? { style: 'currency', currency: 'USD' } : {};
 
       return new Intl.NumberFormat(navigator.language, {
         minimumFractionDigits: placesToShow,
@@ -128,8 +106,7 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
           displayAmount(
             brandOutAmountPerUnitOfBrandIn,
             placesToShow,
-            isLocaleFormat,
-            isLocaleFormat,
+            isLocaleFormat ? 'usd' : undefined,
           );
   };
 

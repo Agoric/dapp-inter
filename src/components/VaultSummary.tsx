@@ -179,7 +179,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
           </div>
           <div className={bigTextClasses}>
             {netValueSignum}
-            {displayAmount(netVaultValue, 2, true, true)}
+            {displayAmount(netVaultValue, 2, 'usd')}
           </div>
         </div>
         <div className="bg-[#F0F0F0] h-[1px] w-full" />
@@ -213,14 +213,14 @@ const VaultSummary = ({ vaultKey }: Props) => {
           <div className={subpanelClasses}>
             <span className="text-[#A3A5B9]">Debt</span>
             <span className="font-extrabold">
-              {displayAmount(totalDebt, 2, true)}{' '}
+              {displayAmount(totalDebt, 2, 'locale')}{' '}
               {displayBrandPetname(totalDebt.brand)}
             </span>
           </div>
           <div className={subpanelClasses}>
             <span className="text-[#A3A5B9]">Collat. Locked ($ value)</span>
             <span className="font-extrabold text-[#00B1A6]">
-              {displayAmount(totalLockedValue, 2, true, true)}
+              {displayAmount(totalLockedValue, 2, 'usd')}
             </span>
           </div>
         </div>
