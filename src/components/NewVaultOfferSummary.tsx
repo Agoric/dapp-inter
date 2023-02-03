@@ -1,7 +1,7 @@
 import { AmountMath } from '@agoric/ertp';
 import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { makeOpenVaultOffer } from 'service/vaults';
 import { displayFunctionsAtom, offerSignerAtom } from 'store/app';
 import {
@@ -12,6 +12,7 @@ import {
   VaultCreationErrors,
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
+import VaultCreationDialog from './VaultCreationDialog';
 
 type TableRowProps = {
   left: string;
@@ -49,6 +50,9 @@ const NewVaultOfferSummary = ({ inputErrors }: Props) => {
     params: vaults.vaultGovernedParams,
     factoryParams: vaults.vaultFactoryParams,
   }));
+
+  const [isVaultCreationDialogOpen, setIsVaultCreationDialogOpen] =
+    useState(false);
 
   const selectedParams =
     selectedCollateralId && params.get(selectedCollateralId);
@@ -112,8 +116,9 @@ const NewVaultOfferSummary = ({ inputErrors }: Props) => {
     borrowAmount &&
     offerSigner?.isDappApproved;
 
-  const createVault = () => {
-    makeOpenVaultOffer(depositAmount, borrowAmount);
+  const createVault = async () => {
+    await makeOpenVaultOffer(depositAmount, borrowAmount);
+    setIsVaultCreationDialogOpen(true);
   };
 
   const createButtonLabel = useMemo(() => {
@@ -128,62 +133,70 @@ const NewVaultOfferSummary = ({ inputErrors }: Props) => {
   }, [offerSigner]);
 
   return (
-    <div className="pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">
-      <div className="px-8">
-        <h3 className="mb-4 font-serif text-[22px] font-extrabold leading-[35px]">
-          Offer Summary
-        </h3>
-        <h4 className="font-serif font-bold leading-[26px]">Confirm Details</h4>
-        <div className="w-full p-2">
-          <table className="w-full">
-            <tbody>
-              <TableRow left="Depositing" right={depositAmountForDisplay} />
-              <TableRow left="Borrowing" right={borrowAmountForDisplay} />
-              <TableRow left="Interest Rate" right={interestRateForDisplay} />
-              <TableRow left="Minimum Collateralization Ratio" right="--" />
-            </tbody>
-          </table>
+    <>
+      <div className="pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">
+        <div className="px-8">
+          <h3 className="mb-4 font-serif text-[22px] font-extrabold leading-[35px]">
+            Offer Summary
+          </h3>
+          <h4 className="font-serif font-bold leading-[26px]">
+            Confirm Details
+          </h4>
+          <div className="w-full p-2">
+            <table className="w-full">
+              <tbody>
+                <TableRow left="Depositing" right={depositAmountForDisplay} />
+                <TableRow left="Borrowing" right={borrowAmountForDisplay} />
+                <TableRow left="Interest Rate" right={interestRateForDisplay} />
+                <TableRow left="Minimum Collateralization Ratio" right="--" />
+              </tbody>
+            </table>
+          </div>
+          <div className="w-full h-[1px] bg-[#D8D8D8]"></div>
+          <div className="w-full p-2">
+            <table className="w-full">
+              <tbody>
+                <TableRow
+                  left="Vault Creation Fee"
+                  right={creationFeeForDisplay}
+                />
+                <TableRow
+                  left="Liquidation Ratio"
+                  right={liquidationRatioForDisplay}
+                />
+                <TableRow
+                  left="Collateralization Ratio"
+                  right={collateralizationRatioForDisplay}
+                />
+              </tbody>
+            </table>
+          </div>
         </div>
-        <div className="w-full h-[1px] bg-[#D8D8D8]"></div>
-        <div className="w-full p-2">
-          <table className="w-full">
-            <tbody>
-              <TableRow
-                left="Vault Creation Fee"
-                right={creationFeeForDisplay}
-              />
-              <TableRow
-                left="Liquidation Ratio"
-                right={liquidationRatioForDisplay}
-              />
-              <TableRow
-                left="Collateralization Ratio"
-                right={collateralizationRatioForDisplay}
-              />
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div
-        className={clsx(
-          'transition mt-3 mx-3 p-6 rounded-b-[10px]',
-          canCreateVault ? 'bg-[#F3EFF9]' : '',
-        )}
-      >
-        <button
-          onClick={createVault}
-          disabled={!canCreateVault}
+        <div
           className={clsx(
-            'transition w-full py-3 text-white font-extrabold text-sm rounded-[6px]',
-            canCreateVault
-              ? 'bg-interPurple shadow-[0px_13px_20px_-6px_rgba(125,50,222,0.25)] hover:opacity-80 active:opacity-70'
-              : 'bg-[#C1C3D7] cursor-not-allowed',
+            'transition mt-3 mx-3 p-6 rounded-b-[10px]',
+            canCreateVault ? 'bg-[#F3EFF9]' : '',
           )}
         >
-          {createButtonLabel}
-        </button>
+          <button
+            onClick={createVault}
+            disabled={!canCreateVault}
+            className={clsx(
+              'transition w-full py-3 text-white font-extrabold text-sm rounded-[6px]',
+              canCreateVault
+                ? 'bg-interPurple shadow-[0px_13px_20px_-6px_rgba(125,50,222,0.25)] hover:opacity-80 active:opacity-70'
+                : 'bg-[#C1C3D7] cursor-not-allowed',
+            )}
+          >
+            {createButtonLabel}
+          </button>
+        </div>
       </div>
-    </div>
+      <VaultCreationDialog
+        isOpen={isVaultCreationDialogOpen}
+        onClose={() => setIsVaultCreationDialogOpen(false)}
+      />
+    </>
   );
 };
 
