@@ -21,8 +21,10 @@ const getLogoForBrandPetname = (brandPetname: string) => {
   }
 };
 
-export const displayPetname = (pn: Array<string> | string) =>
-  Array.isArray(pn) ? pn.join('.') : pn;
+// XXX We remove the "Ibc" prefix so e.g. "IbcATOM" becomes "ATOM". Should
+// this be mapped out more explicitly?
+export const displayPetname = (pn: string) =>
+  (Array.isArray(pn) ? pn.join('.') : pn).replace('Ibc', '');
 
 export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const getDecimalPlaces = (brand: Brand) =>
