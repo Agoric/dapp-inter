@@ -10,9 +10,10 @@ import type { PropsWithChildren } from 'react';
 const EmptyView = ({ children }: PropsWithChildren) => {
   return (
     <div className="mt-8 mx-auto w-full relative">
-      <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center">
-        <div className="text-gray-500 shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-lg text-lg p-6 bg-white">
-          {children}
+      <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center backdrop-blur pb-[20%]">
+        <div className="max-w-lg text-gray-500 shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl text-lg bg-white">
+          <div className="bg-interPurple w-full h-4 rounded-t-xl"></div>
+          <div className="p-6">{children}</div>
         </div>
       </div>
       <div className="opacity-30 mt-10 mx-auto w-fit">
@@ -76,7 +77,7 @@ const ManageVaults = () => {
           </div>
         </div>
         <button
-          className="text-[#f9fafe] text-xs uppercase flex flex-row justify-center items-center p-3 bg-interPurple rounded-md shadow-[0_10px_14px_-4px_rgba(183,135,245,0.3)] hover:opacity-80 active:opacity-60"
+          className="text-[#f9fafe] text-btn-xs flex flex-row justify-center items-center p-3 bg-interPurple rounded-md shadow-[0_10px_14px_-4px_rgba(183,135,245,0.3)] hover:opacity-80 active:opacity-60"
           onClick={buttonProps.onClick}
         >
           {buttonProps.text}

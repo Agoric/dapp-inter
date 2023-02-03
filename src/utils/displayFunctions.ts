@@ -21,8 +21,13 @@ const getLogoForBrandPetname = (brandPetname: string) => {
   }
 };
 
-export const displayPetname = (pn: Array<string> | string) =>
-  Array.isArray(pn) ? pn.join('.') : pn;
+// We remove the "Ibc" prefix so e.g. "IbcATOM" becomes "ATOM".
+const wellKnownPetnames: Record<string, string> = {
+  IbcATOM: 'ATOM',
+};
+
+export const displayPetname = (pn: string) =>
+  wellKnownPetnames[pn] ?? (Array.isArray(pn) ? pn.join('.') : pn);
 
 export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const getDecimalPlaces = (brand: Brand) =>
