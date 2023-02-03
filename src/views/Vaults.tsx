@@ -2,7 +2,7 @@ import { useAtomValue } from 'jotai';
 import { appAtom, leaderAtom, networkConfigAtom } from 'store/app';
 import { useEffect } from 'react';
 import { watchVaultFactory } from 'service/vaults';
-import CollateralChoices from 'components/CreateVault';
+import CreateVault from 'components/CreateVault';
 import ManageVaults from 'components/ManageVaults';
 import MainContentWrapper from 'components/MainContentWrapper';
 import { useVaultStore, viewModeAtom, ViewMode } from 'store/vaults';
@@ -38,12 +38,13 @@ const Vaults = () => {
     };
   }, [leader, netConfig]);
 
-  const { managerIdsLoadingError } = useVaultStore();
+  const { managerIdsLoadingError, vaultFactoryInstanceHandleLoadingError } =
+    useVaultStore();
   const { watchVbankError } = useAtomValue(appAtom);
   const mode = useAtomValue(viewModeAtom);
 
   const contentForMode = {
-    [ViewMode.Create]: () => <CollateralChoices />,
+    [ViewMode.Create]: () => <CreateVault />,
     [ViewMode.Manage]: () => <ManageVaults />,
   };
   const content = contentForMode[mode]();
@@ -54,8 +55,9 @@ const Vaults = () => {
         <PathDescription mode={mode} />
       </div>
       <div className="text-red-600 text-lg mt-4">
-        {managerIdsLoadingError && <div>{managerIdsLoadingError}</div>}
-        {watchVbankError && <div>{watchVbankError}</div>}
+        <div>{vaultFactoryInstanceHandleLoadingError}</div>
+        <div>{managerIdsLoadingError}</div>
+        <div>{watchVbankError}</div>
       </div>
       {content}
     </MainContentWrapper>

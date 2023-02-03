@@ -261,6 +261,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
       );
       assert(instanceEntry, 'Missing VaultFactory from agoricNames.instances');
       useVaultStore.setState({ vaultFactoryInstanceHandle: instanceEntry[1] });
+      return;
     }
   };
 

@@ -1,4 +1,4 @@
-import { chainConnectionAtom, displayFunctionsAtom } from 'store/app';
+import { chainConnectionAtom } from 'store/app';
 import { useCallback } from 'react';
 import { useVaultStore, viewModeAtom, ViewMode } from 'store/vaults';
 import VaultSummary from 'components/VaultSummary';
@@ -11,8 +11,8 @@ const EmptyView = ({ children }: PropsWithChildren) => {
   return (
     <div className="mt-8 mx-auto w-full relative">
       <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center backdrop-blur pb-[20%]">
-        <div className="max-w-lg text-gray-500 shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl text-lg bg-white">
-          <div className="bg-interPurple w-full h-4 rounded-t-xl"></div>
+        <div className="max-w-lg shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl text-lg bg-white">
+          <div className="bg-interYellow w-full h-4 rounded-t-xl"></div>
           <div className="p-6">{children}</div>
         </div>
       </div>
@@ -31,7 +31,6 @@ const ManageVaults = () => {
   const setMode = useSetAtom(viewModeAtom);
   const vaults = useVaultStore(state => state.vaults);
   const chainConnection = useAtomValue(chainConnectionAtom);
-  const displayFunctions = useAtomValue(displayFunctionsAtom);
 
   const buttonProps = {
     text: (
@@ -49,7 +48,7 @@ const ManageVaults = () => {
     content = <EmptyView>Connect your wallet to manage your vaults.</EmptyView>;
   } else if (vaults?.size === 0) {
     content = <EmptyView>You have not opened any vaults yet</EmptyView>;
-  } else if (!(vaults && displayFunctions)) {
+  } else if (!vaults) {
     content = (
       <EmptyView>
         <span className="animate-pulse">Loading your vaults...</span>

@@ -48,20 +48,41 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
     return stringifyRatio(ratio, getDecimalPlaces, placesToShow);
   };
 
-  const displayAmount = (amount: Amount, placesToShow?: number) => {
+  const displayAmount = (
+    amount: Amount,
+    placesToShow?: number,
+    format?: 'usd' | 'locale',
+  ) => {
     const decimalPlaces = getDecimalPlaces(amount.brand);
-    return stringifyValue(
+    const parsed = stringifyValue(
       amount.value,
       AssetKind.NAT,
       decimalPlaces,
       placesToShow,
     );
+
+    if (format) {
+      assert(
+        typeof placesToShow !== 'undefined',
+        'Must specify decimal places for locale number format',
+      );
+
+      const usdOpts =
+        format === 'usd' ? { style: 'currency', currency: 'USD' } : {};
+
+      return new Intl.NumberFormat(navigator.language, {
+        minimumFractionDigits: placesToShow,
+        ...usdOpts,
+      }).format(Number(parsed));
+    }
+
+    return parsed;
   };
 
   const displayBrandIcon = (brand?: Brand | null) =>
     getLogoForBrandPetname(getPetname(brand));
 
-  const displayPrice = (price: PriceDescription) => {
+  const displayPrice = (price: PriceDescription, placesToShow?: number) => {
     const { amountIn, amountOut } = price;
     const { brand: brandIn } = amountIn;
     const brandInDecimals = getDecimalPlaces(brandIn);
@@ -77,7 +98,16 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
       makeRatioFromAmounts(amountOut, amountIn),
     );
 
-    return '$' + displayAmount(brandOutAmountPerUnitOfBrandIn);
+    const isLocaleFormat = typeof placesToShow !== 'undefined';
+
+    return isLocaleFormat
+      ? ''
+      : '$' +
+          displayAmount(
+            brandOutAmountPerUnitOfBrandIn,
+            placesToShow,
+            isLocaleFormat ? 'usd' : undefined,
+          );
   };
 
   const displayPriceTimestamp = (price: PriceDescription) => {

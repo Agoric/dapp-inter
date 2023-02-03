@@ -71,7 +71,7 @@ const NewVaultOfferSummary = ({ inputErrors }: Props) => {
 
   const depositAmountForDisplay =
     displayAmount && displayBrandPetname && depositAmount
-      ? `${displayAmount(depositAmount, 2)} ${displayBrandPetname(
+      ? `${displayAmount(depositAmount, 2, 'locale')} ${displayBrandPetname(
           collateralBrand,
         )}`
       : '--';
@@ -81,7 +81,9 @@ const NewVaultOfferSummary = ({ inputErrors }: Props) => {
 
   const borrowAmountForDisplay =
     displayAmount && displayBrandPetname && borrowAmount
-      ? `${displayAmount(borrowAmount, 2)} ${displayBrandPetname(debtBrand)}`
+      ? `${displayAmount(borrowAmount, 2, 'locale')} ${displayBrandPetname(
+          debtBrand,
+        )}`
       : '--';
 
   const interestRateForDisplay =
