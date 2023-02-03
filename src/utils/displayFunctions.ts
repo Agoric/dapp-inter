@@ -66,20 +66,45 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
     return stringifyRatio(ratio, getDecimalPlaces, placesToShow);
   };
 
-  const displayAmount = (amount: Amount, placesToShow?: number) => {
+  const displayAmount = (
+    amount: Amount,
+    placesToShow?: number,
+    localeFormat: boolean = false,
+    usdFormat: boolean = false,
+  ) => {
+    if (usdFormat) {
+      assert(localeFormat, 'Must use locale format for USD');
+    }
+
     const decimalPlaces = getDecimalPlaces(amount.brand);
-    return stringifyValue(
+    const parsed = stringifyValue(
       amount.value,
       AssetKind.NAT,
       decimalPlaces,
       placesToShow,
     );
+
+    if (localeFormat) {
+      assert(
+        typeof placesToShow !== 'undefined',
+        'Must specify decimal places for locale number format',
+      );
+
+      const usdOpts = usdFormat ? { style: 'currency', currency: 'USD' } : {};
+
+      return new Intl.NumberFormat(navigator.language, {
+        minimumFractionDigits: placesToShow,
+        ...usdOpts,
+      }).format(Number(parsed));
+    }
+
+    return parsed;
   };
 
   const displayBrandIcon = (brand?: Brand | null) =>
     getLogoForBrandPetname(getPetname(brand));
 
-  const displayPrice = (price: PriceDescription) => {
+  const displayPrice = (price: PriceDescription, placesToShow?: number) => {
     const { amountIn, amountOut } = price;
     const { brand: brandIn } = amountIn;
     const brandInDecimals = getDecimalPlaces(brandIn);
@@ -95,7 +120,17 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
       makeRatioFromAmounts(amountOut, amountIn),
     );
 
-    return '$' + addCommas(displayAmount(brandOutAmountPerUnitOfBrandIn));
+    const isLocaleFormat = typeof placesToShow !== 'undefined';
+
+    return isLocaleFormat
+      ? ''
+      : '$' +
+          displayAmount(
+            brandOutAmountPerUnitOfBrandIn,
+            placesToShow,
+            isLocaleFormat,
+            isLocaleFormat,
+          );
   };
 
   const displayPriceTimestamp = (price: PriceDescription) => {

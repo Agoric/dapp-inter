@@ -55,11 +55,9 @@ const Vaults = () => {
         <PathDescription mode={mode} />
       </div>
       <div className="text-red-600 text-lg mt-4">
-        {vaultFactoryInstanceHandleLoadingError && (
-          <div>{vaultFactoryInstanceHandleLoadingError}</div>
-        )}
-        {managerIdsLoadingError && <div>{managerIdsLoadingError}</div>}
-        {watchVbankError && <div>{watchVbankError}</div>}
+        <div>{vaultFactoryInstanceHandleLoadingError}</div>
+        <div>{managerIdsLoadingError}</div>
+        <div>{watchVbankError}</div>
       </div>
       {content}
     </MainContentWrapper>

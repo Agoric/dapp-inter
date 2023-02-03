@@ -7,7 +7,6 @@ import { useAtomValue } from 'jotai';
 import { PropsWithChildren, ReactNode, useMemo } from 'react';
 import { displayFunctionsAtom } from 'store/app';
 import { useVaultStore } from 'store/vaults';
-import { addCommas } from 'utils/displayFunctions';
 
 type TickerItemProps = {
   label: string;
@@ -37,19 +36,20 @@ const MainContentWrapper = ({ children, header }: Props) => {
     let numVaultsForDisplay = '--';
 
     if (displayFunctions && metrics.size === managerIds?.length) {
-      let areAllPricesLoaded = true;
-      [...metrics.values()].forEach(() => {
-        const collateralBrand = metrics.get(managerIds[0])?.totalCollateral
-          .brand;
-        if (!(collateralBrand && prices.get(collateralBrand))) {
-          areAllPricesLoaded = false;
-        }
-      });
+      const areCollateralPricesLoaded = [...metrics.values()].every(m =>
+        prices.get(m.totalCollateral.brand),
+      );
 
-      if (areAllPricesLoaded) {
+      if (areCollateralPricesLoaded) {
         const { displayAmount } = displayFunctions;
 
-        const debtBrand = metrics.get(managerIds[0])?.totalDebt.brand;
+        const firstManagerMetrics = metrics.get(managerIds[0]);
+        assert(
+          firstManagerMetrics,
+          'Metrics arent loaded yet, cannot calculate info.',
+        );
+        // All managers use the same debt.
+        const debtBrand = firstManagerMetrics.totalDebt.brand;
 
         let totalDebt = AmountMath.makeEmpty(debtBrand);
         let totalLocked = AmountMath.makeEmpty(debtBrand);
@@ -69,9 +69,9 @@ const MainContentWrapper = ({ children, header }: Props) => {
           },
         );
 
-        totalDebtForDisplay = `$${addCommas(displayAmount(totalDebt, 0))}`;
-        tvlForDisplay = `$${addCommas(displayAmount(totalLocked, 0))}`;
-        numVaultsForDisplay = addCommas(numVaults.toString());
+        totalDebtForDisplay = `${displayAmount(totalDebt, 0, true, true)}`;
+        tvlForDisplay = `${displayAmount(totalLocked, 0, true, true)}`;
+        numVaultsForDisplay = new Intl.NumberFormat().format(numVaults);
       }
     }
 

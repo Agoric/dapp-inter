@@ -31,7 +31,6 @@ const ManageVaults = () => {
   const setMode = useSetAtom(viewModeAtom);
   const vaults = useVaultStore(state => state.vaults);
   const chainConnection = useAtomValue(chainConnectionAtom);
-  const displayFunctions = useAtomValue(displayFunctionsAtom);
 
   const buttonProps = {
     text: (
@@ -49,7 +48,7 @@ const ManageVaults = () => {
     content = <EmptyView>Connect your wallet to manage your vaults.</EmptyView>;
   } else if (vaults?.size === 0) {
     content = <EmptyView>You have not opened any vaults yet</EmptyView>;
-  } else if (!(vaults && displayFunctions)) {
+  } else if (!vaults) {
     content = (
       <EmptyView>
         <span className="animate-pulse">Loading your vaults...</span>
@@ -59,11 +58,7 @@ const ManageVaults = () => {
     content = (
       <div className="mt-12 flex flex-wrap gap-x-6 gap-y-8 justify-center xl:justify-start xl:px-2">
         {[...vaults.keys()].map(vaultKey => (
-          <VaultSummary
-            key={vaultKey}
-            vaultKey={vaultKey}
-            displayFunctions={displayFunctions}
-          />
+          <VaultSummary key={vaultKey} vaultKey={vaultKey} />
         ))}
       </div>
     );
