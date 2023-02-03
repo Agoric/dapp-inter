@@ -1,4 +1,22 @@
 /** @type {import('tailwindcss').Config} */
+
+const sans = [
+  'Roboto',
+  'ui-sans-serif',
+  'system-ui',
+  '-apple-system',
+  'BlinkMacSystemFont',
+  'Segoe UI',
+  'Helvetica Neue',
+  'Arial',
+  'Noto Sans',
+  'sans-serif',
+  'Apple Color Emoji',
+  'Segoe UI Emoji',
+  'Segoe UI Symbol',
+  'Noto Color Emoji',
+];
+
 module.exports = {
   mode: 'jit', // update this line
   content: ['./src/**/*.{js,jsx,ts,tsx}', './index.html'],
@@ -18,22 +36,7 @@ module.exports = {
         interPurple: 'var(--inter-purple)',
       },
       fontFamily: {
-        sans: [
-          'Roboto',
-          'ui-sans-serif',
-          'system-ui',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'Segoe UI',
-          'Helvetica Neue',
-          'Arial',
-          'Noto Sans',
-          'sans-serif',
-          'Apple Color Emoji',
-          'Segoe UI Emoji',
-          'Segoe UI Symbol',
-          'Noto Color Emoji',
-        ],
+        sans,
         serif: [
           'Roboto Slab',
           'ui-serif',
@@ -43,23 +46,7 @@ module.exports = {
           'Times',
           'serif',
         ],
-        altSans: [
-          'Mulish',
-          'Roboto',
-          'ui-sans-serif',
-          'system-ui',
-          '-apple-system',
-          'BlinkMacSystemFont',
-          'Segoe UI',
-          'Helvetica Neue',
-          'Arial',
-          'Noto Sans',
-          'sans-serif',
-          'Apple Color Emoji',
-          'Segoe UI Emoji',
-          'Segoe UI Symbol',
-          'Noto Color Emoji',
-        ],
+        altSans: ['Mulish', ...sans],
       },
     },
   },

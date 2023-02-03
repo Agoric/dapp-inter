@@ -21,10 +21,13 @@ const getLogoForBrandPetname = (brandPetname: string) => {
   }
 };
 
-// XXX We remove the "Ibc" prefix so e.g. "IbcATOM" becomes "ATOM". Should
-// this be mapped out more explicitly?
+// We remove the "Ibc" prefix so e.g. "IbcATOM" becomes "ATOM".
+const wellKnownPetnames: Record<string, string> = {
+  IbcATOM: 'ATOM',
+};
+
 export const displayPetname = (pn: string) =>
-  (Array.isArray(pn) ? pn.join('.') : pn).replace('Ibc', '');
+  wellKnownPetnames[pn] ?? (Array.isArray(pn) ? pn.join('.') : pn);
 
 export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   const getDecimalPlaces = (brand: Brand) =>

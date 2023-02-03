@@ -65,13 +65,13 @@ const VaultCreationDialog = ({ isOpen, onClose }: Props) => {
                 <div className="py-6 px-8">
                   <div className="flex justify-end gap-6">
                     <button
-                      className="font-bold font-altSans uppercase flex justify-center rounded  text-[#A3A5B9] border-[#A3A5B9] border-2 px-6 py-3 text-xs bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+                      className="text-btn-xs flex justify-center rounded  text-[#A3A5B9] border-[#A3A5B9] border-2 px-6 py-3 bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
                       onClick={gotToVaults}
                     >
                       Back to vaults
                     </button>
                     <button
-                      className="font-bold font-altSans uppercase flex justify-center rounded border border-transparent text-white bg-interPurple px-16 py-3 text-xs hover:opacity-80 active:opacity-60"
+                      className="text-btn-xs flex justify-center rounded border border-transparent text-white bg-interPurple px-16 py-3 hover:opacity-80 active:opacity-60"
                       onClick={goToWallet}
                     >
                       Go to wallet
