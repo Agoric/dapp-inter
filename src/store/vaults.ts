@@ -12,8 +12,10 @@ export type PriceDescription = ReturnType<typeof getPriceDescription>;
 export type Ratio = ReturnType<typeof makeRatio>;
 
 export enum ViewMode {
-  Create,
+  // Manage all vaults.
   Manage,
+  // Adjust a vault, or create a new vault if `vaultKeyToAdjustAtom` is `null`.
+  Edit,
 }
 
 export type VaultParams = {
@@ -62,8 +64,6 @@ export type VaultInfo = VaultInfoChainData & {
 };
 
 export type VaultKey = string;
-export const keyForVault = (managerId: string, vaultId: string) =>
-  `${managerId}.${vaultId}` as VaultKey;
 
 // UNTIL: We get this from zoe https://github.com/Agoric/agoric-sdk/pull/6884
 export type PriceQuote = unknown;
@@ -184,6 +184,16 @@ export const vaultStore = createStore<VaultState>()(set => ({
     }),
 }));
 
-export const viewModeAtom = atom(ViewMode.Create);
+export const viewModeAtom = atom(ViewMode.Edit);
+
+const vaultKeyToAdjustAtomInternal = atom<VaultKey | null>(null);
+
+export const vaultKeyToAdjustAtom = atom(
+  get => get(vaultKeyToAdjustAtomInternal),
+  (_get, set, key: VaultKey | null) => {
+    set(vaultKeyToAdjustAtomInternal, key);
+    set(viewModeAtom, ViewMode.Edit);
+  },
+);
 
 export const useVaultStore = create(vaultStore);

@@ -91,14 +91,16 @@ const MainContentWrapper = ({ children, header }: Props) => {
   }, [displayFunctions, managerIds, metrics, prices]);
 
   return (
-    <div className="mt-[2px] flex-grow bg-gradient-to-br from-[#fffcf2] to-[#ffffff] rounded-t-[48px] shadow-[0px_34px_50px_0px_#ff7a1a] relative">
+    <div className="mt-[2px] flex flex-col flex-grow bg-gradient-to-br from-[#fffcf2] to-[#ffffff] rounded-t-[48px] shadow-[0px_34px_50px_0px_#ff7a1a] relative">
       <div className="bg-interYellow h-[46px] rounded-t-full before:h-[46px] before:-z-50 before:rounded-t-full before:w-full before:bg-[#FFE04B] before:absolute before:-top-[2px]">
         {header}
       </div>
       <div className="w-full h-[1px] bg-[#f4cd0c]" />
       <div className="w-full h-[1px] bg-[#ffe252]" />
       <div className="bg-interYellow">{subheader}</div>
-      <div className="p-2 pt-4 md:p-10">{children}</div>
+      <div className="p-2 pt-4 md:p-10 overflow-hidden flex-grow">
+        {children}
+      </div>
     </div>
   );
 };
