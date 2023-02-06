@@ -1,5 +1,5 @@
 import { atom } from 'jotai';
-import { vaultStore } from './vaults';
+import { vaultStoreAtom } from './vaults';
 import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
 import { computeToLock, computeToReceive } from 'utils/vaultMath';
 import { pursesAtom } from './app';
@@ -7,14 +7,15 @@ import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
 import { AmountMath } from '@agoric/ertp';
 import type { Ratio } from './vaults';
 import type { Amount } from '@agoric/ertp/src/types';
+import type { Getter } from 'jotai';
 
 const valueToLockInternal = atom<bigint | null>(null);
 const valueToReceiveInternal = atom<bigint | null>(null);
 const collateralizationRatioInternal = atom<Ratio | null>(null);
 const selectedCollateralIdInternal = atom<string | null>(null);
 
-const getVaultInputData = (selectedCollateralId: string) => {
-  const { vaultMetrics, vaultGovernedParams, prices } = vaultStore.getState();
+const getVaultInputData = (get: Getter, selectedCollateralId: string) => {
+  const { vaultMetrics, vaultGovernedParams, prices } = get(vaultStoreAtom);
 
   const collateralBrand =
     selectedCollateralId && vaultMetrics?.has(selectedCollateralId)
@@ -61,8 +62,10 @@ export const valueToLockAtom = atom(
     }
 
     const collateralizationRatio = get(collateralizationRatioInternal);
-    const { priceRate, defaultCollateralizationRatio } =
-      getVaultInputData(selectedCollateralId);
+    const { priceRate, defaultCollateralizationRatio } = getVaultInputData(
+      get,
+      selectedCollateralId,
+    );
 
     if (priceRate && defaultCollateralizationRatio && collateralizationRatio) {
       set(
@@ -89,8 +92,10 @@ export const valueToReceiveAtom = atom(
     }
 
     const collateralizationRatio = get(collateralizationRatioInternal);
-    const { priceRate, defaultCollateralizationRatio } =
-      getVaultInputData(selectedCollateralId);
+    const { priceRate, defaultCollateralizationRatio } = getVaultInputData(
+      get,
+      selectedCollateralId,
+    );
 
     if (priceRate && defaultCollateralizationRatio && collateralizationRatio) {
       set(
@@ -117,8 +122,10 @@ export const collateralizationRatioAtom = atom(
       return;
     }
 
-    const { priceRate, defaultCollateralizationRatio } =
-      getVaultInputData(selectedCollateralId);
+    const { priceRate, defaultCollateralizationRatio } = getVaultInputData(
+      get,
+      selectedCollateralId,
+    );
 
     if (priceRate && defaultCollateralizationRatio) {
       set(
@@ -136,7 +143,7 @@ export const collateralizationRatioAtom = atom(
 
 export const selectedCollateralIdAtom = atom(
   get => get(selectedCollateralIdInternal),
-  (_get, set, selectedCollateralId: string | null) => {
+  (get, set, selectedCollateralId: string | null) => {
     set(selectedCollateralIdInternal, selectedCollateralId);
 
     if (selectedCollateralId === null) {
@@ -146,8 +153,10 @@ export const selectedCollateralIdAtom = atom(
       return;
     }
 
-    const { priceRate, defaultCollateralizationRatio } =
-      getVaultInputData(selectedCollateralId);
+    const { priceRate, defaultCollateralizationRatio } = getVaultInputData(
+      get,
+      selectedCollateralId,
+    );
 
     if (defaultCollateralizationRatio) {
       set(collateralizationRatioInternal, defaultCollateralizationRatio);
@@ -155,7 +164,7 @@ export const selectedCollateralIdAtom = atom(
       set(collateralizationRatioInternal, null);
     }
 
-    const { vaultFactoryParams } = vaultStore.getState();
+    const { vaultFactoryParams } = get(vaultStoreAtom);
     const defaultValueReceived = vaultFactoryParams?.minInitialDebt;
     if (defaultValueReceived) {
       set(valueToReceiveInternal, defaultValueReceived.value);
@@ -189,7 +198,7 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
   const purses = get(pursesAtom);
 
   const { vaultGovernedParams, vaultMetrics, vaultFactoryParams } =
-    vaultStore.getState();
+    get(vaultStoreAtom);
 
   const selectedParams =
     selectedCollateralId && vaultGovernedParams?.has(selectedCollateralId)

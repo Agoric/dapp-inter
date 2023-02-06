@@ -8,6 +8,7 @@ import {
   getPriceDescription,
   makeRatio,
 } from '@agoric/zoe/src/contractSupport';
+import { atomWithStore } from 'jotai-zustand';
 export type PriceDescription = ReturnType<typeof getPriceDescription>;
 export type Ratio = ReturnType<typeof makeRatio>;
 
@@ -195,5 +196,7 @@ export const vaultKeyToAdjustAtom = atom(
     set(viewModeAtom, ViewMode.Edit);
   },
 );
+
+export const vaultStoreAtom = atomWithStore(vaultStore);
 
 export const useVaultStore = create(vaultStore);
