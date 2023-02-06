@@ -30,7 +30,7 @@ const TableRowWithArrow = ({ label, left, right }: TableRowWithArrowProps) => {
     <tr className="text-[13px] leading-[21px]">
       <td className="text-[#A3A5B9] text-left">{label}</td>
       <td className="text-[#666980] font-black px-2">{left}</td>
-      <td className="text-[#A3A5B9] text-left px-2">{'->'}</td>
+      <td className="text-[#666980] font-black px-2">&#8594;</td>
       <td className="text-right text-[#666980] font-black">{right}</td>
     </tr>
   );
@@ -64,7 +64,7 @@ const AdjustVaultSummary = ({
     useAtomValue(displayFunctionsAtom) ?? {};
 
   return (
-    <div className="w-96 pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">
+    <div className="w-full pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">
       <div className="px-8">
         <h3 className="mb-4 font-serif text-[22px] font-extrabold leading-[35px]">
           Vault Summary
@@ -115,7 +115,7 @@ const AdjustVaultSummary = ({
                 right={`${
                   params &&
                   displayPercent &&
-                  displayPercent(params.interestRate, 0)
+                  displayPercent(params.interestRate, 2)
                 }%`}
               />
             </tbody>

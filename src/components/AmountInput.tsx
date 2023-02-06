@@ -11,7 +11,7 @@ type Props = {
   label?: string;
   error?: string;
   brand?: Brand | null;
-  onChange: (value: bigint) => void;
+  onChange?: (value: bigint) => void;
   disabled?: boolean;
 };
 
@@ -41,7 +41,7 @@ const AmountInput = ({
     setFieldString(str);
 
     const parsed = parseAsValue(str, AssetKind.NAT, decimalPlaces);
-    onChange(parsed);
+    onChange && onChange(parsed);
   };
 
   // Use the `fieldString` as an input buffer so the user can type values that

@@ -1,6 +1,11 @@
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
-import { useVaultStore, vaultKeyToAdjustAtom } from 'store/vaults';
+import {
+  useVaultStore,
+  vaultKeyToAdjustAtom,
+  ViewMode,
+  viewModeAtom,
+} from 'store/vaults';
 import { AmountMath } from '@agoric/ertp';
 import {
   ceilMultiplyBy,
@@ -11,6 +16,7 @@ import VaultSymbol from 'svg/vault-symbol';
 import clsx from 'clsx';
 import AdjustVaultForm from './AdjustVaultForm';
 import AdjustVaultSummary from './AdjustVaultSummary';
+import { useCallback } from 'react';
 
 const AdjustVault = () => {
   const vaultKey = useAtomValue(vaultKeyToAdjustAtom);
@@ -34,6 +40,13 @@ const AdjustVault = () => {
   const { locked, debtSnapshot, managerId } = vault;
   const manager = managers.get(managerId);
   assert(locked && debtSnapshot && manager, 'Vault must be loading still');
+
+  const setMode = useSetAtom(viewModeAtom);
+
+  const backButtonProps = {
+    text: 'Back to vaults',
+    onClick: useCallback(() => setMode(ViewMode.Manage), [setMode]),
+  };
 
   const brand = locked.brand;
   const price = brand && prices.get(brand);
@@ -79,7 +92,7 @@ const AdjustVault = () => {
           </div>
           <div>
             Last Price Update:{' '}
-            <span className="font-medium text-lg">
+            <span className="font-medium text-lg whitespace-nowrap">
               {displayPriceTimestamp && displayPriceTimestamp(price)}
             </span>
           </div>
@@ -122,12 +135,20 @@ const AdjustVault = () => {
           </span>
         </div>
       </div>
-      <div className="text-xl font-bold font-serif mt-12">Adjust Vault</div>
-      <div className="mt-8 flex gap-8">
-        <div className="flex-grow">
+      <div className="flex flex-wrap justify-between mt-12">
+        <div className="text-xl font-bold font-serif">Adjust Vault</div>
+        <button
+          className="text-btn-xs transition mr-1 text-[#A3A5B9] rounded-[6px] border-2 border-solid border-[#A3A5B9] py-3 px-7 leading-[14px] font-bold text-xs bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+          onClick={backButtonProps.onClick}
+        >
+          {backButtonProps.text}
+        </button>
+      </div>
+      <div className="mt-8 grid grid-cols-5 gap-8">
+        <div className="col-span-9 lg:col-span-3">
           <AdjustVaultForm />
         </div>
-        <div>
+        <div className="col-span-9 lg:col-span-2">
           <AdjustVaultSummary
             locked={locked}
             debt={totalDebt}
