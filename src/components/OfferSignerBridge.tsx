@@ -49,21 +49,16 @@ const WalletBridge = () => {
   const setIsDappApproved = useSetAtom(setIsDappApprovedAtom);
   const setOfferSigner = useSetAtom(offerSignerAtom);
   const chainConnection = useAtomValue(chainConnectionAtom);
-  const warningToastId = useRef<Id | null>(null);
-  const connectionSuccessfulToastId = useRef<Id | null>(null);
+  const toastId = useRef<Id | null>(null);
   const bridgeHref = useAtomValue(bridgeHrefAtom);
   const walletUiHref = useAtomValue(walletUiHrefAtom);
 
-  const clearWarningToast = () =>
-    warningToastId.current && toast.dismiss(warningToastId.current);
-
-  const clearConnectionSuccessfulToast = () =>
-    connectionSuccessfulToastId.current &&
-    toast.dismiss(connectionSuccessfulToastId.current);
+  const clearCurrentToast = () =>
+    toastId.current && toast.dismiss(toastId.current);
 
   const showWarningToast = () => {
-    clearConnectionSuccessfulToast();
-    warningToastId.current = toast.warning(
+    clearCurrentToast();
+    toastId.current = toast.warning(
       <p>
         Dapp is in read-only mode. Enable the connection at{' '}
         <a
@@ -80,8 +75,8 @@ const WalletBridge = () => {
   };
 
   const showConnectionSuccessfulToast = () => {
-    clearWarningToast();
-    connectionSuccessfulToastId.current = toast.success(
+    clearCurrentToast();
+    toastId.current = toast.success(
       <p>
         Successfully connected to Agoric wallet at{' '}
         <a
@@ -112,7 +107,8 @@ const WalletBridge = () => {
 
   const onError = (ev: BridgeError) => {
     const message = ev.detail.e.message;
-    toast.error(
+    clearCurrentToast();
+    toastId.current = toast.error(
       <div>
         <p>
           Could not connect to Agoric wallet at{' '}
