@@ -46,3 +46,7 @@ declare module '@agoric/inter-protocol/src/interest-math' {
     currentCompoundedInterest: Ratio,
   ) => Amount<'nat'>;
 }
+
+declare module 'react-view-slider' {
+  export const ViewSlider;
+}

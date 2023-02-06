@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useVaultStore } from 'store/vaults';
+import { useVaultStore, vaultKeyToAdjustAtom } from 'store/vaults';
 import { displayFunctionsAtom } from 'store/app';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 import {
@@ -8,7 +8,8 @@ import {
 } from '@agoric/zoe/src/contractSupport';
 import clsx from 'clsx';
 import { AmountMath } from '@agoric/ertp';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
+import type { VaultKey } from 'store/vaults';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
@@ -55,7 +56,7 @@ const TableRow = ({ left, right, light = false }: TableRowProps) => (
 );
 
 type Props = {
-  vaultKey: string;
+  vaultKey: VaultKey;
 };
 
 const VaultSummary = ({ vaultKey }: Props) => {
@@ -83,6 +84,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
   assert(vault, `Cannot render summary for nonexistent vault ${vaultKey}`);
 
   const displayFunctions = useAtomValue(displayFunctionsAtom);
+  const setVaultToAdjustKey = useSetAtom(vaultKeyToAdjustAtom);
 
   const metrics = vaultMetrics?.get(vault?.managerId ?? '');
   const params = vaultGovernedParams?.get(vault?.managerId ?? '');
@@ -160,8 +162,15 @@ const VaultSummary = ({ vaultKey }: Props) => {
     // TODO: Update dynamically.
     const collateralLabel = 'ATOM';
 
+    const adjustVault = () => {
+      setVaultToAdjustKey(vaultKey);
+    };
+
     return (
-      <div className="cursor-pointer shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition hover:scale-105">
+      <button
+        onClick={adjustVault}
+        className="cursor-pointer shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition hover:scale-105"
+      >
         <div className="flex justify-between mt-14 mx-8 mb-10 items-center flex-wrap">
           <div className="flex items-end gap-4">
             <img
@@ -224,9 +233,19 @@ const VaultSummary = ({ vaultKey }: Props) => {
             </span>
           </div>
         </div>
-      </div>
+      </button>
     );
-  }, [displayFunctions, error, vault, price, metrics, params, manager]);
+  }, [
+    error,
+    vault,
+    price,
+    metrics,
+    params,
+    manager,
+    displayFunctions,
+    setVaultToAdjustKey,
+    vaultKey,
+  ]);
 };
 
 export default VaultSummary;

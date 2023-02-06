@@ -1,16 +1,40 @@
 import { useAtomValue } from 'jotai';
 import { appAtom, leaderAtom, networkConfigAtom } from 'store/app';
-import { useEffect } from 'react';
+import { FunctionComponent, useEffect } from 'react';
 import { watchVaultFactory } from 'service/vaults';
+import AdjustVault from 'components/AdjustVault';
 import CreateVault from 'components/CreateVault';
 import ManageVaults from 'components/ManageVaults';
 import MainContentWrapper from 'components/MainContentWrapper';
-import { useVaultStore, viewModeAtom, ViewMode } from 'store/vaults';
+import {
+  useVaultStore,
+  viewModeAtom,
+  ViewMode,
+  vaultKeyToAdjustAtom,
+} from 'store/vaults';
+import ReactViewSlider from 'react-view-slider';
+import type { VaultKey } from 'store/vaults';
 
-type PathDescriptionProps = { mode: ViewMode };
+type PathDescriptionProps = { mode: ViewMode; adjustVaultKey: VaultKey | null };
 
-const PathDescription = ({ mode }: PathDescriptionProps) => {
-  if (mode === ViewMode.Create) {
+// Package doesn't export types. See:
+// https://github.com/jcoreio/react-view-slider.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const ViewSlider = ReactViewSlider as unknown as FunctionComponent<any>;
+
+const PathDescription = ({ mode, adjustVaultKey }: PathDescriptionProps) => {
+  if (mode === ViewMode.Edit) {
+    if (adjustVaultKey) {
+      return (
+        <span>
+          <span className="text-[#9193A5]">
+            Vaults&nbsp;&nbsp;/&nbsp;&nbsp;
+          </span>
+          Adjusting Vault
+        </span>
+      );
+    }
+
     return (
       <span>
         <span className="text-[#9193A5]">Vaults&nbsp;&nbsp;/&nbsp;&nbsp;</span>
@@ -42,24 +66,36 @@ const Vaults = () => {
     useVaultStore();
   const { watchVbankError } = useAtomValue(appAtom);
   const mode = useAtomValue(viewModeAtom);
+  const adjustVaultKey = useAtomValue(vaultKeyToAdjustAtom);
 
-  const contentForMode = {
-    [ViewMode.Create]: () => <CreateVault />,
-    [ViewMode.Manage]: () => <ManageVaults />,
+  const renderView = ({ index }: { index: ViewMode }) => {
+    const contentForMode = {
+      [ViewMode.Manage]: () => <ManageVaults />,
+      [ViewMode.Edit]: () =>
+        adjustVaultKey ? <AdjustVault /> : <CreateVault />,
+    };
+    return contentForMode[index]();
   };
-  const content = contentForMode[mode]();
 
   return (
     <MainContentWrapper>
       <div className="font-medium text-[15px] h-4">
-        <PathDescription mode={mode} />
+        <PathDescription mode={mode} adjustVaultKey={adjustVaultKey} />
       </div>
       <div className="text-red-600 text-lg mt-4">
         <div>{vaultFactoryInstanceHandleLoadingError}</div>
         <div>{managerIdsLoadingError}</div>
         <div>{watchVbankError}</div>
       </div>
-      {content}
+      <ViewSlider
+        renderView={renderView}
+        numViews={2}
+        activeView={mode}
+        style={{ overflow: 'show' }}
+        spacing={1.2}
+        transitionDuration={500}
+        transitionTimingFunction="ease-in-out"
+      />
     </MainContentWrapper>
   );
 };

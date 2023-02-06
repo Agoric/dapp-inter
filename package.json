@@ -38,6 +38,7 @@
     "react-loader-spinner": "^5.2.0",
     "react-router-dom": "^6.4.5",
     "react-toastify": "^9.1.1",
+    "react-view-slider": "^4.5.0",
     "zustand": "^4.1.5"
   },
   "devDependencies": {
