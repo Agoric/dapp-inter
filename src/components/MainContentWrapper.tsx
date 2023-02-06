@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { AmountMath } from '@agoric/ertp';
 import {
   ceilMultiplyBy,
@@ -10,15 +11,33 @@ import { useVaultStore } from 'store/vaults';
 
 type TickerItemProps = {
   label: string;
-  value: string;
+  value?: string;
+  fallback: string;
 };
 
-const TickerItem = ({ label, value }: TickerItemProps) => (
-  <div className="ml-16 h-12 leading-[48px]">
-    <span className="font-medium font-serif text-[#736D6D] mr-2">{label}</span>
-    <span className="font-bold font-serif text-mineShaft">{value}</span>
-  </div>
-);
+const TickerItem = ({ label, value, fallback }: TickerItemProps) => {
+  const rhs = value ? (
+    <motion.div
+      className="font-bold font-serif text-mineShaft overflow-hidden inline-block"
+      initial={{ width: 0, opacity: 0 }}
+      animate={{ width: 'auto', opacity: 1 }}
+      transition={{ type: 'tween' }}
+    >
+      {value}
+    </motion.div>
+  ) : (
+    <div className="font-bold font-serif text-mineShaft">
+      <span className="absolute">{fallback}</span>
+    </div>
+  );
+
+  return (
+    <div className="h-12 leading-[48px] flex">
+      <div className="font-medium font-serif text-[#736D6D] mr-2">{label}</div>
+      {rhs}
+    </div>
+  );
+};
 
 type Props = PropsWithChildren<{ header?: ReactNode }>;
 
@@ -31,9 +50,9 @@ const MainContentWrapper = ({ children, header }: Props) => {
   const displayFunctions = useAtomValue(displayFunctionsAtom);
 
   const subheader = useMemo(() => {
-    let totalDebtForDisplay = '$ --';
-    let tvlForDisplay = '$ --';
-    let numVaultsForDisplay = '--';
+    let totalDebtForDisplay;
+    let tvlForDisplay;
+    let numVaultsForDisplay;
 
     if (displayFunctions && metrics.size === managerIds?.length) {
       const areCollateralPricesLoaded = [...metrics.values()].every(m =>
@@ -76,15 +95,21 @@ const MainContentWrapper = ({ children, header }: Props) => {
     }
 
     return (
-      <div className="h-full flex flex-row items-center flex-wrap">
+      <div className="h-full flex flex-row items-center justify-around flex-wrap">
         <TickerItem
           label="IST Outstanding (Vaults)"
           value={totalDebtForDisplay}
+          fallback="$ --"
         />
-        <TickerItem label="Total Value Locked ($)" value={tvlForDisplay} />
+        <TickerItem
+          label="Total Value Locked ($)"
+          value={tvlForDisplay}
+          fallback="$ --"
+        />
         <TickerItem
           label="Total # of Active Vaults"
           value={numVaultsForDisplay}
+          fallback="--"
         />
       </div>
     );

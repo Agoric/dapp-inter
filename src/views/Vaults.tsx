@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useAtomValue } from 'jotai';
 import { appAtom, leaderAtom, networkConfigAtom } from 'store/app';
 import { FunctionComponent, useEffect } from 'react';
@@ -50,6 +51,13 @@ const PathDescription = ({ mode, adjustVaultKey }: PathDescriptionProps) => {
   return <></>;
 };
 
+const errorProps = {
+  className: 'overflow-hidden',
+  initial: { height: 0, opacity: 0 },
+  animate: { height: 'auto', opacity: 1 },
+  transition: { type: 'tween' },
+};
+
 const Vaults = () => {
   const netConfig = useAtomValue(networkConfigAtom);
   const leader = useAtomValue(leaderAtom);
@@ -83,9 +91,17 @@ const Vaults = () => {
         <PathDescription mode={mode} adjustVaultKey={adjustVaultKey} />
       </div>
       <div className="text-red-600 text-lg mt-4">
-        <div>{vaultFactoryInstanceHandleLoadingError}</div>
-        <div>{managerIdsLoadingError}</div>
-        <div>{watchVbankError}</div>
+        {vaultFactoryInstanceHandleLoadingError && (
+          <motion.div {...errorProps}>
+            {vaultFactoryInstanceHandleLoadingError}
+          </motion.div>
+        )}
+        {managerIdsLoadingError && (
+          <motion.div {...errorProps}>{managerIdsLoadingError}</motion.div>
+        )}
+        {watchVbankError && (
+          <motion.div {...errorProps}>{watchVbankError}</motion.div>
+        )}
       </div>
       <ViewSlider
         renderView={renderView}
