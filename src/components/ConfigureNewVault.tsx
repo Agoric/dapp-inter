@@ -4,21 +4,17 @@ import { useAtom, useAtomValue } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
 import {
   collateralizationRatioAtom,
+  inputErrorsAtom,
   selectedCollateralIdAtom,
   valueToLockAtom,
   valueToReceiveAtom,
-  VaultCreationErrors,
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
 import { usePurseBalanceDisplay } from 'utils/hooks';
 
-type Props = {
-  inputErrors: VaultCreationErrors;
-};
-
-const ConfigureNewVault = ({ inputErrors }: Props) => {
+const ConfigureNewVault = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
-    inputErrors;
+    useAtomValue(inputErrorsAtom);
 
   const { metrics, params, prices } = useVaultStore(vaults => ({
     metrics: vaults.vaultMetrics,

@@ -10,6 +10,7 @@ import clsx from 'clsx';
 import { AmountMath } from '@agoric/ertp';
 import { useAtomValue, useSetAtom } from 'jotai';
 import type { VaultKey } from 'store/vaults';
+import { netValue } from 'utils/vaultMath';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
@@ -152,12 +153,10 @@ const VaultSummary = ({ vaultKey }: Props) => {
       amountOut: maximumLockedValueForLiquidation,
     };
 
-    const [netVaultValue, netValueSignum] = AmountMath.isGTE(
+    const [netVaultValue, isNetValueNegative] = netValue(
       totalLockedValue,
       totalDebt,
-    )
-      ? [AmountMath.subtract(totalLockedValue, totalDebt), undefined]
-      : [AmountMath.subtract(totalDebt, totalLockedValue), '-'];
+    );
 
     // TODO: Update dynamically.
     const collateralLabel = 'ATOM';
@@ -187,7 +186,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
             </div>
           </div>
           <div className={bigTextClasses}>
-            {netValueSignum}
+            {isNetValueNegative && '-'}
             {displayAmount(netVaultValue, 2, 'usd')}
           </div>
         </div>

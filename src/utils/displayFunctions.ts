@@ -111,7 +111,10 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
   };
 
   const displayPriceTimestamp = (price: PriceDescription) => {
-    return new Date(Number(price.timestamp) * 1000).toUTCString();
+    return new Intl.DateTimeFormat(navigator.language, {
+      timeStyle: 'medium',
+      dateStyle: 'short',
+    }).format(new Date(Number(price.timestamp) * 1000));
   };
 
   return {

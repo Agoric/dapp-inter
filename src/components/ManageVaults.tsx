@@ -15,7 +15,7 @@ import type { PropsWithChildren } from 'react';
 const EmptyView = ({ children }: PropsWithChildren) => {
   return (
     <div className="mt-8 mx-auto w-full relative">
-      <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center backdrop-blur pb-[20%]">
+      <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center pb-[20%]">
         <div className="max-w-lg shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl text-lg bg-white">
           <div className="bg-interYellow w-full h-4 rounded-t-xl"></div>
           <div className="p-6">{children}</div>

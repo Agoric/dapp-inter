@@ -11,16 +11,18 @@ type Props = {
   label?: string;
   error?: string;
   brand?: Brand | null;
-  onChange: (value: bigint) => void;
+  onChange?: (value: bigint) => void;
   disabled?: boolean;
 };
 
 const AmountInput = ({
   value,
-  onChange,
   brand,
   label,
   error,
+  onChange = () => {
+    /* noop */
+  },
   disabled = false,
 }: Props) => {
   const { getDecimalPlaces } = useAtomValue(displayFunctionsAtom) ?? {};
@@ -37,11 +39,18 @@ const AmountInput = ({
   const handleInputChange: React.ChangeEventHandler<HTMLInputElement> = ev => {
     // Inputs with type "number" allow these characters which don't apply to
     // Amounts, just strip them.
-    const str = ev.target?.value?.replace('-', '').replace('e', '');
+    const str = ev.target?.value
+      ?.replace('-', '')
+      .replace('e', '')
+      .replace('E', '');
     setFieldString(str);
 
-    const parsed = parseAsValue(str, AssetKind.NAT, decimalPlaces);
-    onChange(parsed);
+    try {
+      const parsed = parseAsValue(str, AssetKind.NAT, decimalPlaces);
+      onChange(parsed);
+    } catch {
+      console.warn('Invalid input', str);
+    }
   };
 
   // Use the `fieldString` as an input buffer so the user can type values that
