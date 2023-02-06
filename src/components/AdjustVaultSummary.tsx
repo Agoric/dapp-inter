@@ -60,8 +60,15 @@ const AdjustVaultSummary = ({
 
   const collateralizationRatio = makeRatioFromAmounts(lockedValue, debt);
 
-  const { displayAmount, displayBrandPetname, displayPercent } =
-    useAtomValue(displayFunctionsAtom) ?? {};
+  // We shouldn't ever see this component before display functions are loaded,
+  // so we don't need more graceful fallbacks. Just don't crash.
+  const { displayAmount, displayBrandPetname, displayPercent } = useAtomValue(
+    displayFunctionsAtom,
+  ) ?? {
+    displayAmount: () => '',
+    displayBrandPetname: () => '',
+    displayPercent: () => '',
+  };
 
   return (
     <div className="w-full pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">

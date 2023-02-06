@@ -6,10 +6,10 @@ import { makeOpenVaultOffer } from 'service/vaults';
 import { displayFunctionsAtom, offerSignerAtom } from 'store/app';
 import {
   collateralizationRatioAtom,
+  inputErrorsAtom,
   selectedCollateralIdAtom,
   valueToLockAtom,
   valueToReceiveAtom,
-  VaultCreationErrors,
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
 import VaultCreationDialog from './VaultCreationDialog';
@@ -28,13 +28,9 @@ const TableRow = ({ left, right }: TableRowProps) => {
   );
 };
 
-type Props = {
-  inputErrors: VaultCreationErrors;
-};
-
-const NewVaultOfferSummary = ({ inputErrors }: Props) => {
+const NewVaultOfferSummary = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
-    inputErrors;
+    useAtomValue(inputErrorsAtom);
 
   const selectedCollateralId = useAtomValue(selectedCollateralIdAtom);
   const valueToReceive = useAtomValue(valueToReceiveAtom);

@@ -6,7 +6,6 @@ import {
   ViewMode,
   viewModeAtom,
 } from 'store/vaults';
-import { AmountMath } from '@agoric/ertp';
 import {
   ceilMultiplyBy,
   makeRatioFromAmounts,
@@ -17,16 +16,24 @@ import clsx from 'clsx';
 import AdjustVaultForm from './AdjustVaultForm';
 import AdjustVaultSummary from './AdjustVaultSummary';
 import { useCallback } from 'react';
+import { netValue } from 'utils/vaultMath';
 
 const AdjustVault = () => {
   const vaultKey = useAtomValue(vaultKeyToAdjustAtom);
 
+  // We shouldn't ever see this component before display functions are loaded,
+  // so we don't need more graceful fallbacks. Just don't crash.
   const {
     displayPrice,
     displayPriceTimestamp,
     displayAmount,
     displayBrandPetname,
-  } = useAtomValue(displayFunctionsAtom) ?? {};
+  } = useAtomValue(displayFunctionsAtom) ?? {
+    displayPrice: () => '',
+    displayPriceTimestamp: () => '',
+    displayAmount: () => '',
+    displayBrandPetname: () => '',
+  };
 
   const { vaults, prices, managers } = useVaultStore(state => ({
     vaults: state.vaults,
@@ -48,8 +55,7 @@ const AdjustVault = () => {
     onClick: useCallback(() => setMode(ViewMode.Manage), [setMode]),
   };
 
-  const brand = locked.brand;
-  const price = brand && prices.get(brand);
+  const price = prices.get(locked.brand);
 
   const totalLockedValue =
     locked &&
@@ -64,12 +70,10 @@ const AdjustVault = () => {
     manager.compoundedInterest,
   );
 
-  const [netVaultValue, netValueSignum] = AmountMath.isGTE(
+  const [netVaultValue, isNetValueNegative] = netValue(
     totalLockedValue,
     totalDebt,
-  )
-    ? [AmountMath.subtract(totalLockedValue, totalDebt), undefined]
-    : [AmountMath.subtract(totalDebt, totalLockedValue), '-'];
+  );
 
   // TODO: Update dynamically.
   const vaultLabel = 'ATOM';
@@ -87,13 +91,13 @@ const AdjustVault = () => {
           <div>
             Current Price:{' '}
             <span className="text-[#00B1A6] font-medium text-lg">
-              {displayPrice && displayPrice(price)}
+              {displayPrice(price)}
             </span>
           </div>
           <div>
             Last Price Update:{' '}
             <span className="font-medium text-lg whitespace-nowrap">
-              {displayPriceTimestamp && displayPriceTimestamp(price)}
+              {displayPriceTimestamp(price)}
             </span>
           </div>
         </div>
@@ -104,10 +108,8 @@ const AdjustVault = () => {
             <VaultSymbol />
           </span>
           <span className="font-medium text-xl">
-            {vault.locked &&
-              displayAmount &&
-              displayAmount(vault.locked, 2, 'locale')}{' '}
-            {brand && displayBrandPetname && displayBrandPetname(brand)}
+            {displayAmount(locked, 2, 'locale')}{' '}
+            {displayBrandPetname(locked.brand)}
           </span>
         </div>
         <div className="text-lg">
@@ -115,23 +117,23 @@ const AdjustVault = () => {
           <span
             className={clsx(
               'font-medium',
-              netValueSignum ? 'text-red-500' : 'text-[#00B1A6]',
+              isNetValueNegative ? 'text-red-500' : 'text-[#00B1A6]',
             )}
           >
-            {netValueSignum}
-            {displayAmount && displayAmount(netVaultValue, 2, 'usd')}
+            {isNetValueNegative && '-'}
+            {displayAmount(netVaultValue, 2, 'usd')}
           </span>
         </div>
         <div className="text-lg">
           Collateral Value:{' '}
           <span className="font-medium">
-            {displayAmount && displayAmount(totalLockedValue, 2, 'usd')}
+            {displayAmount(totalLockedValue, 2, 'usd')}
           </span>
         </div>
         <div className="text-lg">
           Outstanding Debt:{' '}
           <span className="font-medium">
-            {displayAmount && displayAmount(totalDebt, 2, 'usd')}
+            {displayAmount(totalDebt, 2, 'usd')}
           </span>
         </div>
       </div>
