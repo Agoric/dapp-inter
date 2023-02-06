@@ -72,16 +72,20 @@ const useVaultInputValidation = () => {
   }
 
   if (selectedMetrics) {
-    const collateralPurse = (purses ?? []).find(
-      ({ brand }) => brand === selectedMetrics.totalCollateral.brand,
-    );
+    if (!purses) {
+      toLockError = 'Need to connect wallet';
+    } else {
+      const collateralPurse = purses.find(
+        ({ brand }) => brand === selectedMetrics.totalCollateral.brand,
+      );
 
-    if (
-      !collateralPurse ||
-      (collateralPurse.currentAmount as Amount<'nat'>).value <
-        (valueToLock ?? 0n)
-    ) {
-      toLockError = 'Need to obtain funds';
+      if (
+        !collateralPurse ||
+        (collateralPurse.currentAmount as Amount<'nat'>).value <
+          (valueToLock ?? 0n)
+      ) {
+        toLockError = 'Need to obtain funds';
+      }
     }
   }
 
