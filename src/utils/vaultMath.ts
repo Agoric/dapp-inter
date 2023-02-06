@@ -44,6 +44,9 @@ export const computeToLock = (
   return floorDivideBy(receiveMargin, priceRate).value;
 };
 
+/**
+ * @returns tuple of [value of difference, boolean of whether it's negative]
+ */
 export const netValue = (lockedValue: Amount<'nat'>, debt: Amount<'nat'>) =>
   AmountMath.isGTE(lockedValue, debt)
     ? [AmountMath.subtract(lockedValue, debt), false]
