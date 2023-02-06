@@ -1,4 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
+import { signerTarget } from 'config';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { Fragment } from 'react';
 import { walletUiHrefAtom } from 'store/app';
@@ -14,7 +15,7 @@ const VaultCreationDialog = ({ isOpen, onClose }: Props) => {
   const setViewMode = useSetAtom(viewModeAtom);
 
   const goToWallet = () => {
-    window.open(walletUrl, 'wallet');
+    window.open(walletUrl, signerTarget);
   };
 
   const gotToVaults = () => {

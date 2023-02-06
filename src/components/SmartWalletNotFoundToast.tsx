@@ -1,4 +1,4 @@
-import { prodSignerHref } from 'config';
+import { prodSignerHref, signerTarget } from 'config';
 
 export default (
   <p>
@@ -6,7 +6,7 @@ export default (
     <a
       className="underline text-blue-500"
       href={prodSignerHref}
-      target="_blank"
+      target={signerTarget}
       rel="noreferrer"
     >
       {prodSignerHref}

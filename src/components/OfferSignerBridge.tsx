@@ -11,6 +11,7 @@ import {
   setIsDappApprovedAtom,
 } from 'store/app';
 import type { OfferConfig } from 'store/app';
+import { signerTarget } from 'config';
 
 // UNTIL https://github.com/Agoric/agoric-sdk/issues/6591
 type BridgeReadyMessage = {
@@ -68,7 +69,7 @@ const WalletBridge = () => {
         <a
           className="underline text-blue-500"
           href={walletUiHref}
-          target="_blank"
+          target={signerTarget}
           rel="noreferrer"
         >
           {walletUiHref}
@@ -86,7 +87,7 @@ const WalletBridge = () => {
         <a
           className="underline text-blue-500"
           href={walletUiHref}
-          target="_blank"
+          target={signerTarget}
           rel="noreferrer"
         >
           {walletUiHref}
@@ -118,7 +119,7 @@ const WalletBridge = () => {
           <a
             className="underline text-blue-500"
             href={walletUiHref}
-            target="_blank"
+            target={signerTarget}
             rel="noreferrer"
           >
             {walletUiHref}
