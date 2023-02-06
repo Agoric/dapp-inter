@@ -17,20 +17,24 @@ import type { VaultKey } from 'store/vaults';
 
 type PathDescriptionProps = { mode: ViewMode; adjustVaultKey: VaultKey | null };
 
+// Package doesn't export types. See:
+// https://github.com/jcoreio/react-view-slider.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ViewSlider = ReactViewSlider as unknown as FunctionComponent<any>;
 
 const PathDescription = ({ mode, adjustVaultKey }: PathDescriptionProps) => {
-  if (mode === ViewMode.Edit && adjustVaultKey) {
-    return (
-      <span>
-        <span className="text-[#9193A5]">Vaults&nbsp;&nbsp;/&nbsp;&nbsp;</span>
-        Adjusting Vault
-      </span>
-    );
-  }
-
   if (mode === ViewMode.Edit) {
+    if (adjustVaultKey) {
+      return (
+        <span>
+          <span className="text-[#9193A5]">
+            Vaults&nbsp;&nbsp;/&nbsp;&nbsp;
+          </span>
+          Adjusting Vault
+        </span>
+      );
+    }
+
     return (
       <span>
         <span className="text-[#9193A5]">Vaults&nbsp;&nbsp;/&nbsp;&nbsp;</span>
@@ -88,8 +92,8 @@ const Vaults = () => {
         numViews={2}
         activeView={mode}
         style={{ overflow: 'show' }}
-        spacing={1.5}
-        transitionDuration={400}
+        spacing={1.2}
+        transitionDuration={500}
         transitionTimingFunction="ease-in-out"
       />
     </MainContentWrapper>
