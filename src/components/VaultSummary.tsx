@@ -7,10 +7,9 @@ import {
   makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
 import clsx from 'clsx';
-import { AmountMath } from '@agoric/ertp';
 import { useAtomValue, useSetAtom } from 'jotai';
-import type { VaultKey } from 'store/vaults';
 import { netValue } from 'utils/vaultMath';
+import type { VaultKey } from 'store/vaults';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
