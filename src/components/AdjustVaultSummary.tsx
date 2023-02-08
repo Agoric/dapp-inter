@@ -1,8 +1,17 @@
 import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
-import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
-import { vaultToAdjustAtom } from 'store/adjustVault';
+import {
+  adjustVaultErrorsAtom,
+  collateralActionAtom,
+  collateralDeltaValueAtom,
+  debtActionAtom,
+  debtDeltaValueAtom,
+  vaultAfterAdjustmentAtom,
+  vaultToAdjustAtom,
+} from 'store/adjustVault';
+import { AmountMath } from '@agoric/ertp';
+import { makeAdjustVaultOffer } from 'service/vaults';
 
 type TableRowProps = {
   left: string;
@@ -36,7 +45,6 @@ const TableRowWithArrow = ({ label, left, right }: TableRowWithArrowProps) => {
 };
 
 const AdjustVaultSummary = () => {
-  const canMakeOffer = true;
   const adjustButtonLabel = 'Make Offer';
 
   // We shouldn't ever see this component before display functions are loaded,
@@ -49,19 +57,64 @@ const AdjustVaultSummary = () => {
     displayPercent: () => '',
   };
 
+  const debtDeltaValue = useAtomValue(debtDeltaValueAtom);
+  const collateralDeltaValue = useAtomValue(collateralDeltaValueAtom);
+  const debtAction = useAtomValue(debtActionAtom);
+  const collateralAction = useAtomValue(collateralActionAtom);
+  const { collateralError, debtError } = useAtomValue(adjustVaultErrorsAtom);
   const vaultToAdjust = useAtomValue(vaultToAdjustAtom);
-  if (!vaultToAdjust) {
+  const vaultAfterAdjustment = useAtomValue(vaultAfterAdjustmentAtom);
+  if (!vaultToAdjust || !vaultAfterAdjustment) {
     // The vault should already be loaded before showing this component, so no
     // need for a nice loading state.
     return <div>Loading...</div>;
   }
 
-  const { totalLockedValue, totalDebt, locked, params } = vaultToAdjust;
-
-  const collateralizationRatio = makeRatioFromAmounts(
-    totalLockedValue,
+  const {
     totalDebt,
-  );
+    locked,
+    params,
+    collateralizationRatio,
+    createdByOfferId,
+  } = vaultToAdjust;
+  const { newDebt, newLocked, newCollateralizationRatio } =
+    vaultAfterAdjustment;
+
+  const newDebtForDisplay = AmountMath.isEqual(newDebt, totalDebt)
+    ? '---'
+    : `${displayAmount(newDebt, 2, 'locale')} ${displayBrandPetname(
+        totalDebt.brand,
+      )}`;
+
+  const newLockedForDisplay = AmountMath.isEqual(newLocked, locked)
+    ? '---'
+    : `${displayAmount(newLocked, 2, 'locale')} ${displayBrandPetname(
+        locked.brand,
+      )}`;
+
+  const hasErrors = collateralError || debtError;
+  const canMakeOffer = !hasErrors && (debtDeltaValue || collateralDeltaValue);
+
+  const makeAdjustOffer = () => {
+    assert(canMakeOffer);
+    let collateral;
+    let debt;
+
+    if (collateralDeltaValue) {
+      collateral = {
+        amount: AmountMath.make(newLocked.brand, collateralDeltaValue),
+        action: collateralAction,
+      };
+    }
+    if (debtDeltaValue) {
+      debt = {
+        amount: AmountMath.make(newDebt.brand, debtDeltaValue),
+        action: debtAction,
+      };
+    }
+
+    makeAdjustVaultOffer({ vaultOfferId: createdByOfferId, collateral, debt });
+  };
 
   return (
     <div className="w-full pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">
@@ -80,7 +133,7 @@ const AdjustVaultSummary = () => {
                   2,
                   'locale',
                 )} ${displayBrandPetname(locked.brand)}`}
-                right="--"
+                right={newLockedForDisplay}
               />
               <TableRowWithArrow
                 label="Borrowing"
@@ -89,12 +142,12 @@ const AdjustVaultSummary = () => {
                   2,
                   'locale',
                 )} ${displayBrandPetname(totalDebt.brand)}`}
-                right="--"
+                right={newDebtForDisplay}
               />
               <TableRowWithArrow
                 label="Collateralization Ratio"
                 left={`${displayPercent(collateralizationRatio, 0)}%`}
-                right="--"
+                right={`${displayPercent(newCollateralizationRatio, 0)}%`}
               />
             </tbody>
           </table>
@@ -129,6 +182,8 @@ const AdjustVaultSummary = () => {
         )}
       >
         <button
+          disabled={!canMakeOffer}
+          onClick={makeAdjustOffer}
           className={clsx(
             'transition w-full py-3 text-white font-extrabold text-sm rounded-[6px]',
             canMakeOffer

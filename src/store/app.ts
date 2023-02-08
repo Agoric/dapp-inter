@@ -23,8 +23,9 @@ export type BrandInfo = DisplayInfo<'nat'> & {
 };
 
 export type OfferConfig = {
-  instanceHandle: import('@endo/marshal').CapData<'Instance'>;
-  publicInvitationMaker: string;
+  instanceHandle?: import('@endo/marshal').CapData<'Instance'>;
+  publicInvitationMaker?: string;
+  p?: unknown;
   proposalTemplate: unknown;
 };
 

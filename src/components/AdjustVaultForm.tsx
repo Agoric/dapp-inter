@@ -1,9 +1,12 @@
 import { useAtom, useAtomValue } from 'jotai';
 import {
+  adjustVaultErrorsAtom,
   CollateralAction,
   collateralActionAtom,
+  collateralDeltaValueAtom,
   DebtAction,
   debtActionAtom,
+  debtDeltaValueAtom,
   vaultToAdjustAtom,
 } from 'store/adjustVault';
 import { displayFunctionsAtom, pursesAtom } from 'store/app';
@@ -24,11 +27,18 @@ const AdjustVaultForm = () => {
   const [debtAction, setDebtAction] = useAtom(debtActionAtom);
   const [collateralAction, setCollateralAction] = useAtom(collateralActionAtom);
 
+  const [debtDeltaValue, setDebtDeltaValue] = useAtom(debtDeltaValueAtom);
+  const [collateralDeltaValue, setCollateralDeltaValue] = useAtom(
+    collateralDeltaValueAtom,
+  );
+
   const purses = useAtomValue(pursesAtom);
   const collateralPurse =
     purses && purses.find(p => p.brand === vaultToAdjust?.locked.brand);
   const debtPurse =
     purses && purses.find(p => p.brand === vaultToAdjust?.totalDebt.brand);
+
+  const { collateralError, debtError } = useAtomValue(adjustVaultErrorsAtom);
 
   return (
     <div className="bg-white font-serif p-8 shadow-[0_40px_40px_-14px_rgba(116,116,116,0.25)] rounded-[20px] w-full">
@@ -53,7 +63,7 @@ const AdjustVaultForm = () => {
           </div>
           <AmountInput
             disabled
-            label="Available Balance"
+            label="Available Purse Balance"
             suffix={displayBrandPetname(vaultToAdjust?.locked.brand)}
             value={
               (collateralPurse?.currentAmount as Amount<'nat'> | undefined)
@@ -62,12 +72,12 @@ const AdjustVaultForm = () => {
             brand={collateralPurse?.brand}
           />
           <AmountInput
-            onChange={() => {
-              // TODO
-              console.log('Handle Amount Change');
-            }}
+            brand={vaultToAdjust?.locked.brand}
+            value={collateralDeltaValue}
+            onChange={setCollateralDeltaValue}
             label="Amount"
             disabled={collateralAction === CollateralAction.None}
+            error={collateralError}
           />
         </div>
       </div>
@@ -89,7 +99,7 @@ const AdjustVaultForm = () => {
           </div>
           <AmountInput
             disabled
-            label="Available Balance"
+            label="Available Purse Balance"
             value={
               (debtPurse?.currentAmount as Amount<'nat'> | undefined)?.value
             }
@@ -97,11 +107,12 @@ const AdjustVaultForm = () => {
             suffix={displayBrandPetname(vaultToAdjust?.totalDebt.brand)}
           />
           <AmountInput
-            onChange={() => {
-              console.log('Handle Amount Change');
-            }}
+            onChange={setDebtDeltaValue}
+            value={debtDeltaValue}
+            brand={vaultToAdjust?.totalDebt.brand}
             label="Amount"
             disabled={debtAction === DebtAction.None}
+            error={debtError}
           />
         </div>
       </div>

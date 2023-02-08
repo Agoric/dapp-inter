@@ -12,6 +12,7 @@ import { CapData } from '@endo/marshal';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 import type { Ratio, PriceQuote } from 'store/vaults';
 import { calculateMinimumCollateralization } from '@agoric/inter-protocol/src/vaultFactory/math';
+import { CollateralAction, DebtAction } from 'store/adjustVault';
 
 type ValuePossessor<T> = {
   value: T;
@@ -370,6 +371,74 @@ export const makeOpenVaultOffer = async (
         },
       },
     },
+  };
+
+  try {
+    assert(offerSigner.addOffer);
+    offerSigner.addOffer(offerConfig);
+    console.log('Offer proposed', offerConfig);
+  } catch (e: unknown) {
+    console.error(e);
+    toast.error('Unable to propose offer.');
+  }
+};
+
+type Proposal = {
+  give: {
+    Collateral?: { amount: CapData<string> };
+    Minted?: { amount: CapData<string> };
+  };
+  want: {
+    Collateral?: { amount: CapData<string> };
+    Minted?: { amount: CapData<string> };
+  };
+};
+
+type AdjustParams = {
+  vaultOfferId: string;
+  collateral?: { amount: Amount<'nat'>; action: CollateralAction };
+  debt?: { amount: Amount<'nat'>; action: DebtAction };
+};
+
+export const makeAdjustVaultOffer = async ({
+  vaultOfferId,
+  collateral,
+  debt,
+}: AdjustParams) => {
+  const invitationSpec = {
+    source: 'continuing',
+    previousOffer: vaultOfferId,
+    invitationMakerName: 'AdjustBalances',
+  };
+
+  const { importContext, offerSigner } = appStore.getState();
+
+  const proposal: Proposal = { give: {}, want: {} };
+
+  if (collateral?.action === CollateralAction.Deposit) {
+    proposal.give.Collateral = {
+      amount: importContext.fromBoard.serialize(collateral.amount),
+    };
+  }
+  if (collateral?.action === CollateralAction.Withdraw) {
+    proposal.want.Collateral = {
+      amount: importContext.fromBoard.serialize(collateral.amount),
+    };
+  }
+  if (debt?.action === DebtAction.Borrow) {
+    proposal.want.Minted = {
+      amount: importContext.fromBoard.serialize(debt.amount),
+    };
+  }
+  if (debt?.action === DebtAction.Repay) {
+    proposal.give.Minted = {
+      amount: importContext.fromBoard.serialize(debt.amount),
+    };
+  }
+
+  const offerConfig = {
+    invitationSpec,
+    proposalTemplate: proposal,
   };
 
   try {
