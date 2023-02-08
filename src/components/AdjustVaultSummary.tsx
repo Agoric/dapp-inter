@@ -1,9 +1,8 @@
 import clsx from 'clsx';
-import type { Amount } from '@agoric/ertp/src/types';
 import { useAtomValue } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
-import { useVaultStore } from 'store/vaults';
 import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
+import { vaultToAdjustAtom } from 'store/adjustVault';
 
 type TableRowProps = {
   left: string;
@@ -36,29 +35,9 @@ const TableRowWithArrow = ({ label, left, right }: TableRowWithArrowProps) => {
   );
 };
 
-type Props = {
-  locked: Amount<'nat'>;
-  debt: Amount<'nat'>;
-  lockedValue: Amount<'nat'>;
-  managerId: string;
-};
-
-const AdjustVaultSummary = ({
-  locked,
-  debt,
-  lockedValue,
-  managerId,
-}: Props) => {
+const AdjustVaultSummary = () => {
   const canMakeOffer = true;
   const adjustButtonLabel = 'Make Offer';
-
-  const { governedParams } = useVaultStore(state => ({
-    governedParams: state.vaultGovernedParams,
-  }));
-
-  const params = governedParams.get(managerId);
-
-  const collateralizationRatio = makeRatioFromAmounts(lockedValue, debt);
 
   // We shouldn't ever see this component before display functions are loaded,
   // so we don't need more graceful fallbacks. Just don't crash.
@@ -69,6 +48,20 @@ const AdjustVaultSummary = ({
     displayBrandPetname: () => '',
     displayPercent: () => '',
   };
+
+  const vaultToAdjust = useAtomValue(vaultToAdjustAtom);
+  if (!vaultToAdjust) {
+    // The vault should already be loaded before showing this component, so no
+    // need for a nice loading state.
+    return <div>Loading...</div>;
+  }
+
+  const { totalLockedValue, totalDebt, locked, params } = vaultToAdjust;
+
+  const collateralizationRatio = makeRatioFromAmounts(
+    totalLockedValue,
+    totalDebt,
+  );
 
   return (
     <div className="w-full pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">
@@ -82,23 +75,25 @@ const AdjustVaultSummary = ({
             <tbody>
               <TableRowWithArrow
                 label="Depositing"
-                left={`${displayAmount && displayAmount(locked, 2, 'locale')} ${
-                  displayBrandPetname && displayBrandPetname(locked.brand)
-                }`}
+                left={`${displayAmount(
+                  locked,
+                  2,
+                  'locale',
+                )} ${displayBrandPetname(locked.brand)}`}
                 right="--"
               />
               <TableRowWithArrow
                 label="Borrowing"
-                left={`${displayAmount && displayAmount(debt, 2, 'locale')} ${
-                  displayBrandPetname && displayBrandPetname(debt.brand)
-                }`}
+                left={`${displayAmount(
+                  totalDebt,
+                  2,
+                  'locale',
+                )} ${displayBrandPetname(totalDebt.brand)}`}
                 right="--"
               />
               <TableRowWithArrow
                 label="Collateralization Ratio"
-                left={`${
-                  displayPercent && displayPercent(collateralizationRatio, 0)
-                }%`}
+                left={`${displayPercent(collateralizationRatio, 0)}%`}
                 right="--"
               />
             </tbody>
@@ -111,19 +106,11 @@ const AdjustVaultSummary = ({
               <TableRow left="Min. Collateralization Ratio" right="--" />
               <TableRow
                 left="Liquidation Ratio"
-                right={`${
-                  params &&
-                  displayPercent &&
-                  displayPercent(params.liquidationMargin, 0)
-                }%`}
+                right={`${displayPercent(params.liquidationMargin, 0)}%`}
               />
               <TableRow
                 left="Interest Rate"
-                right={`${
-                  params &&
-                  displayPercent &&
-                  displayPercent(params.interestRate, 2)
-                }%`}
+                right={`${displayPercent(params.interestRate, 2)}%`}
               />
             </tbody>
           </table>
