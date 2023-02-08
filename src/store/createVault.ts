@@ -38,7 +38,7 @@ const getVaultInputData = (get: Getter, selectedCollateralId: string) => {
       : null;
 
   const defaultCollateralizationRatio = selectedParams
-    ? selectedParams.minCollateralizationRatio
+    ? selectedParams.inferredMinimumCollateralization
     : null;
 
   const loanFee = selectedParams ? selectedParams.loanFee : null;
@@ -204,7 +204,7 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
 
   if (selectedParams && collateralizationRatio) {
     const defaultCollateralizationRatio =
-      selectedParams.minCollateralizationRatio;
+      selectedParams.inferredMinimumCollateralization;
     if (
       collateralizationRatio.numerator.value === 0n ||
       !ratioGTE(collateralizationRatio, defaultCollateralizationRatio)

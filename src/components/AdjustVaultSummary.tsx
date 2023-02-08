@@ -51,15 +51,13 @@ const AdjustVaultSummary = () => {
   const [isVaultAdjustmentDialogOpen, setIsVaultAdjustmentDialogOpen] =
     useState(false);
 
-  // We shouldn't ever see this component before display functions are loaded,
-  // so we don't need more graceful fallbacks. Just don't crash.
-  const { displayAmount, displayBrandPetname, displayPercent } = useAtomValue(
-    displayFunctionsAtom,
-  ) ?? {
-    displayAmount: () => '',
-    displayBrandPetname: () => '',
-    displayPercent: () => '',
-  };
+  const displayFunctions = useAtomValue(displayFunctionsAtom);
+  assert(
+    displayFunctions,
+    'Adjust vault requires display functions to be loaded',
+  );
+  const { displayAmount, displayBrandPetname, displayPercent } =
+    displayFunctions;
 
   const debtDeltaValue = useAtomValue(debtDeltaValueAtom);
   const collateralDeltaValue = useAtomValue(collateralDeltaValueAtom);
@@ -68,11 +66,10 @@ const AdjustVaultSummary = () => {
   const { collateralError, debtError } = useAtomValue(adjustVaultErrorsAtom);
   const vaultToAdjust = useAtomValue(vaultToAdjustAtom);
   const vaultAfterAdjustment = useAtomValue(vaultAfterAdjustmentAtom);
-  if (!vaultToAdjust || !vaultAfterAdjustment) {
-    // The vault should already be loaded before showing this component, so no
-    // need for a nice loading state.
-    return <div>Loading...</div>;
-  }
+  assert(
+    vaultToAdjust && vaultAfterAdjustment,
+    'Adjust vault requires a vault selected',
+  );
 
   const {
     totalDebt,
@@ -101,21 +98,20 @@ const AdjustVaultSummary = () => {
 
   const makeAdjustOffer = async () => {
     assert(canMakeOffer);
-    let collateral;
-    let debt;
 
-    if (collateralDeltaValue) {
-      collateral = {
-        amount: AmountMath.make(newLocked.brand, collateralDeltaValue),
-        action: collateralAction,
-      };
-    }
-    if (debtDeltaValue) {
-      debt = {
-        amount: AmountMath.make(newDebt.brand, debtDeltaValue),
-        action: debtAction,
-      };
-    }
+    const collateral = collateralDeltaValue
+      ? {
+          amount: AmountMath.make(newLocked.brand, collateralDeltaValue),
+          action: collateralAction,
+        }
+      : undefined;
+
+    const debt = debtDeltaValue
+      ? {
+          amount: AmountMath.make(newDebt.brand, debtDeltaValue),
+          action: debtAction,
+        }
+      : undefined;
 
     await makeAdjustVaultOffer({
       vaultOfferId: createdByOfferId,
@@ -172,7 +168,7 @@ const AdjustVaultSummary = () => {
                 <TableRow
                   left="Min. Collateralization Ratio"
                   right={`${displayPercent(
-                    params.minCollateralizationRatio,
+                    params.inferredMinimumCollateralization,
                     0,
                   )}%`}
                 />

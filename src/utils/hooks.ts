@@ -13,7 +13,7 @@ export const usePurseBalanceDisplay = (brand?: Brand<'nat'> | null) => {
     if (!(displayAmount && displayBrandPetname && brand)) {
       return '0.00';
     }
-    const purse = purses && purses.find(p => p.brand === brand);
+    const purse = purses?.find(p => p.brand === brand);
     if (!purse) {
       return '0.00 ' + displayBrandPetname(brand);
     }

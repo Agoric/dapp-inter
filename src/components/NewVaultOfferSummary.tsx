@@ -104,7 +104,7 @@ const NewVaultOfferSummary = () => {
 
   const minCollateralizationForDisplay =
     displayPercent && selectedParams
-      ? `${displayPercent(selectedParams.minCollateralizationRatio, 0)}%`
+      ? `${displayPercent(selectedParams.inferredMinimumCollateralization, 0)}%`
       : '--';
 
   const hasErrors =

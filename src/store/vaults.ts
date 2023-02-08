@@ -24,7 +24,7 @@ export type VaultParams = {
   interestRate: Ratio;
   liquidationPenalty: Ratio;
   liquidationMargin: Ratio;
-  minCollateralizationRatio: Ratio;
+  inferredMinimumCollateralization: Ratio;
   loanFee: Ratio;
 };
 

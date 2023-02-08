@@ -9,6 +9,9 @@ type Props = {
   onClose: () => void;
 };
 
+const message =
+  'Your vault creation request has been successfully submitted. Go to your Agoric Smart Wallet to approve. Once your offer is approved, you will be able to view and manage your vault.';
+
 const VaultCreationDialog = ({ isOpen, onClose }: Props) => {
   const walletUrl = useAtomValue(walletUiHrefAtom);
   const setViewMode = useSetAtom(viewModeAtom);
@@ -21,9 +24,6 @@ const VaultCreationDialog = ({ isOpen, onClose }: Props) => {
     onClose();
     setViewMode(ViewMode.Manage);
   };
-
-  const message =
-    'Your vault creation request has been successfully submitted. Go to your Agoric Smart Wallet to approve. Once your offer is approved, you will be able to view and manage your vault.';
 
   return (
     <BaseDialog

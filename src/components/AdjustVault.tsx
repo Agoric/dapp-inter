@@ -10,19 +10,17 @@ import { netValue } from 'utils/vaultMath';
 import { vaultToAdjustAtom } from 'store/adjustVault';
 
 const AdjustVault = () => {
-  // We shouldn't ever see this component before display functions are loaded,
-  // so we don't need more graceful fallbacks. Just don't crash.
+  const displayFunctions = useAtomValue(displayFunctionsAtom);
+  assert(
+    displayFunctions,
+    'Adjust vault requires display functions to be loaded',
+  );
   const {
     displayPrice,
     displayPriceTimestamp,
     displayAmount,
     displayBrandPetname,
-  } = useAtomValue(displayFunctionsAtom) ?? {
-    displayPrice: () => '',
-    displayPriceTimestamp: () => '',
-    displayAmount: () => '',
-    displayBrandPetname: () => '',
-  };
+  } = displayFunctions;
 
   const setMode = useSetAtom(viewModeAtom);
 
@@ -32,11 +30,7 @@ const AdjustVault = () => {
   };
 
   const vaultToAdjust = useAtomValue(vaultToAdjustAtom);
-  if (!vaultToAdjust) {
-    // The vault should already be loaded before showing this component, so no
-    // need for a nice loading state.
-    return <div>Loading...</div>;
-  }
+  assert(vaultToAdjust, 'Adjust vault requires a selected vault');
 
   const {
     locked,

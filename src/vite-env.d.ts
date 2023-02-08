@@ -20,7 +20,7 @@ declare module '@agoric/web-components/react' {
 }
 
 declare module '@agoric/wallet-backend' {
-  export type PursesJSONState = {
+  export type PursesJSONState<T extends AssetKind> = {
     brand: import('@agoric/ertp').Brand;
     /** The board ID for this purse's brand */
     brandBoardId: string;
@@ -35,7 +35,7 @@ declare module '@agoric/wallet-backend' {
     /** The purse's current balance */
     value: unknown;
     currentAmountSlots: unknown;
-    currentAmount: unknown;
+    currentAmount: Amount<T>;
   };
 }
 

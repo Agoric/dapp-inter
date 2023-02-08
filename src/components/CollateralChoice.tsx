@@ -157,7 +157,10 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
         <tbody>
           <TableRow
             left="Min. Collat. Ratio"
-            right={`${displayPercent(params.minCollateralizationRatio, 0)}%`}
+            right={`${displayPercent(
+              params.inferredMinimumCollateralization,
+              0,
+            )}%`}
           />
           <TableRow
             left="Interest Rate"

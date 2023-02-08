@@ -9,6 +9,9 @@ type Props = {
   onClose: () => void;
 };
 
+const message =
+  'Your vault adjustment request has been successfully submitted. Go to your Agoric Smart Wallet to approve.';
+
 const VaultAdjustmentDialog = ({ isOpen, onClose }: Props) => {
   const walletUrl = useAtomValue(walletUiHrefAtom);
   const setViewMode = useSetAtom(viewModeAtom);
@@ -21,9 +24,6 @@ const VaultAdjustmentDialog = ({ isOpen, onClose }: Props) => {
     onClose();
     setViewMode(ViewMode.Manage);
   };
-
-  const message =
-    'Your vault adjustment request has been successfully submitted. Go to your Agoric Smart Wallet to approve.';
 
   return (
     <BaseDialog

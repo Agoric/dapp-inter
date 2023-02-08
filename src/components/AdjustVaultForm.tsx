@@ -13,14 +13,15 @@ import { displayFunctionsAtom, pursesAtom } from 'store/app';
 import ErrorWarning from 'svg/error-warning';
 import AmountInput from './AmountInput';
 import StyledDropdown from './StyledDropdown';
-import type { Amount } from '@agoric/ertp/src/types';
+import { PursesJSONState } from '@agoric/wallet-backend';
 
 const AdjustVaultForm = () => {
-  // We shouldn't ever see this component before display functions are loaded,
-  // so we don't need more graceful fallbacks. Just don't crash.
-  const { displayBrandPetname } = useAtomValue(displayFunctionsAtom) ?? {
-    displayBrandPetname: () => '',
-  };
+  const displayFunctions = useAtomValue(displayFunctionsAtom);
+  assert(
+    displayFunctions,
+    'Adjust vault requires display functions to be loaded',
+  );
+  const { displayBrandPetname } = displayFunctions;
 
   const vaultToAdjust = useAtomValue(vaultToAdjustAtom);
 
@@ -33,10 +34,12 @@ const AdjustVaultForm = () => {
   );
 
   const purses = useAtomValue(pursesAtom);
-  const collateralPurse =
-    purses && purses.find(p => p.brand === vaultToAdjust?.locked.brand);
-  const debtPurse =
-    purses && purses.find(p => p.brand === vaultToAdjust?.totalDebt.brand);
+  const collateralPurse = purses?.find(
+    p => p.brand === vaultToAdjust?.locked.brand,
+  ) as PursesJSONState<'nat'> | undefined;
+  const debtPurse = purses?.find(
+    p => p.brand === vaultToAdjust?.totalDebt.brand,
+  ) as PursesJSONState<'nat'> | undefined;
 
   const { collateralError, debtError } = useAtomValue(adjustVaultErrorsAtom);
 
@@ -65,10 +68,7 @@ const AdjustVaultForm = () => {
             disabled
             label="Available Purse Balance"
             suffix={displayBrandPetname(vaultToAdjust?.locked.brand)}
-            value={
-              (collateralPurse?.currentAmount as Amount<'nat'> | undefined)
-                ?.value
-            }
+            value={collateralPurse?.currentAmount?.value}
             brand={collateralPurse?.brand}
           />
           <AmountInput
@@ -100,9 +100,7 @@ const AdjustVaultForm = () => {
           <AmountInput
             disabled
             label="Available Purse Balance"
-            value={
-              (debtPurse?.currentAmount as Amount<'nat'> | undefined)?.value
-            }
+            value={debtPurse?.currentAmount?.value}
             brand={debtPurse?.brand}
             suffix={displayBrandPetname(vaultToAdjust?.totalDebt.brand)}
           />

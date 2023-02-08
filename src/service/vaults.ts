@@ -1,4 +1,4 @@
-import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
+import { fetchRPCAddr, fetchVstorageKeys } from 'views/rpc';
 import {
   useVaultStore,
   VaultInfoChainData,
@@ -207,10 +207,11 @@ export const watchVaultFactory = (netconfigUrl: string) => {
       const liquidationPadding = current.LiquidationPadding.value;
       const loanFee = current.LoanFee.value;
 
-      const minCollateralizationRatio = calculateMinimumCollateralization(
-        liquidationMargin,
-        liquidationPadding,
-      );
+      const inferredMinimumCollateralization =
+        calculateMinimumCollateralization(
+          liquidationMargin,
+          liquidationPadding,
+        );
 
       useVaultStore.getState().setVaultGovernedParams(id, {
         debtLimit,
@@ -218,7 +219,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
         liquidationMargin,
         liquidationPenalty,
         loanFee,
-        minCollateralizationRatio,
+        inferredMinimumCollateralization,
       });
     }
   };
@@ -359,7 +360,7 @@ export const makeOpenVaultOffer = async (
   const offerConfig = {
     publicInvitationMaker: INVITATION_METHOD,
     instanceHandle: serializedInstance,
-    proposalTemplate: {
+    proposalTemplate: harden({
       give: {
         Collateral: {
           amount: serializedToLock,
@@ -370,7 +371,7 @@ export const makeOpenVaultOffer = async (
           amount: serializedtoBorrow,
         },
       },
-    },
+    }),
   };
 
   try {
@@ -438,7 +439,7 @@ export const makeAdjustVaultOffer = async ({
 
   const offerConfig = {
     invitationSpec,
-    proposalTemplate: proposal,
+    proposalTemplate: harden(proposal),
   };
 
   try {

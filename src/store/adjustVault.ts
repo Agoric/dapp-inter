@@ -2,12 +2,12 @@ import { AmountMath } from '@agoric/ertp';
 import { Amount } from '@agoric/ertp/src/types';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 import {
-  addRatios,
   ceilMultiplyBy,
   makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
 import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
 import { atom } from 'jotai';
+import { debtAfterDelta, lockedAfterDelta } from 'utils/vaultMath';
 import { pursesAtom } from './app';
 import { vaultKeyToAdjustAtom, vaultStoreAtom } from './vaults';
 
@@ -103,51 +103,18 @@ export const vaultAfterAdjustmentAtom = atom(get => {
 
   const { totalDebt, locked, params, collateralPrice } = vaultToAdjust;
 
-  const newDebt = (() => {
-    if (debtAction === DebtAction.None || !debtDeltaValue) {
-      return totalDebt;
-    }
+  const newDebt = debtAfterDelta(
+    debtAction,
+    params.loanFee,
+    totalDebt,
+    debtDeltaValue,
+  );
 
-    if (debtAction === DebtAction.Borrow) {
-      const loanFeeMultiplier = addRatios(
-        params.loanFee,
-        makeRatioFromAmounts(
-          params.loanFee.denominator,
-          params.loanFee.denominator,
-        ),
-      );
-
-      return AmountMath.add(
-        totalDebt,
-        ceilMultiplyBy(
-          AmountMath.make(totalDebt.brand, debtDeltaValue),
-          loanFeeMultiplier,
-        ),
-      );
-    }
-
-    if (debtDeltaValue <= totalDebt.value) {
-      return AmountMath.make(totalDebt.brand, totalDebt.value - debtDeltaValue);
-    }
-
-    return AmountMath.makeEmpty(totalDebt.brand);
-  })();
-
-  const newLocked = (() => {
-    if (collateralAction === CollateralAction.None || !collateralDeltaValue) {
-      return locked;
-    }
-
-    if (collateralAction === CollateralAction.Deposit) {
-      return AmountMath.make(locked.brand, locked.value + collateralDeltaValue);
-    }
-
-    if (collateralDeltaValue <= locked.value) {
-      return AmountMath.make(locked.brand, locked.value - collateralDeltaValue);
-    }
-
-    return AmountMath.makeEmpty(locked.brand);
-  })();
+  const newLocked = lockedAfterDelta(
+    collateralAction,
+    locked,
+    collateralDeltaValue,
+  );
 
   const newLockedPrice = ceilMultiplyBy(
     newLocked,
@@ -182,7 +149,12 @@ export const adjustVaultErrorsAtom = atom(get => {
   const { newCollateralizationRatio, newDebt, newLocked } =
     vaultAfterAdjustment;
 
-  if (!ratioGTE(newCollateralizationRatio, params.minCollateralizationRatio)) {
+  if (
+    !ratioGTE(
+      newCollateralizationRatio,
+      params.inferredMinimumCollateralization,
+    )
+  ) {
     if (debtAction === DebtAction.Borrow) {
       debtError = "Can't borrow below min. collat. ratio";
     }
