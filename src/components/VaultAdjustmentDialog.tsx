@@ -10,9 +10,9 @@ type Props = {
 };
 
 const message =
-  'Your vault creation request has been successfully submitted. Go to your Agoric Smart Wallet to approve. Once your offer is approved, you will be able to view and manage your vault.';
+  'Your vault adjustment request has been successfully submitted. Go to your Agoric Smart Wallet to approve.';
 
-const VaultCreationDialog = ({ isOpen, onClose }: Props) => {
+const VaultAdjustmentDialog = ({ isOpen, onClose }: Props) => {
   const walletUrl = useAtomValue(walletUiHrefAtom);
   const setViewMode = useSetAtom(viewModeAtom);
 
@@ -39,4 +39,4 @@ const VaultCreationDialog = ({ isOpen, onClose }: Props) => {
   );
 };
 
-export default VaultCreationDialog;
+export default VaultAdjustmentDialog;

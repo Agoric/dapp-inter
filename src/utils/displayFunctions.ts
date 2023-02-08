@@ -37,7 +37,13 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
     (brand && brandToInfo.get(brand)?.petname) ?? '';
 
   const displayPercent = (ratio: Ratio, placesToShow: number) => {
-    return stringifyRatioAsPercent(ratio, getDecimalPlaces, placesToShow);
+    try {
+      // This util function casts to Number, which can fail for very large
+      // values.
+      return stringifyRatioAsPercent(ratio, getDecimalPlaces, placesToShow);
+    } catch {
+      return '0';
+    }
   };
 
   const displayBrandPetname = (brand?: Brand | null) => {

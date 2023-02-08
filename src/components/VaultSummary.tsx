@@ -7,10 +7,15 @@ import {
   makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
 import clsx from 'clsx';
-import { AmountMath } from '@agoric/ertp';
 import { useAtomValue, useSetAtom } from 'jotai';
-import type { VaultKey } from 'store/vaults';
 import { netValue } from 'utils/vaultMath';
+import type { VaultKey } from 'store/vaults';
+import {
+  CollateralAction,
+  collateralActionAtom,
+  DebtAction,
+  debtActionAtom,
+} from 'store/adjustVault';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
@@ -86,6 +91,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
 
   const displayFunctions = useAtomValue(displayFunctionsAtom);
   const setVaultToAdjustKey = useSetAtom(vaultKeyToAdjustAtom);
+  const setCollateralAction = useSetAtom(collateralActionAtom);
+  const setDebtAction = useSetAtom(debtActionAtom);
 
   const metrics = vaultMetrics?.get(vault?.managerId ?? '');
   const params = vaultGovernedParams?.get(vault?.managerId ?? '');
@@ -162,6 +169,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
     const collateralLabel = 'ATOM';
 
     const adjustVault = () => {
+      setCollateralAction(CollateralAction.None);
+      setDebtAction(DebtAction.None);
       setVaultToAdjustKey(vaultKey);
     };
 
@@ -242,6 +251,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
     params,
     manager,
     displayFunctions,
+    setCollateralAction,
+    setDebtAction,
     setVaultToAdjustKey,
     vaultKey,
   ]);

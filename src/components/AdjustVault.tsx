@@ -1,52 +1,26 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
-import {
-  useVaultStore,
-  vaultKeyToAdjustAtom,
-  ViewMode,
-  viewModeAtom,
-} from 'store/vaults';
-import {
-  ceilMultiplyBy,
-  makeRatioFromAmounts,
-} from '@agoric/zoe/src/contractSupport';
-import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
+import { ViewMode, viewModeAtom } from 'store/vaults';
 import VaultSymbol from 'svg/vault-symbol';
 import clsx from 'clsx';
 import AdjustVaultForm from './AdjustVaultForm';
 import AdjustVaultSummary from './AdjustVaultSummary';
 import { useCallback } from 'react';
 import { netValue } from 'utils/vaultMath';
+import { vaultToAdjustAtom } from 'store/adjustVault';
 
 const AdjustVault = () => {
-  const vaultKey = useAtomValue(vaultKeyToAdjustAtom);
-
-  // We shouldn't ever see this component before display functions are loaded,
-  // so we don't need more graceful fallbacks. Just don't crash.
+  const displayFunctions = useAtomValue(displayFunctionsAtom);
+  assert(
+    displayFunctions,
+    'Adjust vault requires display functions to be loaded',
+  );
   const {
     displayPrice,
     displayPriceTimestamp,
     displayAmount,
     displayBrandPetname,
-  } = useAtomValue(displayFunctionsAtom) ?? {
-    displayPrice: () => '',
-    displayPriceTimestamp: () => '',
-    displayAmount: () => '',
-    displayBrandPetname: () => '',
-  };
-
-  const { vaults, prices, managers } = useVaultStore(state => ({
-    vaults: state.vaults,
-    prices: state.prices,
-    managers: state.vaultManagers,
-  }));
-
-  const vault = vaultKey && vaults?.get(vaultKey);
-  assert(vault, 'Cannot adjust nonexistent vault ' + vaultKey);
-
-  const { locked, debtSnapshot, managerId } = vault;
-  const manager = managers.get(managerId);
-  assert(locked && debtSnapshot && manager, 'Vault must be loading still');
+  } = displayFunctions;
 
   const setMode = useSetAtom(viewModeAtom);
 
@@ -55,20 +29,16 @@ const AdjustVault = () => {
     onClick: useCallback(() => setMode(ViewMode.Manage), [setMode]),
   };
 
-  const price = prices.get(locked.brand);
+  const vaultToAdjust = useAtomValue(vaultToAdjustAtom);
+  assert(vaultToAdjust, 'Adjust vault requires a selected vault');
 
-  const totalLockedValue =
-    locked &&
-    ceilMultiplyBy(
-      locked,
-      makeRatioFromAmounts(price.amountOut, price.amountIn),
-    );
-
-  const totalDebt = calculateCurrentDebt(
-    debtSnapshot.debt,
-    debtSnapshot.interest,
-    manager.compoundedInterest,
-  );
+  const {
+    locked,
+    indexWithinManager,
+    collateralPrice,
+    totalLockedValue,
+    totalDebt,
+  } = vaultToAdjust;
 
   const [netVaultValue, isNetValueNegative] = netValue(
     totalLockedValue,
@@ -83,21 +53,19 @@ const AdjustVault = () => {
       <div className="w-full flex justify-between mt-6 flex-wrap">
         <div className="font-serif flex items-baseline gap-3">
           <div className="font-medium text-2xl">{vaultLabel}</div>
-          <div className="text-[#A3A5B9] text-sm">
-            #{vault.indexWithinManager}
-          </div>
+          <div className="text-[#A3A5B9] text-sm">#{indexWithinManager}</div>
         </div>
         <div className="flex gap-8">
           <div>
             Current Price:{' '}
             <span className="text-[#00B1A6] font-medium text-lg">
-              {displayPrice(price)}
+              {displayPrice(collateralPrice)}
             </span>
           </div>
           <div>
             Last Price Update:{' '}
             <span className="font-medium text-lg whitespace-nowrap">
-              {displayPriceTimestamp(price)}
+              {displayPriceTimestamp(collateralPrice)}
             </span>
           </div>
         </div>
@@ -151,12 +119,7 @@ const AdjustVault = () => {
           <AdjustVaultForm />
         </div>
         <div className="col-span-9 lg:col-span-2">
-          <AdjustVaultSummary
-            locked={locked}
-            debt={totalDebt}
-            lockedValue={totalLockedValue}
-            managerId={managerId}
-          />
+          <AdjustVaultSummary />
         </div>
       </div>
     </>

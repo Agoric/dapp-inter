@@ -56,7 +56,7 @@ const ManageVaults = () => {
   if (!chainConnection) {
     content = <EmptyView>Connect your wallet to manage your vaults.</EmptyView>;
   } else if (vaults?.size === 0) {
-    content = <EmptyView>You have not opened any vaults yet</EmptyView>;
+    content = <EmptyView>You have not opened any vaults yet.</EmptyView>;
   } else if (!vaults) {
     content = (
       <EmptyView>
@@ -81,7 +81,7 @@ const ManageVaults = () => {
             <span className="fill-interYellow align-bottom relative top-[1px]">
               <VaultSymbol />
             </span>
-            <span>My Vaults {vaults?.size && `(${vaults?.size})`}</span>
+            <span>My Vaults{vaults?.size ? ` (${vaults?.size})` : ''}</span>
           </div>
         </div>
         <button

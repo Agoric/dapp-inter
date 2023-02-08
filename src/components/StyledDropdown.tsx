@@ -28,21 +28,21 @@ const Item = ({
   );
 };
 
-type Props = {
-  choices: string[];
-  selection: string;
-  onSelection: (selection: string) => void;
+type Props<T> = {
+  choices: T[];
+  selection: T;
+  onSelection: (selection: T) => void;
   label: string;
   disabled?: boolean;
 };
 
-const StyledDropdown = ({
+const StyledDropdown = <T extends string>({
   choices,
   selection,
   onSelection,
   label,
   disabled = false,
-}: Props) => {
+}: Props<T>) => {
   const items = choices.map(choice => (
     <Item
       key={choice}

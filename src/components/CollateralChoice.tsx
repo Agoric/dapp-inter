@@ -100,7 +100,6 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
   }
 
   if (!isReady) {
-    // TODO: Implement a better looking skeleton component.
     return <SkeletonCollateralChoice />;
   }
   const {
@@ -156,7 +155,13 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
       </h3>
       <table className="mt-4">
         <tbody>
-          <TableRow left="Min. Collat. Ratio" right={`-- %`} />
+          <TableRow
+            left="Min. Collat. Ratio"
+            right={`${displayPercent(
+              params.inferredMinimumCollateralization,
+              0,
+            )}%`}
+          />
           <TableRow
             left="Interest Rate"
             right={`${displayPercent(params.interestRate, 2)}%`}
@@ -171,7 +176,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
           />
           <TableRow
             left="Liquidation Ratio"
-            right={`${displayPercent(params.liquidationMargin, 2)}%`}
+            right={`${displayPercent(params.liquidationMargin, 0)}%`}
           />
         </tbody>
       </table>

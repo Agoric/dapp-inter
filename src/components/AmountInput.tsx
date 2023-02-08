@@ -11,6 +11,7 @@ type Props = {
   label?: string;
   error?: string;
   brand?: Brand | null;
+  suffix?: string;
   onChange?: (value: bigint) => void;
   disabled?: boolean;
 };
@@ -20,6 +21,7 @@ const AmountInput = ({
   brand,
   label,
   error,
+  suffix,
   onChange = () => {
     /* noop */
   },
@@ -69,6 +71,7 @@ const AmountInput = ({
     <StyledInput
       label={label}
       error={error}
+      suffix={suffix}
       inputProps={{
         type: 'number',
         placeholder: '0.00',

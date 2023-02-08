@@ -14,7 +14,7 @@ import {
 import create from 'zustand/vanilla';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
 import { makeWalletService } from 'service/wallet';
-import type { DisplayInfo, Brand } from '@agoric/ertp/src/types';
+import type { DisplayInfo, Brand, AssetKind } from '@agoric/ertp/src/types';
 import type { Leader } from '@agoric/casting';
 import type { PursesJSONState } from '@agoric/wallet-backend';
 
@@ -23,8 +23,9 @@ export type BrandInfo = DisplayInfo<'nat'> & {
 };
 
 export type OfferConfig = {
-  instanceHandle: import('@endo/marshal').CapData<'Instance'>;
-  publicInvitationMaker: string;
+  instanceHandle?: import('@endo/marshal').CapData<'Instance'>;
+  publicInvitationMaker?: string;
+  p?: unknown;
   proposalTemplate: unknown;
 };
 
@@ -48,7 +49,7 @@ interface AppState {
   isWalletConnectionInProgress: boolean;
   chainConnection: ChainConnection | null;
   offerSigner: OfferSigner;
-  purses: PursesJSONState[] | null;
+  purses: PursesJSONState<AssetKind>[] | null;
   walletService: ReturnType<typeof makeWalletService>;
   offerIdsToPublicSubscribers: Record<string, Record<string, string>> | null;
 }

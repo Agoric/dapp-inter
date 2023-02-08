@@ -20,7 +20,7 @@ declare module '@agoric/web-components/react' {
 }
 
 declare module '@agoric/wallet-backend' {
-  export type PursesJSONState = {
+  export type PursesJSONState<T extends AssetKind> = {
     brand: import('@agoric/ertp').Brand;
     /** The board ID for this purse's brand */
     brandBoardId: string;
@@ -35,7 +35,7 @@ declare module '@agoric/wallet-backend' {
     /** The purse's current balance */
     value: unknown;
     currentAmountSlots: unknown;
-    currentAmount: unknown;
+    currentAmount: Amount<T>;
   };
 }
 
@@ -45,6 +45,13 @@ declare module '@agoric/inter-protocol/src/interest-math' {
     interestSnapshot: Ratio,
     currentCompoundedInterest: Ratio,
   ) => Amount<'nat'>;
+}
+
+declare module '@agoric/inter-protocol/src/vaultFactory/math' {
+  export const calculateMinimumCollateralization: (
+    liquidationMargin: Ratio,
+    liquidationPadding: Ratio,
+  ) => Ratio;
 }
 
 declare module 'react-view-slider' {
