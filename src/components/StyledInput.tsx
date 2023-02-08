@@ -32,7 +32,8 @@ const StyledInput = (
         ref={ref}
         className={clsx(
           'p-3 w-full bg-white rounded-l-sm outline-none text-sm font-medium placeholder:font-normal placeholder:text-gray-400 text-right align-middle',
-          suffix ? '' : 'rounded-r-sm',
+          suffix && 'rounded-r-sm',
+          inputProps?.disabled && 'text-gray-400',
         )}
       ></input>
       {suffix && (
