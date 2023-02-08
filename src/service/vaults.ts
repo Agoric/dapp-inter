@@ -11,6 +11,7 @@ import { toast } from 'react-toastify';
 import { CapData } from '@endo/marshal';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 import type { Ratio, PriceQuote } from 'store/vaults';
+import { calculateMinimumCollateralization } from '@agoric/inter-protocol/src/vaultFactory/math';
 
 type ValuePossessor<T> = {
   value: T;
@@ -167,6 +168,7 @@ type GovernedParamsUpdate = ValuePossessor<{
     InterestRate: ValuePossessor<Ratio>;
     LiquidationPenalty: ValuePossessor<Ratio>;
     LiquidationMargin: ValuePossessor<Ratio>;
+    LiquidationPadding: ValuePossessor<Ratio>;
     LoanFee: ValuePossessor<Ratio>;
   };
 }>;
@@ -201,7 +203,13 @@ export const watchVaultFactory = (netconfigUrl: string) => {
       const interestRate = current.InterestRate.value;
       const liquidationPenalty = current.LiquidationPenalty.value;
       const liquidationMargin = current.LiquidationMargin.value;
+      const liquidationPadding = current.LiquidationPadding.value;
       const loanFee = current.LoanFee.value;
+
+      const minCollateralizationRatio = calculateMinimumCollateralization(
+        liquidationMargin,
+        liquidationPadding,
+      );
 
       useVaultStore.getState().setVaultGovernedParams(id, {
         debtLimit,
@@ -209,6 +217,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
         liquidationMargin,
         liquidationPenalty,
         loanFee,
+        minCollateralizationRatio,
       });
     }
   };

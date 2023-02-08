@@ -1,6 +1,9 @@
 import {
+  addRatios,
+  ceilMultiplyBy,
   floorDivideBy,
   floorMultiplyBy,
+  makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
 import { AmountMath } from '@agoric/ertp';
 import { Ratio } from 'store/vaults';
@@ -11,6 +14,7 @@ export const computeToReceive = (
   collateralizationRatio: Ratio,
   toLock: bigint,
   defaultCollateralization: Ratio,
+  loanFee: Ratio,
 ) => {
   const collateralizationRatioOrDefault =
     collateralizationRatio.numerator.value === 0n
@@ -22,7 +26,18 @@ export const computeToReceive = (
     priceRate,
   );
 
-  return floorDivideBy(lockedPrice, collateralizationRatioOrDefault).value;
+  const maxDebtAfterLoanFee = floorDivideBy(
+    lockedPrice,
+    collateralizationRatioOrDefault,
+  );
+
+  return floorDivideBy(
+    maxDebtAfterLoanFee,
+    addRatios(
+      loanFee,
+      makeRatioFromAmounts(loanFee.denominator, loanFee.denominator),
+    ),
+  ).value;
 };
 
 export const computeToLock = (
@@ -30,14 +45,20 @@ export const computeToLock = (
   collateralizationRatio: Ratio,
   toReceive: bigint,
   defaultCollateralization: Ratio,
+  loanFee: Ratio,
 ) => {
   const collateralizationRatioOrDefault =
     collateralizationRatio.numerator.value === 0n
       ? defaultCollateralization
       : collateralizationRatio;
 
+  const receiveAmount = AmountMath.make(loanFee.numerator.brand, toReceive);
+  const resultingDebt = AmountMath.add(
+    receiveAmount,
+    ceilMultiplyBy(receiveAmount, loanFee),
+  );
   const receiveMargin = floorMultiplyBy(
-    AmountMath.make(priceRate.numerator.brand, toReceive),
+    resultingDebt,
     collateralizationRatioOrDefault,
   );
 

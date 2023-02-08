@@ -37,12 +37,13 @@ const getVaultInputData = (get: Getter, selectedCollateralId: string) => {
       ? vaultGovernedParams.get(selectedCollateralId)
       : null;
 
-  // TODO: Use min collateral ratio rather than liquidation margin when available.
   const defaultCollateralizationRatio = selectedParams
-    ? selectedParams.liquidationMargin
+    ? selectedParams.minCollateralizationRatio
     : null;
 
-  return { defaultCollateralizationRatio, priceRate };
+  const loanFee = selectedParams ? selectedParams.loanFee : null;
+
+  return { defaultCollateralizationRatio, priceRate, loanFee };
 };
 
 export type VaultCreationErrors = {
@@ -62,10 +63,8 @@ export const valueToLockAtom = atom(
     }
 
     const collateralizationRatio = get(collateralizationRatioInternal);
-    const { priceRate, defaultCollateralizationRatio } = getVaultInputData(
-      get,
-      selectedCollateralId,
-    );
+    const { priceRate, defaultCollateralizationRatio, loanFee } =
+      getVaultInputData(get, selectedCollateralId);
 
     if (priceRate && defaultCollateralizationRatio && collateralizationRatio) {
       set(
@@ -75,6 +74,7 @@ export const valueToLockAtom = atom(
           collateralizationRatio,
           value,
           defaultCollateralizationRatio,
+          loanFee,
         ),
       );
     }
@@ -92,10 +92,8 @@ export const valueToReceiveAtom = atom(
     }
 
     const collateralizationRatio = get(collateralizationRatioInternal);
-    const { priceRate, defaultCollateralizationRatio } = getVaultInputData(
-      get,
-      selectedCollateralId,
-    );
+    const { priceRate, defaultCollateralizationRatio, loanFee } =
+      getVaultInputData(get, selectedCollateralId);
 
     if (priceRate && defaultCollateralizationRatio && collateralizationRatio) {
       set(
@@ -105,6 +103,7 @@ export const valueToReceiveAtom = atom(
           collateralizationRatio,
           value,
           defaultCollateralizationRatio,
+          loanFee,
         ),
       );
     }
@@ -122,10 +121,8 @@ export const collateralizationRatioAtom = atom(
       return;
     }
 
-    const { priceRate, defaultCollateralizationRatio } = getVaultInputData(
-      get,
-      selectedCollateralId,
-    );
+    const { priceRate, defaultCollateralizationRatio, loanFee } =
+      getVaultInputData(get, selectedCollateralId);
 
     if (priceRate && defaultCollateralizationRatio) {
       set(
@@ -135,6 +132,7 @@ export const collateralizationRatioAtom = atom(
           ratio,
           valueToLock,
           defaultCollateralizationRatio,
+          loanFee,
         ),
       );
     }
@@ -153,10 +151,8 @@ export const selectedCollateralIdAtom = atom(
       return;
     }
 
-    const { priceRate, defaultCollateralizationRatio } = getVaultInputData(
-      get,
-      selectedCollateralId,
-    );
+    const { priceRate, defaultCollateralizationRatio, loanFee } =
+      getVaultInputData(get, selectedCollateralId);
 
     if (defaultCollateralizationRatio) {
       set(collateralizationRatioInternal, defaultCollateralizationRatio);
@@ -178,6 +174,7 @@ export const selectedCollateralIdAtom = atom(
         defaultCollateralizationRatio,
         defaultValueReceived.value,
         defaultCollateralizationRatio,
+        loanFee,
       );
       set(valueToLockInternal, valueToLock);
     } else {
@@ -206,8 +203,8 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
       : null;
 
   if (selectedParams && collateralizationRatio) {
-    // TODO: Use min collateral ratio rather than liquidation margin when available.
-    const defaultCollateralizationRatio = selectedParams.liquidationMargin;
+    const defaultCollateralizationRatio =
+      selectedParams.minCollateralizationRatio;
     if (
       collateralizationRatio.numerator.value === 0n ||
       !ratioGTE(collateralizationRatio, defaultCollateralizationRatio)

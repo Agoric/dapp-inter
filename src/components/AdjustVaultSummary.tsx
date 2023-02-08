@@ -103,7 +103,13 @@ const AdjustVaultSummary = () => {
         <div className="w-full p-2">
           <table className="w-full">
             <tbody>
-              <TableRow left="Min. Collateralization Ratio" right="--" />
+              <TableRow
+                left="Min. Collateralization Ratio"
+                right={`${displayPercent(
+                  params.minCollateralizationRatio,
+                  0,
+                )}%`}
+              />
               <TableRow
                 left="Liquidation Ratio"
                 right={`${displayPercent(params.liquidationMargin, 0)}%`}

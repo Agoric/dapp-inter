@@ -102,6 +102,11 @@ const NewVaultOfferSummary = () => {
       ? `${displayPercent(collateralizationRatio, 0)}%`
       : '--';
 
+  const minCollateralizationForDisplay =
+    displayPercent && selectedParams
+      ? `${displayPercent(selectedParams.minCollateralizationRatio, 0)}%`
+      : '--';
+
   const hasErrors =
     collateralizationRatioError || toLockError || toReceiveError;
 
@@ -146,7 +151,10 @@ const NewVaultOfferSummary = () => {
                 <TableRow left="Depositing" right={depositAmountForDisplay} />
                 <TableRow left="Borrowing" right={borrowAmountForDisplay} />
                 <TableRow left="Interest Rate" right={interestRateForDisplay} />
-                <TableRow left="Minimum Collateralization Ratio" right="--" />
+                <TableRow
+                  left="Minimum Collateralization Ratio"
+                  right={minCollateralizationForDisplay}
+                />
               </tbody>
             </table>
           </div>

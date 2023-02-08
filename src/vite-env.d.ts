@@ -47,6 +47,13 @@ declare module '@agoric/inter-protocol/src/interest-math' {
   ) => Amount<'nat'>;
 }
 
+declare module '@agoric/inter-protocol/src/vaultFactory/math' {
+  export const calculateMinimumCollateralization: (
+    liquidationMargin: Ratio,
+    liquidationPadding: Ratio,
+  ) => Ratio;
+}
+
 declare module 'react-view-slider' {
   export const ViewSlider;
 }
