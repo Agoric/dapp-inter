@@ -1,11 +1,6 @@
 import { chainConnectionAtom } from 'store/app';
 import { useCallback } from 'react';
-import {
-  useVaultStore,
-  viewModeAtom,
-  ViewMode,
-  vaultKeyToAdjustAtom,
-} from 'store/vaults';
+import { vaultKeyToAdjustAtom, vaultsAtom } from 'store/vaults';
 import VaultSummary from 'components/VaultSummary';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { FaPlusCircle } from 'react-icons/fa';
@@ -33,9 +28,8 @@ const EmptyView = ({ children }: PropsWithChildren) => {
 };
 
 const ManageVaults = () => {
-  const setMode = useSetAtom(viewModeAtom);
   const setVaultKeyToAdjust = useSetAtom(vaultKeyToAdjustAtom);
-  const vaults = useVaultStore(state => state.vaults);
+  const vaults = useAtomValue(vaultsAtom);
   const chainConnection = useAtomValue(chainConnectionAtom);
 
   const buttonProps = {
@@ -47,8 +41,7 @@ const ManageVaults = () => {
     ),
     onClick: useCallback(() => {
       setVaultKeyToAdjust(null);
-      setMode(ViewMode.Edit);
-    }, [setMode, setVaultKeyToAdjust]),
+    }, [setVaultKeyToAdjust]),
   };
 
   let content;

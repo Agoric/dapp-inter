@@ -201,3 +201,5 @@ export const vaultKeyToAdjustAtom = atom(
 export const vaultStoreAtom = atomWithStore(vaultStore);
 
 export const useVaultStore = create(vaultStore);
+
+export const vaultsAtom = atom(get => get(vaultStoreAtom).vaults);

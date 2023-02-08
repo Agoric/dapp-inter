@@ -12,9 +12,9 @@ import { pursesAtom } from './app';
 import { vaultKeyToAdjustAtom, vaultStoreAtom } from './vaults';
 
 export const vaultToAdjustAtom = atom(get => {
-  const key = get(vaultKeyToAdjustAtom);
   const { vaults, vaultManagers, prices, vaultGovernedParams, vaultMetrics } =
     get(vaultStoreAtom);
+  const key = get(vaultKeyToAdjustAtom);
 
   const vault = key && vaults?.get(key);
   if (!vault) {
