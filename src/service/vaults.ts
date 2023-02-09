@@ -1,4 +1,4 @@
-import { fetchRPCAddr, fetchVstorageKeys } from 'views/rpc';
+import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import {
   useVaultStore,
   VaultInfoChainData,
