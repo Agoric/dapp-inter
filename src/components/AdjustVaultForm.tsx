@@ -54,7 +54,7 @@ const AdjustVaultForm = () => {
         <div className="mb-12 grid grid-cols-2 gap-10">
           <div className="text-[#9193A5] text-sm col-span-2 lg:col-span-1">
             Deposit additional collateral or withdraw your existing collateral.
-            Select &quot;No Action&quot; to leave collateral unchanged.
+            Select “No Action” to leave collateral unchanged.
           </div>
           <div className="col-span-2 lg:col-span-1">
             <div className="mb-6">
@@ -90,8 +90,8 @@ const AdjustVaultForm = () => {
         <div className="mt-8 font-bold mb-4">Adjust Debt</div>
         <div className="mb-12 grid grid-cols-2 gap-10">
           <div className="text-[#9193A5] text-sm col-span-2 lg:col-span-1">
-            Borrow additional IST or repay your existing IST debt. Select
-            &quot;No Action&quot; to leave debt unchanged.
+            Borrow additional IST or repay your existing IST debt. Select “No
+            Action” to leave debt unchanged.
           </div>
           <div className="col-span-2 lg:col-span-1">
             <div className="mb-6">

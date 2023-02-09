@@ -25,12 +25,10 @@ const VaultCreationDialog = ({ isOpen, onClose }: Props) => {
     setViewMode(ViewMode.Manage);
   };
 
-  const body = <p>{message}</p>;
-
   return (
     <BaseDialog
       title="Success: Offer Submitted"
-      body={body}
+      body={<p>{message}</p>}
       isOpen={isOpen}
       onClose={onClose}
       onPrimaryAction={goToWallet}

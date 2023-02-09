@@ -35,7 +35,7 @@ const noticeProps = {
 };
 
 const message =
-  'Closing a vault is permanent and cannot be undone. To close your vault, please approve the offer in your wallet.';
+  'Closing a vault is permanent and cannot be undone. To close your vault, approve the offer in your wallet.';
 
 const CloseVaultDialog = ({
   isOpen,
@@ -49,11 +49,6 @@ const CloseVaultDialog = ({
   }
 
   const displayFunctions = useAtomValue(displayFunctionsAtom);
-  const { displayAmount, displayBrandPetname } = displayFunctions ?? {
-    displayAmount: () => '',
-    displayBrandPetname: () => '',
-  };
-
   const walletUrl = useAtomValue(walletUiHrefAtom);
   const setViewMode = useSetAtom(viewModeAtom);
   const [hasSentOffer, setHasSentOffer] = useState(false);
@@ -80,9 +75,10 @@ const CloseVaultDialog = ({
   const secondaryActionLabel = hasSentOffer ? 'Back to Vaults' : 'Cancel';
 
   const debtRow = useMemo(() => {
-    if (!totalDebt) {
+    if (!totalDebt || !displayFunctions) {
       return null;
     }
+    const { displayAmount, displayBrandPetname } = displayFunctions;
 
     const left = `${displayBrandPetname(totalDebt.brand)} Debt to Pay Back`;
 
@@ -93,12 +89,14 @@ const CloseVaultDialog = ({
     )} ${displayBrandPetname(totalDebt.brand)}`;
 
     return <TableRow left={left} right={right} />;
-  }, [displayAmount, displayBrandPetname, totalDebt]);
+  }, [displayFunctions, totalDebt]);
 
   const collateralRow = useMemo(() => {
-    if (!totalCollateral) {
+    if (!totalCollateral || !displayFunctions) {
       return null;
     }
+
+    const { displayAmount, displayBrandPetname } = displayFunctions;
 
     const left = `${displayBrandPetname(
       totalCollateral.brand,
@@ -111,7 +109,7 @@ const CloseVaultDialog = ({
     )} ${displayBrandPetname(totalCollateral.brand)}`;
 
     return <TableRow left={left} right={right} />;
-  }, [displayAmount, displayBrandPetname, totalCollateral]);
+  }, [displayFunctions, totalCollateral]);
 
   const body = (
     <>

@@ -42,12 +42,15 @@ export const vaultToAdjustAtom = atom(get => {
   );
 
   // Prevent divide-by-zero if no debt.
-  const collateralizationRatio = AmountMath.isEmpty(totalDebt)
-    ? makeRatioFromAmounts(
-        totalLockedValue,
-        AmountMath.make(totalDebt.brand, 1n),
-      )
-    : makeRatioFromAmounts(totalLockedValue, totalDebt);
+  const nonzeroDebt = AmountMath.max(
+    totalDebt,
+    AmountMath.make(totalDebt.brand, 1n),
+  );
+
+  const collateralizationRatio = makeRatioFromAmounts(
+    totalLockedValue,
+    nonzeroDebt,
+  );
 
   return {
     totalLockedValue,
