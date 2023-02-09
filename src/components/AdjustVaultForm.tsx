@@ -47,6 +47,8 @@ const AdjustVaultForm = () => {
 
   const [isCloseVaultDialogOpen, setIsCloseVaultDialogOpen] = useState(false);
 
+  const isActive = vaultToAdjust?.vaultState === 'active';
+
   return (
     <>
       <div className="bg-white font-serif p-8 shadow-[0_40px_40px_-14px_rgba(116,116,116,0.25)] rounded-[20px] w-full">
@@ -119,15 +121,17 @@ const AdjustVaultForm = () => {
             />
           </div>
         </div>
-        <button
-          onClick={() => setIsCloseVaultDialogOpen(true)}
-          className="text-btn-xs flex items-center gap-3 transition text-[#E22951] rounded-[6px] border-2 border-solid border-[#E22951] h-8 px-4 leading-[14px] font-bold text-xs bg-[#E22951] bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
-        >
-          <span className="fill-[#E22951]">
-            <ErrorWarning />
-          </span>
-          Close Out Vault
-        </button>
+        {isActive && (
+          <button
+            onClick={() => setIsCloseVaultDialogOpen(true)}
+            className="text-btn-xs flex items-center gap-3 transition text-[#E22951] rounded-[6px] border-2 border-solid border-[#E22951] h-8 px-4 leading-[14px] font-bold text-xs bg-[#E22951] bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+          >
+            <span className="fill-[#E22951]">
+              <ErrorWarning />
+            </span>
+            Close Out Vault
+          </button>
+        )}
       </div>
       <CloseVaultDialog
         isOpen={isCloseVaultDialogOpen}

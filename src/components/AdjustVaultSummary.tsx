@@ -47,7 +47,6 @@ const TableRowWithArrow = ({ label, left, right }: TableRowWithArrowProps) => {
 };
 
 const AdjustVaultSummary = () => {
-  const adjustButtonLabel = 'Make Offer';
   const [isVaultAdjustmentDialogOpen, setIsVaultAdjustmentDialogOpen] =
     useState(false);
 
@@ -77,7 +76,12 @@ const AdjustVaultSummary = () => {
     params,
     collateralizationRatio,
     createdByOfferId,
+    vaultState,
   } = vaultToAdjust;
+
+  const isActive = vaultState === 'active';
+  const offerButtonLabel = isActive ? 'Make Offer' : vaultState;
+
   const { newDebt, newLocked, newCollateralizationRatio } =
     vaultAfterAdjustment;
 
@@ -94,7 +98,8 @@ const AdjustVaultSummary = () => {
       )}`;
 
   const hasErrors = collateralError || debtError;
-  const canMakeOffer = !hasErrors && (debtDeltaValue || collateralDeltaValue);
+  const canMakeOffer =
+    !hasErrors && isActive && (debtDeltaValue || collateralDeltaValue);
 
   const makeAdjustOffer = async () => {
     assert(canMakeOffer);
@@ -200,7 +205,7 @@ const AdjustVaultSummary = () => {
                 : 'bg-[#C1C3D7] cursor-not-allowed',
             )}
           >
-            {adjustButtonLabel}
+            {offerButtonLabel}
           </button>
         </div>
       </div>

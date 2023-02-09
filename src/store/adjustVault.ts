@@ -21,7 +21,8 @@ export const vaultToAdjustAtom = atom(get => {
     return null;
   }
 
-  const { locked, debtSnapshot, managerId, createdByOfferId } = vault;
+  const { locked, debtSnapshot, managerId, createdByOfferId, vaultState } =
+    vault;
   const manager = vaultManagers.get(managerId);
   const price = locked && prices.get(locked.brand);
   const params = vaultGovernedParams.get(managerId);
@@ -62,6 +63,7 @@ export const vaultToAdjustAtom = atom(get => {
     metrics,
     collateralizationRatio,
     createdByOfferId,
+    vaultState,
   };
 });
 
