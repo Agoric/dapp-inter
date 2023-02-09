@@ -156,6 +156,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
       params.liquidationMargin,
     );
 
+    // Prevent divide-by-zero error.
     const maximumLockedPriceForLiquidation = {
       amountIn: AmountMath.isEmpty(locked)
         ? AmountMath.make(locked.brand, 1n)
