@@ -9,9 +9,26 @@ import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
 import { atom } from 'jotai';
 import { debtAfterDelta, lockedAfterDelta } from 'utils/vaultMath';
 import { pursesAtom } from './app';
-import { vaultKeyToAdjustAtom, vaultStoreAtom } from './vaults';
+import {
+  PriceDescription,
+  vaultKeyToAdjustAtom,
+  vaultStoreAtom,
+} from './vaults';
+import type { VaultMetrics, VaultParams, Ratio } from './vaults';
 
-export const vaultToAdjustAtom = atom(get => {
+type VaultToAdjust = {
+  totalLockedValue: Amount<'nat'>;
+  totalDebt: Amount<'nat'>;
+  collateralPrice: PriceDescription;
+  locked: Amount<'nat'>;
+  indexWithinManager: number;
+  params: VaultParams;
+  metrics: VaultMetrics;
+  collateralizationRatio?: Ratio;
+  createdByOfferId: string;
+};
+
+export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
   const { vaults, vaultManagers, prices, vaultGovernedParams, vaultMetrics } =
     get(vaultStoreAtom);
   const key = get(vaultKeyToAdjustAtom);
@@ -41,16 +58,9 @@ export const vaultToAdjustAtom = atom(get => {
     manager.compoundedInterest,
   );
 
-  // Prevent divide-by-zero if no debt.
-  const nonzeroDebt = AmountMath.max(
-    totalDebt,
-    AmountMath.make(totalDebt.brand, 1n),
-  );
-
-  const collateralizationRatio = makeRatioFromAmounts(
-    totalLockedValue,
-    nonzeroDebt,
-  );
+  const collateralizationRatio = AmountMath.isEmpty(totalDebt)
+    ? undefined
+    : makeRatioFromAmounts(totalLockedValue, totalDebt);
 
   return {
     totalLockedValue,
@@ -101,45 +111,51 @@ export const debtActionAtom = atom(
   },
 );
 
-export const vaultAfterAdjustmentAtom = atom(get => {
-  const vaultToAdjust = get(vaultToAdjustAtom);
-  if (!vaultToAdjust) {
-    return null;
-  }
+type VaultAfterAdjustment = {
+  newDebt: Amount<'nat'>;
+  newLocked: Amount<'nat'>;
+  newCollateralizationRatio?: Ratio;
+};
 
-  const debtAction = get(debtActionAtom);
-  const collateralAction = get(collateralActionAtom);
-  const collateralDeltaValue = get(collateralDeltaValueAtom);
-  const debtDeltaValue = get(debtDeltaValueAtom);
+export const vaultAfterAdjustmentAtom = atom<VaultAfterAdjustment | null>(
+  get => {
+    const vaultToAdjust = get(vaultToAdjustAtom);
+    if (!vaultToAdjust) {
+      return null;
+    }
 
-  const { totalDebt, locked, params, collateralPrice } = vaultToAdjust;
+    const debtAction = get(debtActionAtom);
+    const collateralAction = get(collateralActionAtom);
+    const collateralDeltaValue = get(collateralDeltaValueAtom);
+    const debtDeltaValue = get(debtDeltaValueAtom);
 
-  const newDebt = debtAfterDelta(
-    debtAction,
-    params.loanFee,
-    totalDebt,
-    debtDeltaValue,
-  );
+    const { totalDebt, locked, params, collateralPrice } = vaultToAdjust;
 
-  const newLocked = lockedAfterDelta(
-    collateralAction,
-    locked,
-    collateralDeltaValue,
-  );
+    const newDebt = debtAfterDelta(
+      debtAction,
+      params.loanFee,
+      totalDebt,
+      debtDeltaValue,
+    );
 
-  const newLockedPrice = ceilMultiplyBy(
-    newLocked,
-    makeRatioFromAmounts(collateralPrice.amountOut, collateralPrice.amountIn),
-  );
+    const newLocked = lockedAfterDelta(
+      collateralAction,
+      locked,
+      collateralDeltaValue,
+    );
 
-  const newCollateralizationRatio = makeRatioFromAmounts(
-    newLockedPrice,
-    // Avoid divide-by-zero.
-    newDebt.value ? newDebt : AmountMath.make(newDebt.brand, 1n),
-  );
+    const newLockedPrice = ceilMultiplyBy(
+      newLocked,
+      makeRatioFromAmounts(collateralPrice.amountOut, collateralPrice.amountIn),
+    );
 
-  return { newDebt, newLocked, newCollateralizationRatio };
-});
+    const newCollateralizationRatio = AmountMath.isEmpty(newDebt)
+      ? undefined
+      : makeRatioFromAmounts(newLockedPrice, newDebt);
+
+    return { newDebt, newLocked, newCollateralizationRatio };
+  },
+);
 
 export const adjustVaultErrorsAtom = atom(get => {
   let debtError;
@@ -161,6 +177,7 @@ export const adjustVaultErrorsAtom = atom(get => {
     vaultAfterAdjustment;
 
   if (
+    newCollateralizationRatio &&
     !ratioGTE(
       newCollateralizationRatio,
       params.inferredMinimumCollateralization,

@@ -155,8 +155,16 @@ const AdjustVaultSummary = () => {
                 />
                 <TableRowWithArrow
                   label="Collateralization Ratio"
-                  left={`${displayPercent(collateralizationRatio, 0)}%`}
-                  right={`${displayPercent(newCollateralizationRatio, 0)}%`}
+                  left={
+                    collateralizationRatio
+                      ? displayPercent(collateralizationRatio, 0) + '%'
+                      : 'N/A'
+                  }
+                  right={
+                    newCollateralizationRatio
+                      ? displayPercent(newCollateralizationRatio, 0) + '%'
+                      : 'N/A'
+                  }
                 />
               </tbody>
             </table>

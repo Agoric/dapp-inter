@@ -156,13 +156,12 @@ const VaultSummary = ({ vaultKey }: Props) => {
       params.liquidationMargin,
     );
 
-    // Prevent divide-by-zero error.
-    const maximumLockedPriceForLiquidation = {
-      amountIn: AmountMath.isEmpty(locked)
-        ? AmountMath.make(locked.brand, 1n)
-        : locked,
-      amountOut: maximumLockedValueForLiquidation,
-    };
+    const maximumLockedPriceForLiquidation = AmountMath.isEmpty(locked)
+      ? undefined
+      : {
+          amountIn: locked,
+          amountOut: maximumLockedValueForLiquidation,
+        };
 
     const [netVaultValue, isNetValueNegative] = netValue(
       totalLockedValue,
@@ -219,7 +218,11 @@ const VaultSummary = ({ vaultKey }: Props) => {
               />
               <TableRow
                 left="Liquidation Price"
-                right={displayPrice(maximumLockedPriceForLiquidation)}
+                right={
+                  maximumLockedPriceForLiquidation
+                    ? displayPrice(maximumLockedPriceForLiquidation)
+                    : 'N/A'
+                }
               />
             </tbody>
           </table>
