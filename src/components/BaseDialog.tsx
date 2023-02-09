@@ -1,5 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
+import { Fragment, ReactElement } from 'react';
 
 type Props = {
   isOpen: boolean;
@@ -7,7 +7,7 @@ type Props = {
   onPrimaryAction: () => void;
   onSecondaryAction: () => void;
   title: string;
-  message: string;
+  body: ReactElement;
   primaryActionLabel: string;
   secondaryActionLabel: string;
 };
@@ -16,7 +16,7 @@ const BaseDialog = ({
   isOpen,
   onClose,
   title,
-  message,
+  body,
   primaryActionLabel,
   secondaryActionLabel,
   onPrimaryAction,
@@ -54,9 +54,7 @@ const BaseDialog = ({
                 >
                   {title}
                 </Dialog.Title>
-                <div className="font-serif mt-4 mx-8 mb-8">
-                  <p>{message}</p>
-                </div>
+                <div className="font-serif mt-4 mx-8 mb-8">{body}</div>
                 <div className="h-[1px] mx-8 bg-[#D8D8D8]" />
                 <div className="py-6 px-8">
                   <div className="flex justify-end gap-6">

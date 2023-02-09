@@ -41,6 +41,14 @@ export const vaultToAdjustAtom = atom(get => {
     manager.compoundedInterest,
   );
 
+  // Prevent divide-by-zero if no debt.
+  const collateralizationRatio = AmountMath.isEmpty(totalDebt)
+    ? makeRatioFromAmounts(
+        totalLockedValue,
+        AmountMath.make(totalDebt.brand, 1n),
+      )
+    : makeRatioFromAmounts(totalLockedValue, totalDebt);
+
   return {
     totalLockedValue,
     totalDebt,
@@ -49,7 +57,7 @@ export const vaultToAdjustAtom = atom(get => {
     indexWithinManager: vault.indexWithinManager,
     params,
     metrics,
-    collateralizationRatio: makeRatioFromAmounts(totalLockedValue, totalDebt),
+    collateralizationRatio,
     createdByOfferId,
   };
 });

@@ -16,6 +16,7 @@ import {
   DebtAction,
   debtActionAtom,
 } from 'store/adjustVault';
+import { AmountMath } from '@agoric/ertp';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
@@ -156,7 +157,9 @@ const VaultSummary = ({ vaultKey }: Props) => {
     );
 
     const maximumLockedPriceForLiquidation = {
-      amountIn: locked,
+      amountIn: AmountMath.isEmpty(locked)
+        ? AmountMath.make(locked.brand, 1n)
+        : locked,
       amountOut: maximumLockedValueForLiquidation,
     };
 
