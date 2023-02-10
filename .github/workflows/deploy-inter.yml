@@ -48,7 +48,4 @@ jobs:
         message: |
           IPFS hash: `${{ steps.ipfs.outputs.ipfs }}`
           IPFS v1 hash: `${{ steps.ipfsv1.outputs.v1hash }}`
-          Gateways: 
-          - https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.cf-ipfs.com/
-          - https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.dweb.link/
-          - https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.4everland.io/
+          [CF](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.cf-ipfs.com) - [DWeb](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.dweb.link) - [4EVERLAND](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.4everland.io)
