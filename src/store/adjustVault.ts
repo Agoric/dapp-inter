@@ -10,7 +10,11 @@ import {
   ratioGTE,
 } from '@agoric/zoe/src/contractSupport/ratio';
 import { atom } from 'jotai';
-import { debtAfterDelta, lockedAfterDelta } from 'utils/vaultMath';
+import {
+  debtAfterChange,
+  istAvailable,
+  lockedAfterChange,
+} from 'utils/vaultMath';
 import { pursesAtom } from './app';
 import { vaultKeyToAdjustAtom, vaultStoreAtom } from './vaults';
 import type {
@@ -83,9 +87,31 @@ export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
   };
 });
 
-export const collateralDeltaValueAtom = atom<bigint | null>(null);
+export const collateralInputValueAtom = atom<bigint | null>(null);
 
-export const debtDeltaValueAtom = atom<bigint | null>(null);
+export const debtInputValueAtom = atom<bigint | null>(null);
+
+export const collateralInputAmountAtom = atom<Amount<'nat'> | null>(get => {
+  const collateralBrand = get(vaultToAdjustAtom)?.locked.brand;
+  const collateralInputValue = get(collateralInputValueAtom);
+
+  if (!collateralBrand || collateralInputValue === null) {
+    return null;
+  }
+
+  return AmountMath.make(collateralBrand, collateralInputValue);
+});
+
+export const debtInputAmountAtom = atom<Amount<'nat'> | null>(get => {
+  const debtBrand = get(vaultToAdjustAtom)?.totalDebt.brand;
+  const debtInputValue = get(debtInputValueAtom);
+
+  if (!debtBrand || debtInputValue === null) {
+    return null;
+  }
+
+  return AmountMath.make(debtBrand, debtInputValue);
+});
 
 export enum CollateralAction {
   None = 'No Action',
@@ -104,7 +130,7 @@ const collateralActionAtomInternal = atom(CollateralAction.None);
 export const collateralActionAtom = atom(
   get => get(collateralActionAtomInternal),
   (_get, set, action: CollateralAction) => {
-    set(collateralDeltaValueAtom, null);
+    set(collateralInputValueAtom, null);
     set(collateralActionAtomInternal, action);
   },
 );
@@ -114,7 +140,7 @@ const debtActionAtomInternal = atom(DebtAction.None);
 export const debtActionAtom = atom(
   get => get(debtActionAtomInternal),
   (_get, set, action: DebtAction) => {
-    set(debtDeltaValueAtom, null);
+    set(debtInputValueAtom, null);
     set(debtActionAtomInternal, action);
   },
 );
@@ -134,22 +160,22 @@ export const vaultAfterAdjustmentAtom = atom<VaultAfterAdjustment | null>(
 
     const debtAction = get(debtActionAtom);
     const collateralAction = get(collateralActionAtom);
-    const collateralDeltaValue = get(collateralDeltaValueAtom);
-    const debtDeltaValue = get(debtDeltaValueAtom);
+    const collateralInputAmount = get(collateralInputAmountAtom);
+    const debtInputAmount = get(debtInputAmountAtom);
 
     const { totalDebt, locked, params, collateralPrice } = vaultToAdjust;
 
-    const newDebt = debtAfterDelta(
+    const newDebt = debtAfterChange(
       debtAction,
       params.loanFee,
       totalDebt,
-      debtDeltaValue,
+      debtInputAmount,
     );
 
-    const newLocked = lockedAfterDelta(
+    const newLocked = lockedAfterChange(
       collateralAction,
       locked,
-      collateralDeltaValue,
+      collateralInputAmount,
     );
 
     const newLockedPrice = floorMultiplyBy(
@@ -177,8 +203,8 @@ export const adjustVaultErrorsAtom = atom(get => {
 
   const debtAction = get(debtActionAtom);
   const collateralAction = get(collateralActionAtom);
-  const collateralDeltaValue = get(collateralDeltaValueAtom);
-  const debtDeltaValue = get(debtDeltaValueAtom);
+  const collateralInputAmount = get(collateralInputAmountAtom);
+  const debtInputAmount = get(debtInputAmountAtom);
 
   const { params, metrics, totalDebt } = vaultToAdjust;
   const { newCollateralizationRatio, newDebt, newLocked } =
@@ -203,34 +229,32 @@ export const adjustVaultErrorsAtom = atom(get => {
   const collateralPurse = purses?.find(p => p.brand === newLocked.brand);
   const debtPurse = purses?.find(p => p.brand === newDebt.brand);
 
-  const debtPurseValue = (debtPurse?.currentAmount as Amount<'nat'> | undefined)
-    ?.value;
+  const debtPurseAmount = debtPurse?.currentAmount as Amount<'nat'> | undefined;
   if (
     debtAction === DebtAction.Repay &&
-    debtDeltaValue &&
-    (!debtPurseValue || debtPurseValue < debtDeltaValue)
+    debtInputAmount?.value &&
+    (!debtPurseAmount || !AmountMath.isGTE(debtPurseAmount, debtInputAmount))
   ) {
     debtError = 'Insufficient funds.';
   }
 
-  const collateralPurseValue = (
-    collateralPurse?.currentAmount as Amount<'nat'> | undefined
-  )?.value;
+  const collateralPurseAmount = collateralPurse?.currentAmount as
+    | Amount<'nat'>
+    | undefined;
   if (
     collateralAction === CollateralAction.Deposit &&
-    collateralDeltaValue &&
-    (!collateralPurseValue || collateralPurseValue < collateralDeltaValue)
+    collateralInputAmount?.value &&
+    (!collateralPurseAmount ||
+      !AmountMath.isGTE(collateralPurseAmount, collateralInputAmount))
   ) {
     collateralError = 'Insufficient funds.';
   }
 
   if (debtAction === DebtAction.Borrow) {
-    const istAvailable = AmountMath.subtract(
-      params.debtLimit,
-      metrics.totalDebt,
-    );
+    const mintedAvailable = istAvailable(params.debtLimit, metrics.totalDebt);
+
     const debtDelta = AmountMath.subtract(newDebt, totalDebt);
-    if (!AmountMath.isGTE(istAvailable, debtDelta)) {
+    if (!AmountMath.isGTE(mintedAvailable, debtDelta)) {
       debtError = 'Not enough IST available for this vault type.';
     }
   }

@@ -1,14 +1,16 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   adjustVaultErrorsAtom,
   CollateralAction,
   collateralActionAtom,
-  collateralDeltaValueAtom,
+  debtInputAmountAtom,
   DebtAction,
   debtActionAtom,
-  debtDeltaValueAtom,
+  collateralInputAmountAtom,
   vaultAfterAdjustmentAtom,
   vaultToAdjustAtom,
+  debtInputValueAtom,
+  collateralInputValueAtom,
 } from 'store/adjustVault';
 import { displayFunctionsAtom, pursesAtom } from 'store/app';
 import ErrorWarning from 'svg/error-warning';
@@ -17,13 +19,7 @@ import StyledDropdown from './StyledDropdown';
 import { PursesJSONState } from '@agoric/wallet-backend';
 import CloseVaultDialog from './CloseVaultDialog';
 import { useState } from 'react';
-import { AmountMath } from '@agoric/ertp';
-import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
-import {
-  addRatios,
-  floorDivideBy,
-  floorMultiplyBy,
-} from '@agoric/zoe/src/contractSupport/ratio';
+import { maxIstToBorrowFromVault } from 'utils/vaultMath';
 
 const AdjustVaultForm = () => {
   const displayFunctions = useAtomValue(displayFunctionsAtom);
@@ -39,10 +35,10 @@ const AdjustVaultForm = () => {
   const [debtAction, setDebtAction] = useAtom(debtActionAtom);
   const [collateralAction, setCollateralAction] = useAtom(collateralActionAtom);
 
-  const [debtDeltaValue, setDebtDeltaValue] = useAtom(debtDeltaValueAtom);
-  const [collateralDeltaValue, setCollateralDeltaValue] = useAtom(
-    collateralDeltaValueAtom,
-  );
+  const setDebtInputValue = useSetAtom(debtInputValueAtom);
+  const setCollateralInputValue = useSetAtom(collateralInputValueAtom);
+  const debtInputAmount = useAtomValue(debtInputAmountAtom);
+  const collateralInputAmount = useAtomValue(collateralInputAmountAtom);
 
   const purses = useAtomValue(pursesAtom);
   const collateralPurse = purses?.find(
@@ -66,7 +62,7 @@ const AdjustVaultForm = () => {
       return;
     }
 
-    setCollateralDeltaValue(collateralPurse.currentAmount.value);
+    setCollateralInputValue(collateralPurse.currentAmount.value);
   };
 
   const onMaxDebtClicked = () => {
@@ -77,45 +73,18 @@ const AdjustVaultForm = () => {
     }
 
     const { params, metrics, totalDebt, collateralPrice } = vaultToAdjust;
-
-    const istAvailableAfterLoanFee = AmountMath.subtract(
-      params.debtLimit,
-      metrics.totalDebt,
-    );
-
-    const loanFeeMultiplier = addRatios(
-      params.loanFee,
-      makeRatioFromAmounts(
-        params.loanFee.denominator,
-        params.loanFee.denominator,
-      ),
-    );
-
-    const istAvailableBeforeLoanFee = floorDivideBy(
-      istAvailableAfterLoanFee,
-      loanFeeMultiplier,
-    );
-
     const { newLocked } = vaultAfterAdjustment;
 
-    const newLockedValue = floorMultiplyBy(
-      newLocked,
-      makeRatioFromAmounts(collateralPrice.amountOut, collateralPrice.amountIn),
-    );
-
-    const maxDebtDeltaAfterLoanFee = AmountMath.subtract(
-      floorDivideBy(newLockedValue, params.inferredMinimumCollateralization),
-      totalDebt,
-    );
-
-    const maxDebtDeltaBeforeLoanFee = floorDivideBy(
-      maxDebtDeltaAfterLoanFee,
-      loanFeeMultiplier,
-    );
-
-    setDebtDeltaValue(
-      AmountMath.min(istAvailableBeforeLoanFee, maxDebtDeltaBeforeLoanFee)
-        .value,
+    setDebtInputValue(
+      maxIstToBorrowFromVault(
+        params.debtLimit,
+        metrics.totalDebt,
+        totalDebt,
+        params.loanFee,
+        newLocked,
+        collateralPrice,
+        params.inferredMinimumCollateralization,
+      ),
     );
   };
 
@@ -150,8 +119,8 @@ const AdjustVaultForm = () => {
             />
             <AmountInput
               brand={vaultToAdjust?.locked.brand}
-              value={collateralDeltaValue}
-              onChange={setCollateralDeltaValue}
+              value={collateralInputAmount?.value}
+              onChange={setCollateralInputValue}
               label="Amount"
               disabled={collateralAction === CollateralAction.None}
               error={collateralError}
@@ -188,8 +157,8 @@ const AdjustVaultForm = () => {
               suffix={displayBrandPetname(vaultToAdjust?.totalDebt.brand)}
             />
             <AmountInput
-              onChange={setDebtDeltaValue}
-              value={debtDeltaValue}
+              onChange={setDebtInputValue}
+              value={debtInputAmount?.value}
               brand={vaultToAdjust?.totalDebt.brand}
               label="Amount"
               disabled={debtAction === DebtAction.None}

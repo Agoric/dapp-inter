@@ -4,9 +4,9 @@ import { displayFunctionsAtom, offerSignerAtom } from 'store/app';
 import {
   adjustVaultErrorsAtom,
   collateralActionAtom,
-  collateralDeltaValueAtom,
+  collateralInputAmountAtom,
   debtActionAtom,
-  debtDeltaValueAtom,
+  debtInputAmountAtom,
   vaultAfterAdjustmentAtom,
   vaultToAdjustAtom,
 } from 'store/adjustVault';
@@ -58,8 +58,8 @@ const AdjustVaultSummary = () => {
   const { displayAmount, displayBrandPetname, displayPercent } =
     displayFunctions;
 
-  const debtDeltaValue = useAtomValue(debtDeltaValueAtom);
-  const collateralDeltaValue = useAtomValue(collateralDeltaValueAtom);
+  const debtInputAmount = useAtomValue(debtInputAmountAtom);
+  const collateralInputAmount = useAtomValue(collateralInputAmountAtom);
   const debtAction = useAtomValue(debtActionAtom);
   const collateralAction = useAtomValue(collateralActionAtom);
   const { collateralError, debtError } = useAtomValue(adjustVaultErrorsAtom);
@@ -83,14 +83,6 @@ const AdjustVaultSummary = () => {
 
   const offerSigner = useAtomValue(offerSignerAtom);
 
-  const offerButtonLabel = useMemo(() => {
-    if (!offerSigner?.isDappApproved) {
-      return 'Enable Dapp in Wallet';
-    }
-
-    return isActive ? 'Make Offer' : vaultState;
-  }, [isActive, offerSigner?.isDappApproved, vaultState]);
-
   const { newDebt, newLocked, newCollateralizationRatio } =
     vaultAfterAdjustment;
 
@@ -110,22 +102,45 @@ const AdjustVaultSummary = () => {
   const canMakeOffer =
     !hasErrors &&
     isActive &&
-    (debtDeltaValue || collateralDeltaValue) &&
+    (debtInputAmount?.value || collateralInputAmount?.value) &&
     offerSigner?.isDappApproved;
+
+  const isButtonDisabled = !canMakeOffer;
+
+  const offerButtonLabel = useMemo(() => {
+    if (!offerSigner?.isDappApproved) {
+      assert(
+        isButtonDisabled,
+        'Button should be disabled when dapp is not enabled in wallet',
+      );
+      return 'Enable Dapp in Wallet';
+    }
+
+    if (!isActive) {
+      assert(
+        isButtonDisabled,
+        'Button should be disabled when vault is not active',
+      );
+
+      return vaultState;
+    }
+
+    return 'Make Offer';
+  }, [isButtonDisabled, isActive, offerSigner?.isDappApproved, vaultState]);
 
   const makeAdjustOffer = async () => {
     assert(canMakeOffer);
 
-    const collateral = collateralDeltaValue
+    const collateral = collateralInputAmount
       ? {
-          amount: AmountMath.make(newLocked.brand, collateralDeltaValue),
+          amount: collateralInputAmount,
           action: collateralAction,
         }
       : undefined;
 
-    const debt = debtDeltaValue
+    const debt = debtInputAmount
       ? {
-          amount: AmountMath.make(newDebt.brand, debtDeltaValue),
+          amount: debtInputAmount,
           action: debtAction,
         }
       : undefined;
@@ -216,7 +231,7 @@ const AdjustVaultSummary = () => {
           )}
         >
           <button
-            disabled={!canMakeOffer}
+            disabled={isButtonDisabled}
             onClick={makeAdjustOffer}
             className={clsx(
               'transition w-full py-3 text-white font-extrabold text-sm rounded-[6px]',

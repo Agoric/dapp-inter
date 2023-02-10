@@ -1,9 +1,3 @@
-import { AmountMath } from '@agoric/ertp';
-import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
-import {
-  addRatios,
-  floorDivideBy,
-} from '@agoric/zoe/src/contractSupport/ratio';
 import AmountInput from 'components/AmountInput';
 import RatioPercentInput from 'components/RatioPercentInput';
 import { useAtom, useAtomValue } from 'jotai';
@@ -17,7 +11,7 @@ import {
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
 import { usePurseBalanceDisplay, usePurseForBrand } from 'utils/hooks';
-import { computeToLock } from 'utils/vaultMath';
+import { maxCollateralForNewVault } from 'utils/vaultMath';
 
 const ConfigureNewVault = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
@@ -90,41 +84,15 @@ const ConfigureNewVault = () => {
       return;
     }
 
-    const istAvailableAfterLoanFee = AmountMath.subtract(
-      selectedParams.debtLimit,
-      selectedMetrics.totalDebt,
-    );
-
-    const loanFeeMultiplier = addRatios(
-      selectedParams.loanFee,
-      makeRatioFromAmounts(
-        selectedParams.loanFee.denominator,
-        selectedParams.loanFee.denominator,
-      ),
-    );
-
-    const istAvailableBeforeLoanFee = floorDivideBy(
-      istAvailableAfterLoanFee,
-      loanFeeMultiplier,
-    );
-
-    const price = prices.get(collateralBrand);
-
-    const collateralForAvailableIst = computeToLock(
-      makeRatioFromAmounts(price.amountOut, price.amountIn),
-      collateralizationRatio,
-      istAvailableBeforeLoanFee.value,
-      collateralizationRatio,
-      selectedParams.loanFee,
-    );
-
-    const collateralPurseBalance = purse.currentAmount;
-
     setValueToLock(
-      AmountMath.min(
-        AmountMath.make(collateralBrand, collateralForAvailableIst),
-        collateralPurseBalance,
-      ).value,
+      maxCollateralForNewVault(
+        selectedParams.debtLimit,
+        selectedMetrics.totalDebt,
+        selectedParams.loanFee,
+        prices.get(collateralBrand),
+        collateralizationRatio,
+        purse.currentAmount,
+      ),
     );
   };
 

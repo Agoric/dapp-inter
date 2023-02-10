@@ -14,7 +14,7 @@ type Props = {
   primaryActionDisabled?: boolean;
 };
 
-const BaseDialog = ({
+const ActionsDialog = ({
   isOpen,
   onClose,
   title,
@@ -90,4 +90,4 @@ const BaseDialog = ({
   );
 };
 
-export default BaseDialog;
+export default ActionsDialog;

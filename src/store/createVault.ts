@@ -1,7 +1,7 @@
 import { atom } from 'jotai';
 import { vaultStoreAtom } from './vaults';
 import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
-import { computeToLock, computeToReceive } from 'utils/vaultMath';
+import { computeToLock, computeToReceive, istAvailable } from 'utils/vaultMath';
 import { pursesAtom } from './app';
 import {
   addRatios,
@@ -238,7 +238,7 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
       : null;
 
   if (selectedMetrics && selectedParams && valueToReceive) {
-    const istAvailable = AmountMath.subtract(
+    const mintedAvailable = istAvailable(
       selectedParams.debtLimit,
       selectedMetrics.totalDebt,
     ).value;
@@ -254,7 +254,7 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
       loanFeeMultiplier,
     ).value;
 
-    if (istAvailable < resultingDebt) {
+    if (mintedAvailable < resultingDebt) {
       toReceiveError = 'Exceeds amount available';
     }
   }

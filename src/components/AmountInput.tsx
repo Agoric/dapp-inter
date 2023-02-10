@@ -8,6 +8,10 @@ import type { Brand } from '@agoric/ertp/src/types';
 import type { Ref } from 'react';
 import clsx from 'clsx';
 
+const noop = () => {
+  /* no-op */
+};
+
 type Props = {
   value?: bigint | null;
   label?: string;
@@ -28,12 +32,8 @@ const AmountInput = (
     error,
     suffix,
     actionLabel,
-    onChange = () => {
-      /* noop */
-    },
-    onAction = () => {
-      /* noop */
-    },
+    onChange = noop,
+    onAction = noop,
     disabled = false,
   }: Props,
   ref: Ref<HTMLInputElement>,

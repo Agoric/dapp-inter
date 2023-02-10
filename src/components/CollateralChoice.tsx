@@ -1,10 +1,10 @@
 import { useAtom } from 'jotai';
 import { useVaultStore } from 'store/vaults';
-import { AmountMath } from '@agoric/ertp';
 import { selectedCollateralIdAtom } from 'store/createVault';
 import clsx from 'clsx';
 import { useEffect } from 'react';
 import type { DisplayFunctions } from 'store/app';
+import { istAvailable } from 'utils/vaultMath';
 
 type TableTowParams = { left: string; right: string };
 
@@ -109,7 +109,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
     displayBrandIcon,
   } = displayFunctions;
 
-  const istAvailable = AmountMath.subtract(params.debtLimit, metrics.totalDebt);
+  const mintedAvailable = istAvailable(params.debtLimit, metrics.totalDebt);
 
   const logoSrc = displayBrandIcon(metrics.totalCollateral.brand);
 
@@ -169,7 +169,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
           <TableRow
             left="IST Available"
             right={`${displayAmount(
-              istAvailable,
+              mintedAvailable,
               2,
               'locale',
             )} ${displayBrandPetname(params.debtLimit.brand)}`}

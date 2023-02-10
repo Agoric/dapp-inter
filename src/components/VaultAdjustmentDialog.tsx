@@ -2,7 +2,7 @@ import { signerTarget } from 'config';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { walletUiHrefAtom } from 'store/app';
 import { ViewMode, viewModeAtom } from 'store/vaults';
-import BaseDialog from './BaseDialog';
+import ActionsDialog from './ActionsDialog';
 
 type Props = {
   isOpen: boolean;
@@ -26,7 +26,7 @@ const VaultAdjustmentDialog = ({ isOpen, onClose }: Props) => {
   };
 
   return (
-    <BaseDialog
+    <ActionsDialog
       title="Success: Offer Submitted"
       body={<p>{message}</p>}
       isOpen={isOpen}

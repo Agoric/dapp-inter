@@ -9,7 +9,7 @@ import {
 } from 'store/app';
 import { ViewMode, viewModeAtom } from 'store/vaults';
 import { motion } from 'framer-motion';
-import BaseDialog from './BaseDialog';
+import ActionsDialog from './ActionsDialog';
 import type { Amount } from '@agoric/ertp/src/types';
 
 type TableRowProps = {
@@ -137,7 +137,7 @@ const CloseVaultDialog = ({
   );
 
   return (
-    <BaseDialog
+    <ActionsDialog
       title="Are you sure you want to close your vault?"
       body={body}
       isOpen={isOpen}
