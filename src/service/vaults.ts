@@ -217,6 +217,8 @@ export const watchVaultFactory = (netconfigUrl: string) => {
 
       // The real debt limit can actually never be reached, only 1 less than
       // the debt limit can be enforced by the contract.
+      //
+      // AFTER: https://github.com/Agoric/agoric-sdk/issues/6969 remove this.
       const effectiveDebtLimit =
         debtLimit.value > 0n
           ? AmountMath.make(debtLimit.brand, debtLimit.value - 1n)
