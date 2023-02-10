@@ -4,13 +4,14 @@ import type { Brand, Amount } from '@agoric/ertp/src/types';
 import { atom } from 'jotai';
 
 // XXX PriceDescription type not exported from zoe package
-import {
-  getPriceDescription,
-  makeRatio,
-} from '@agoric/zoe/src/contractSupport';
+import { getPriceDescription } from '@agoric/zoe/src/contractSupport';
 import { atomWithStore } from 'jotai-zustand';
+
 export type PriceDescription = ReturnType<typeof getPriceDescription>;
-export type Ratio = ReturnType<typeof makeRatio>;
+export type Ratio = {
+  numerator: Amount<'nat'>;
+  denominator: Amount<'nat'>;
+};
 
 export enum ViewMode {
   // Manage all vaults.
@@ -49,13 +50,22 @@ export type VaultFactoryParams = {
   minInitialDebt: Amount<'nat'>;
 };
 
+// XXX Should get type from
+// https://github.com/Agoric/agoric-sdk/blob/1323a207983fbdb69aa09752d613d8d695324d4a/packages/inter-protocol/src/vaultFactory/vault.js#L58-L64
+export type VaultPhase =
+  | 'active'
+  | 'liquidated'
+  | 'liquidating'
+  | 'closed'
+  | 'transfer';
+
 export type VaultInfoChainData = {
   debtSnapshot?: {
     debt: Amount<'nat'>;
     interest: Ratio;
   };
   locked?: Amount<'nat'>;
-  vaultState?: string;
+  vaultState?: VaultPhase;
 };
 
 export type VaultInfo = VaultInfoChainData & {

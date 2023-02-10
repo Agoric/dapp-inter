@@ -28,7 +28,7 @@ const VaultAdjustmentDialog = ({ isOpen, onClose }: Props) => {
   return (
     <BaseDialog
       title="Success: Offer Submitted"
-      message={message}
+      body={<p>{message}</p>}
       isOpen={isOpen}
       onClose={onClose}
       onPrimaryAction={goToWallet}

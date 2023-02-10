@@ -79,7 +79,7 @@ export const debtAfterDelta = (
   loanFee: Ratio,
   totalDebt: Amount<'nat'>,
   debtDeltaValue: bigint | null,
-) => {
+): Amount<'nat'> => {
   if (debtAction === DebtAction.None || !debtDeltaValue) {
     return totalDebt;
   }
@@ -110,7 +110,7 @@ export const lockedAfterDelta = (
   collateralAction: CollateralAction,
   locked: Amount<'nat'>,
   collateralDeltaValue: bigint | null,
-) => {
+): Amount<'nat'> => {
   if (collateralAction === CollateralAction.None || !collateralDeltaValue) {
     return locked;
   }

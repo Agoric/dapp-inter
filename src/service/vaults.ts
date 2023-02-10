@@ -451,3 +451,48 @@ export const makeAdjustVaultOffer = async ({
     toast.error('Unable to propose offer.');
   }
 };
+
+export const makeCloseVaultOffer = async (
+  vaultOfferId: string,
+  collateral?: Amount<'nat'>,
+  debt?: Amount<'nat'>,
+) => {
+  const invitationSpec = {
+    source: 'continuing',
+    previousOffer: vaultOfferId,
+    invitationMakerName: 'CloseVault',
+  };
+
+  const { importContext, offerSigner } = appStore.getState();
+
+  const collateralToWant = collateral
+    ? {
+        amount: importContext.fromBoard.serialize(collateral),
+      }
+    : undefined;
+
+  const mintedToGive = collateral
+    ? {
+        amount: importContext.fromBoard.serialize(debt),
+      }
+    : undefined;
+
+  const proposal = {
+    give: { Minted: mintedToGive },
+    want: { Collateral: collateralToWant },
+  };
+
+  const offerConfig = {
+    invitationSpec,
+    proposalTemplate: harden(proposal),
+  };
+
+  try {
+    assert(offerSigner.addOffer);
+    offerSigner.addOffer(offerConfig);
+    console.log('Offer proposed', offerConfig);
+  } catch (e: unknown) {
+    console.error(e);
+    toast.error('Unable to propose offer.');
+  }
+};
