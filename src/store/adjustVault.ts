@@ -26,6 +26,7 @@ type VaultToAdjust = {
   metrics: VaultMetrics;
   collateralizationRatio?: Ratio;
   createdByOfferId: string;
+  vaultState?: string;
 };
 
 export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
