@@ -191,10 +191,13 @@ export const maxIstToBorrowFromVault = (
     makeRatioFromAmounts(price.amountOut, price.amountIn),
   );
 
-  const maxDebtDeltaAfterLoanFee = AmountMath.subtract(
-    floorDivideBy(lockedValue, minCollateralization),
+  const currentDebtCeiling = floorDivideBy(lockedValue, minCollateralization);
+  const maxDebtDeltaAfterLoanFee = AmountMath.isGTE(
+    currentDebtCeiling,
     currentDebt,
-  );
+  )
+    ? AmountMath.subtract(currentDebtCeiling, currentDebt)
+    : AmountMath.makeEmpty(currentDebt.brand);
 
   const maxDebtDeltaBeforeLoanFee = floorDivideBy(
     maxDebtDeltaAfterLoanFee,
