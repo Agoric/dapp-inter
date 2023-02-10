@@ -5,7 +5,10 @@ import {
   ceilMultiplyBy,
   makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
-import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
+import {
+  floorMultiplyBy,
+  ratioGTE,
+} from '@agoric/zoe/src/contractSupport/ratio';
 import { atom } from 'jotai';
 import { debtAfterDelta, lockedAfterDelta } from 'utils/vaultMath';
 import { pursesAtom } from './app';
@@ -149,7 +152,7 @@ export const vaultAfterAdjustmentAtom = atom<VaultAfterAdjustment | null>(
       collateralDeltaValue,
     );
 
-    const newLockedPrice = ceilMultiplyBy(
+    const newLockedPrice = floorMultiplyBy(
       newLocked,
       makeRatioFromAmounts(collateralPrice.amountOut, collateralPrice.amountIn),
     );

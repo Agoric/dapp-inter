@@ -1,9 +1,10 @@
 import clsx from 'clsx';
-import React, { forwardRef, Ref } from 'react';
+import React, { forwardRef, ReactElement, Ref } from 'react';
 
 type Props = {
   label?: string;
   error?: string;
+  prefix?: ReactElement;
   suffix?: string;
   inputProps?: React.DetailedHTMLProps<
     React.InputHTMLAttributes<HTMLInputElement>,
@@ -12,7 +13,7 @@ type Props = {
 };
 
 const StyledInput = (
-  { label, error, inputProps, suffix }: Props,
+  { label, error, inputProps, suffix, prefix }: Props,
   ref: Ref<HTMLInputElement>,
 ) => (
   <div>
@@ -27,12 +28,18 @@ const StyledInput = (
           : 'from-[#FF7A1A] to-[#FFD81A]',
       )}
     >
+      {prefix && (
+        <div className="p-2 pr-1 rounded-l-sm text-sm bg-white text-gray-400">
+          {prefix}
+        </div>
+      )}
       <input
         {...inputProps}
         ref={ref}
         className={clsx(
-          'p-3 w-full bg-white rounded-l-sm outline-none text-sm font-medium placeholder:font-normal placeholder:text-gray-400 text-right align-middle',
+          'p-3 w-full bg-white outline-none text-sm font-medium placeholder:font-normal placeholder:text-gray-400 text-right align-middle',
           suffix && 'rounded-r-sm',
+          prefix ? '' : 'rounded-l-sm',
           inputProps?.disabled && 'text-gray-400',
         )}
       ></input>

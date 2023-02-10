@@ -3,6 +3,8 @@ import { displayFunctionsAtom } from 'store/app';
 import { Ratio } from 'store/vaults';
 import { makeRatio } from '@agoric/zoe/src/contractSupport';
 import StyledInput from './StyledInput';
+import { forwardRef } from 'react';
+import type { Ref } from 'react';
 
 type Props = {
   value?: Ratio | null;
@@ -12,13 +14,10 @@ type Props = {
   disabled?: boolean;
 };
 
-const AmountInput = ({
-  value,
-  onChange,
-  label,
-  error,
-  disabled = false,
-}: Props) => {
+const AmountInput = (
+  { value, onChange, label, error, disabled = false }: Props,
+  ref: Ref<HTMLInputElement>,
+) => {
   const { displayPercent, getDecimalPlaces } =
     useAtomValue(displayFunctionsAtom) ?? {};
 
@@ -77,8 +76,9 @@ const AmountInput = ({
         value: displayValue,
         onChange: handleInputChange,
       }}
+      ref={ref}
     />
   );
 };
 
-export default AmountInput;
+export default forwardRef(AmountInput);

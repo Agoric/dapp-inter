@@ -24,3 +24,9 @@ export const usePurseBalanceDisplay = (brand?: Brand<'nat'> | null) => {
     )} ${displayBrandPetname(brand)}`;
   }, [brand, displayAmount, displayBrandPetname, purses]);
 };
+
+export const usePurseForBrand = (brand?: Brand<'nat'> | null) => {
+  const purses = useAtomValue(pursesAtom);
+
+  return purses?.find(p => p.brand === brand);
+};

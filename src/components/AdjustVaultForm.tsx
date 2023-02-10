@@ -7,6 +7,7 @@ import {
   DebtAction,
   debtActionAtom,
   debtDeltaValueAtom,
+  vaultAfterAdjustmentAtom,
   vaultToAdjustAtom,
 } from 'store/adjustVault';
 import { displayFunctionsAtom, pursesAtom } from 'store/app';
@@ -16,6 +17,13 @@ import StyledDropdown from './StyledDropdown';
 import { PursesJSONState } from '@agoric/wallet-backend';
 import CloseVaultDialog from './CloseVaultDialog';
 import { useState } from 'react';
+import { AmountMath } from '@agoric/ertp';
+import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
+import {
+  addRatios,
+  floorDivideBy,
+  floorMultiplyBy,
+} from '@agoric/zoe/src/contractSupport/ratio';
 
 const AdjustVaultForm = () => {
   const displayFunctions = useAtomValue(displayFunctionsAtom);
@@ -26,6 +34,7 @@ const AdjustVaultForm = () => {
   const { displayBrandPetname } = displayFunctions;
 
   const vaultToAdjust = useAtomValue(vaultToAdjustAtom);
+  const vaultAfterAdjustment = useAtomValue(vaultAfterAdjustmentAtom);
 
   const [debtAction, setDebtAction] = useAtom(debtActionAtom);
   const [collateralAction, setCollateralAction] = useAtom(collateralActionAtom);
@@ -48,6 +57,67 @@ const AdjustVaultForm = () => {
   const [isCloseVaultDialogOpen, setIsCloseVaultDialogOpen] = useState(false);
 
   const isActive = vaultToAdjust?.vaultState === 'active';
+
+  const onMaxCollateralClicked = () => {
+    assert(collateralAction === CollateralAction.Deposit);
+
+    if (!collateralPurse) {
+      /* no-op */
+      return;
+    }
+
+    setCollateralDeltaValue(collateralPurse.currentAmount.value);
+  };
+
+  const onMaxDebtClicked = () => {
+    assert(debtAction === DebtAction.Borrow);
+    if (!(vaultToAdjust && vaultAfterAdjustment)) {
+      /* no-op */
+      return;
+    }
+
+    const { params, metrics, totalDebt, collateralPrice } = vaultToAdjust;
+
+    const istAvailableAfterLoanFee = AmountMath.subtract(
+      params.debtLimit,
+      metrics.totalDebt,
+    );
+
+    const loanFeeMultiplier = addRatios(
+      params.loanFee,
+      makeRatioFromAmounts(
+        params.loanFee.denominator,
+        params.loanFee.denominator,
+      ),
+    );
+
+    const istAvailableBeforeLoanFee = floorDivideBy(
+      istAvailableAfterLoanFee,
+      loanFeeMultiplier,
+    );
+
+    const { newLocked } = vaultAfterAdjustment;
+
+    const newLockedValue = floorMultiplyBy(
+      newLocked,
+      makeRatioFromAmounts(collateralPrice.amountOut, collateralPrice.amountIn),
+    );
+
+    const maxDebtDeltaAfterLoanFee = AmountMath.subtract(
+      floorDivideBy(newLockedValue, params.inferredMinimumCollateralization),
+      totalDebt,
+    );
+
+    const maxDebtDeltaBeforeLoanFee = floorDivideBy(
+      maxDebtDeltaAfterLoanFee,
+      loanFeeMultiplier,
+    );
+
+    setDebtDeltaValue(
+      AmountMath.min(istAvailableBeforeLoanFee, maxDebtDeltaBeforeLoanFee)
+        .value,
+    );
+  };
 
   return (
     <>
@@ -85,6 +155,12 @@ const AdjustVaultForm = () => {
               label="Amount"
               disabled={collateralAction === CollateralAction.None}
               error={collateralError}
+              actionLabel={
+                collateralAction === CollateralAction.Deposit
+                  ? 'Max'
+                  : undefined
+              }
+              onAction={onMaxCollateralClicked}
             />
           </div>
         </div>
@@ -118,6 +194,8 @@ const AdjustVaultForm = () => {
               label="Amount"
               disabled={debtAction === DebtAction.None}
               error={debtError}
+              actionLabel={debtAction === DebtAction.Borrow ? 'Max' : undefined}
+              onAction={onMaxDebtClicked}
             />
           </div>
         </div>

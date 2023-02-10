@@ -16,7 +16,7 @@ export const computeToReceive = (
   toLock: bigint,
   defaultCollateralization: Ratio,
   loanFee: Ratio,
-) => {
+): bigint => {
   const collateralizationRatioOrDefault =
     collateralizationRatio.numerator.value === 0n
       ? defaultCollateralization
@@ -47,7 +47,7 @@ export const computeToLock = (
   toReceive: bigint,
   defaultCollateralization: Ratio,
   loanFee: Ratio,
-) => {
+): bigint => {
   const collateralizationRatioOrDefault =
     collateralizationRatio.numerator.value === 0n
       ? defaultCollateralization

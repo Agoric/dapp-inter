@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
 import { useAtomValue } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
 import { stringifyValue, parseAsValue } from '@agoric/ui-components';
 import { AssetKind } from '@agoric/ertp';
-import type { Brand } from '@agoric/ertp/src/types';
 import StyledInput from './StyledInput';
+import type { Brand } from '@agoric/ertp/src/types';
+import type { Ref } from 'react';
+import clsx from 'clsx';
 
 type Props = {
   value?: bigint | null;
@@ -12,21 +14,30 @@ type Props = {
   error?: string;
   brand?: Brand | null;
   suffix?: string;
+  actionLabel?: string;
   onChange?: (value: bigint) => void;
+  onAction?: () => void;
   disabled?: boolean;
 };
 
-const AmountInput = ({
-  value,
-  brand,
-  label,
-  error,
-  suffix,
-  onChange = () => {
-    /* noop */
-  },
-  disabled = false,
-}: Props) => {
+const AmountInput = (
+  {
+    value,
+    brand,
+    label,
+    error,
+    suffix,
+    actionLabel,
+    onChange = () => {
+      /* noop */
+    },
+    onAction = () => {
+      /* noop */
+    },
+    disabled = false,
+  }: Props,
+  ref: Ref<HTMLInputElement>,
+) => {
   const { getDecimalPlaces } = useAtomValue(displayFunctionsAtom) ?? {};
 
   const decimalPlaces =
@@ -67,10 +78,24 @@ const AmountInput = ({
       ? fieldString
       : amountString;
 
+  const prefix = actionLabel ? (
+    <button
+      className={clsx(
+        'rounded bg-gray-100 py-1 px-2 transition font-medium font-sans',
+        disabled ? '' : 'hover:text-mineShaft hover:bg-gray-200',
+      )}
+      onClick={onAction}
+      disabled={disabled}
+    >
+      {actionLabel}
+    </button>
+  ) : undefined;
+
   return (
     <StyledInput
       label={label}
       error={error}
+      prefix={prefix}
       suffix={suffix}
       inputProps={{
         type: 'number',
@@ -80,8 +105,9 @@ const AmountInput = ({
         value: displayString,
         onChange: handleInputChange,
       }}
+      ref={ref}
     />
   );
 };
 
-export default AmountInput;
+export default forwardRef(AmountInput);
