@@ -1,4 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react';
+import clsx from 'clsx';
 import { Fragment, ReactElement } from 'react';
 
 type Props = {
@@ -10,6 +11,7 @@ type Props = {
   body: ReactElement;
   primaryActionLabel: string;
   secondaryActionLabel: string;
+  primaryActionDisabled?: boolean;
 };
 
 const BaseDialog = ({
@@ -21,6 +23,7 @@ const BaseDialog = ({
   secondaryActionLabel,
   onPrimaryAction,
   onSecondaryAction,
+  primaryActionDisabled = false,
 }: Props) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
@@ -65,7 +68,13 @@ const BaseDialog = ({
                       {secondaryActionLabel}
                     </button>
                     <button
-                      className="text-btn-xs flex justify-center rounded border border-transparent text-white bg-interPurple px-16 py-3 hover:opacity-80 active:opacity-60"
+                      disabled={primaryActionDisabled}
+                      className={clsx(
+                        'text-btn-xs flex justify-center rounded border border-transparent text-white px-16 py-3',
+                        primaryActionDisabled
+                          ? 'bg-gray-400 cursor-not-allowed'
+                          : 'bg-interPurple hover:opacity-80 active:opacity-60',
+                      )}
                       onClick={onPrimaryAction}
                     >
                       {primaryActionLabel}

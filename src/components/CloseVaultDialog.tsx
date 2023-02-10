@@ -2,7 +2,11 @@ import { signerTarget } from 'config';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
 import { makeCloseVaultOffer } from 'service/vaults';
-import { displayFunctionsAtom, walletUiHrefAtom } from 'store/app';
+import {
+  displayFunctionsAtom,
+  offerSignerAtom,
+  walletUiHrefAtom,
+} from 'store/app';
 import { ViewMode, viewModeAtom } from 'store/vaults';
 import { motion } from 'framer-motion';
 import BaseDialog from './BaseDialog';
@@ -52,6 +56,7 @@ const CloseVaultDialog = ({
   const walletUrl = useAtomValue(walletUiHrefAtom);
   const setViewMode = useSetAtom(viewModeAtom);
   const [hasSentOffer, setHasSentOffer] = useState(false);
+  const offerSigner = useAtomValue(offerSignerAtom);
 
   const goToWallet = () => {
     window.open(walletUrl, signerTarget);
@@ -141,6 +146,7 @@ const CloseVaultDialog = ({
       onSecondaryAction={secondaryAction}
       primaryActionLabel={primaryActionLabel}
       secondaryActionLabel={secondaryActionLabel}
+      primaryActionDisabled={!offerSigner?.isDappApproved}
     />
   );
 };

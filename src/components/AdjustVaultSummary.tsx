@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
-import { displayFunctionsAtom } from 'store/app';
+import { displayFunctionsAtom, offerSignerAtom } from 'store/app';
 import {
   adjustVaultErrorsAtom,
   collateralActionAtom,
@@ -13,7 +13,7 @@ import {
 import { AmountMath } from '@agoric/ertp';
 import { makeAdjustVaultOffer } from 'service/vaults';
 import VaultAdjustmentDialog from './VaultAdjustmentDialog';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 type TableRowProps = {
   left: string;
@@ -80,7 +80,16 @@ const AdjustVaultSummary = () => {
   } = vaultToAdjust;
 
   const isActive = vaultState === 'active';
-  const offerButtonLabel = isActive ? 'Make Offer' : vaultState;
+
+  const offerSigner = useAtomValue(offerSignerAtom);
+
+  const offerButtonLabel = useMemo(() => {
+    if (!offerSigner?.isDappApproved) {
+      return 'Enable Dapp in Wallet';
+    }
+
+    return isActive ? 'Make Offer' : vaultState;
+  }, [isActive, offerSigner?.isDappApproved, vaultState]);
 
   const { newDebt, newLocked, newCollateralizationRatio } =
     vaultAfterAdjustment;
@@ -99,7 +108,10 @@ const AdjustVaultSummary = () => {
 
   const hasErrors = collateralError || debtError;
   const canMakeOffer =
-    !hasErrors && isActive && (debtDeltaValue || collateralDeltaValue);
+    !hasErrors &&
+    isActive &&
+    (debtDeltaValue || collateralDeltaValue) &&
+    offerSigner?.isDappApproved;
 
   const makeAdjustOffer = async () => {
     assert(canMakeOffer);

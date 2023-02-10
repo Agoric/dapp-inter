@@ -375,12 +375,13 @@ export const makeOpenVaultOffer = async (
   };
 
   try {
-    assert(offerSigner.addOffer);
+    assert(offerSigner.addOffer && offerSigner.isDappApproved);
     offerSigner.addOffer(offerConfig);
     console.log('Offer proposed', offerConfig);
   } catch (e: unknown) {
     console.error(e);
     toast.error('Unable to propose offer.');
+    throw e;
   }
 };
 
@@ -443,12 +444,13 @@ export const makeAdjustVaultOffer = async ({
   };
 
   try {
-    assert(offerSigner.addOffer);
+    assert(offerSigner.addOffer && offerSigner.isDappApproved);
     offerSigner.addOffer(offerConfig);
     console.log('Offer proposed', offerConfig);
   } catch (e: unknown) {
     console.error(e);
     toast.error('Unable to propose offer.');
+    throw e;
   }
 };
 
@@ -488,11 +490,12 @@ export const makeCloseVaultOffer = async (
   };
 
   try {
-    assert(offerSigner.addOffer);
+    assert(offerSigner.addOffer && offerSigner.isDappApproved);
     offerSigner.addOffer(offerConfig);
     console.log('Offer proposed', offerConfig);
   } catch (e: unknown) {
     console.error(e);
     toast.error('Unable to propose offer.');
+    throw e;
   }
 };
