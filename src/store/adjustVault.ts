@@ -9,12 +9,14 @@ import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
 import { atom } from 'jotai';
 import { debtAfterDelta, lockedAfterDelta } from 'utils/vaultMath';
 import { pursesAtom } from './app';
-import {
+import { vaultKeyToAdjustAtom, vaultStoreAtom } from './vaults';
+import type {
+  VaultMetrics,
+  VaultParams,
+  Ratio,
+  VaultPhase,
   PriceDescription,
-  vaultKeyToAdjustAtom,
-  vaultStoreAtom,
 } from './vaults';
-import type { VaultMetrics, VaultParams, Ratio } from './vaults';
 
 type VaultToAdjust = {
   totalLockedValue: Amount<'nat'>;
@@ -26,7 +28,7 @@ type VaultToAdjust = {
   metrics: VaultMetrics;
   collateralizationRatio?: Ratio;
   createdByOfferId: string;
-  vaultState?: string;
+  vaultState?: VaultPhase;
 };
 
 export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
