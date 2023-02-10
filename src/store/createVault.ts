@@ -66,7 +66,12 @@ export const valueToLockAtom = atom(
     const { priceRate, defaultCollateralizationRatio, loanFee } =
       getVaultInputData(get, selectedCollateralId);
 
-    if (priceRate && defaultCollateralizationRatio && collateralizationRatio) {
+    if (
+      priceRate &&
+      defaultCollateralizationRatio &&
+      collateralizationRatio &&
+      loanFee
+    ) {
       set(
         valueToReceiveInternal,
         computeToReceive(
@@ -95,7 +100,12 @@ export const valueToReceiveAtom = atom(
     const { priceRate, defaultCollateralizationRatio, loanFee } =
       getVaultInputData(get, selectedCollateralId);
 
-    if (priceRate && defaultCollateralizationRatio && collateralizationRatio) {
+    if (
+      priceRate &&
+      defaultCollateralizationRatio &&
+      collateralizationRatio &&
+      loanFee
+    ) {
       set(
         valueToLockInternal,
         computeToLock(
@@ -124,7 +134,7 @@ export const collateralizationRatioAtom = atom(
     const { priceRate, defaultCollateralizationRatio, loanFee } =
       getVaultInputData(get, selectedCollateralId);
 
-    if (priceRate && defaultCollateralizationRatio) {
+    if (priceRate && defaultCollateralizationRatio && loanFee) {
       set(
         valueToReceiveInternal,
         computeToReceive(
@@ -168,7 +178,12 @@ export const selectedCollateralIdAtom = atom(
       set(valueToReceiveInternal, null);
     }
 
-    if (defaultCollateralizationRatio && priceRate && defaultValueReceived) {
+    if (
+      defaultCollateralizationRatio &&
+      priceRate &&
+      defaultValueReceived &&
+      loanFee
+    ) {
       const valueToLock = computeToLock(
         priceRate,
         defaultCollateralizationRatio,

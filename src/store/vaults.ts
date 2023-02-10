@@ -4,13 +4,13 @@ import type { Brand, Amount } from '@agoric/ertp/src/types';
 import { atom } from 'jotai';
 
 // XXX PriceDescription type not exported from zoe package
-import {
-  getPriceDescription,
-  makeRatio,
-} from '@agoric/zoe/src/contractSupport';
+import { getPriceDescription } from '@agoric/zoe/src/contractSupport';
 import { atomWithStore } from 'jotai-zustand';
 export type PriceDescription = ReturnType<typeof getPriceDescription>;
-export type Ratio = ReturnType<typeof makeRatio>;
+export type Ratio = {
+  numerator: Amount<'nat'>;
+  denominator: Amount<'nat'>;
+};
 
 export enum ViewMode {
   // Manage all vaults.
