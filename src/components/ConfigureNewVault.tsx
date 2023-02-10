@@ -10,7 +10,8 @@ import {
   valueToReceiveAtom,
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
-import { usePurseBalanceDisplay } from 'utils/hooks';
+import { usePurseBalanceDisplay, usePurseForBrand } from 'utils/hooks';
+import { maxCollateralForNewVault } from 'utils/vaultMath';
 
 const ConfigureNewVault = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
@@ -66,6 +67,35 @@ const ConfigureNewVault = () => {
       ? `${displayBrandPetname(collateralBrand)} to lock up *`
       : 'To lock up *';
 
+  const purse = usePurseForBrand(collateralBrand);
+
+  const onMaxClicked = () => {
+    if (
+      collateralizationRatioError ||
+      !(
+        selectedParams?.debtLimit &&
+        selectedMetrics?.totalDebt &&
+        purse &&
+        collateralBrand &&
+        collateralizationRatio
+      )
+    ) {
+      /* no-op */
+      return;
+    }
+
+    setValueToLock(
+      maxCollateralForNewVault(
+        selectedParams.debtLimit,
+        selectedMetrics.totalDebt,
+        selectedParams.loanFee,
+        prices.get(collateralBrand),
+        collateralizationRatio,
+        purse.currentAmount,
+      ),
+    );
+  };
+
   return (
     <div className="mt-8 px-12 py-8 bg-white rounded-[20px] shadow-[0_40px_40px_0_rgba(116,116,116,0.25)]">
       <h3 className="mb-3 font-serif font-bold leading-[26px]">Configure</h3>
@@ -83,6 +113,8 @@ const ConfigureNewVault = () => {
           disabled={!isInputReady}
           label={toLockLabel}
           error={toLockError}
+          actionLabel="Max"
+          onAction={onMaxClicked}
         />
         <RatioPercentInput
           onChange={setCollateralizationRatio}

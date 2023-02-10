@@ -1,9 +1,13 @@
 import { atom } from 'jotai';
 import { vaultStoreAtom } from './vaults';
 import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
-import { computeToLock, computeToReceive } from 'utils/vaultMath';
+import { computeToLock, computeToReceive, istAvailable } from 'utils/vaultMath';
 import { pursesAtom } from './app';
-import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
+import {
+  addRatios,
+  ceilMultiplyBy,
+  ratioGTE,
+} from '@agoric/zoe/src/contractSupport/ratio';
 import { AmountMath } from '@agoric/ertp';
 import type { Ratio } from './vaults';
 import type { Amount } from '@agoric/ertp/src/types';
@@ -234,12 +238,23 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
       : null;
 
   if (selectedMetrics && selectedParams && valueToReceive) {
-    const istAvailable = AmountMath.subtract(
+    const mintedAvailable = istAvailable(
       selectedParams.debtLimit,
       selectedMetrics.totalDebt,
     ).value;
 
-    if (istAvailable < valueToReceive) {
+    const { loanFee } = selectedParams;
+    const loanFeeMultiplier = addRatios(
+      loanFee,
+      makeRatioFromAmounts(loanFee.denominator, loanFee.denominator),
+    );
+
+    const resultingDebt = ceilMultiplyBy(
+      AmountMath.make(selectedMetrics.totalDebt.brand, valueToReceive),
+      loanFeeMultiplier,
+    ).value;
+
+    if (mintedAvailable < resultingDebt) {
       toReceiveError = 'Exceeds amount available';
     }
   }

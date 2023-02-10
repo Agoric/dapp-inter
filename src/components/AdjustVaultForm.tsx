@@ -1,13 +1,16 @@
-import { useAtom, useAtomValue } from 'jotai';
+import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import {
   adjustVaultErrorsAtom,
   CollateralAction,
   collateralActionAtom,
-  collateralDeltaValueAtom,
+  debtInputAmountAtom,
   DebtAction,
   debtActionAtom,
-  debtDeltaValueAtom,
+  collateralInputAmountAtom,
+  vaultAfterAdjustmentAtom,
   vaultToAdjustAtom,
+  debtInputValueAtom,
+  collateralInputValueAtom,
 } from 'store/adjustVault';
 import { displayFunctionsAtom, pursesAtom } from 'store/app';
 import ErrorWarning from 'svg/error-warning';
@@ -16,6 +19,7 @@ import StyledDropdown from './StyledDropdown';
 import { PursesJSONState } from '@agoric/wallet-backend';
 import CloseVaultDialog from './CloseVaultDialog';
 import { useState } from 'react';
+import { maxIstToBorrowFromVault } from 'utils/vaultMath';
 
 const AdjustVaultForm = () => {
   const displayFunctions = useAtomValue(displayFunctionsAtom);
@@ -26,14 +30,15 @@ const AdjustVaultForm = () => {
   const { displayBrandPetname } = displayFunctions;
 
   const vaultToAdjust = useAtomValue(vaultToAdjustAtom);
+  const vaultAfterAdjustment = useAtomValue(vaultAfterAdjustmentAtom);
 
   const [debtAction, setDebtAction] = useAtom(debtActionAtom);
   const [collateralAction, setCollateralAction] = useAtom(collateralActionAtom);
 
-  const [debtDeltaValue, setDebtDeltaValue] = useAtom(debtDeltaValueAtom);
-  const [collateralDeltaValue, setCollateralDeltaValue] = useAtom(
-    collateralDeltaValueAtom,
-  );
+  const setDebtInputValue = useSetAtom(debtInputValueAtom);
+  const setCollateralInputValue = useSetAtom(collateralInputValueAtom);
+  const debtInputAmount = useAtomValue(debtInputAmountAtom);
+  const collateralInputAmount = useAtomValue(collateralInputAmountAtom);
 
   const purses = useAtomValue(pursesAtom);
   const collateralPurse = purses?.find(
@@ -48,6 +53,40 @@ const AdjustVaultForm = () => {
   const [isCloseVaultDialogOpen, setIsCloseVaultDialogOpen] = useState(false);
 
   const isActive = vaultToAdjust?.vaultState === 'active';
+
+  const onMaxCollateralClicked = () => {
+    assert(collateralAction === CollateralAction.Deposit);
+
+    if (!collateralPurse) {
+      /* no-op */
+      return;
+    }
+
+    setCollateralInputValue(collateralPurse.currentAmount.value);
+  };
+
+  const onMaxDebtClicked = () => {
+    assert(debtAction === DebtAction.Borrow);
+    if (!(vaultToAdjust && vaultAfterAdjustment)) {
+      /* no-op */
+      return;
+    }
+
+    const { params, metrics, totalDebt, collateralPrice } = vaultToAdjust;
+    const { newLocked } = vaultAfterAdjustment;
+
+    setDebtInputValue(
+      maxIstToBorrowFromVault(
+        params.debtLimit,
+        metrics.totalDebt,
+        totalDebt,
+        params.loanFee,
+        newLocked,
+        collateralPrice,
+        params.inferredMinimumCollateralization,
+      ),
+    );
+  };
 
   return (
     <>
@@ -80,11 +119,17 @@ const AdjustVaultForm = () => {
             />
             <AmountInput
               brand={vaultToAdjust?.locked.brand}
-              value={collateralDeltaValue}
-              onChange={setCollateralDeltaValue}
+              value={collateralInputAmount?.value}
+              onChange={setCollateralInputValue}
               label="Amount"
               disabled={collateralAction === CollateralAction.None}
               error={collateralError}
+              actionLabel={
+                collateralAction === CollateralAction.Deposit
+                  ? 'Max'
+                  : undefined
+              }
+              onAction={onMaxCollateralClicked}
             />
           </div>
         </div>
@@ -112,12 +157,14 @@ const AdjustVaultForm = () => {
               suffix={displayBrandPetname(vaultToAdjust?.totalDebt.brand)}
             />
             <AmountInput
-              onChange={setDebtDeltaValue}
-              value={debtDeltaValue}
+              onChange={setDebtInputValue}
+              value={debtInputAmount?.value}
               brand={vaultToAdjust?.totalDebt.brand}
               label="Amount"
               disabled={debtAction === DebtAction.None}
               error={debtError}
+              actionLabel={debtAction === DebtAction.Borrow ? 'Max' : undefined}
+              onAction={onMaxDebtClicked}
             />
           </div>
         </div>

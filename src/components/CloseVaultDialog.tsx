@@ -2,10 +2,14 @@ import { signerTarget } from 'config';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
 import { makeCloseVaultOffer } from 'service/vaults';
-import { displayFunctionsAtom, walletUiHrefAtom } from 'store/app';
+import {
+  displayFunctionsAtom,
+  offerSignerAtom,
+  walletUiHrefAtom,
+} from 'store/app';
 import { ViewMode, viewModeAtom } from 'store/vaults';
 import { motion } from 'framer-motion';
-import BaseDialog from './BaseDialog';
+import ActionsDialog from './ActionsDialog';
 import type { Amount } from '@agoric/ertp/src/types';
 
 type TableRowProps = {
@@ -52,6 +56,7 @@ const CloseVaultDialog = ({
   const walletUrl = useAtomValue(walletUiHrefAtom);
   const setViewMode = useSetAtom(viewModeAtom);
   const [hasSentOffer, setHasSentOffer] = useState(false);
+  const offerSigner = useAtomValue(offerSignerAtom);
 
   const goToWallet = () => {
     window.open(walletUrl, signerTarget);
@@ -132,7 +137,7 @@ const CloseVaultDialog = ({
   );
 
   return (
-    <BaseDialog
+    <ActionsDialog
       title="Are you sure you want to close your vault?"
       body={body}
       isOpen={isOpen}
@@ -141,6 +146,7 @@ const CloseVaultDialog = ({
       onSecondaryAction={secondaryAction}
       primaryActionLabel={primaryActionLabel}
       secondaryActionLabel={secondaryActionLabel}
+      primaryActionDisabled={!offerSigner?.isDappApproved}
     />
   );
 };
