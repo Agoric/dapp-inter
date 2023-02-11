@@ -4,22 +4,22 @@ import { displayFunctionsAtom } from 'store/app';
 import { stringifyValue, parseAsValue } from '@agoric/ui-components';
 import { AssetKind } from '@agoric/ertp';
 import StyledInput from './StyledInput';
-import type { Brand } from '@agoric/ertp/src/types';
-import type { Ref } from 'react';
 import clsx from 'clsx';
+import type { Brand, NatValue } from '@agoric/ertp/src/types';
+import type { Ref } from 'react';
 
 const noop = () => {
   /* no-op */
 };
 
 type Props = {
-  value?: bigint | null;
+  value?: NatValue | null;
   label?: string;
   error?: string;
   brand?: Brand | null;
   suffix?: string;
   actionLabel?: string;
-  onChange?: (value: bigint) => void;
+  onChange?: (value: NatValue) => void;
   onAction?: () => void;
   disabled?: boolean;
 };

@@ -1,5 +1,6 @@
 import { expect, it, describe } from 'vitest';
 import {
+  computeToLock,
   debtAfterChange,
   istAvailable,
   lockedAfterChange,
@@ -10,15 +11,40 @@ import { CollateralAction, DebtAction } from '../../src/store/adjustVault';
 import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
 import { AmountMath } from '@agoric/ertp';
 import { Far } from '@endo/marshal';
-import {
-  addRatios,
-  ceilMultiplyBy,
-  floorMultiplyBy,
-  ratiosSame,
-} from '@agoric/zoe/src/contractSupport/ratio';
 
 const mintedBrand = Far('minted brand', {});
 const collateralBrand = Far('locked brand', {});
+
+describe('computeToLock', () => {
+  it('should round up for the given collateral ratio', () => {
+    const priceRate = makeRatioFromAmounts(
+      AmountMath.make(mintedBrand, 7_100_000n),
+      AmountMath.make(collateralBrand, 10_000n),
+    );
+
+    const collateralizationRatio = makeRatioFromAmounts(
+      AmountMath.make(mintedBrand, 150n),
+      AmountMath.make(mintedBrand, 100n),
+    );
+
+    const toReceive = 5_000_000n;
+
+    const loanFee = makeRatioFromAmounts(
+      AmountMath.make(mintedBrand, 1n),
+      AmountMath.make(mintedBrand, 100n),
+    );
+
+    expect(
+      computeToLock(
+        priceRate,
+        collateralizationRatio,
+        toReceive,
+        collateralizationRatio,
+        loanFee,
+      ),
+    ).toEqual(10670n);
+  });
+});
 
 describe('debtAfterDelta', () => {
   it('should handle no changes', () => {

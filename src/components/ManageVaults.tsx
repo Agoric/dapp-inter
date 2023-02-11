@@ -1,11 +1,14 @@
 import { chainConnectionAtom } from 'store/app';
 import { useCallback } from 'react';
-import { vaultKeyToAdjustAtom, vaultsAtom } from 'store/vaults';
+import { useVaultStore, vaultKeyToAdjustAtom, vaultsAtom } from 'store/vaults';
 import VaultSummary from 'components/VaultSummary';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { FaPlusCircle } from 'react-icons/fa';
 import VaultSymbol from 'svg/vault-symbol';
+import { motion } from 'framer-motion';
 import type { PropsWithChildren } from 'react';
+import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
+import { currentCollateralization } from 'utils/vaultMath';
 
 const EmptyView = ({ children }: PropsWithChildren) => {
   return (
@@ -27,9 +30,22 @@ const EmptyView = ({ children }: PropsWithChildren) => {
   );
 };
 
+const noticeProps = {
+  className: 'overflow-hidden',
+  initial: { height: 0, opacity: 0 },
+  animate: { height: 'auto', opacity: 1 },
+  transition: { type: 'tween' },
+};
+
 const ManageVaults = () => {
   const setVaultKeyToAdjust = useSetAtom(vaultKeyToAdjustAtom);
   const vaults = useAtomValue(vaultsAtom);
+  const { prices, vaultParams, managers } = useVaultStore(state => ({
+    vaultParams: state.vaultGovernedParams,
+    prices: state.prices,
+    managers: state.vaultManagers,
+  }));
+
   const chainConnection = useAtomValue(chainConnectionAtom);
 
   const buttonProps = {
@@ -66,6 +82,37 @@ const ManageVaults = () => {
     );
   }
 
+  const isAnyVaultLiquidating =
+    vaults && [...vaults.values()].find(v => v.vaultState === 'liquidating');
+
+  const isAnyVaultAtRisk =
+    vaults &&
+    [...vaults.values()].find(vault => {
+      const isLiquidating = vault.vaultState === 'liquidating';
+      const manager = managers.get(vault.managerId ?? '');
+      const params = vaultParams.get(vault.managerId ?? '');
+      const { debtSnapshot, locked } = vault;
+      const brand = locked?.brand;
+      const price = brand && prices.get(brand);
+
+      if (!(debtSnapshot && manager && price && params)) {
+        return false;
+      }
+
+      const collateralizationRatio = currentCollateralization(
+        debtSnapshot,
+        manager.compoundedInterest,
+        price,
+        locked,
+      );
+
+      return (
+        collateralizationRatio &&
+        !ratioGTE(collateralizationRatio, params.liquidationMargin) &&
+        !isLiquidating
+      );
+    });
+
   return (
     <>
       <div className="w-full flex justify-between mt-6">
@@ -83,6 +130,17 @@ const ManageVaults = () => {
         >
           {buttonProps.text}
         </button>
+      </div>
+      <div className="text-[#E22951] text-lg mt-4 font-serif font-medium">
+        {isAnyVaultLiquidating && (
+          <motion.div {...noticeProps}>A vault is liquidating.</motion.div>
+        )}
+        {isAnyVaultAtRisk && (
+          <motion.div {...noticeProps}>
+            A vault is at risk. Please increase your collateral or repay your
+            outstanding IST debt.
+          </motion.div>
+        )}
       </div>
       {content}
     </>

@@ -1,5 +1,4 @@
 import { AmountMath } from '@agoric/ertp';
-import { Amount } from '@agoric/ertp/src/types';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 import {
   ceilMultiplyBy,
@@ -24,6 +23,7 @@ import type {
   VaultPhase,
   PriceDescription,
 } from './vaults';
+import type { Amount, NatValue } from '@agoric/ertp/src/types';
 
 type VaultToAdjust = {
   totalLockedValue: Amount<'nat'>;
@@ -87,9 +87,25 @@ export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
   };
 });
 
-export const collateralInputValueAtom = atom<bigint | null>(null);
+const collateralInputValueAtomInternal = atom<NatValue | null>(null);
+export const collateralInputValueAtom = atom(
+  get => get(collateralInputValueAtomInternal),
+  (_get, set, value: NatValue | null) => {
+    assert(value === null || value >= 0n, 'Nat value must be a whole number');
 
-export const debtInputValueAtom = atom<bigint | null>(null);
+    set(collateralInputValueAtomInternal, value);
+  },
+);
+
+const debtInputValueAtomInternal = atom<NatValue | null>(null);
+export const debtInputValueAtom = atom(
+  get => get(debtInputValueAtomInternal),
+  (_get, set, value: NatValue | null) => {
+    assert(value === null || value >= 0n, 'Nat value must be a whole number');
+
+    set(debtInputValueAtomInternal, value);
+  },
+);
 
 export const collateralInputAmountAtom = atom<Amount<'nat'> | null>(get => {
   const collateralBrand = get(vaultToAdjustAtom)?.locked.brand;

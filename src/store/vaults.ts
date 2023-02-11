@@ -59,11 +59,13 @@ export type VaultPhase =
   | 'closed'
   | 'transfer';
 
+export type DebtSnapshot = {
+  debt: Amount<'nat'>;
+  interest: Ratio;
+};
+
 export type VaultInfoChainData = {
-  debtSnapshot?: {
-    debt: Amount<'nat'>;
-    interest: Ratio;
-  };
+  debtSnapshot?: DebtSnapshot;
   locked?: Amount<'nat'>;
   vaultState?: VaultPhase;
 };

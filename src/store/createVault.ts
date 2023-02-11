@@ -10,11 +10,11 @@ import {
 } from '@agoric/zoe/src/contractSupport/ratio';
 import { AmountMath } from '@agoric/ertp';
 import type { Ratio } from './vaults';
-import type { Amount } from '@agoric/ertp/src/types';
+import type { Amount, NatValue } from '@agoric/ertp/src/types';
 import type { Getter } from 'jotai';
 
-const valueToLockInternal = atom<bigint | null>(null);
-const valueToReceiveInternal = atom<bigint | null>(null);
+const valueToLockInternal = atom<NatValue | null>(null);
+const valueToReceiveInternal = atom<NatValue | null>(null);
 const collateralizationRatioInternal = atom<Ratio | null>(null);
 const selectedCollateralIdInternal = atom<string | null>(null);
 
@@ -58,7 +58,7 @@ export type VaultCreationErrors = {
 
 export const valueToLockAtom = atom(
   get => get(valueToLockInternal),
-  (get, set, value: bigint) => {
+  (get, set, value: NatValue) => {
     set(valueToLockInternal, value);
 
     const selectedCollateralId = get(selectedCollateralIdInternal);
@@ -92,7 +92,7 @@ export const valueToLockAtom = atom(
 
 export const valueToReceiveAtom = atom(
   get => get(valueToReceiveInternal),
-  (get, set, value: bigint) => {
+  (get, set, value: NatValue) => {
     set(valueToReceiveInternal, value);
 
     const selectedCollateralId = get(selectedCollateralIdInternal);

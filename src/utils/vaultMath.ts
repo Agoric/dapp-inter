@@ -1,22 +1,24 @@
 import {
   addRatios,
+  ceilDivideBy,
   ceilMultiplyBy,
   floorDivideBy,
   floorMultiplyBy,
   makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
 import { AmountMath } from '@agoric/ertp';
-import { PriceDescription, Ratio } from 'store/vaults';
-import { Amount } from '@agoric/ertp/src/types';
+import { DebtSnapshot, PriceDescription, Ratio } from 'store/vaults';
+import { Amount, NatValue } from '@agoric/ertp/src/types';
 import { CollateralAction, DebtAction } from 'store/adjustVault';
+import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 
 export const computeToReceive = (
   priceRate: Ratio,
   collateralizationRatio: Ratio,
-  toLock: bigint,
+  toLock: NatValue,
   defaultCollateralization: Ratio,
   loanFee: Ratio,
-): bigint => {
+): NatValue => {
   const collateralizationRatioOrDefault =
     collateralizationRatio.numerator.value === 0n
       ? defaultCollateralization
@@ -44,10 +46,10 @@ export const computeToReceive = (
 export const computeToLock = (
   priceRate: Ratio,
   collateralizationRatio: Ratio,
-  toReceive: bigint,
+  toReceive: NatValue,
   defaultCollateralization: Ratio,
   loanFee: Ratio,
-): bigint => {
+): NatValue => {
   const collateralizationRatioOrDefault =
     collateralizationRatio.numerator.value === 0n
       ? defaultCollateralization
@@ -58,12 +60,12 @@ export const computeToLock = (
     receiveAmount,
     ceilMultiplyBy(receiveAmount, loanFee),
   );
-  const receiveMargin = floorMultiplyBy(
+  const receiveMargin = ceilMultiplyBy(
     resultingDebt,
     collateralizationRatioOrDefault,
   );
 
-  return floorDivideBy(receiveMargin, priceRate).value;
+  return ceilDivideBy(receiveMargin, priceRate).value;
 };
 
 /**
@@ -138,7 +140,7 @@ export const maxCollateralForNewVault = (
   price: PriceDescription,
   desiredCollateralization: Ratio,
   collateralPurseBalance: Amount<'nat'>,
-): bigint => {
+): NatValue => {
   const istAvailableAfterLoanFee = istAvailable(debtLimit, totalDebt);
 
   const loanFeeMultiplier = addRatios(
@@ -173,7 +175,7 @@ export const maxIstToBorrowFromVault = (
   locked: Amount<'nat'>,
   price: PriceDescription,
   minCollateralization: Ratio,
-): bigint => {
+): NatValue => {
   const istAvailableAfterLoanFee = istAvailable(debtLimit, totalDebt);
 
   const loanFeeMultiplier = addRatios(
@@ -206,4 +208,26 @@ export const maxIstToBorrowFromVault = (
 
   return AmountMath.min(istAvailableBeforeLoanFee, maxDebtDeltaBeforeLoanFee)
     .value;
+};
+
+export const currentCollateralization = (
+  debtSnapshot: DebtSnapshot,
+  compoundedInterest: Ratio,
+  price: PriceDescription,
+  locked: Amount<'nat'>,
+): Ratio | undefined => {
+  const totalDebt = calculateCurrentDebt(
+    debtSnapshot.debt,
+    debtSnapshot.interest,
+    compoundedInterest,
+  );
+
+  const totalLockedValue = ceilMultiplyBy(
+    locked,
+    makeRatioFromAmounts(price.amountOut, price.amountIn),
+  );
+
+  return AmountMath.isEmpty(totalDebt)
+    ? undefined
+    : makeRatioFromAmounts(totalLockedValue, totalDebt);
 };

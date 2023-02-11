@@ -95,7 +95,7 @@ const MainContentWrapper = ({ children, header }: Props) => {
     }
 
     return (
-      <div className="h-full flex flex-row items-center justify-around flex-wrap">
+      <div className="h-full flex flex-row items-center justify-around flex-wrap gap-x-4">
         <TickerItem
           label="IST Outstanding (Vaults)"
           value={totalDebtForDisplay}
