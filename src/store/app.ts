@@ -114,9 +114,10 @@ export const leaderAtom = atom(
     })),
 );
 
-export const networkConfigAtom = import.meta.env.VITE_NETWORK_CONFIG_URL
-  ? atom({ url: import.meta.env.VITE_NETWORK_CONFIG_URL, label: undefined })
-  : atomWithStorage('agoric-network-config', networkConfigs.localhost);
+export const networkConfigAtom = atomWithStorage(
+  'agoric-network-config',
+  networkConfigs.localhost,
+);
 
 const usp = new URLSearchParams(window.location.search);
 const wallet = usp.get('wallet');

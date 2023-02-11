@@ -1,10 +1,6 @@
 import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
+import NetworkDropdown from '../components/NetworkDropdown';
 import ConnectWalletButton from '../components/ConnectWalletButton';
-import React, { Suspense } from 'react';
-
-const NetworkDropdown = React.lazy(
-  () => import('../components/NetworkDropdown'),
-);
 
 type NavItemProps = {
   label: string;
@@ -40,14 +36,6 @@ const Root = () => {
   const { pathname } = useLocation();
   const shouldRedirectToVaults = pathname === '/';
 
-  const networkDropdown = import.meta.env.VITE_NETWORK_CONFIG_URL ? (
-    <></>
-  ) : (
-    <Suspense>
-      <NetworkDropdown />
-    </Suspense>
-  );
-
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex max-w-7xl justify-between flex-wrap-reverse gap-2">
@@ -66,7 +54,7 @@ const Root = () => {
           </nav>
         </div>
         <div className="flex flex-row space-x-2 items-center mr-6 m-2">
-          {networkDropdown}
+          <NetworkDropdown />
           <ConnectWalletButton />
         </div>
       </div>
