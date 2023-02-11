@@ -1,5 +1,6 @@
 import {
   addRatios,
+  ceilDivideBy,
   ceilMultiplyBy,
   floorDivideBy,
   floorMultiplyBy,
@@ -58,12 +59,12 @@ export const computeToLock = (
     receiveAmount,
     ceilMultiplyBy(receiveAmount, loanFee),
   );
-  const receiveMargin = floorMultiplyBy(
+  const receiveMargin = ceilMultiplyBy(
     resultingDebt,
     collateralizationRatioOrDefault,
   );
 
-  return floorDivideBy(receiveMargin, priceRate).value;
+  return ceilDivideBy(receiveMargin, priceRate).value;
 };
 
 /**
