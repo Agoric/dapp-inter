@@ -116,7 +116,7 @@ export const leaderAtom = atom(
 
 export const networkConfigAtom = atomWithStorage(
   'agoric-network-config',
-  networkConfigs.mainnet,
+  networkConfigs.localhost,
 );
 
 const usp = new URLSearchParams(window.location.search);
