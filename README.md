@@ -53,4 +53,15 @@ If you created a Keplr account with the seed from YOUR_ACCOUNT_KEY, you should a
 
 ## Deployment
 
-(TODO)
+`yarn install && yarn build` will create a bundled SPA in the `dist` folder that can be served from a web server.
+You can preview the bundled application by running `yarn preview`.
+By default, it will have a network dropdown for choosing between various test networks. 
+
+![image](https://user-images.githubusercontent.com/8848650/218278636-d9049a84-d14e-4668-8a13-97754313bde1.png)
+
+
+For production, it's
+recommended that you use the environment variable `VITE_NETWORK_CONFIG_URL` to preset a real network and hide the dropdown:
+```
+VITE_NETWORK_CONFIG_URL=https://<PRODUCTION-NETWORK>.net/network-config yarn build
+```
