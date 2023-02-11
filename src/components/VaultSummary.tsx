@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useVaultStore, vaultKeyToAdjustAtom } from 'store/vaults';
 import { displayFunctionsAtom } from 'store/app';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
@@ -17,6 +17,8 @@ import {
   debtActionAtom,
 } from 'store/adjustVault';
 import { AmountMath } from '@agoric/ertp';
+import CloseVaultDialog from './CloseVaultDialog';
+import { multiplyBy, ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
@@ -62,6 +64,126 @@ const TableRow = ({ left, right, light = false }: TableRowProps) => (
   </tr>
 );
 
+type ClosedVaultParams = {
+  brandPetname: string;
+  brandIcon?: string;
+  collateralLabel: string;
+  indexWithinManager: number;
+};
+
+const ClosedVault = ({
+  brandPetname,
+  brandIcon,
+  collateralLabel,
+  indexWithinManager,
+}: ClosedVaultParams) => (
+  <div className="relative shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition">
+    <div className="leading-[19px] absolute bg-mineShaft w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase">
+      Closed
+    </div>
+    <div className="flex justify-between mt-14 mx-8 mb-10 items-center flex-wrap">
+      <div className="flex items-end gap-4">
+        <img height="80" width="80" alt={brandPetname} src={brandIcon}></img>
+        <div className="flex flex-col justify-end">
+          <div className={bigTextClasses}>{collateralLabel}</div>
+          <div className="text-[#A3A5B9] text-sm">#{indexWithinManager}</div>
+        </div>
+      </div>
+    </div>
+    <div className="bg-[#F0F0F0] h-[1px] w-full" />
+    <div className="mx-11 mt-3 mb-5 font-black flex flex-col justify-center h-[192px]">
+      Closed
+    </div>
+  </div>
+);
+
+type LiquidatingVaultParams = {
+  brandPetname: string;
+  brandIcon?: string;
+  collateralLabel: string;
+  indexWithinManager: number;
+};
+
+const LiquidatingVault = ({
+  brandPetname,
+  brandIcon,
+  collateralLabel,
+  indexWithinManager,
+}: LiquidatingVaultParams) => (
+  <div className="relative shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition">
+    <div className="leading-[19px] absolute bg-mineShaft w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase">
+      Closed
+    </div>
+    <div className="flex justify-between mt-14 mx-8 mb-10 items-center flex-wrap">
+      <div className="flex items-end gap-4">
+        <img height="80" width="80" alt={brandPetname} src={brandIcon}></img>
+        <div className="flex flex-col justify-end">
+          <div className={bigTextClasses}>{collateralLabel}</div>
+          <div className="text-[#A3A5B9] text-sm">#{indexWithinManager}</div>
+        </div>
+      </div>
+    </div>
+    <div className="bg-[#F0F0F0] h-[1px] w-full" />
+    <div className="mx-11 mt-3 mb-5 font-black flex flex-col justify-center h-[192px]">
+      Closed
+    </div>
+  </div>
+);
+
+type LiquidatedVaultParams = {
+  brandPetname: string;
+  brandIcon?: string;
+  collateralLabel: string;
+  indexWithinManager: number;
+  totalCollateral: string;
+  onClick: () => void;
+};
+
+const LiquidatedVault = ({
+  brandPetname,
+  brandIcon,
+  collateralLabel,
+  indexWithinManager,
+  totalCollateral,
+  onClick,
+}: LiquidatedVaultParams) => (
+  <button
+    onClick={onClick}
+    className="text-start relative shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition hover:scale-105"
+  >
+    <div className="leading-[19px] absolute bg-mineShaft w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase flex justify-between">
+      <span>Liquidated</span>
+      <span className="font-light text-sm normal-case">
+        Click to claim collateral
+      </span>
+    </div>
+    <div className="flex justify-between mt-14 mx-8 mb-10 items-end flex-wrap">
+      <div className="flex items-end gap-4">
+        <img height="80" width="80" alt={brandPetname} src={brandIcon}></img>
+        <div className="flex flex-col justify-end">
+          <div className={bigTextClasses}>{collateralLabel}</div>
+          <div className="text-[#A3A5B9] text-sm">#{indexWithinManager}</div>
+        </div>
+      </div>
+      <div className="text-right">
+        <div className="text-[#A3A5B9] text-xl leading-[23px]">
+          Collateral left to claim
+        </div>
+        <div className="text-[#00B1A6] text-[32px] font-semibold leading-[38px]">
+          {totalCollateral}
+        </div>
+      </div>
+    </div>
+    <div className="bg-[#F0F0F0] h-[1px] w-full" />
+    <div className="mx-11 mt-3 mb-5 font-black flex flex-col justify-center h-[192px]">
+      <span>
+        Closed&nbsp;&nbsp;
+        <span className="font-normal">|&nbsp;&nbsp;Liquidated</span>{' '}
+      </span>
+    </div>
+  </button>
+);
+
 type Props = {
   vaultKey: VaultKey;
 };
@@ -94,6 +216,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
   const setVaultToAdjustKey = useSetAtom(vaultKeyToAdjustAtom);
   const setCollateralAction = useSetAtom(collateralActionAtom);
   const setDebtAction = useSetAtom(debtActionAtom);
+  const [isCloseVaultDialogOpen, setIsCloseVaultDialogOpen] = useState(false);
 
   const metrics = vaultMetrics?.get(vault?.managerId ?? '');
   const params = vaultGovernedParams?.get(vault?.managerId ?? '');
@@ -145,31 +268,12 @@ const VaultSummary = ({ vaultKey }: Props) => {
 
     if (vault.vaultState === 'closed') {
       return (
-        <div className="relative shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition">
-          <div className="leading-[19px] absolute bg-mineShaft w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase">
-            Closed
-          </div>
-          <div className="flex justify-between mt-14 mx-8 mb-10 items-center flex-wrap">
-            <div className="flex items-end gap-4">
-              <img
-                height="80"
-                width="80"
-                alt={brandPetname}
-                src={brandIcon}
-              ></img>
-              <div className="flex flex-col justify-end">
-                <div className={bigTextClasses}>{collateralLabel}</div>
-                <div className="text-[#A3A5B9] text-sm">
-                  #{vault.indexWithinManager}
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="bg-[#F0F0F0] h-[1px] w-full" />
-          <div className="mx-11 mt-3 mb-5 font-black flex flex-col justify-center h-[192px]">
-            Closed
-          </div>
-        </div>
+        <ClosedVault
+          brandIcon={brandIcon}
+          brandPetname={brandPetname}
+          collateralLabel={collateralLabel}
+          indexWithinManager={vault.indexWithinManager}
+        />
       );
     }
 
@@ -179,9 +283,63 @@ const VaultSummary = ({ vaultKey }: Props) => {
       manager.compoundedInterest,
     );
 
+    if (vault.vaultState === 'liquidated') {
+      return (
+        <>
+          <LiquidatedVault
+            brandIcon={brandIcon}
+            brandPetname={brandPetname}
+            collateralLabel={collateralLabel}
+            indexWithinManager={vault.indexWithinManager}
+            totalCollateral={`${displayAmount(
+              locked,
+              2,
+              'locale',
+            )} ${displayBrandPetname(locked.brand)}`}
+            onClick={() => setIsCloseVaultDialogOpen(true)}
+          />
+          <CloseVaultDialog
+            isOpen={isCloseVaultDialogOpen}
+            onClose={() => setIsCloseVaultDialogOpen(false)}
+            totalCollateral={locked}
+            totalDebt={totalDebt}
+            vaultOfferId={vault.createdByOfferId}
+          />
+        </>
+      );
+    }
+
+    if (vault.vaultState === 'transfer') {
+      // XXX Need to know whether we still own this vault after transfer.
+      return null;
+    }
+
     const totalLockedValue = ceilMultiplyBy(
       locked,
       makeRatioFromAmounts(price.amountOut, price.amountIn),
+    );
+
+    const collateralizationRatio = AmountMath.isEmpty(totalDebt)
+      ? undefined
+      : makeRatioFromAmounts(totalLockedValue, totalDebt);
+
+    const isLiquidating = vault.vaultState === 'liquidating';
+
+    const atRiskNotice = collateralizationRatio &&
+      !ratioGTE(collateralizationRatio, params.liquidationMargin) &&
+      !isLiquidating && (
+        <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-[#E22951]">
+          Vault at risk
+          <span className="pl-6 normal-case font-normal">
+            Below Liquidation Margin
+          </span>
+        </div>
+      );
+
+    const liquidatingNotice = isLiquidating && (
+      <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-interOrange">
+        Liquidating... please wait
+      </div>
     );
 
     const maximumLockedValueForLiquidation = ceilMultiplyBy(
@@ -207,11 +365,67 @@ const VaultSummary = ({ vaultKey }: Props) => {
       setVaultToAdjustKey(vaultKey);
     };
 
+    const tableBody = isLiquidating ? (
+      <tbody>
+        <TableRow
+          left="Initial IST Debt"
+          right={`${displayAmount(
+            totalDebt,
+            2,
+            'locale',
+          )} ${displayBrandPetname(totalDebt.brand)}`}
+          light={true}
+        />
+        <TableRow
+          left={`Penalty (${displayPercent(params.liquidationPenalty, 2)}%)`}
+          right={`${displayAmount(
+            multiplyBy(totalDebt, params.liquidationPenalty),
+            2,
+            'locale',
+          )} ${displayBrandPetname(totalDebt.brand)}`}
+          light={true}
+        />
+        <TableRow
+          left="Collateral Being Liquidated"
+          right={`${displayAmount(locked, 2, 'locale')} ${displayBrandPetname(
+            locked.brand,
+          )}`}
+        />
+      </tbody>
+    ) : (
+      <tbody>
+        <TableRow
+          left="Current Collateral Price"
+          right={displayPrice(price)}
+          light={true}
+        />
+        <TableRow
+          left="Last Collateral Price Update"
+          right={displayPriceTimestamp(price)}
+          light={true}
+        />
+        <TableRow
+          left="Liquidation Price"
+          right={
+            maximumLockedPriceForLiquidation
+              ? displayPrice(maximumLockedPriceForLiquidation)
+              : 'N/A'
+          }
+        />
+      </tbody>
+    );
+
     return (
       <button
         onClick={adjustVault}
-        className="cursor-pointer shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition hover:scale-105"
+        className={clsx(
+          'text-start relative cursor-pointer shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition',
+          isLiquidating ? 'cursor-not-allowed' : 'hover:scale-105',
+        )}
+        disabled={isLiquidating}
       >
+        {atRiskNotice}
+        {liquidatingNotice}
         <div className="flex justify-between mt-14 mx-8 mb-10 items-center flex-wrap">
           <div className="flex items-end gap-4">
             <img
@@ -222,7 +436,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
             ></img>
             <div className="flex flex-col justify-end">
               <div className={bigTextClasses}>{collateralLabel}</div>
-              <div className="text-[#A3A5B9] text-sm text-start">
+              <div className="text-[#A3A5B9] text-sm">
                 #{vault.indexWithinManager}
               </div>
             </div>
@@ -234,28 +448,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
         </div>
         <div className="bg-[#F0F0F0] h-[1px] w-full" />
         <div className="mx-11 mt-3 mb-5">
-          <table className="w-full">
-            <tbody>
-              <TableRow
-                left="Current Collateral Price"
-                right={displayPrice(price)}
-                light={true}
-              />
-              <TableRow
-                left="Last Collateral Price Update"
-                right={displayPriceTimestamp(price)}
-                light={true}
-              />
-              <TableRow
-                left="Liquidation Price"
-                right={
-                  maximumLockedPriceForLiquidation
-                    ? displayPrice(maximumLockedPriceForLiquidation)
-                    : 'N/A'
-                }
-              />
-            </tbody>
-          </table>
+          <table className="w-full">{tableBody}</table>
         </div>
         <div className="flex justify-around gap-3 mx-[30px] mb-[30px]">
           <div className={subpanelClasses}>
@@ -288,6 +481,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
     params,
     manager,
     displayFunctions,
+    isCloseVaultDialogOpen,
     setCollateralAction,
     setDebtAction,
     setVaultToAdjustKey,
