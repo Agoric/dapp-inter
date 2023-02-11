@@ -1,4 +1,12 @@
 export const networkConfigs = {
+  mainnet: {
+    label: 'Agoric Mainnet',
+    url: 'https://main.agoric.net/network-config',
+  },
+  testnet: {
+    label: 'Agoric Testnet',
+    url: 'https://testnet.agoric.net/network-config',
+  },
   devnet: {
     label: 'Agoric Devnet',
     url: 'https://devnet.agoric.net/network-config',
