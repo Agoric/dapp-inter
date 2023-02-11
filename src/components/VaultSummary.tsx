@@ -97,39 +97,6 @@ const ClosedVault = ({
   </div>
 );
 
-type LiquidatingVaultParams = {
-  brandPetname: string;
-  brandIcon?: string;
-  collateralLabel: string;
-  indexWithinManager: number;
-};
-
-const LiquidatingVault = ({
-  brandPetname,
-  brandIcon,
-  collateralLabel,
-  indexWithinManager,
-}: LiquidatingVaultParams) => (
-  <div className="relative shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition">
-    <div className="leading-[19px] absolute bg-mineShaft w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase">
-      Closed
-    </div>
-    <div className="flex justify-between mt-14 mx-8 mb-10 items-center flex-wrap">
-      <div className="flex items-end gap-4">
-        <img height="80" width="80" alt={brandPetname} src={brandIcon}></img>
-        <div className="flex flex-col justify-end">
-          <div className={bigTextClasses}>{collateralLabel}</div>
-          <div className="text-[#A3A5B9] text-sm">#{indexWithinManager}</div>
-        </div>
-      </div>
-    </div>
-    <div className="bg-[#F0F0F0] h-[1px] w-full" />
-    <div className="mx-11 mt-3 mb-5 font-black flex flex-col justify-center h-[192px]">
-      Closed
-    </div>
-  </div>
-);
-
 type LiquidatedVaultParams = {
   brandPetname: string;
   brandIcon?: string;
