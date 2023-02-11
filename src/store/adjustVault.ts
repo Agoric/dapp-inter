@@ -87,9 +87,25 @@ export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
   };
 });
 
-export const collateralInputValueAtom = atom<NatValue | null>(null);
+const collateralInputValueAtomInternal = atom<NatValue | null>(null);
+export const collateralInputValueAtom = atom(
+  get => get(collateralInputValueAtomInternal),
+  (_get, set, value: NatValue | null) => {
+    assert(value === null || value >= 0n, 'Nat value must be a whole number');
 
-export const debtInputValueAtom = atom<NatValue | null>(null);
+    set(collateralInputValueAtomInternal, value);
+  },
+);
+
+const debtInputValueAtomInternal = atom<NatValue | null>(null);
+export const debtInputValueAtom = atom(
+  get => get(debtInputValueAtomInternal),
+  (_get, set, value: NatValue | null) => {
+    assert(value === null || value >= 0n, 'Nat value must be a whole number');
+
+    set(debtInputValueAtomInternal, value);
+  },
+);
 
 export const collateralInputAmountAtom = atom<Amount<'nat'> | null>(get => {
   const collateralBrand = get(vaultToAdjustAtom)?.locked.brand;

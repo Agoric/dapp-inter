@@ -278,6 +278,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
 
     if (vault.vaultState === 'transfer') {
       // XXX Need to know whether we still own this vault after transfer.
+      // https://github.com/Agoric/agoric-sdk/issues/6974
       return null;
     }
 

@@ -14,6 +14,7 @@ import {
 } from '@agoric/zoe/src/contractSupport/ratio';
 import { AmountMath } from '@agoric/ertp';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
+import { currentCollateralization } from 'utils/vaultMath';
 
 const EmptyView = ({ children }: PropsWithChildren) => {
   return (
@@ -87,12 +88,10 @@ const ManageVaults = () => {
     );
   }
 
-  const liquidatingVaultNotice =
-    vaults &&
-    [...vaults.values()].find(v => v.vaultState === 'liquidating') &&
-    'A vault is liquidating.';
+  const isAnyVaultLiquidating =
+    vaults && [...vaults.values()].find(v => v.vaultState === 'liquidating');
 
-  const vaultAtRiskNotice =
+  const isAnyVaultAtRisk =
     vaults &&
     [...vaults.values()].find(vault => {
       const isLiquidating = vault.vaultState === 'liquidating';
@@ -106,28 +105,19 @@ const ManageVaults = () => {
         return false;
       }
 
-      const totalDebt = calculateCurrentDebt(
-        debtSnapshot.debt,
-        debtSnapshot.interest,
+      const collateralizationRatio = currentCollateralization(
+        debtSnapshot,
         manager.compoundedInterest,
-      );
-
-      const totalLockedValue = ceilMultiplyBy(
+        price,
         locked,
-        makeRatioFromAmounts(price.amountOut, price.amountIn),
       );
-
-      const collateralizationRatio = AmountMath.isEmpty(totalDebt)
-        ? undefined
-        : makeRatioFromAmounts(totalLockedValue, totalDebt);
 
       return (
         collateralizationRatio &&
         !ratioGTE(collateralizationRatio, params.liquidationMargin) &&
         !isLiquidating
       );
-    }) &&
-    'A vault is at risk. Please increase your collateral or repay your outstanding IST debt.';
+    });
 
   return (
     <>
@@ -148,11 +138,14 @@ const ManageVaults = () => {
         </button>
       </div>
       <div className="text-[#E22951] text-lg mt-4 font-serif font-medium">
-        {liquidatingVaultNotice && (
-          <motion.div {...noticeProps}>{liquidatingVaultNotice}</motion.div>
+        {isAnyVaultLiquidating && (
+          <motion.div {...noticeProps}>A vault is liquidating.</motion.div>
         )}
-        {vaultAtRiskNotice && (
-          <motion.div {...noticeProps}>{vaultAtRiskNotice}</motion.div>
+        {isAnyVaultAtRisk && (
+          <motion.div {...noticeProps}>
+            A vault is at risk. Please increase your collateral or repay your
+            outstanding IST debt.
+          </motion.div>
         )}
       </div>
       {content}

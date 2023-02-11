@@ -7,9 +7,10 @@ import {
   makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
 import { AmountMath } from '@agoric/ertp';
-import { PriceDescription, Ratio } from 'store/vaults';
+import { DebtSnapshot, PriceDescription, Ratio } from 'store/vaults';
 import { Amount, NatValue } from '@agoric/ertp/src/types';
 import { CollateralAction, DebtAction } from 'store/adjustVault';
+import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 
 export const computeToReceive = (
   priceRate: Ratio,
@@ -207,4 +208,26 @@ export const maxIstToBorrowFromVault = (
 
   return AmountMath.min(istAvailableBeforeLoanFee, maxDebtDeltaBeforeLoanFee)
     .value;
+};
+
+export const currentCollateralization = (
+  debtSnapshot: DebtSnapshot,
+  compoundedInterest: Ratio,
+  price: PriceDescription,
+  locked: Amount<'nat'>,
+): Ratio | undefined => {
+  const totalDebt = calculateCurrentDebt(
+    debtSnapshot.debt,
+    debtSnapshot.interest,
+    compoundedInterest,
+  );
+
+  const totalLockedValue = ceilMultiplyBy(
+    locked,
+    makeRatioFromAmounts(price.amountOut, price.amountIn),
+  );
+
+  return AmountMath.isEmpty(totalDebt)
+    ? undefined
+    : makeRatioFromAmounts(totalLockedValue, totalDebt);
 };
