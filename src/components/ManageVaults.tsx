@@ -7,13 +7,7 @@ import { FaPlusCircle } from 'react-icons/fa';
 import VaultSymbol from 'svg/vault-symbol';
 import { motion } from 'framer-motion';
 import type { PropsWithChildren } from 'react';
-import {
-  ceilMultiplyBy,
-  makeRatioFromAmounts,
-  ratioGTE,
-} from '@agoric/zoe/src/contractSupport/ratio';
-import { AmountMath } from '@agoric/ertp';
-import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
+import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
 import { currentCollateralization } from 'utils/vaultMath';
 
 const EmptyView = ({ children }: PropsWithChildren) => {
