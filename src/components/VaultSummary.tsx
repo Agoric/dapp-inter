@@ -337,7 +337,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
       );
 
     const liquidatingNotice = isLiquidating && (
-      <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-interOrange">
+      <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-[#FF9F10]">
         Liquidating... please wait
       </div>
     );

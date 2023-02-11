@@ -90,7 +90,7 @@ const Vaults = () => {
       <div className="font-medium text-[15px] h-4">
         <PathDescription mode={mode} adjustVaultKey={adjustVaultKey} />
       </div>
-      <div className="text-red-600 text-lg mt-4">
+      <div className="text-[#E22951] text-lg mt-4 font-serif font-medium">
         {vaultFactoryInstanceHandleLoadingError && (
           <motion.div {...errorProps}>
             {vaultFactoryInstanceHandleLoadingError}
