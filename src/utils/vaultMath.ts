@@ -51,10 +51,11 @@ export const computeToLock = (
   loanFee: Ratio,
   // Round up by default to preserve offer safety. But, if using this to set
   // max input, round down to avoid hitting debt limit.
-  roundDown: boolean = false,
+  remainderHandling: 'floor' | 'ceil' = 'floor',
 ): NatValue => {
-  const multiply = roundDown ? floorMultiplyBy : ceilMultiplyBy;
-  const divide = roundDown ? floorDivideBy : ceilDivideBy;
+  const multiply =
+    remainderHandling === 'floor' ? floorMultiplyBy : ceilMultiplyBy;
+  const divide = remainderHandling === 'floor' ? floorDivideBy : ceilDivideBy;
 
   const collateralizationRatioOrDefault =
     collateralizationRatio.numerator.value === 0n
@@ -165,7 +166,7 @@ export const maxCollateralForNewVault = (
     istAvailableBeforeLoanFee.value,
     desiredCollateralization,
     loanFee,
-    true,
+    'floor',
   );
 
   return AmountMath.min(

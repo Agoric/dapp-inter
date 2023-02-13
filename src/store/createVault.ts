@@ -118,6 +118,7 @@ export const valueToReceiveAtom = atom(
           value,
           defaultCollateralizationRatio,
           loanFee,
+          'ceil',
         ),
       );
     }
@@ -194,6 +195,7 @@ export const selectedCollateralIdAtom = atom(
         defaultValueReceived.value,
         defaultCollateralizationRatio,
         loanFee,
+        'ceil',
       );
       set(valueToLockInternal, valueToLock);
     } else {

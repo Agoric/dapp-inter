@@ -41,6 +41,7 @@ describe('computeToLock', () => {
         toReceive,
         collateralizationRatio,
         loanFee,
+        'ceil',
       ),
     ).toEqual(10670n);
   });
