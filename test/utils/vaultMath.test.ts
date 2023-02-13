@@ -230,32 +230,30 @@ describe('istAvailable', () => {
 
 describe('maxCollateralForNewVault', () => {
   it('should prevent the user from exceeding the mint limit', () => {
-    // Effective limit on new debt is 40n.
     const [debtLimit, totalDebt] = [
-      AmountMath.make(mintedBrand, 100n),
-      AmountMath.make(mintedBrand, 60n),
+      AmountMath.make(mintedBrand, 999_999_999n),
+      AmountMath.make(mintedBrand, 115_516_666n),
     ];
 
-    // Loan fee is 10%.
+    // Loan fee is 1%.
     const loanFee = makeRatioFromAmounts(
       AmountMath.make(mintedBrand, 10n),
-      AmountMath.make(mintedBrand, 100n),
+      AmountMath.make(mintedBrand, 1000n),
     );
 
-    // Price: 10 Collateral = 1 Minted
     const priceRate = {
-      amountIn: AmountMath.make(collateralBrand, 1000n),
-      amountOut: AmountMath.make(mintedBrand, 100n),
+      amountIn: AmountMath.make(collateralBrand, 10_000n),
+      amountOut: AmountMath.make(mintedBrand, 7_100_000n),
     };
 
     // 150%
     const minCollateralization = makeRatioFromAmounts(
-      AmountMath.make(mintedBrand, 150n),
-      AmountMath.make(mintedBrand, 100n),
+      AmountMath.make(mintedBrand, 1500n),
+      AmountMath.make(mintedBrand, 1000n),
     );
 
     // Ample funds in purse.
-    const collateralPurseBalance = AmountMath.make(mintedBrand, 999n);
+    const collateralPurseBalance = AmountMath.make(mintedBrand, 2_000_000n);
 
     expect(
       maxCollateralForNewVault(
@@ -266,7 +264,7 @@ describe('maxCollateralForNewVault', () => {
         minCollateralization,
         collateralPurseBalance,
       ),
-    ).toEqual(600n);
+    ).toEqual(1_868_626n);
   });
 
   it('should prevent the user from exceeding their collateral purse balance', () => {

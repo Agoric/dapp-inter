@@ -49,7 +49,13 @@ export const computeToLock = (
   toReceive: NatValue,
   defaultCollateralization: Ratio,
   loanFee: Ratio,
+  // Round up by default to preserve offer safety. But, if using this to set
+  // max input, round down to avoid hitting debt limit.
+  roundDown: boolean = false,
 ): NatValue => {
+  const multiply = roundDown ? floorMultiplyBy : ceilMultiplyBy;
+  const divide = roundDown ? floorDivideBy : ceilDivideBy;
+
   const collateralizationRatioOrDefault =
     collateralizationRatio.numerator.value === 0n
       ? defaultCollateralization
@@ -58,14 +64,14 @@ export const computeToLock = (
   const receiveAmount = AmountMath.make(loanFee.numerator.brand, toReceive);
   const resultingDebt = AmountMath.add(
     receiveAmount,
-    ceilMultiplyBy(receiveAmount, loanFee),
+    multiply(receiveAmount, loanFee),
   );
-  const receiveMargin = ceilMultiplyBy(
+  const receiveMargin = multiply(
     resultingDebt,
     collateralizationRatioOrDefault,
   );
 
-  return ceilDivideBy(receiveMargin, priceRate).value;
+  return divide(receiveMargin, priceRate).value;
 };
 
 /**
@@ -159,6 +165,7 @@ export const maxCollateralForNewVault = (
     istAvailableBeforeLoanFee.value,
     desiredCollateralization,
     loanFee,
+    true,
   );
 
   return AmountMath.min(
