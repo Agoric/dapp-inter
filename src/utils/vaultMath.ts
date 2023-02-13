@@ -49,8 +49,6 @@ export const computeToLock = (
   toReceive: NatValue,
   defaultCollateralization: Ratio,
   loanFee: Ratio,
-  // Round up by default to preserve offer safety. But, if using this to set
-  // max input, round down to avoid hitting debt limit.
   remainderHandling: 'floor' | 'ceil' = 'floor',
 ): NatValue => {
   const multiply =
