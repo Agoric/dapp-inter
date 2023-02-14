@@ -32,6 +32,19 @@ const Item = ({
 
 const NetworkDropdown = () => {
   const [networkConfig, setNetworkConfig] = useAtom(networkConfigAtom);
+  const specifiedNetworkName = new URLSearchParams(window.location.search).get(
+    'network',
+  );
+  if (specifiedNetworkName !== null) {
+    if (specifiedNetworkName in networkConfigs) {
+      setNetworkConfig((networkConfigs as never)[specifiedNetworkName]);
+      const prevSearch = new URLSearchParams(window.location.search);
+      prevSearch.delete('network');
+      window.location.replace(`?${prevSearch}`);
+    } else {
+      console.error('invalid network requested', specifiedNetworkName);
+    }
+  }
 
   const items = Object.values(networkConfigs).map(config => (
     <Item
