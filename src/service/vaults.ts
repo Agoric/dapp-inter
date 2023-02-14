@@ -343,13 +343,19 @@ export const makeOpenVaultOffer = async (
   toLock: Amount<'nat'>,
   toBorrow: Amount<'nat'>,
 ) => {
-  const INVITATION_METHOD = 'makeVaultInvitation';
-
-  const { vaultFactoryInstanceHandle } = useVaultStore.getState();
   const { importContext, offerSigner } = appStore.getState();
-  const serializedInstance = importContext.fromBoard.serialize(
-    vaultFactoryInstanceHandle,
-  ) as CapData<'Instance'>;
+
+  const invitationSpec = importContext.fromBoard.serialize(
+    harden({
+      source: 'agoricContract',
+      instancePath: ['VaultFactory'],
+      callPipe: [
+        ['getCollateralManager', [toLock.brand]],
+        ['makeVaultInvitation'],
+      ],
+    }),
+  );
+
   const serializedToLock = importContext.fromBoard.serialize(
     toLock,
   ) as CapData<'Amount'>;
@@ -358,8 +364,7 @@ export const makeOpenVaultOffer = async (
   ) as CapData<'Amount'>;
 
   const offerConfig = {
-    publicInvitationMaker: INVITATION_METHOD,
-    instanceHandle: serializedInstance,
+    invitationSpec,
     proposalTemplate: harden({
       give: {
         Collateral: {
@@ -407,13 +412,15 @@ export const makeAdjustVaultOffer = async ({
   collateral,
   debt,
 }: AdjustParams) => {
-  const invitationSpec = {
-    source: 'continuing',
-    previousOffer: vaultOfferId,
-    invitationMakerName: 'AdjustBalances',
-  };
-
   const { importContext, offerSigner } = appStore.getState();
+
+  const invitationSpec = importContext.fromBoard.serialize(
+    harden({
+      source: 'continuing',
+      previousOffer: vaultOfferId,
+      invitationMakerName: 'AdjustBalances',
+    }),
+  );
 
   const proposal: Proposal = { give: {}, want: {} };
 
@@ -459,13 +466,15 @@ export const makeCloseVaultOffer = async (
   collateral?: Amount<'nat'>,
   debt?: Amount<'nat'>,
 ) => {
-  const invitationSpec = {
-    source: 'continuing',
-    previousOffer: vaultOfferId,
-    invitationMakerName: 'CloseVault',
-  };
-
   const { importContext, offerSigner } = appStore.getState();
+
+  const invitationSpec = importContext.fromBoard.serialize(
+    harden({
+      source: 'continuing',
+      previousOffer: vaultOfferId,
+      invitationMakerName: 'CloseVault',
+    }),
+  );
 
   const collateralToWant = collateral
     ? {
