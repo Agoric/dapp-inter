@@ -11,6 +11,14 @@ export const networkConfigs = {
     label: 'Agoric Emerynet',
     url: 'https://emerynet.agoric.net/network-config',
   },
+  xnet: {
+    label: 'Agoric Xnet',
+    url: 'https://xnet.agoric.net/network-config',
+  },
+  loadtest: {
+    label: 'Agoric Loadtest',
+    url: 'https://loadtest.agoric.net/network-config',
+  },
   localhost: {
     label: 'Local Network',
     url: 'https://wallet.agoric.app/wallet/network-config',
