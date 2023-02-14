@@ -13,7 +13,6 @@ import type { Brand, Amount } from '@agoric/ertp/src/types';
 import type { Ratio, PriceQuote } from 'store/vaults';
 import { calculateMinimumCollateralization } from '@agoric/inter-protocol/src/vaultFactory/math';
 import { CollateralAction, DebtAction } from 'store/adjustVault';
-import { AmountMath } from '@agoric/ertp';
 
 type ValuePossessor<T> = {
   value: T;
@@ -206,6 +205,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
       const liquidationMargin = current.LiquidationMargin.value;
       const liquidationPadding = current.LiquidationPadding.value;
       const loanFee = current.LoanFee.value;
+      const debtLimit = current.DebtLimit.value;
 
       const inferredMinimumCollateralization =
         calculateMinimumCollateralization(
@@ -213,19 +213,8 @@ export const watchVaultFactory = (netconfigUrl: string) => {
           liquidationPadding,
         );
 
-      const debtLimit = current.DebtLimit.value;
-
-      // The real debt limit can actually never be reached, only 1 less than
-      // the debt limit can be enforced by the contract.
-      //
-      // AFTER: https://github.com/Agoric/agoric-sdk/issues/6969 remove this.
-      const effectiveDebtLimit =
-        debtLimit.value > 0n
-          ? AmountMath.make(debtLimit.brand, debtLimit.value - 1n)
-          : current.DebtLimit.value;
-
       useVaultStore.getState().setVaultGovernedParams(id, {
-        debtLimit: effectiveDebtLimit,
+        debtLimit,
         interestRate,
         liquidationMargin,
         liquidationPenalty,
