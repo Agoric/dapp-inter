@@ -85,7 +85,6 @@ export type PriceQuote = unknown;
 interface VaultState {
   managerIdsLoadingError: string | null;
   vaultFactoryParamsLoadingError: string | null;
-  vaultFactoryInstanceHandleLoadingError: string | null;
   vaultManagerLoadingErrors: Map<string, unknown>;
   vaultManagerIds: string[] | null;
   vaultManagers: Map<string, VaultManager>;
@@ -96,7 +95,6 @@ interface VaultState {
   prices: Map<Brand, PriceDescription>;
   priceErrors: Map<Brand, unknown>;
   vaultFactoryParams: VaultFactoryParams | null;
-  vaultFactoryInstanceHandle: unknown;
   setPrice: (brand: Brand, priceQuote: PriceQuote) => void;
   setPriceError: (brand: Brand, e: unknown) => void;
   setVaultManagerLoadingError: (id: string, error: unknown) => void;
@@ -116,12 +114,10 @@ interface VaultState {
 export const vaultStore = createStore<VaultState>()(set => ({
   managerIdsLoadingError: null,
   vaultFactoryParamsLoadingError: null,
-  vaultFactoryInstanceHandleLoadingError: null,
   vaultManagerLoadingErrors: new Map(),
   vaultManagerIds: null,
   vaultManagers: new Map(),
   vaultFactoryParams: null,
-  vaultFactoryInstanceHandle: null,
   vaultGovernedParams: new Map<string, VaultParams>(),
   vaultMetrics: new Map<string, VaultMetrics>(),
   prices: new Map<Brand, PriceDescription>(),

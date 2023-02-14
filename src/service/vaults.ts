@@ -261,21 +261,6 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
-  const watchVaultFactoryInstanceHandle = async () => {
-    const path = ':published.agoricNames.instance';
-    const f = makeBoardFollower(path);
-    for await (const { value } of iterateLatest<AgoricInstancesUpdate>(f)) {
-      if (isStopped) break;
-      console.debug('got update', path, value);
-      const instanceEntry = value.find(
-        ([instanceName]) => instanceName === 'VaultFactory',
-      );
-      assert(instanceEntry, 'Missing VaultFactory from agoricNames.instances');
-      useVaultStore.setState({ vaultFactoryInstanceHandle: instanceEntry[1] });
-      return;
-    }
-  };
-
   const startWatching = async () => {
     let rpc: string;
     try {
@@ -317,13 +302,6 @@ export const watchVaultFactory = (netconfigUrl: string) => {
       useVaultStore.setState({
         vaultFactoryParamsLoadingError:
           'Error loading vault factorys governed parameters',
-      });
-    });
-    watchVaultFactoryInstanceHandle().catch(e => {
-      console.error('Error watching agoric instances', e);
-      useVaultStore.setState({
-        vaultFactoryInstanceHandleLoadingError:
-          'Error loading vault factory instance id',
       });
     });
   };

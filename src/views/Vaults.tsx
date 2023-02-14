@@ -70,8 +70,7 @@ const Vaults = () => {
     };
   }, [leader, netConfig]);
 
-  const { managerIdsLoadingError, vaultFactoryInstanceHandleLoadingError } =
-    useVaultStore();
+  const { managerIdsLoadingError } = useVaultStore();
   const { watchVbankError } = useAtomValue(appAtom);
   const mode = useAtomValue(viewModeAtom);
   const adjustVaultKey = useAtomValue(vaultKeyToAdjustAtom);
@@ -91,11 +90,6 @@ const Vaults = () => {
         <PathDescription mode={mode} adjustVaultKey={adjustVaultKey} />
       </div>
       <div className="text-[#E22951] text-lg mt-4 font-serif font-medium">
-        {vaultFactoryInstanceHandleLoadingError && (
-          <motion.div {...errorProps}>
-            {vaultFactoryInstanceHandleLoadingError}
-          </motion.div>
-        )}
         {managerIdsLoadingError && (
           <motion.div {...errorProps}>{managerIdsLoadingError}</motion.div>
         )}
