@@ -1,14 +1,14 @@
 diff --git a/node_modules/@agoric/smart-wallet/src/marshal-contexts.js b/node_modules/@agoric/smart-wallet/src/marshal-contexts.js
-index 4fcc880..aa12e55 100644
+index 20aed2b..6194e06 100644
 --- a/node_modules/@agoric/smart-wallet/src/marshal-contexts.js
 +++ b/node_modules/@agoric/smart-wallet/src/marshal-contexts.js
-@@ -288,7 +288,8 @@ export const makeImportContext = (makePresence = defaultMakePresence) => {
+@@ -286,7 +286,8 @@ export const makeImportContext = (makePresence = defaultMakePresence) => {
       * @param {string} iface
       */
      fromBoard: (slot, iface) => {
--      isBoardId(slot) || Fail`bad board slot ${q(slot)}`;
-+      // The UI shouldn't error on null board slots, just return a null value.
-+      isBoardId(slot) || slot === null || Fail`bad board slot ${q(slot)}`;
+-      isDefaultBoardId(slot) || Fail`bad board slot ${q(slot)}`;
++      // Don't throw on null slots.
++      isDefaultBoardId(slot) || slot === null || Fail`bad board slot ${q(slot)}`;
        return provideVal(boardObjects, slot, iface);
      },
  

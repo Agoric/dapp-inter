@@ -9,10 +9,14 @@ import { makeFollower, iterateLatest } from '@agoric/casting';
 import { appStore } from 'store/app';
 import { toast } from 'react-toastify';
 import { CapData } from '@endo/marshal';
-import type { Brand, Amount } from '@agoric/ertp/src/types';
-import type { Ratio, PriceQuote } from 'store/vaults';
 import { calculateMinimumCollateralization } from '@agoric/inter-protocol/src/vaultFactory/math';
 import { CollateralAction, DebtAction } from 'store/adjustVault';
+import type { Brand, Amount } from '@agoric/ertp/src/types';
+import type { Ratio, PriceQuote } from 'store/vaults';
+import type {
+  AgoricContractInvitationSpec,
+  ContinuingInvitationSpec,
+} from '@agoric/smart-wallet/src/invitations';
 
 type ValuePossessor<T> = {
   value: T;
@@ -182,8 +186,6 @@ type VaultFactoryParamsUpdate = ValuePossessor<{
   current: { MinInitialDebt: ValuePossessor<Amount<'nat'>> };
 }>;
 
-type AgoricInstancesUpdate = ValuePossessor<Array<[string, unknown]>>;
-
 type VaultUpdate = ValuePossessor<VaultInfoChainData>;
 
 export const watchVaultFactory = (netconfigUrl: string) => {
@@ -323,16 +325,16 @@ export const makeOpenVaultOffer = async (
 ) => {
   const { importContext, offerSigner } = appStore.getState();
 
-  const invitationSpec = importContext.fromBoard.serialize(
-    harden({
-      source: 'agoricContract',
-      instancePath: ['VaultFactory'],
-      callPipe: [
-        ['getCollateralManager', [toLock.brand]],
-        ['makeVaultInvitation'],
-      ],
-    }),
-  );
+  const spec: AgoricContractInvitationSpec = {
+    source: 'agoricContract',
+    instancePath: ['VaultFactory'],
+    callPipe: [
+      ['getCollateralManager', [toLock.brand]],
+      ['makeVaultInvitation'],
+    ],
+  };
+
+  const invitationSpec = importContext.fromBoard.serialize(harden(spec));
 
   const serializedToLock = importContext.fromBoard.serialize(
     toLock,
@@ -392,13 +394,13 @@ export const makeAdjustVaultOffer = async ({
 }: AdjustParams) => {
   const { importContext, offerSigner } = appStore.getState();
 
-  const invitationSpec = importContext.fromBoard.serialize(
-    harden({
-      source: 'continuing',
-      previousOffer: vaultOfferId,
-      invitationMakerName: 'AdjustBalances',
-    }),
-  );
+  const spec: ContinuingInvitationSpec = {
+    source: 'continuing',
+    previousOffer: vaultOfferId,
+    invitationMakerName: 'AdjustBalances',
+  };
+
+  const invitationSpec = importContext.fromBoard.serialize(harden(spec));
 
   const proposal: Proposal = { give: {}, want: {} };
 
@@ -446,13 +448,13 @@ export const makeCloseVaultOffer = async (
 ) => {
   const { importContext, offerSigner } = appStore.getState();
 
-  const invitationSpec = importContext.fromBoard.serialize(
-    harden({
-      source: 'continuing',
-      previousOffer: vaultOfferId,
-      invitationMakerName: 'CloseVault',
-    }),
-  );
+  const spec: ContinuingInvitationSpec = {
+    source: 'continuing',
+    previousOffer: vaultOfferId,
+    invitationMakerName: 'CloseVault',
+  };
+
+  const invitationSpec = importContext.fromBoard.serialize(harden(spec));
 
   const collateralToWant = collateral
     ? {
