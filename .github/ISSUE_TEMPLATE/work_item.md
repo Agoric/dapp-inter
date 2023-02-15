@@ -4,7 +4,6 @@ about: A unit of work that (maybe) needs to be done
 title: ''
 labels: 'enhancement'
 assignees: ''
-
 ---
 
 ## What is the Problem Being Solved?
@@ -14,4 +13,3 @@ assignees: ''
 ## Security Considerations
 
 ## Test Plan
-

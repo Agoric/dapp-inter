@@ -9,10 +9,14 @@ import { makeFollower, iterateLatest } from '@agoric/casting';
 import { appStore } from 'store/app';
 import { toast } from 'react-toastify';
 import { CapData } from '@endo/marshal';
-import type { Brand, Amount } from '@agoric/ertp/src/types';
-import type { Ratio, PriceQuote } from 'store/vaults';
 import { calculateMinimumCollateralization } from '@agoric/inter-protocol/src/vaultFactory/math';
 import { CollateralAction, DebtAction } from 'store/adjustVault';
+import type { Brand, Amount } from '@agoric/ertp/src/types';
+import type { Ratio, PriceQuote } from 'store/vaults';
+import type {
+  AgoricContractInvitationSpec,
+  ContinuingInvitationSpec,
+} from '@agoric/smart-wallet/src/invitations';
 
 type ValuePossessor<T> = {
   value: T;
@@ -182,8 +186,6 @@ type VaultFactoryParamsUpdate = ValuePossessor<{
   current: { MinInitialDebt: ValuePossessor<Amount<'nat'>> };
 }>;
 
-type AgoricInstancesUpdate = ValuePossessor<Array<[string, unknown]>>;
-
 type VaultUpdate = ValuePossessor<VaultInfoChainData>;
 
 export const watchVaultFactory = (netconfigUrl: string) => {
@@ -261,21 +263,6 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
-  const watchVaultFactoryInstanceHandle = async () => {
-    const path = ':published.agoricNames.instance';
-    const f = makeBoardFollower(path);
-    for await (const { value } of iterateLatest<AgoricInstancesUpdate>(f)) {
-      if (isStopped) break;
-      console.debug('got update', path, value);
-      const instanceEntry = value.find(
-        ([instanceName]) => instanceName === 'VaultFactory',
-      );
-      assert(instanceEntry, 'Missing VaultFactory from agoricNames.instances');
-      useVaultStore.setState({ vaultFactoryInstanceHandle: instanceEntry[1] });
-      return;
-    }
-  };
-
   const startWatching = async () => {
     let rpc: string;
     try {
@@ -319,13 +306,6 @@ export const watchVaultFactory = (netconfigUrl: string) => {
           'Error loading vault factorys governed parameters',
       });
     });
-    watchVaultFactoryInstanceHandle().catch(e => {
-      console.error('Error watching agoric instances', e);
-      useVaultStore.setState({
-        vaultFactoryInstanceHandleLoadingError:
-          'Error loading vault factory instance id',
-      });
-    });
   };
 
   startWatching();
@@ -343,13 +323,19 @@ export const makeOpenVaultOffer = async (
   toLock: Amount<'nat'>,
   toBorrow: Amount<'nat'>,
 ) => {
-  const INVITATION_METHOD = 'makeVaultInvitation';
-
-  const { vaultFactoryInstanceHandle } = useVaultStore.getState();
   const { importContext, offerSigner } = appStore.getState();
-  const serializedInstance = importContext.fromBoard.serialize(
-    vaultFactoryInstanceHandle,
-  ) as CapData<'Instance'>;
+
+  const spec: AgoricContractInvitationSpec = {
+    source: 'agoricContract',
+    instancePath: ['VaultFactory'],
+    callPipe: [
+      ['getCollateralManager', [toLock.brand]],
+      ['makeVaultInvitation'],
+    ],
+  };
+
+  const invitationSpec = importContext.fromBoard.serialize(harden(spec));
+
   const serializedToLock = importContext.fromBoard.serialize(
     toLock,
   ) as CapData<'Amount'>;
@@ -358,8 +344,7 @@ export const makeOpenVaultOffer = async (
   ) as CapData<'Amount'>;
 
   const offerConfig = {
-    publicInvitationMaker: INVITATION_METHOD,
-    instanceHandle: serializedInstance,
+    invitationSpec,
     proposalTemplate: harden({
       give: {
         Collateral: {
@@ -407,13 +392,15 @@ export const makeAdjustVaultOffer = async ({
   collateral,
   debt,
 }: AdjustParams) => {
-  const invitationSpec = {
+  const { importContext, offerSigner } = appStore.getState();
+
+  const spec: ContinuingInvitationSpec = {
     source: 'continuing',
     previousOffer: vaultOfferId,
     invitationMakerName: 'AdjustBalances',
   };
 
-  const { importContext, offerSigner } = appStore.getState();
+  const invitationSpec = importContext.fromBoard.serialize(harden(spec));
 
   const proposal: Proposal = { give: {}, want: {} };
 
@@ -459,13 +446,15 @@ export const makeCloseVaultOffer = async (
   collateral?: Amount<'nat'>,
   debt?: Amount<'nat'>,
 ) => {
-  const invitationSpec = {
+  const { importContext, offerSigner } = appStore.getState();
+
+  const spec: ContinuingInvitationSpec = {
     source: 'continuing',
     previousOffer: vaultOfferId,
     invitationMakerName: 'CloseVault',
   };
 
-  const { importContext, offerSigner } = appStore.getState();
+  const invitationSpec = importContext.fromBoard.serialize(harden(spec));
 
   const collateralToWant = collateral
     ? {

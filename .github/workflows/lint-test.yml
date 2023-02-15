@@ -8,7 +8,7 @@ on:
     branches: [main]
   pull_request:
   schedule:
-    - cron: "0 12 * * *"
+    - cron: '0 12 * * *'
 
 jobs:
   build:
@@ -17,16 +17,17 @@ jobs:
       matrix:
         node-version: [18.x]
     steps:
-    - name: Checkout Dapp
-      uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-    - name: yarn install
-      run: yarn install
-    - name: yarn build
-      run: yarn build
-    - run: yarn lint
-    - name: yarn test
-      run: yarn test
+      - name: Checkout Dapp
+        uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: yarn install
+        run: yarn install
+      - name: yarn build
+        run: yarn build
+      - name: yarn lint
+        run: yarn lint
+      - name: yarn test
+        run: yarn test

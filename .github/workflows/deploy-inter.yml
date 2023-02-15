@@ -2,7 +2,7 @@ name: Deploy dapp-inter to IPFS
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -12,40 +12,40 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-    - name: Get current date
-      id: date
-      run: echo "date=$(date +%Y-%m-%d_%H:%m:%S)" >> $GITHUB_OUTPUT
-    - name: Use Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Get current date
+        id: date
+        run: echo "date=$(date +%Y-%m-%d_%H:%m:%S)" >> $GITHUB_OUTPUT
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
 
-    - name: Build
-      run: |
-        find .
-        yarn install
-        yarn build
+      - name: Build
+        run: |
+          find .
+          yarn install
+          yarn build
 
-    - name: Deploy on IPFS
-      uses: aquiladev/ipfs-action@12cc5d253735dc2894fe19828bd042c8532acc5d   #v0.3.1
-      id: ipfs
-      with:
-        path: ./dist
-        service: filebase
-        pinName: 'dapp-inter-testing-${{ steps.date.outputs.date }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_number }}'
-        filebaseBucket: ${{ secrets.FILEBASE_BUCKET }}
-        filebaseKey: ${{ secrets.FILEBASE_KEY }}
-        filebaseSecret: ${{ secrets.FILEBASE_SECRET }}
-    - name: Convert IPFS Hash
-      id: ipfsv1
-      run: |
-        echo "v1hash=$(npx --yes cid-tool@3.0.0 base32 ${{ steps.ipfs.outputs.ipfs }})" >> $GITHUB_OUTPUT
-    - name: Add IPFS info to PR
-      uses: mshick/add-pr-comment@a65df5f64fc741e91c59b8359a4bc56e57aaf5b1   #v2
-      with:
-        message: |
-          IPFS hash: `${{ steps.ipfs.outputs.ipfs }}`
-          IPFS v1 hash: `${{ steps.ipfsv1.outputs.v1hash }}`
-          [CF](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.cf-ipfs.com) - [DWeb](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.dweb.link) - [4EVERLAND](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.4everland.io)
+      - name: Deploy on IPFS
+        uses: aquiladev/ipfs-action@12cc5d253735dc2894fe19828bd042c8532acc5d #v0.3.1
+        id: ipfs
+        with:
+          path: ./dist
+          service: filebase
+          pinName: 'dapp-inter-testing-${{ steps.date.outputs.date }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_number }}'
+          filebaseBucket: ${{ secrets.FILEBASE_BUCKET }}
+          filebaseKey: ${{ secrets.FILEBASE_KEY }}
+          filebaseSecret: ${{ secrets.FILEBASE_SECRET }}
+      - name: Convert IPFS Hash
+        id: ipfsv1
+        run: |
+          echo "v1hash=$(npx --yes cid-tool@3.0.0 base32 ${{ steps.ipfs.outputs.ipfs }})" >> $GITHUB_OUTPUT
+      - name: Add IPFS info to PR
+        uses: mshick/add-pr-comment@a65df5f64fc741e91c59b8359a4bc56e57aaf5b1 #v2
+        with:
+          message: |
+            IPFS hash: `${{ steps.ipfs.outputs.ipfs }}`
+            IPFS v1 hash: `${{ steps.ipfsv1.outputs.v1hash }}`
+            [CF](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.cf-ipfs.com) - [DWeb](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.dweb.link) - [4EVERLAND](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.4everland.io)
