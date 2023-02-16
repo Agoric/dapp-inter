@@ -67,19 +67,3 @@ jobs:
             [CF](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.cf-ipfs.com) - [DWeb](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.dweb.link) - [4EVERLAND](https://${{ steps.ipfsv1.outputs.v1hash }}.ipfs.4everland.io)
     outputs:
       v1hash: ${{ steps.ipfsv1.outputs.v1hash }}
-
-  release:
-    needs: annotate
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: softprops/action-gh-release@d4e8205d7e959a9107da6396278b2f1f07af0f9b
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          body: |
-            Network: ${{ inputs.viteNetworkConfig }}
-            Commit: ${{ github.sha }}
-            Ref: `${{ github.ref }}`
-            IPFS v1 hash: `${{ needs.annotate.outputs.v1hash }}`
-            [CF](https://${{ needs.annotate.outputs.v1hash }}.ipfs.cf-ipfs.com) - [DWeb](https://${{ needs.annotate.outputs.v1hash }}.ipfs.dweb.link) - [4EVERLAND](https://${{ needs.annotate.outputs.v1hash }}.ipfs.4everland.io)
