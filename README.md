@@ -11,39 +11,23 @@ cd agoric-sdk
 yarn && yarn build
 ```
 
-2. Build the local chain if necessary.
+2. (One-time) Define keys expected by the startup scripts
 
 ```
-cd packages/cosmic-swingset && make scenario2-setup
+agd keys add gov1 --keyring-backend=test
+agd keys add gov2 --keyring-backend=test
 ```
 
-3. (One-time) Create a private key for local development.
+If you have access to the mnemonics, use `--interactive` to get a prompt to import them. Without that it will create new keys. You can save the seed phrase somewhere, or even create a keplr account with it for testing. You can use `agd keys list --keyring-backend=test` to check which keys you've created.
+
+3. Start a local chain with psm, vaults, etc.
 
 ```
-agd keys add YOUR_ACCOUNT_KEY --keyring-backend=test // Your test account. You can name this whatever you want.
-agd keys add oracle2 --keyring-backend=test // This will be used by scripts later on.
+cd packages/inter-protocol && scripts/start-local-chain.sh
 ```
 
-You can save the seed phrase somewhere, or even create a keplr account with it for testing. You can use `agd keys list --keyring-backend=test` to check which keys you've created.
 
-4. Start a local chain with psm, vaults, etc.
-
-```
-cd packages/inter-protocol && scripts/start-local-chain.sh YOUR_ACCOUNT_KEY
-```
-
-(May need to `chmod +x start-local-chain.sh` first).
-
-5. Set up the price feeds needed by the vault contracts and UI
-
-```
-cd packages/agoric-cli
-AGORIC_NET=local test/agops-oracle-smoketest.sh YOUR_ACCOUNT_KEY
-```
-
-If it hangs on `agoric follow`, you can just cancel it as it's made it far enough to create a price feed. If you want, you can manually run the remaining steps in your terminal.
-
-6. Start a local [wallet](https://github.com/Agoric/wallet-app) client server:
+4. Start a local [wallet](https://github.com/Agoric/wallet-app) client server:
 
 ```
 cd wallet-app
@@ -56,7 +40,7 @@ Go to settings and select localhost for your network
 
 If you created a Keplr account with the seed from YOUR_ACCOUNT_KEY, you should already have a smart wallet provisioned.
 
-7. Then `yarn && yarn dev` in this directory to start the local HMR server. To connect to your local wallet UI, use http://127.0.0.1:5173/?wallet=local.
+5. Then `yarn && yarn dev` in this directory to start the local HMR server. To connect to your local wallet UI, use http://127.0.0.1:5173/?wallet=local.
 
 ## Deployment
 
