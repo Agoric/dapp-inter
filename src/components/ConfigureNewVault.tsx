@@ -23,7 +23,7 @@ const ConfigureNewVault = () => {
     prices: vaults.prices,
   }));
 
-  const { displayPercent, displayBrandPetname } =
+  const { displayPercent, displayBrandPetname, displayPrice } =
     useAtomValue(displayFunctionsAtom) ?? {};
 
   const [valueToLock, setValueToLock] = useAtom(valueToLockAtom);
@@ -67,6 +67,14 @@ const ConfigureNewVault = () => {
       ? `${displayBrandPetname(collateralBrand)} to lock up *`
       : 'To lock up *';
 
+  const collateralPriceForDisplay =
+    displayBrandPetname &&
+    displayPrice &&
+    hasPriceFeed &&
+    `1 ${displayBrandPetname(collateralBrand)} = ${displayPrice(
+      prices.get(collateralBrand),
+    )}`;
+
   const purse = usePurseForBrand(collateralBrand);
 
   const onMaxClicked = () => {
@@ -102,8 +110,11 @@ const ConfigureNewVault = () => {
       <p className="font-serif text-[#666980] leading-[26px]">
         Choose your vault parameters.
       </p>
-      <div className="mt-4 mb-4 text-sm font-serif text-[#666980]">
-        <span className="font-bold">{purseBalance}</span> Available
+      <div className="mt-4 mb-4 flex flex-wrap gap-x-[156px] gap-y-4 text-sm font-serif text-[#666980]">
+        <div>
+          <span className="font-bold">{purseBalance}</span> Available
+        </div>
+        <div>{collateralPriceForDisplay}</div>
       </div>
       <div className="flex gap-x-20 gap-y-6 flex-wrap">
         <AmountInput
