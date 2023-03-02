@@ -101,7 +101,8 @@ const AdjustVault = () => {
         <div className="text-lg">
           Outstanding Debt:{' '}
           <span className="font-medium">
-            {displayAmount(totalDebt, 2, 'usd')}
+            {displayAmount(totalDebt, 2, 'locale')}{' '}
+            {displayBrandPetname(totalDebt.brand)}
           </span>
         </div>
       </div>
