@@ -12,37 +12,6 @@ import { Amount, NatValue } from '@agoric/ertp/src/types';
 import { CollateralAction, DebtAction } from 'store/adjustVault';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 
-export const computeToReceive = (
-  priceRate: Ratio,
-  collateralizationRatio: Ratio,
-  toLock: NatValue,
-  defaultCollateralization: Ratio,
-  loanFee: Ratio,
-): NatValue => {
-  const collateralizationRatioOrDefault =
-    collateralizationRatio.numerator.value === 0n
-      ? defaultCollateralization
-      : collateralizationRatio;
-
-  const lockedPrice = floorMultiplyBy(
-    AmountMath.make(priceRate.denominator.brand, toLock),
-    priceRate,
-  );
-
-  const maxDebtAfterLoanFee = floorDivideBy(
-    lockedPrice,
-    collateralizationRatioOrDefault,
-  );
-
-  return floorDivideBy(
-    maxDebtAfterLoanFee,
-    addRatios(
-      loanFee,
-      makeRatioFromAmounts(loanFee.denominator, loanFee.denominator),
-    ),
-  ).value;
-};
-
 export const computeToLock = (
   priceRate: Ratio,
   collateralizationRatio: Ratio,
@@ -138,41 +107,6 @@ export const istAvailable = (
     ? AmountMath.subtract(debtLimit, totalDebt)
     : AmountMath.makeEmpty(debtLimit.brand);
 
-export const maxCollateralForNewVault = (
-  debtLimit: Amount<'nat'>,
-  totalDebt: Amount<'nat'>,
-  loanFee: Ratio,
-  price: PriceDescription,
-  desiredCollateralization: Ratio,
-  collateralPurseBalance: Amount<'nat'>,
-): NatValue => {
-  const istAvailableAfterLoanFee = istAvailable(debtLimit, totalDebt);
-
-  const loanFeeMultiplier = addRatios(
-    loanFee,
-    makeRatioFromAmounts(loanFee.denominator, loanFee.denominator),
-  );
-
-  const istAvailableBeforeLoanFee = floorDivideBy(
-    istAvailableAfterLoanFee,
-    loanFeeMultiplier,
-  );
-
-  const collateralForAvailableIst = computeToLock(
-    makeRatioFromAmounts(price.amountOut, price.amountIn),
-    desiredCollateralization,
-    istAvailableBeforeLoanFee.value,
-    desiredCollateralization,
-    loanFee,
-    'floor',
-  );
-
-  return AmountMath.min(
-    AmountMath.make(collateralPurseBalance.brand, collateralForAvailableIst),
-    collateralPurseBalance,
-  ).value;
-};
-
 export const maxIstToBorrowFromVault = (
   debtLimit: Amount<'nat'>,
   totalDebt: Amount<'nat'>,
@@ -216,6 +150,21 @@ export const maxIstToBorrowFromVault = (
     .value;
 };
 
+export const collateralizationRatio = (
+  price: PriceDescription,
+  locked: Amount<'nat'>,
+  debt: Amount<'nat'>,
+) => {
+  const totalLockedValue = ceilMultiplyBy(
+    locked,
+    makeRatioFromAmounts(price.amountOut, price.amountIn),
+  );
+
+  return AmountMath.isEmpty(debt)
+    ? undefined
+    : makeRatioFromAmounts(totalLockedValue, debt);
+};
+
 export const currentCollateralization = (
   debtSnapshot: DebtSnapshot,
   compoundedInterest: Ratio,
@@ -228,12 +177,5 @@ export const currentCollateralization = (
     compoundedInterest,
   );
 
-  const totalLockedValue = ceilMultiplyBy(
-    locked,
-    makeRatioFromAmounts(price.amountOut, price.amountIn),
-  );
-
-  return AmountMath.isEmpty(totalDebt)
-    ? undefined
-    : makeRatioFromAmounts(totalLockedValue, totalDebt);
+  return collateralizationRatio(price, locked, totalDebt);
 };

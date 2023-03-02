@@ -65,11 +65,10 @@ const WalletBridge = () => {
           className="underline text-blue-500"
           href={walletUiHref}
           target={signerTarget}
-          rel="noreferrer"
         >
           {walletUiHref}
         </a>{' '}
-        to perform swaps.
+        to continue interacting with the Vaults UI.
       </p>,
     );
   };
@@ -83,10 +82,10 @@ const WalletBridge = () => {
           className="underline text-blue-500"
           href={walletUiHref}
           target={signerTarget}
-          rel="noreferrer"
         >
           {walletUiHref}
         </a>
+        .
       </p>,
       { autoClose: 5000 },
     );
@@ -116,11 +115,10 @@ const WalletBridge = () => {
             className="underline text-blue-500"
             href={walletUiHref}
             target={signerTarget}
-            rel="noreferrer"
           >
             {walletUiHref}
           </a>
-          {message && `: ${message}`}
+          {message && `: ${message}`}.
         </p>
       </div>,
     );
