@@ -68,7 +68,7 @@ const WalletBridge = () => {
         >
           {walletUiHref}
         </a>{' '}
-        to perform swaps.
+        to continue interacting with the Vaults UI.
       </p>,
     );
   };
@@ -85,6 +85,7 @@ const WalletBridge = () => {
         >
           {walletUiHref}
         </a>
+        .
       </p>,
       { autoClose: 5000 },
     );
@@ -117,7 +118,7 @@ const WalletBridge = () => {
           >
             {walletUiHref}
           </a>
-          {message && `: ${message}`}
+          {message && `: ${message}`}.
         </p>
       </div>,
     );
