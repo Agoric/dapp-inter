@@ -26,7 +26,6 @@ If you have access to the mnemonics, use `--interactive` to get a prompt to impo
 cd packages/inter-protocol && scripts/start-local-chain.sh
 ```
 
-
 4. Start a local [wallet](https://github.com/Agoric/wallet-app) client server:
 
 ```
