@@ -1,3 +1,4 @@
+import { AmountMath } from '@agoric/ertp';
 import AmountInput from 'components/AmountInput';
 import RatioPercentInput from 'components/RatioPercentInput';
 import { useAtom, useAtomValue } from 'jotai';
@@ -11,7 +12,7 @@ import {
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
 import { usePurseBalanceDisplay, usePurseForBrand } from 'utils/hooks';
-import { maxCollateralForNewVault } from 'utils/vaultMath';
+import { maxIstToBorrowFromVault } from 'utils/vaultMath';
 
 const ConfigureNewVault = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
@@ -28,9 +29,7 @@ const ConfigureNewVault = () => {
 
   const [valueToLock, setValueToLock] = useAtom(valueToLockAtom);
   const [valueToReceive, setValueToReceive] = useAtom(valueToReceiveAtom);
-  const [collateralizationRatio, setCollateralizationRatio] = useAtom(
-    collateralizationRatioAtom,
-  );
+  const collateralizationRatio = useAtomValue(collateralizationRatioAtom);
 
   const selectedCollateralId = useAtomValue(selectedCollateralIdAtom);
 
@@ -77,29 +76,30 @@ const ConfigureNewVault = () => {
 
   const purse = usePurseForBrand(collateralBrand);
 
-  const onMaxClicked = () => {
-    if (
-      collateralizationRatioError ||
-      !(
-        selectedParams?.debtLimit &&
-        selectedMetrics?.totalDebt &&
-        purse &&
-        collateralBrand &&
-        collateralizationRatio
-      )
-    ) {
-      /* no-op */
+  const onMaxCollateralClicked = () => {
+    if (!purse) {
       return;
     }
 
-    setValueToLock(
-      maxCollateralForNewVault(
+    setValueToLock(purse.currentAmount.value);
+  };
+
+  const onMaxDebtClicked = () => {
+    if (
+      !(selectedParams && selectedMetrics && collateralBrand && hasPriceFeed)
+    ) {
+      return;
+    }
+
+    setValueToReceive(
+      maxIstToBorrowFromVault(
         selectedParams.debtLimit,
         selectedMetrics.totalDebt,
+        AmountMath.makeEmpty(selectedParams.debtLimit.brand),
         selectedParams.loanFee,
+        AmountMath.make(collateralBrand, valueToLock),
         prices.get(collateralBrand),
-        collateralizationRatio,
-        purse.currentAmount,
+        selectedParams.inferredMinimumCollateralization,
       ),
     );
   };
@@ -110,7 +110,7 @@ const ConfigureNewVault = () => {
       <p className="font-serif text-[#666980] leading-[26px]">
         Choose your vault parameters.
       </p>
-      <div className="mt-4 mb-4 flex flex-wrap gap-x-[156px] gap-y-4 text-sm font-serif text-[#666980]">
+      <div className="mt-4 mb-4 flex flex-wrap gap-x-10 gap-y-4 text-sm font-serif text-[#666980]">
         <div>
           <span className="font-bold">{purseBalance}</span> Available
         </div>
@@ -125,12 +125,14 @@ const ConfigureNewVault = () => {
           label={toLockLabel}
           error={toLockError}
           actionLabel="Max"
-          onAction={onMaxClicked}
+          onAction={onMaxCollateralClicked}
         />
         <RatioPercentInput
-          onChange={setCollateralizationRatio}
+          onChange={() => {
+            /* always disabled */
+          }}
           value={collateralizationRatio}
-          disabled={!isInputReady}
+          disabled={true}
           label="Collateralization percent *"
           error={collateralizationRatioError}
         />
@@ -140,6 +142,8 @@ const ConfigureNewVault = () => {
           value={valueToReceive}
           disabled={!isInputReady}
           label="IST to receive *"
+          actionLabel="Max"
+          onAction={onMaxDebtClicked}
           error={toReceiveError}
         />
       </div>

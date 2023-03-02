@@ -1,21 +1,22 @@
 import { atom } from 'jotai';
 import { vaultStoreAtom } from './vaults';
 import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
-import { computeToLock, computeToReceive, istAvailable } from 'utils/vaultMath';
-import { pursesAtom } from './app';
 import {
-  addRatios,
-  ceilMultiplyBy,
-  ratioGTE,
-} from '@agoric/zoe/src/contractSupport/ratio';
+  collateralizationRatio,
+  computeToLock,
+  debtAfterChange,
+  istAvailable,
+} from 'utils/vaultMath';
+import { pursesAtom } from './app';
+import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
 import { AmountMath } from '@agoric/ertp';
-import type { Ratio } from './vaults';
 import type { Amount, NatValue } from '@agoric/ertp/src/types';
 import type { Getter } from 'jotai';
+import { DebtAction } from './adjustVault';
 
-const valueToLockInternal = atom<NatValue | null>(null);
-const valueToReceiveInternal = atom<NatValue | null>(null);
-const collateralizationRatioInternal = atom<Ratio | null>(null);
+export const valueToLockAtom = atom<NatValue | null>(null);
+export const valueToReceiveAtom = atom<NatValue | null>(null);
+
 const selectedCollateralIdInternal = atom<string | null>(null);
 
 const getVaultInputData = (get: Getter, selectedCollateralId: string) => {
@@ -47,7 +48,12 @@ const getVaultInputData = (get: Getter, selectedCollateralId: string) => {
 
   const loanFee = selectedParams ? selectedParams.loanFee : null;
 
-  return { defaultCollateralizationRatio, priceRate, loanFee };
+  return {
+    defaultCollateralizationRatio,
+    priceRate,
+    loanFee,
+    collateralPriceDescription,
+  };
 };
 
 export type VaultCreationErrors = {
@@ -56,103 +62,42 @@ export type VaultCreationErrors = {
   collateralizationRatioError?: string;
 };
 
-export const valueToLockAtom = atom(
-  get => get(valueToLockInternal),
-  (get, set, value: NatValue) => {
-    set(valueToLockInternal, value);
+export const collateralizationRatioAtom = atom(get => {
+  const selectedCollateralId = get(selectedCollateralIdAtom);
+  const valueToLock = get(valueToLockAtom);
+  const valueToReceive = get(valueToReceiveAtom);
 
-    const selectedCollateralId = get(selectedCollateralIdInternal);
-    if (!selectedCollateralId) {
-      return;
-    }
+  if (
+    !selectedCollateralId ||
+    valueToLock === null ||
+    valueToReceive === null
+  ) {
+    return undefined;
+  }
 
-    const collateralizationRatio = get(collateralizationRatioInternal);
-    const { priceRate, defaultCollateralizationRatio, loanFee } =
-      getVaultInputData(get, selectedCollateralId);
+  const { collateralPriceDescription: price, loanFee } = getVaultInputData(
+    get,
+    selectedCollateralId,
+  );
 
-    if (
-      priceRate &&
-      defaultCollateralizationRatio &&
-      collateralizationRatio &&
-      loanFee
-    ) {
-      set(
-        valueToReceiveInternal,
-        computeToReceive(
-          priceRate,
-          collateralizationRatio,
-          value,
-          defaultCollateralizationRatio,
-          loanFee,
-        ),
-      );
-    }
-  },
-);
+  if (!price || !loanFee) {
+    return undefined;
+  }
 
-export const valueToReceiveAtom = atom(
-  get => get(valueToReceiveInternal),
-  (get, set, value: NatValue) => {
-    set(valueToReceiveInternal, value);
+  const toReceive = AmountMath.make(price.amountOut.brand, valueToReceive);
+  const debt = debtAfterChange(
+    DebtAction.Borrow,
+    loanFee,
+    AmountMath.makeEmpty(toReceive.brand),
+    toReceive,
+  );
 
-    const selectedCollateralId = get(selectedCollateralIdInternal);
-    if (!selectedCollateralId) {
-      return;
-    }
-
-    const collateralizationRatio = get(collateralizationRatioInternal);
-    const { priceRate, defaultCollateralizationRatio, loanFee } =
-      getVaultInputData(get, selectedCollateralId);
-
-    if (
-      priceRate &&
-      defaultCollateralizationRatio &&
-      collateralizationRatio &&
-      loanFee
-    ) {
-      set(
-        valueToLockInternal,
-        computeToLock(
-          priceRate,
-          collateralizationRatio,
-          value,
-          defaultCollateralizationRatio,
-          loanFee,
-          'ceil',
-        ),
-      );
-    }
-  },
-);
-
-export const collateralizationRatioAtom = atom(
-  get => get(collateralizationRatioInternal),
-  (get, set, ratio: Ratio) => {
-    set(collateralizationRatioInternal, ratio);
-
-    const valueToLock = get(valueToLockInternal);
-    const selectedCollateralId = get(selectedCollateralIdInternal);
-    if (!(valueToLock && selectedCollateralId)) {
-      return;
-    }
-
-    const { priceRate, defaultCollateralizationRatio, loanFee } =
-      getVaultInputData(get, selectedCollateralId);
-
-    if (priceRate && defaultCollateralizationRatio && loanFee) {
-      set(
-        valueToReceiveInternal,
-        computeToReceive(
-          priceRate,
-          ratio,
-          valueToLock,
-          defaultCollateralizationRatio,
-          loanFee,
-        ),
-      );
-    }
-  },
-);
+  return collateralizationRatio(
+    price,
+    AmountMath.make(price.amountIn.brand, valueToLock),
+    debt,
+  );
+});
 
 export const selectedCollateralIdAtom = atom(
   get => get(selectedCollateralIdInternal),
@@ -160,27 +105,20 @@ export const selectedCollateralIdAtom = atom(
     set(selectedCollateralIdInternal, selectedCollateralId);
 
     if (selectedCollateralId === null) {
-      set(valueToReceiveInternal, null);
-      set(valueToLockInternal, null);
-      set(collateralizationRatioInternal, null);
+      set(valueToReceiveAtom, null);
+      set(valueToLockAtom, null);
       return;
     }
 
     const { priceRate, defaultCollateralizationRatio, loanFee } =
       getVaultInputData(get, selectedCollateralId);
 
-    if (defaultCollateralizationRatio) {
-      set(collateralizationRatioInternal, defaultCollateralizationRatio);
-    } else {
-      set(collateralizationRatioInternal, null);
-    }
-
     const { vaultFactoryParams } = get(vaultStoreAtom);
     const defaultValueReceived = vaultFactoryParams?.minInitialDebt;
     if (defaultValueReceived) {
-      set(valueToReceiveInternal, defaultValueReceived.value);
+      set(valueToReceiveAtom, defaultValueReceived.value);
     } else {
-      set(valueToReceiveInternal, null);
+      set(valueToReceiveAtom, null);
     }
 
     if (
@@ -197,9 +135,9 @@ export const selectedCollateralIdAtom = atom(
         loanFee,
         'ceil',
       );
-      set(valueToLockInternal, valueToLock);
+      set(valueToLockAtom, valueToLock);
     } else {
-      set(valueToLockInternal, null);
+      set(valueToLockAtom, null);
     }
   },
 );
@@ -239,24 +177,27 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
       ? vaultMetrics.get(selectedCollateralId)
       : null;
 
-  if (selectedMetrics && selectedParams && valueToReceive) {
+  if (selectedMetrics && selectedParams) {
     const mintedAvailable = istAvailable(
       selectedParams.debtLimit,
       selectedMetrics.totalDebt,
-    ).value;
-
-    const { loanFee } = selectedParams;
-    const loanFeeMultiplier = addRatios(
-      loanFee,
-      makeRatioFromAmounts(loanFee.denominator, loanFee.denominator),
     );
 
-    const resultingDebt = ceilMultiplyBy(
-      AmountMath.make(selectedMetrics.totalDebt.brand, valueToReceive),
-      loanFeeMultiplier,
-    ).value;
+    const { loanFee } = selectedParams;
 
-    if (mintedAvailable < resultingDebt) {
+    if (
+      loanFee &&
+      valueToReceive &&
+      !AmountMath.isGTE(
+        mintedAvailable,
+        debtAfterChange(
+          DebtAction.Borrow,
+          loanFee,
+          AmountMath.makeEmpty(mintedAvailable.brand),
+          AmountMath.make(mintedAvailable.brand, valueToReceive),
+        ),
+      )
+    ) {
       toReceiveError = 'Exceeds amount available';
     }
   }
