@@ -1,3 +1,4 @@
+/** This service is a .tsx so it can present contentful toasts. */
 import { makeAsyncIterableFromNotifier as iterateNotifier } from '@agoric/notifier';
 import { appStore, ChainConnection } from 'store/app';
 import { toast } from 'react-toastify';
@@ -103,7 +104,7 @@ export const makeWalletService = () => {
           showToast('Network not found.');
           break;
         case Errors.noSmartWallet:
-          showToast(SmartWalletNotFoundToast);
+          showToast(<SmartWalletNotFoundToast />);
           break;
       }
     } finally {

@@ -1,16 +1,23 @@
-import { prodSignerHref, signerTarget } from 'config';
+import { signerTarget } from 'config';
+import { walletUiHrefAtom } from 'store/app';
+import { useAtomValue } from 'jotai';
 
-export default (
-  <p>
-    No Agoric smart wallet found for this address. Create one at{' '}
-    <a
-      className="underline text-blue-500"
-      href={prodSignerHref}
-      target={signerTarget}
-      rel="noreferrer"
-    >
-      {prodSignerHref}
-    </a>{' '}
-    then try again.
-  </p>
-);
+const SmartWalletNotFoundToast = () => {
+  const walletUiHref = useAtomValue(walletUiHrefAtom);
+
+  return (
+    <p>
+      No Agoric smart wallet found for this address. Create one at{' '}
+      <a
+        className="underline text-blue-500"
+        href={walletUiHref}
+        target={signerTarget}
+      >
+        {walletUiHref}
+      </a>{' '}
+      then try again.
+    </p>
+  );
+};
+
+export default SmartWalletNotFoundToast;

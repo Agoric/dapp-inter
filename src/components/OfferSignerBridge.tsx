@@ -65,7 +65,6 @@ const WalletBridge = () => {
           className="underline text-blue-500"
           href={walletUiHref}
           target={signerTarget}
-          rel="noreferrer"
         >
           {walletUiHref}
         </a>{' '}
@@ -83,7 +82,6 @@ const WalletBridge = () => {
           className="underline text-blue-500"
           href={walletUiHref}
           target={signerTarget}
-          rel="noreferrer"
         >
           {walletUiHref}
         </a>
@@ -116,7 +114,6 @@ const WalletBridge = () => {
             className="underline text-blue-500"
             href={walletUiHref}
             target={signerTarget}
-            rel="noreferrer"
           >
             {walletUiHref}
           </a>
