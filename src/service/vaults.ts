@@ -41,7 +41,7 @@ const watchPriceFeeds = () => {
 
   const watchFeed = async (brand: Brand, managerId: string) => {
     watchedBrands.add(brand);
-    const path = `:published.vaultFactory.${managerId}.quotes`;
+    const path = `:published.vaultFactory.managers.${managerId}.quotes`;
     const f = makeFollower(path, leader, {
       unserializer: importContext.fromBoard,
     });
