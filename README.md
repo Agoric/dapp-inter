@@ -26,20 +26,20 @@ User application for Agoric Inter Protocol--Vaults, BLD Boost, Liquidations, etc
    cd packages/inter-protocol && scripts/start-local-chain.sh
    ```
 
-4. Start a local [wallet](https://github.com/Agoric/wallet-app) client server:
+4. Go the the [wallet](https://github.com/Agoric/wallet-app) repository and start a local client server:
 
    ```
    cd wallet-app
    yarn start
    ```
 
-5. Go to settings and select localhost for your network
+5. Open the [wallet UI](http://localhost:3000/wallet/) and adjust Settings to use the localhost network.
 
    <img width="410" alt="Screen Shot 2023-01-23 at 11 57 16 AM" src="https://user-images.githubusercontent.com/8848650/214137346-b42942db-3b93-413a-991e-c77e2a30d6f1.png">
 
    If you created a Keplr account with the seed from YOUR_ACCOUNT_KEY, you should already have a smart wallet provisioned.
 
-6. Then `yarn && yarn dev` in this directory to start the local HMR server. To connect to your local wallet UI, use http://127.0.0.1:5173/?wallet=local.
+6. Return to this repository and `yarn && yarn dev` to start the local HMR server. To connect to your local wallet UI, use http://127.0.0.1:5173/?wallet=local.
 
 ## Deployment
 
