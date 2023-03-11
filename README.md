@@ -4,16 +4,39 @@ User application for Agoric Inter Protocol--Vaults, BLD Boost, Liquidations, etc
 
 ## Development
 
-1. Download and build the latest copy of `agoric-sdk`.
+### Requirements
 
-   ```
+- [Node 14.15.0 or higher](https://docs.agoric.com/guides/getting-started/)
+- [Go 1.17 or higher](https://github.com/Agoric/agoric-sdk/tree/master/packages/cosmic-swingset#build-from-source)
+
+### Setup
+
+1. Download and build the latest copy of `agoric-sdk`, including Agoric's Cosmic SwingSet.
+
+   ```sh
    cd agoric-sdk
    yarn && yarn build
+   yarn link-cli ~/bin/agoric # or use any local dir in $PATH (e.g. ~/.local/bin/agoric)
    ```
+
+   Test that `agoric` works with:
+
+   `agoric --version`
+
+   For Cosmic SwingSet (in `agoric-sdk`):
+
+   ```sh
+   cd packages/cosmic-swingset
+   make
+   ```
+
+   Test that Cosmic SwingSet tools work with:
+
+   `agd --help`
 
 2. (One-time) Define keys expected by the startup scripts
 
-   ```
+   ```sh
    agd keys add gov1 --keyring-backend=test
    agd keys add gov2 --keyring-backend=test
    ```
@@ -28,7 +51,7 @@ User application for Agoric Inter Protocol--Vaults, BLD Boost, Liquidations, etc
 
 4. Go the the [wallet](https://github.com/Agoric/wallet-app) repository and start a local client server:
 
-   ```
+   ```sh
    cd wallet-app && yarn install
    cd wallet && yarn start
    ```
