@@ -29,8 +29,8 @@ User application for Agoric Inter Protocol--Vaults, BLD Boost, Liquidations, etc
 4. Go the the [wallet](https://github.com/Agoric/wallet-app) repository and start a local client server:
 
    ```
-   cd wallet-app
-   yarn start
+   cd wallet-app && yarn install
+   cd wallet && yarn start
    ```
 
 5. Open the [wallet UI](http://localhost:3000/wallet/) and adjust Settings to use the localhost network.
