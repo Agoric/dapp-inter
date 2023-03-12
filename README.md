@@ -39,7 +39,7 @@ User application for Agoric Inter Protocol--Vaults, BLD Boost, Liquidations, etc
 
    If you created a Keplr account with the seed from YOUR_ACCOUNT_KEY, you should already have a smart wallet provisioned.
 
-6. Return to this repository and `yarn && yarn dev` to start the local server with [Hot Module Replacement](https://webpack.js.org/concepts/hot-module-replacement/) (which automatically refreshes the UI as you change source files). To connect to your local wallet UI, use http://127.0.0.1:5173/?wallet=local.
+6. Return to this repository and `yarn && yarn dev` to start the local server with Hot Module Replacement (which automatically refreshes the UI as you change source files). To connect to your local wallet UI, use http://127.0.0.1:5173/?wallet=local.
 
 ## Deployment
 
