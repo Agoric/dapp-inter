@@ -37,8 +37,11 @@ export const watchPublicSubscribers = (chainConnection: ChainConnection) => {
   const watch = async () => {
     const n = chainConnection.publicSubscribersNotifier;
 
-    for await (const offerIdsToPublicSubscribers of iterateNotifier(n)) {
+    for await (const entries of iterateNotifier(n)) {
       if (isCancelled) return;
+      if (!entries) continue;
+
+      const offerIdsToPublicSubscribers = Object.fromEntries(entries);
       console.debug(
         'got offer ids to public subscribers',
         offerIdsToPublicSubscribers,
