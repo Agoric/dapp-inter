@@ -321,7 +321,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
 
 export const makeOpenVaultOffer = async (
   toLock: Amount<'nat'>,
-  toBorrow: Amount<'nat'>,
+  toMint: Amount<'nat'>,
 ) => {
   const { importContext, offerSigner } = appStore.getState();
 
@@ -339,8 +339,8 @@ export const makeOpenVaultOffer = async (
   const serializedToLock = importContext.fromBoard.serialize(
     toLock,
   ) as CapData<'Amount'>;
-  const serializedtoBorrow = importContext.fromBoard.serialize(
-    toBorrow,
+  const serializedtoMint = importContext.fromBoard.serialize(
+    toMint,
   ) as CapData<'Amount'>;
 
   const offerConfig = {
@@ -353,7 +353,7 @@ export const makeOpenVaultOffer = async (
       },
       want: {
         Minted: {
-          amount: serializedtoBorrow,
+          amount: serializedtoMint,
         },
       },
     }),
@@ -414,7 +414,7 @@ export const makeAdjustVaultOffer = async ({
       amount: importContext.fromBoard.serialize(collateral.amount),
     };
   }
-  if (debt?.action === DebtAction.Borrow) {
+  if (debt?.action === DebtAction.Mint) {
     proposal.want.Minted = {
       amount: importContext.fromBoard.serialize(debt.amount),
     };

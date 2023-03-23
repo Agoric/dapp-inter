@@ -72,12 +72,12 @@ const NewVaultOfferSummary = () => {
         )}`
       : '--';
 
-  const borrowAmount =
+  const mintAmount =
     valueToReceive && debtBrand && AmountMath.make(debtBrand, valueToReceive);
 
-  const borrowAmountForDisplay =
-    displayAmount && displayBrandPetname && borrowAmount
-      ? `${displayAmount(borrowAmount, 2, 'locale')} ${displayBrandPetname(
+  const mintAmountForDisplay =
+    displayAmount && displayBrandPetname && mintAmount
+      ? `${displayAmount(mintAmount, 2, 'locale')} ${displayBrandPetname(
           debtBrand,
         )}`
       : '--';
@@ -116,11 +116,11 @@ const NewVaultOfferSummary = () => {
     selectedParams &&
     factoryParams &&
     depositAmount &&
-    borrowAmount &&
+    mintAmount &&
     offerSigner?.isDappApproved;
 
   const createVault = async () => {
-    await makeOpenVaultOffer(depositAmount, borrowAmount);
+    await makeOpenVaultOffer(depositAmount, mintAmount);
     setIsVaultCreationDialogOpen(true);
   };
 
@@ -149,7 +149,7 @@ const NewVaultOfferSummary = () => {
             <table className="w-full">
               <tbody>
                 <TableRow left="Depositing" right={depositAmountForDisplay} />
-                <TableRow left="Borrowing" right={borrowAmountForDisplay} />
+                <TableRow left="Minting" right={mintAmountForDisplay} />
                 <TableRow left="Interest Rate" right={interestRateForDisplay} />
                 <TableRow
                   left="Minimum Collateralization Ratio"
@@ -162,10 +162,7 @@ const NewVaultOfferSummary = () => {
           <div className="w-full p-2">
             <table className="w-full">
               <tbody>
-                <TableRow
-                  left="Vault Creation Fee"
-                  right={creationFeeForDisplay}
-                />
+                <TableRow left="Minting Fee" right={creationFeeForDisplay} />
                 <TableRow
                   left="Liquidation Ratio"
                   right={liquidationRatioForDisplay}

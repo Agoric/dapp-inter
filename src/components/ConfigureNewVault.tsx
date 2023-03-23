@@ -12,7 +12,7 @@ import {
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
 import { usePurseBalanceDisplay, usePurseForBrand } from 'utils/hooks';
-import { maxIstToBorrowFromVault } from 'utils/vaultMath';
+import { maxIstToMintFromVault } from 'utils/vaultMath';
 
 const ConfigureNewVault = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
@@ -44,9 +44,7 @@ const ConfigureNewVault = () => {
 
   const hasPriceFeed = collateralBrand && prices.has(collateralBrand);
 
-  const borrowedBrand = selectedMetrics
-    ? selectedMetrics.totalDebt.brand
-    : null;
+  const mintedBrand = selectedMetrics ? selectedMetrics.totalDebt.brand : null;
 
   const selectedParams =
     selectedCollateralId && params?.has(selectedCollateralId)
@@ -92,7 +90,7 @@ const ConfigureNewVault = () => {
     }
 
     setValueToReceive(
-      maxIstToBorrowFromVault(
+      maxIstToMintFromVault(
         selectedParams.debtLimit,
         selectedMetrics.totalDebt,
         AmountMath.makeEmpty(selectedParams.debtLimit.brand),
@@ -138,7 +136,7 @@ const ConfigureNewVault = () => {
         />
         <AmountInput
           onChange={setValueToReceive}
-          brand={borrowedBrand}
+          brand={mintedBrand}
           value={valueToReceive}
           disabled={!isInputReady}
           label="IST to receive *"
@@ -149,12 +147,9 @@ const ConfigureNewVault = () => {
       </div>
       <p className="mt-12 italic font-serif text-[#666980] text-sm leading-[22px]">
         {selectedParams && displayPercent
-          ? `A vault creation fee of ${displayPercent(
-              selectedParams.loanFee,
-              2,
-            )}%
+          ? `A minting fee of ${displayPercent(selectedParams.loanFee, 2)}%
           will be charged on vault creation.`
-          : 'A vault creation fee will be charged on vault creation'}
+          : 'A minting fee will be charged on vault creation.'}
       </p>
     </div>
   );

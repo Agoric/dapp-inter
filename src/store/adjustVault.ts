@@ -138,7 +138,7 @@ export enum CollateralAction {
 export enum DebtAction {
   None = 'No Action',
   Repay = 'Repay',
-  Borrow = 'Borrow More',
+  Mint = 'Mint More',
 }
 
 const collateralActionAtomInternal = atom(CollateralAction.None);
@@ -233,11 +233,11 @@ export const adjustVaultErrorsAtom = atom(get => {
       params.inferredMinimumCollateralization,
     )
   ) {
-    if (debtAction === DebtAction.Borrow) {
-      debtError = "Can't borrow below min. collat. ratio";
+    if (debtAction === DebtAction.Mint) {
+      debtError = "Can't mint under min. collat. ratio";
     }
     if (collateralAction === CollateralAction.Withdraw) {
-      collateralError = "Can't withdraw below min. collat. ratio";
+      collateralError = "Can't withdraw under min. collat. ratio";
     }
   }
 
@@ -266,7 +266,7 @@ export const adjustVaultErrorsAtom = atom(get => {
     collateralError = 'Insufficient funds.';
   }
 
-  if (debtAction === DebtAction.Borrow) {
+  if (debtAction === DebtAction.Mint) {
     const mintedAvailable = istAvailable(params.debtLimit, metrics.totalDebt);
 
     const debtDelta = AmountMath.subtract(newDebt, totalDebt);

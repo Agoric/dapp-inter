@@ -177,7 +177,7 @@ const AdjustVaultSummary = () => {
                   right={newLockedForDisplay}
                 />
                 <TableRowWithArrow
-                  label="Borrowing"
+                  label="Debt"
                   left={`${displayAmount(
                     totalDebt,
                     2,

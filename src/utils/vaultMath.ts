@@ -60,7 +60,7 @@ export const debtAfterChange = (
     return totalDebt;
   }
 
-  if (debtAction === DebtAction.Borrow) {
+  if (debtAction === DebtAction.Mint) {
     const loanFeeMultiplier = addRatios(
       loanFee,
       makeRatioFromAmounts(loanFee.denominator, loanFee.denominator),
@@ -107,7 +107,7 @@ export const istAvailable = (
     ? AmountMath.subtract(debtLimit, totalDebt)
     : AmountMath.makeEmpty(debtLimit.brand);
 
-export const maxIstToBorrowFromVault = (
+export const maxIstToMintFromVault = (
   debtLimit: Amount<'nat'>,
   totalDebt: Amount<'nat'>,
   currentDebt: Amount<'nat'>,
