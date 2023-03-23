@@ -86,7 +86,7 @@ export const collateralizationRatioAtom = atom(get => {
 
   const toReceive = AmountMath.make(price.amountOut.brand, valueToReceive);
   const debt = debtAfterChange(
-    DebtAction.Borrow,
+    DebtAction.Mint,
     loanFee,
     AmountMath.makeEmpty(toReceive.brand),
     toReceive,
@@ -191,7 +191,7 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
       !AmountMath.isGTE(
         mintedAvailable,
         debtAfterChange(
-          DebtAction.Borrow,
+          DebtAction.Mint,
           loanFee,
           AmountMath.makeEmpty(mintedAvailable.brand),
           AmountMath.make(mintedAvailable.brand, valueToReceive),

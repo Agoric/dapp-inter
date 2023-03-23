@@ -4,7 +4,7 @@ import {
   debtAfterChange,
   istAvailable,
   lockedAfterChange,
-  maxIstToBorrowFromVault,
+  maxIstToMintFromVault,
 } from '../../src/utils/vaultMath';
 import { CollateralAction, DebtAction } from '../../src/store/adjustVault';
 import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
@@ -63,13 +63,13 @@ describe('debtAfterDelta', () => {
       ),
     ).toEqual(totalDebt);
 
-    expect(
-      debtAfterChange(DebtAction.Borrow, loanFee, totalDebt, null),
-    ).toEqual(totalDebt);
+    expect(debtAfterChange(DebtAction.Mint, loanFee, totalDebt, null)).toEqual(
+      totalDebt,
+    );
 
     expect(
       debtAfterChange(
-        DebtAction.Borrow,
+        DebtAction.Mint,
         loanFee,
         totalDebt,
         AmountMath.makeEmpty(mintedBrand),
@@ -77,7 +77,7 @@ describe('debtAfterDelta', () => {
     ).toEqual(totalDebt);
   });
 
-  it('should handle borrowing with a loan fee', () => {
+  it('should handle minting with a loan fee', () => {
     const totalDebt = AmountMath.make(mintedBrand, 100n);
     const loanFee = makeRatioFromAmounts(
       AmountMath.make(mintedBrand, 20n),
@@ -86,7 +86,7 @@ describe('debtAfterDelta', () => {
 
     expect(
       debtAfterChange(
-        DebtAction.Borrow,
+        DebtAction.Mint,
         loanFee,
         totalDebt,
         AmountMath.make(mintedBrand, 100n),
@@ -94,7 +94,7 @@ describe('debtAfterDelta', () => {
     ).toEqual(AmountMath.make(mintedBrand, 202n));
   });
 
-  it('should handle borrowing without a loan fee', () => {
+  it('should handle minting without a loan fee', () => {
     const totalDebt = AmountMath.make(mintedBrand, 100n);
     const loanFee = makeRatioFromAmounts(
       AmountMath.make(mintedBrand, 0n),
@@ -103,7 +103,7 @@ describe('debtAfterDelta', () => {
 
     expect(
       debtAfterChange(
-        DebtAction.Borrow,
+        DebtAction.Mint,
         loanFee,
         totalDebt,
         AmountMath.make(mintedBrand, 100n),
@@ -228,7 +228,7 @@ describe('istAvailable', () => {
   });
 });
 
-describe('maxIstToBorrowFromVault', () => {
+describe('maxIstToMintFromVault', () => {
   it('should prevent the user from exceeding the mint limit', () => {
     // Effective limit on new debt is 99n.
     const [debtLimit, totalDebt] = [
@@ -261,7 +261,7 @@ describe('maxIstToBorrowFromVault', () => {
     );
 
     expect(
-      maxIstToBorrowFromVault(
+      maxIstToMintFromVault(
         debtLimit,
         totalDebt,
         currentDebt,
@@ -309,7 +309,7 @@ describe('maxIstToBorrowFromVault', () => {
     const expectedValue = 48n;
 
     expect(
-      maxIstToBorrowFromVault(
+      maxIstToMintFromVault(
         debtLimit,
         totalDebt,
         currentDebt,

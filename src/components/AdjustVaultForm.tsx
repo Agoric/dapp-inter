@@ -19,7 +19,7 @@ import StyledDropdown from './StyledDropdown';
 import { PursesJSONState } from '@agoric/wallet-backend';
 import CloseVaultDialog from './CloseVaultDialog';
 import { useState } from 'react';
-import { maxIstToBorrowFromVault } from 'utils/vaultMath';
+import { maxIstToMintFromVault } from 'utils/vaultMath';
 
 const AdjustVaultForm = () => {
   const displayFunctions = useAtomValue(displayFunctionsAtom);
@@ -66,7 +66,7 @@ const AdjustVaultForm = () => {
   };
 
   const onMaxDebtClicked = () => {
-    assert(debtAction === DebtAction.Borrow);
+    assert(debtAction === DebtAction.Mint);
     if (!(vaultToAdjust && vaultAfterAdjustment)) {
       /* no-op */
       return;
@@ -76,7 +76,7 @@ const AdjustVaultForm = () => {
     const { newLocked } = vaultAfterAdjustment;
 
     setDebtInputValue(
-      maxIstToBorrowFromVault(
+      maxIstToMintFromVault(
         params.debtLimit,
         metrics.totalDebt,
         totalDebt,
@@ -137,14 +137,14 @@ const AdjustVaultForm = () => {
         <div className="mt-8 font-bold mb-4">Adjust Debt</div>
         <div className="mb-12 grid grid-cols-2 gap-10">
           <div className="text-[#9193A5] text-sm col-span-2 lg:col-span-1">
-            Borrow additional IST or repay your existing IST debt. Select “No
+            Mint additional IST or repay your existing IST debt. Select “No
             Action” to leave debt unchanged.
           </div>
           <div className="col-span-2 lg:col-span-1">
             <div className="mb-6">
               <StyledDropdown
                 selection={debtAction}
-                choices={[DebtAction.None, DebtAction.Borrow, DebtAction.Repay]}
+                choices={[DebtAction.None, DebtAction.Mint, DebtAction.Repay]}
                 onSelection={setDebtAction}
                 label="Action"
               />
@@ -163,7 +163,7 @@ const AdjustVaultForm = () => {
               label="Amount"
               disabled={debtAction === DebtAction.None}
               error={debtError}
-              actionLabel={debtAction === DebtAction.Borrow ? 'Max' : undefined}
+              actionLabel={debtAction === DebtAction.Mint ? 'Max' : undefined}
               onAction={onMaxDebtClicked}
             />
           </div>

@@ -45,13 +45,13 @@ const NewVault = ({ id }: Props) => {
     offerSigner.isDappApproved;
 
   // XXX: Calculate these based on user inputs and actual prices and liquidation ratios.
-  const IST_TO_BORROW = 5_000_000n; // 5 IST
+  const IST_TO_MINT = 5_000_000n; // 5 IST
   const COLLATERAL_TO_LOCK = 10_000_000_000n; // 1 million IbcATOM
   const proposeOffer = () => {
     assert(isReady);
     makeOpenVaultOffer(
       AmountMath.make(collateralPurse.brand, COLLATERAL_TO_LOCK),
-      AmountMath.make(istPurse.brand, IST_TO_BORROW),
+      AmountMath.make(istPurse.brand, IST_TO_MINT),
     );
   };
 
@@ -61,7 +61,7 @@ const NewVault = ({ id }: Props) => {
       disabled={!isReady}
       onClick={() => proposeOffer()}
     >
-      Borrow 5 IST
+      Mint 5 IST
     </button>
   );
 };
