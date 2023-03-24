@@ -266,6 +266,13 @@ export const adjustVaultErrorsAtom = atom(get => {
     collateralError = 'Insufficient funds.';
   }
 
+  if (
+    collateralAction === CollateralAction.Withdraw &&
+    AmountMath.isEmpty(newLocked)
+  ) {
+    collateralError = 'Exceeds available collateral.';
+  }
+
   if (debtAction === DebtAction.Mint) {
     const mintedAvailable = istAvailable(params.debtLimit, metrics.totalDebt);
 
