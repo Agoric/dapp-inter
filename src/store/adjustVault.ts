@@ -207,6 +207,11 @@ export const vaultAfterAdjustmentAtom = atom<VaultAfterAdjustment | null>(
   },
 );
 
+/**
+ * Only returns a maximum of one error each for collateral and debt, in no
+ * particular order of precedence. The important part is the user sees an error
+ * if one exists.
+ */
 export const adjustVaultErrorsAtom = atom(get => {
   let debtError;
   let collateralError;
@@ -257,6 +262,7 @@ export const adjustVaultErrorsAtom = atom(get => {
   const collateralPurseAmount = collateralPurse?.currentAmount as
     | Amount<'nat'>
     | undefined;
+
   if (
     collateralAction === CollateralAction.Deposit &&
     collateralInputAmount?.value &&
@@ -268,7 +274,7 @@ export const adjustVaultErrorsAtom = atom(get => {
 
   if (
     collateralAction === CollateralAction.Withdraw &&
-    AmountMath.isEmpty(newLocked)
+    AmountMath.isEmpty(newLocked) // Cannot withdraw all collateral from vault.
   ) {
     collateralError = 'Exceeds available collateral.';
   }
