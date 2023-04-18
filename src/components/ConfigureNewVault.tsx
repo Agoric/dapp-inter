@@ -148,8 +148,8 @@ const ConfigureNewVault = () => {
       <p className="mt-12 italic font-serif text-[#666980] text-sm leading-[22px]">
         {selectedParams && displayPercent
           ? `A minting fee of ${displayPercent(selectedParams.loanFee, 2)}%
-          will be charged on vault creation.`
-          : 'A minting fee will be charged on vault creation.'}
+          will be charged upon vault creation.`
+          : 'A minting fee will be charged upon vault creation.'}
       </p>
     </div>
   );
