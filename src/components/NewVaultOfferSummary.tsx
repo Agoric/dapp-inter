@@ -140,7 +140,7 @@ const NewVaultOfferSummary = () => {
       <div className="pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">
         <div className="px-8">
           <h3 className="mb-4 font-serif text-[22px] font-extrabold leading-[35px]">
-            Offer Summary
+            Vault Summary
           </h3>
           <h4 className="font-serif font-bold leading-[26px]">
             Confirm Details
