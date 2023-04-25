@@ -167,15 +167,26 @@ const watchUserVaults = () => {
   };
 };
 
+type GoverenedParamsCurrent = {
+  DebtLimit: ValuePossessor<Amount<'nat'>>;
+  InterestRate: ValuePossessor<Ratio>;
+  LiquidationPenalty: ValuePossessor<Ratio>;
+  LiquidationMargin: ValuePossessor<Ratio>;
+  LiquidationPadding: ValuePossessor<Ratio>;
+  MintFee: ValuePossessor<Ratio>;
+};
+
+type GoverenedParamsCurrentBackwardCompatible = {
+  DebtLimit: ValuePossessor<Amount<'nat'>>;
+  InterestRate: ValuePossessor<Ratio>;
+  LiquidationPenalty: ValuePossessor<Ratio>;
+  LiquidationMargin: ValuePossessor<Ratio>;
+  LiquidationPadding: ValuePossessor<Ratio>;
+  LoanFee: ValuePossessor<Ratio>;
+};
+
 type GovernedParamsUpdate = ValuePossessor<{
-  current: {
-    DebtLimit: ValuePossessor<Amount<'nat'>>;
-    InterestRate: ValuePossessor<Ratio>;
-    LiquidationPenalty: ValuePossessor<Ratio>;
-    LiquidationMargin: ValuePossessor<Ratio>;
-    LiquidationPadding: ValuePossessor<Ratio>;
-    LoanFee: ValuePossessor<Ratio>;
-  };
+  current: GoverenedParamsCurrent | GoverenedParamsCurrentBackwardCompatible;
 }>;
 
 type MetricsUpdate = ValuePossessor<VaultMetrics>;
@@ -206,7 +217,9 @@ export const watchVaultFactory = (netconfigUrl: string) => {
       const liquidationPenalty = current.LiquidationPenalty.value;
       const liquidationMargin = current.LiquidationMargin.value;
       const liquidationPadding = current.LiquidationPadding.value;
-      const loanFee = current.LoanFee.value;
+      const mintFee =
+        (current as GoverenedParamsCurrent).MintFee?.value ??
+        (current as GoverenedParamsCurrentBackwardCompatible).LoanFee.value;
       const debtLimit = current.DebtLimit.value;
 
       const inferredMinimumCollateralization =
@@ -220,7 +233,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
         interestRate,
         liquidationMargin,
         liquidationPenalty,
-        loanFee,
+        mintFee,
         inferredMinimumCollateralization,
       });
     }

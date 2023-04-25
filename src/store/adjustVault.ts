@@ -183,7 +183,7 @@ export const vaultAfterAdjustmentAtom = atom<VaultAfterAdjustment | null>(
 
     const newDebt = debtAfterChange(
       debtAction,
-      params.loanFee,
+      params.mintFee,
       totalDebt,
       debtInputAmount,
     );

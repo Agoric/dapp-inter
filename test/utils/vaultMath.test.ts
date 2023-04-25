@@ -28,7 +28,7 @@ describe('computeToLock', () => {
 
     const toReceive = 5_000_000n;
 
-    const loanFee = makeRatioFromAmounts(
+    const mintFee = makeRatioFromAmounts(
       AmountMath.make(mintedBrand, 1n),
       AmountMath.make(mintedBrand, 100n),
     );
@@ -39,7 +39,7 @@ describe('computeToLock', () => {
         collateralizationRatio,
         toReceive,
         collateralizationRatio,
-        loanFee,
+        mintFee,
         'ceil',
       ),
     ).toEqual(10670n);
@@ -49,7 +49,7 @@ describe('computeToLock', () => {
 describe('debtAfterDelta', () => {
   it('should handle no changes', () => {
     const totalDebt = AmountMath.make(mintedBrand, 1n);
-    const loanFee = makeRatioFromAmounts(
+    const mintFee = makeRatioFromAmounts(
       AmountMath.makeEmpty(mintedBrand),
       AmountMath.make(mintedBrand, 1n),
     );
@@ -57,20 +57,20 @@ describe('debtAfterDelta', () => {
     expect(
       debtAfterChange(
         DebtAction.None,
-        loanFee,
+        mintFee,
         totalDebt,
         AmountMath.make(mintedBrand, 1n),
       ),
     ).toEqual(totalDebt);
 
-    expect(debtAfterChange(DebtAction.Mint, loanFee, totalDebt, null)).toEqual(
+    expect(debtAfterChange(DebtAction.Mint, mintFee, totalDebt, null)).toEqual(
       totalDebt,
     );
 
     expect(
       debtAfterChange(
         DebtAction.Mint,
-        loanFee,
+        mintFee,
         totalDebt,
         AmountMath.makeEmpty(mintedBrand),
       ),
@@ -79,7 +79,7 @@ describe('debtAfterDelta', () => {
 
   it('should handle minting with a loan fee', () => {
     const totalDebt = AmountMath.make(mintedBrand, 100n);
-    const loanFee = makeRatioFromAmounts(
+    const mintFee = makeRatioFromAmounts(
       AmountMath.make(mintedBrand, 20n),
       AmountMath.make(mintedBrand, 1000n),
     );
@@ -87,7 +87,7 @@ describe('debtAfterDelta', () => {
     expect(
       debtAfterChange(
         DebtAction.Mint,
-        loanFee,
+        mintFee,
         totalDebt,
         AmountMath.make(mintedBrand, 100n),
       ),
@@ -96,7 +96,7 @@ describe('debtAfterDelta', () => {
 
   it('should handle minting without a loan fee', () => {
     const totalDebt = AmountMath.make(mintedBrand, 100n);
-    const loanFee = makeRatioFromAmounts(
+    const mintFee = makeRatioFromAmounts(
       AmountMath.make(mintedBrand, 0n),
       AmountMath.make(mintedBrand, 1000n),
     );
@@ -104,7 +104,7 @@ describe('debtAfterDelta', () => {
     expect(
       debtAfterChange(
         DebtAction.Mint,
-        loanFee,
+        mintFee,
         totalDebt,
         AmountMath.make(mintedBrand, 100n),
       ),
@@ -113,7 +113,7 @@ describe('debtAfterDelta', () => {
 
   it('should handle repaying', () => {
     const totalDebt = AmountMath.make(mintedBrand, 100n);
-    const loanFee = makeRatioFromAmounts(
+    const mintFee = makeRatioFromAmounts(
       AmountMath.make(mintedBrand, 20n),
       AmountMath.make(mintedBrand, 1000n),
     );
@@ -121,7 +121,7 @@ describe('debtAfterDelta', () => {
     expect(
       debtAfterChange(
         DebtAction.Repay,
-        loanFee,
+        mintFee,
         totalDebt,
         AmountMath.make(totalDebt.brand, 50n),
       ),
@@ -130,7 +130,7 @@ describe('debtAfterDelta', () => {
 
   it('should handle repaying below zero', () => {
     const totalDebt = AmountMath.make(mintedBrand, 100n);
-    const loanFee = makeRatioFromAmounts(
+    const mintFee = makeRatioFromAmounts(
       AmountMath.make(mintedBrand, 20n),
       AmountMath.make(mintedBrand, 1000n),
     );
@@ -138,7 +138,7 @@ describe('debtAfterDelta', () => {
     expect(
       debtAfterChange(
         DebtAction.Repay,
-        loanFee,
+        mintFee,
         totalDebt,
         AmountMath.make(mintedBrand, 200n),
       ),
@@ -243,7 +243,7 @@ describe('maxIstToMintFromVault', () => {
     const currentLocked = AmountMath.make(collateralBrand, 1000000n);
 
     // Loan fee is 10%.
-    const loanFee = makeRatioFromAmounts(
+    const mintFee = makeRatioFromAmounts(
       AmountMath.make(mintedBrand, 10n),
       AmountMath.make(mintedBrand, 100n),
     );
@@ -265,7 +265,7 @@ describe('maxIstToMintFromVault', () => {
         debtLimit,
         totalDebt,
         currentDebt,
-        loanFee,
+        mintFee,
         currentLocked,
         priceRate,
         minCollateralization,
@@ -284,7 +284,7 @@ describe('maxIstToMintFromVault', () => {
     const currentDebt = AmountMath.make(mintedBrand, 80n);
 
     // Loan fee is 10%.
-    const loanFee = makeRatioFromAmounts(
+    const mintFee = makeRatioFromAmounts(
       AmountMath.make(mintedBrand, 10n),
       AmountMath.make(mintedBrand, 100n),
     );
@@ -313,7 +313,7 @@ describe('maxIstToMintFromVault', () => {
         debtLimit,
         totalDebt,
         currentDebt,
-        loanFee,
+        mintFee,
         currentLocked,
         priceRate,
         minCollateralization,
