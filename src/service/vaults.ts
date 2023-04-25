@@ -1,5 +1,6 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import {
+  LiquidationSchedule,
   useVaultStore,
   VaultInfoChainData,
   VaultManager,
@@ -26,6 +27,32 @@ type PriceFeedUpdate = ValuePossessor<{
   quoteAmount: PriceQuote;
   quotePayment: unknown;
 }>;
+
+type LiquidationScheduleUpdate = ValuePossessor<LiquidationSchedule>;
+
+const watchLiquidationSchedule = () => {
+  let isStopped = false;
+  const { leader, importContext } = appStore.getState();
+
+  const path = ':published.auction.schedule';
+  const f = makeFollower(path, leader, {
+    unserializer: importContext.fromBoard,
+  });
+
+  const watch = async () => {
+    for await (const { value } of iterateLatest<LiquidationScheduleUpdate>(f)) {
+      if (isStopped) break;
+
+      useVaultStore.setState({ liquidationSchedule: value });
+    }
+  };
+
+  watch().catch(e => console.error(`Error watching ${path}`, e));
+
+  return () => {
+    isStopped = true;
+  };
+};
 
 // Subscribes to price feeds for new brands.
 const watchPriceFeeds = (prefix: string) => {
@@ -352,11 +379,13 @@ export const watchVaultFactory = (netconfigUrl: string) => {
 
   startWatching();
   const stopWatchingUserVaults = watchUserVaults();
+  const stopWatchingLiquidationSchedule = watchLiquidationSchedule();
 
   return () => {
     isStopped = true;
     stopWatchingPriceFeeds && stopWatchingPriceFeeds();
     stopWatchingUserVaults();
+    stopWatchingLiquidationSchedule();
   };
 };
 

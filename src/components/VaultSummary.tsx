@@ -293,16 +293,19 @@ const VaultSummary = ({ vaultKey }: Props) => {
 
     const isLiquidating = vault.vaultState === 'liquidating';
 
-    const atRiskNotice = collateralizationRatio &&
+    const isAtRisk =
+      collateralizationRatio &&
       !ratioGTE(collateralizationRatio, params.liquidationMargin) &&
-      !isLiquidating && (
-        <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-[#E22951]">
-          Vault at risk
-          <span className="pl-6 normal-case font-normal">
-            Below Liquidation Margin
-          </span>
-        </div>
-      );
+      !isLiquidating;
+
+    const atRiskNotice = isAtRisk && (
+      <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-[#E22951]">
+        Vault at risk
+        <span className="pl-6 normal-case font-normal">
+          Below Liquidation Margin
+        </span>
+      </div>
+    );
 
     const liquidatingNotice = isLiquidating && (
       <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-[#FF9F10]">
@@ -360,7 +363,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
           )}`}
         />
       </tbody>
-    ) : (
+    ) : isAtRisk ? (
       <tbody>
         <TableRow
           left="Current Collateral Price"
@@ -379,6 +382,27 @@ const VaultSummary = ({ vaultKey }: Props) => {
               ? displayPrice(maximumLockedPriceForLiquidation)
               : 'N/A'
           }
+        />
+      </tbody>
+    ) : (
+      <tbody>
+        <TableRow
+          left="Liquidation Price"
+          right={
+            maximumLockedPriceForLiquidation
+              ? displayPrice(maximumLockedPriceForLiquidation, 2)
+              : 'N/A'
+          }
+          light={true}
+        />
+        <TableRow
+          left="Liquidation Ratio"
+          right={`${displayPercent(params.liquidationMargin, 0)}%`}
+          light={true}
+        />
+        <TableRow
+          left="Collateralization Ratio"
+          right={`${displayPercent(collateralizationRatio, 0)}%`}
         />
       </tbody>
     );

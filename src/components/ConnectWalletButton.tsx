@@ -32,7 +32,7 @@ const ConnectWalletButton = () => {
   return (
     <button
       className={clsx(
-        'uppercase box-border border-2 border-mineShaft h-11 inline-flex items-center justify-center rounded-[4px] w-44 py-2 bg-transparent text-xs font-black',
+        'transition uppercase box-border border-2 border-mineShaft h-11 inline-flex items-center justify-center rounded-[4px] w-44 py-2 bg-transparent text-xs font-black',
         !isConnectionInProgress &&
           !chainConnection &&
           'hover:bg-black hover:bg-opacity-5',

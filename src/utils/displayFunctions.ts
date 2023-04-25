@@ -70,16 +70,12 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
     );
 
     if (format) {
-      assert(
-        typeof placesToShow !== 'undefined',
-        'Must specify decimal places for locale number format',
-      );
-
+      const placesShown = parsed.split('.')[1]?.length ?? 0;
       const usdOpts =
         format === 'usd' ? { style: 'currency', currency: 'USD' } : {};
 
       return new Intl.NumberFormat(navigator.language, {
-        minimumFractionDigits: placesToShow,
+        minimumFractionDigits: placesShown,
         ...usdOpts,
       }).format(Number(parsed));
     }
@@ -106,16 +102,7 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
       makeRatioFromAmounts(amountOut, amountIn),
     );
 
-    const isLocaleFormat = typeof placesToShow !== 'undefined';
-
-    return isLocaleFormat
-      ? ''
-      : '$' +
-          displayAmount(
-            brandOutAmountPerUnitOfBrandIn,
-            placesToShow,
-            isLocaleFormat ? 'usd' : undefined,
-          );
+    return displayAmount(brandOutAmountPerUnitOfBrandIn, placesToShow, 'usd');
   };
 
   const displayPriceTimestamp = (price: PriceDescription) => {
