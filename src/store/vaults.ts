@@ -77,6 +77,14 @@ export type VaultInfo = VaultInfoChainData & {
   indexWithinManager: number;
 };
 
+// Number of seconds since Unix epoch January 1, 1970.
+type UnixSeconds = number;
+
+export type LiquidationSchedule = {
+  activeStartTime: UnixSeconds;
+  nextStartTime: UnixSeconds;
+};
+
 export type VaultKey = string;
 
 // UNTIL: We get this from zoe https://github.com/Agoric/agoric-sdk/pull/6884
@@ -95,6 +103,7 @@ interface VaultState {
   prices: Map<Brand, PriceDescription>;
   priceErrors: Map<Brand, unknown>;
   vaultFactoryParams: VaultFactoryParams | null;
+  liquidationSchedule: LiquidationSchedule | null;
   setPrice: (brand: Brand, priceQuote: PriceQuote) => void;
   setPriceError: (brand: Brand, e: unknown) => void;
   setVaultManagerLoadingError: (id: string, error: unknown) => void;
@@ -124,6 +133,7 @@ export const vaultStore = createStore<VaultState>()(set => ({
   priceErrors: new Map<Brand, unknown>(),
   vaults: null,
   vaultErrors: new Map<string, unknown>(),
+  liquidationSchedule: null,
   setVaultManagerLoadingError: (id: string, error: unknown) =>
     set(state => {
       const newErrors = new Map(state.vaultManagerLoadingErrors);
