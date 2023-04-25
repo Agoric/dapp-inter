@@ -80,7 +80,7 @@ const AdjustVaultForm = () => {
         params.debtLimit,
         metrics.totalDebt,
         totalDebt,
-        params.loanFee,
+        params.mintFee,
         newLocked,
         collateralPrice,
         params.inferredMinimumCollateralization,

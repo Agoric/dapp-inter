@@ -17,7 +17,7 @@ export const computeToLock = (
   collateralizationRatio: Ratio,
   toReceive: NatValue,
   defaultCollateralization: Ratio,
-  loanFee: Ratio,
+  mintFee: Ratio,
   remainderHandling: 'floor' | 'ceil' = 'floor',
 ): NatValue => {
   const multiply =
@@ -29,10 +29,10 @@ export const computeToLock = (
       ? defaultCollateralization
       : collateralizationRatio;
 
-  const receiveAmount = AmountMath.make(loanFee.numerator.brand, toReceive);
+  const receiveAmount = AmountMath.make(mintFee.numerator.brand, toReceive);
   const resultingDebt = AmountMath.add(
     receiveAmount,
-    multiply(receiveAmount, loanFee),
+    multiply(receiveAmount, mintFee),
   );
   const receiveMargin = multiply(
     resultingDebt,
@@ -52,7 +52,7 @@ export const netValue = (lockedValue: Amount<'nat'>, debt: Amount<'nat'>) =>
 
 export const debtAfterChange = (
   debtAction: DebtAction,
-  loanFee: Ratio,
+  mintFee: Ratio,
   totalDebt: Amount<'nat'>,
   debtChange: Amount<'nat'> | null,
 ): Amount<'nat'> => {
@@ -61,14 +61,14 @@ export const debtAfterChange = (
   }
 
   if (debtAction === DebtAction.Mint) {
-    const loanFeeMultiplier = addRatios(
-      loanFee,
-      makeRatioFromAmounts(loanFee.denominator, loanFee.denominator),
+    const mintFeeMultiplier = addRatios(
+      mintFee,
+      makeRatioFromAmounts(mintFee.denominator, mintFee.denominator),
     );
 
     return AmountMath.add(
       totalDebt,
-      ceilMultiplyBy(debtChange, loanFeeMultiplier),
+      ceilMultiplyBy(debtChange, mintFeeMultiplier),
     );
   }
 
@@ -111,21 +111,21 @@ export const maxIstToMintFromVault = (
   debtLimit: Amount<'nat'>,
   totalDebt: Amount<'nat'>,
   currentDebt: Amount<'nat'>,
-  loanFee: Ratio,
+  mintFee: Ratio,
   locked: Amount<'nat'>,
   price: PriceDescription,
   minCollateralization: Ratio,
 ): NatValue => {
-  const istAvailableAfterLoanFee = istAvailable(debtLimit, totalDebt);
+  const istAvailableAfterMintFee = istAvailable(debtLimit, totalDebt);
 
-  const loanFeeMultiplier = addRatios(
-    loanFee,
-    makeRatioFromAmounts(loanFee.denominator, loanFee.denominator),
+  const mintFeeMultiplier = addRatios(
+    mintFee,
+    makeRatioFromAmounts(mintFee.denominator, mintFee.denominator),
   );
 
-  const istAvailableBeforeLoanFee = floorDivideBy(
-    istAvailableAfterLoanFee,
-    loanFeeMultiplier,
+  const istAvailableBeforeMintFee = floorDivideBy(
+    istAvailableAfterMintFee,
+    mintFeeMultiplier,
   );
 
   const lockedValue = floorMultiplyBy(
@@ -134,19 +134,19 @@ export const maxIstToMintFromVault = (
   );
 
   const currentDebtCeiling = floorDivideBy(lockedValue, minCollateralization);
-  const maxDebtDeltaAfterLoanFee = AmountMath.isGTE(
+  const maxDebtDeltaAfterMintFee = AmountMath.isGTE(
     currentDebtCeiling,
     currentDebt,
   )
     ? AmountMath.subtract(currentDebtCeiling, currentDebt)
     : AmountMath.makeEmpty(currentDebt.brand);
 
-  const maxDebtDeltaBeforeLoanFee = floorDivideBy(
-    maxDebtDeltaAfterLoanFee,
-    loanFeeMultiplier,
+  const maxDebtDeltaBeforeMintFee = floorDivideBy(
+    maxDebtDeltaAfterMintFee,
+    mintFeeMultiplier,
   );
 
-  return AmountMath.min(istAvailableBeforeLoanFee, maxDebtDeltaBeforeLoanFee)
+  return AmountMath.min(istAvailableBeforeMintFee, maxDebtDeltaBeforeMintFee)
     .value;
 };
 

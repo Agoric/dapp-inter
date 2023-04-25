@@ -89,7 +89,7 @@ const NewVaultOfferSummary = () => {
 
   const creationFeeForDisplay =
     displayPercent && selectedParams
-      ? `${displayPercent(selectedParams.loanFee, 2)}%`
+      ? `${displayPercent(selectedParams.mintFee, 2)}%`
       : '--';
 
   const liquidationRatioForDisplay =

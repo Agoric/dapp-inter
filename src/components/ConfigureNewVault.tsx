@@ -100,7 +100,7 @@ const ConfigureNewVault = () => {
         selectedParams.debtLimit,
         selectedMetrics.totalDebt,
         AmountMath.makeEmpty(selectedParams.debtLimit.brand),
-        selectedParams.loanFee,
+        selectedParams.mintFee,
         AmountMath.make(collateralBrand, valueToLock),
         prices.get(collateralBrand),
         selectedParams.inferredMinimumCollateralization,
@@ -153,7 +153,7 @@ const ConfigureNewVault = () => {
       </div>
       <p className="mt-12 italic font-serif text-[#666980] text-sm leading-[22px]">
         {selectedParams && displayPercent
-          ? `A minting fee of ${displayPercent(selectedParams.loanFee, 2)}%
+          ? `A minting fee of ${displayPercent(selectedParams.mintFee, 2)}%
           will be charged upon vault creation.`
           : 'A minting fee will be charged upon vault creation.'}
       </p>

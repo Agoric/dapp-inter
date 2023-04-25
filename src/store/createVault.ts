@@ -46,12 +46,12 @@ const getVaultInputData = (get: Getter, selectedCollateralId: string) => {
     ? selectedParams.inferredMinimumCollateralization
     : null;
 
-  const loanFee = selectedParams ? selectedParams.loanFee : null;
+  const mintFee = selectedParams ? selectedParams.mintFee : null;
 
   return {
     defaultCollateralizationRatio,
     priceRate,
-    loanFee,
+    mintFee,
     collateralPriceDescription,
   };
 };
@@ -75,19 +75,19 @@ export const collateralizationRatioAtom = atom(get => {
     return undefined;
   }
 
-  const { collateralPriceDescription: price, loanFee } = getVaultInputData(
+  const { collateralPriceDescription: price, mintFee } = getVaultInputData(
     get,
     selectedCollateralId,
   );
 
-  if (!price || !loanFee) {
+  if (!price || !mintFee) {
     return undefined;
   }
 
   const toReceive = AmountMath.make(price.amountOut.brand, valueToReceive);
   const debt = debtAfterChange(
     DebtAction.Mint,
-    loanFee,
+    mintFee,
     AmountMath.makeEmpty(toReceive.brand),
     toReceive,
   );
@@ -110,7 +110,7 @@ export const selectedCollateralIdAtom = atom(
       return;
     }
 
-    const { priceRate, defaultCollateralizationRatio, loanFee } =
+    const { priceRate, defaultCollateralizationRatio, mintFee } =
       getVaultInputData(get, selectedCollateralId);
 
     const { vaultFactoryParams } = get(vaultStoreAtom);
@@ -125,14 +125,14 @@ export const selectedCollateralIdAtom = atom(
       defaultCollateralizationRatio &&
       priceRate &&
       defaultValueReceived &&
-      loanFee
+      mintFee
     ) {
       const valueToLock = computeToLock(
         priceRate,
         defaultCollateralizationRatio,
         defaultValueReceived.value,
         defaultCollateralizationRatio,
-        loanFee,
+        mintFee,
         'ceil',
       );
       set(valueToLockAtom, valueToLock);
@@ -183,16 +183,16 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
       selectedMetrics.totalDebt,
     );
 
-    const { loanFee } = selectedParams;
+    const { mintFee } = selectedParams;
 
     if (
-      loanFee &&
+      mintFee &&
       valueToReceive &&
       !AmountMath.isGTE(
         mintedAvailable,
         debtAfterChange(
           DebtAction.Mint,
-          loanFee,
+          mintFee,
           AmountMath.makeEmpty(mintedAvailable.brand),
           AmountMath.make(mintedAvailable.brand, valueToReceive),
         ),
