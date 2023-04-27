@@ -2,15 +2,18 @@ import { Dialog, Transition } from '@headlessui/react';
 import clsx from 'clsx';
 import { Fragment, ReactElement } from 'react';
 
+type DialogAction = {
+  label: string;
+  action: () => void;
+};
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
-  onPrimaryAction: () => void;
-  onSecondaryAction: () => void;
   title: string;
   body: ReactElement;
-  primaryActionLabel: string;
-  secondaryActionLabel: string;
+  primaryAction: DialogAction;
+  secondaryAction?: DialogAction;
   primaryActionDisabled?: boolean;
 };
 
@@ -19,10 +22,8 @@ const ActionsDialog = ({
   onClose,
   title,
   body,
-  primaryActionLabel,
-  secondaryActionLabel,
-  onPrimaryAction,
-  onSecondaryAction,
+  primaryAction,
+  secondaryAction,
   primaryActionDisabled = false,
 }: Props) => {
   return (
@@ -61,12 +62,14 @@ const ActionsDialog = ({
                 <div className="h-[1px] mx-8 bg-[#D8D8D8]" />
                 <div className="py-6 px-8">
                   <div className="flex justify-end gap-6">
-                    <button
-                      className="text-btn-xs flex justify-center rounded  text-[#A3A5B9] border-[#A3A5B9] border-2 px-6 py-3 bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
-                      onClick={onSecondaryAction}
-                    >
-                      {secondaryActionLabel}
-                    </button>
+                    {secondaryAction && (
+                      <button
+                        className="text-btn-xs flex justify-center rounded  text-[#A3A5B9] border-[#A3A5B9] border-2 px-6 py-3 bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+                        onClick={secondaryAction.action}
+                      >
+                        {secondaryAction.label}
+                      </button>
+                    )}
                     <button
                       disabled={primaryActionDisabled}
                       className={clsx(
@@ -75,9 +78,9 @@ const ActionsDialog = ({
                           ? 'bg-gray-400 cursor-not-allowed'
                           : 'bg-interPurple hover:opacity-80 active:opacity-60',
                       )}
-                      onClick={onPrimaryAction}
+                      onClick={primaryAction.action}
                     >
-                      {primaryActionLabel}
+                      {primaryAction.label}
                     </button>
                   </div>
                 </div>

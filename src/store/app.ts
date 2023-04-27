@@ -11,7 +11,8 @@ import {
   ImportContext,
   makeImportContext,
 } from '@agoric/smart-wallet/src/marshal-contexts';
-import create from 'zustand/vanilla';
+import createStore from 'zustand/vanilla';
+import { persist } from 'zustand/middleware';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
 import { makeWalletService } from 'service/wallet';
 import type { DisplayInfo, Brand, AssetKind } from '@agoric/ertp/src/types';
@@ -52,9 +53,10 @@ interface AppState {
   purses: PursesJSONState<AssetKind>[] | null;
   walletService: ReturnType<typeof makeWalletService>;
   offerIdsToPublicSubscribers: Record<string, Record<string, string>> | null;
+  isDisclaimerDialogShowing: boolean;
 }
 
-export const appStore = create<AppState>()(() => ({
+export const appStore = createStore<AppState>()(() => ({
   brandToInfo: null,
   watchVbankError: null,
   importContext: makeImportContext(),
@@ -65,6 +67,7 @@ export const appStore = create<AppState>()(() => ({
   purses: null,
   walletService: makeWalletService(),
   offerIdsToPublicSubscribers: null,
+  isDisclaimerDialogShowing: false,
 }));
 
 export const appAtom = atomWithStore(appStore);
@@ -92,6 +95,12 @@ export const offerSignerAtom = atom(
   get => get(appAtom).offerSigner,
   (_get, set, offerSigner: OfferSigner) =>
     set(appAtom, state => ({ ...state, offerSigner })),
+);
+
+export const isDisclaimerDialogShowingAtom = atom(
+  get => get(appAtom).isDisclaimerDialogShowing,
+  (_get, set, isDisclaimerDialogShowing: boolean) =>
+    set(appAtom, state => ({ ...state, isDisclaimerDialogShowing })),
 );
 
 export const setIsDappApprovedAtom = atom(
@@ -134,3 +143,22 @@ export const walletUiHrefAtom = atom(get => {
 
   return bridgeUrl ? bridgeUrl.origin + '/wallet/' : '';
 });
+
+// Increment whenever the terms on https://docs.inter.trade/disclaimer change.
+export const latestDisclaimerIndex = 0;
+
+interface LocalStorageState {
+  latestDisclaimerAgreedIndex: number;
+  setlatestDisclaimerAgreedIndex: (index: number) => void;
+}
+
+export const localStorageStore = createStore<LocalStorageState>()(
+  persist(
+    set => ({
+      latestDisclaimerAgreedIndex: -1,
+      setlatestDisclaimerAgreedIndex: (index: number) =>
+        set({ latestDisclaimerAgreedIndex: index }),
+    }),
+    { name: 'app-local-storage' },
+  ),
+);

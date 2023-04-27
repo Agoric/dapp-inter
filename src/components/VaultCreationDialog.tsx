@@ -31,10 +31,8 @@ const VaultCreationDialog = ({ isOpen, onClose }: Props) => {
       body={<p>{message}</p>}
       isOpen={isOpen}
       onClose={onClose}
-      onPrimaryAction={goToWallet}
-      onSecondaryAction={goToVaults}
-      primaryActionLabel="Go to wallet"
-      secondaryActionLabel="Back to vaults"
+      primaryAction={{ action: goToWallet, label: 'Go to wallet' }}
+      secondaryAction={{ action: goToVaults, label: 'Back to vaults' }}
     />
   );
 };

@@ -142,10 +142,8 @@ const CloseVaultDialog = ({
       body={body}
       isOpen={isOpen}
       onClose={onClose}
-      onPrimaryAction={primaryAction}
-      onSecondaryAction={secondaryAction}
-      primaryActionLabel={primaryActionLabel}
-      secondaryActionLabel={secondaryActionLabel}
+      primaryAction={{ action: primaryAction, label: primaryActionLabel }}
+      secondaryAction={{ action: secondaryAction, label: secondaryActionLabel }}
       primaryActionDisabled={!offerSigner?.isDappApproved}
     />
   );
