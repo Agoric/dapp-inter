@@ -56,8 +56,7 @@ const DisclaimerDialog = () => {
       title="Disclaimer"
       body={body}
       isOpen={isDisclaimerDialogShowing}
-      onPrimaryAction={proceed}
-      primaryActionLabel="Proceed"
+      primaryAction={{ action: proceed, label: 'Proceed' }}
       primaryActionDisabled={!isChecked}
       onClose={() => {
         /* force open until terms agreed */

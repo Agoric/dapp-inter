@@ -11,7 +11,7 @@ import {
   ImportContext,
   makeImportContext,
 } from '@agoric/smart-wallet/src/marshal-contexts';
-import { createStore } from 'zustand/vanilla';
+import createStore from 'zustand/vanilla';
 import { persist } from 'zustand/middleware';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
 import { makeWalletService } from 'service/wallet';
