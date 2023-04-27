@@ -9,10 +9,11 @@ import { watchVbank } from 'service/vbank';
 import { useAtomValue, useAtom } from 'jotai';
 import { leaderAtom, networkConfigAtom } from 'store/app';
 import { makeLeader } from '@agoric/casting';
+import Root from 'views/Root';
+import DisclaimerDialog from 'components/DisclaimerDialog';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';
-import Root from 'views/Root';
 
 const router = createHashRouter([
   {
@@ -76,6 +77,7 @@ const App = () => {
           <RouterProvider router={router} />
         )}
       </div>
+      <DisclaimerDialog />
     </div>
   );
 };

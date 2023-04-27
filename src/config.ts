@@ -32,3 +32,5 @@ export const branchBridgeHref = (branchName: string) =>
   `https://${branchName}.wallet-app.pages.dev/wallet/bridge.html`;
 
 export const signerTarget = 'wallet';
+
+export const disclaimerHref = 'https://docs.inter.trade/disclaimer';

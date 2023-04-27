@@ -1,6 +1,11 @@
 import React from 'react';
 import { makeAsyncIterableFromNotifier as iterateNotifier } from '@agoric/notifier';
-import { appStore, ChainConnection } from 'store/app';
+import {
+  appStore,
+  ChainConnection,
+  latestDisclaimerIndex,
+  localStorageStore,
+} from 'store/app';
 import { toast } from 'react-toastify';
 import SmartWalletNotFoundToast from 'components/SmartWalletNotFoundToast';
 import {
@@ -78,11 +83,23 @@ export const makeWalletService = () => {
     toastId = toast.error(content, options);
   };
 
-  const connect = async (networkConfigUrl: string) => {
+  const connect = async (
+    networkConfigUrl: string,
+    shouldCheckDisclaimer = true,
+  ) => {
     const { isWalletConnectionInProgress, chainConnection, importContext } =
       appStore.getState();
 
     if (isWalletConnectionInProgress || chainConnection) return;
+
+    if (
+      shouldCheckDisclaimer &&
+      latestDisclaimerIndex !==
+        localStorageStore.getState().latestDisclaimerAgreedIndex
+    ) {
+      appStore.setState({ isDisclaimerDialogShowing: true });
+      return;
+    }
 
     appStore.setState({ isWalletConnectionInProgress: true });
     try {

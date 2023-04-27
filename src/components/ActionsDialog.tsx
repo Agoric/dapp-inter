@@ -6,12 +6,12 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   onPrimaryAction: () => void;
-  onSecondaryAction: () => void;
   title: string;
   body: ReactElement;
   primaryActionLabel: string;
-  secondaryActionLabel: string;
   primaryActionDisabled?: boolean;
+  secondaryActionLabel?: string;
+  onSecondaryAction?: () => void;
 };
 
 const ActionsDialog = ({
@@ -61,12 +61,14 @@ const ActionsDialog = ({
                 <div className="h-[1px] mx-8 bg-[#D8D8D8]" />
                 <div className="py-6 px-8">
                   <div className="flex justify-end gap-6">
-                    <button
-                      className="text-btn-xs flex justify-center rounded  text-[#A3A5B9] border-[#A3A5B9] border-2 px-6 py-3 bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
-                      onClick={onSecondaryAction}
-                    >
-                      {secondaryActionLabel}
-                    </button>
+                    {secondaryActionLabel && onSecondaryAction && (
+                      <button
+                        className="text-btn-xs flex justify-center rounded  text-[#A3A5B9] border-[#A3A5B9] border-2 px-6 py-3 bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+                        onClick={onSecondaryAction}
+                      >
+                        {secondaryActionLabel}
+                      </button>
+                    )}
                     <button
                       disabled={primaryActionDisabled}
                       className={clsx(
