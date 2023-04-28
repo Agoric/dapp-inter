@@ -91,9 +91,9 @@ type UnixSeconds = { absValue: bigint };
 
 export type LiquidationSchedule = {
   // Null if liquidation is not in progress.
-  activeStartTime: UnixSeconds | null;
+  activeStartTime?: UnixSeconds;
   // Time of the next auction.
-  nextStartTime: UnixSeconds | null;
+  nextStartTime?: UnixSeconds;
 };
 
 export type VaultKey = string;

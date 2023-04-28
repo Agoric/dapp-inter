@@ -53,13 +53,24 @@ const subpanelClasses =
 
 type TableRowProps = {
   left: string;
+  leftSubtext?: string;
   right: string;
   light?: boolean;
 };
 
-const TableRow = ({ left, right, light = false }: TableRowProps) => (
+const TableRow = ({
+  left,
+  leftSubtext,
+  right,
+  light = false,
+}: TableRowProps) => (
   <tr className={clsx('leading-7', light && 'text-[#A3A5B9]')}>
-    <td className="text-left">{left}</td>
+    <td className="text-left">
+      {left}
+      {leftSubtext && (
+        <span className="normal-case text-sm"> - {leftSubtext}</span>
+      )}
+    </td>
     <td className="text-right font-black">{right}</td>
   </tr>
 );
@@ -342,9 +353,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
 
     const minutesUntilNextAuction =
       liquidationSchedule.nextStartTime &&
-      Math.max(
-        Number(liquidationSchedule.nextStartTime.absValue) - currentTime,
-        1,
+      Math.ceil(
+        (Number(liquidationSchedule.nextStartTime.absValue) - currentTime) / 60,
       );
 
     const atRiskNotice = isAtRisk && (
@@ -388,13 +398,14 @@ const VaultSummary = ({ vaultKey }: Props) => {
       setVaultToAdjustKey(vaultKey);
     };
 
-    const isBookLiquidating = liquidationSchedule.activeStartTime !== null;
+    const isBookLiquidating = !!liquidationSchedule.activeStartTime;
 
-    const timeUntilAuction = isBookLiquidating
-      ? '- now'
-      : minutesUntilNextAuction
-      ? ` - in ${minutesUntilNextAuction} minutes`
-      : '';
+    const timeUntilAuction =
+      (!isBookLiquidating &&
+        minutesUntilNextAuction &&
+        `in ${minutesUntilNextAuction} minute` +
+          `${minutesUntilNextAuction === 1 ? '' : 's'}`) ||
+      undefined;
 
     const tableBody = isLiquidating ? (
       <tbody>
@@ -431,9 +442,10 @@ const VaultSummary = ({ vaultKey }: Props) => {
           light={true}
         />
         <TableRow
-          left={'Next Liquidation Price' + timeUntilAuction}
+          left="Next Liquidation Price"
+          leftSubtext={timeUntilAuction}
           right={
-            nextAuctionPrice
+            nextAuctionPrice && !isBookLiquidating
               ? displayPrice(
                   {
                     amountIn: nextAuctionPrice.denominator,
@@ -504,9 +516,12 @@ const VaultSummary = ({ vaultKey }: Props) => {
               </div>
             </div>
           </div>
-          <div className={bigTextClasses}>
-            {isNetValueNegative && '-'}
-            {displayAmount(netVaultValue, 2, 'usd')}
+          <div className="h-20">
+            <div className="text-sm font-medium">Net Equity</div>
+            <div className={bigTextClasses}>
+              {isNetValueNegative && '-'}
+              {displayAmount(netVaultValue, 2, 'usd')}
+            </div>
           </div>
         </div>
         <div className="bg-[#F0F0F0] h-[1px] w-full" />
