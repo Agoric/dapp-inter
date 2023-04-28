@@ -1,11 +1,5 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
-import {
-  LiquidationSchedule,
-  useVaultStore,
-  VaultInfoChainData,
-  VaultManager,
-  VaultMetrics,
-} from 'store/vaults';
+import { useVaultStore } from 'store/vaults';
 import { makeFollower, iterateLatest } from '@agoric/casting';
 import { appStore } from 'store/app';
 import { toast } from 'react-toastify';
@@ -18,6 +12,13 @@ import type {
   AgoricContractInvitationSpec,
   ContinuingInvitationSpec,
 } from '@agoric/smart-wallet/src/invitations';
+import type {
+  LiquidationSchedule,
+  VaultInfoChainData,
+  VaultManager,
+  VaultMetrics,
+  LiquidationAuctionBook,
+} from 'store/vaults';
 
 type ValuePossessor<T> = {
   value: T;
@@ -237,6 +238,8 @@ type MetricsUpdate = ValuePossessor<VaultMetrics>;
 
 type VaultManagerUpdate = ValuePossessor<VaultManager>;
 
+type LiquidationAuctionBookUpdate = ValuePossessor<LiquidationAuctionBook>;
+
 type VaultFactoryParamsUpdate = ValuePossessor<{
   current: { MinInitialDebt: ValuePossessor<Amount<'nat'>> };
 }>;
@@ -296,11 +299,23 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
+  const watchLiquidationAuctionBook = async (id: string) => {
+    const path = `:published.auction.${id.replace('manager', 'book')}`;
+    const f = makeBoardFollower(path);
+    for await (const { value } of iterateLatest<LiquidationAuctionBookUpdate>(
+      f,
+    )) {
+      if (isStopped) break;
+      useVaultStore.getState().setLiquidationAuctionBook(id, value);
+    }
+  };
+
   const watchManager = async (path: string) => {
     watchGovernedParams(path);
     watchMetrics(path);
-
     const id = managerIdFromPath(path);
+    watchLiquidationAuctionBook(id);
+
     const f = makeBoardFollower(path);
     for await (const { value } of iterateLatest<VaultManagerUpdate>(f)) {
       if (isStopped) break;

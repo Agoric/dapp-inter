@@ -165,6 +165,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
     vaultGovernedParams,
     vaultManagerLoadingErrors,
     managers,
+    books,
+    liquidationSchedule,
   } = useVaultStore(state => ({
     vaults: state.vaults,
     vaultMetrics: state.vaultMetrics,
@@ -174,6 +176,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
     priceErrors: state.priceErrors,
     vaultManagerLoadingErrors: state.vaultManagerLoadingErrors,
     managers: state.vaultManagers,
+    liquidationSchedule: state.liquidationSchedule,
+    books: state.liquidationAuctionBooks,
   }));
 
   const vault = vaults?.get(vaultKey);
@@ -185,8 +189,9 @@ const VaultSummary = ({ vaultKey }: Props) => {
   const setDebtAction = useSetAtom(debtActionAtom);
   const [isCloseVaultDialogOpen, setIsCloseVaultDialogOpen] = useState(false);
 
-  const metrics = vaultMetrics?.get(vault?.managerId ?? '');
-  const params = vaultGovernedParams?.get(vault?.managerId ?? '');
+  const book = books.get(vault?.managerId ?? '');
+  const metrics = vaultMetrics.get(vault?.managerId ?? '');
+  const params = vaultGovernedParams.get(vault?.managerId ?? '');
   const brand = metrics?.totalCollateral?.brand;
   const price = brand && prices.get(brand);
   const manager = managers.get(vault?.managerId ?? '');
@@ -210,7 +215,9 @@ const VaultSummary = ({ vaultKey }: Props) => {
       !metrics ||
       !params ||
       !manager ||
-      !displayFunctions
+      !displayFunctions ||
+      !liquidationSchedule ||
+      !book
     ) {
       return <SkeletonVaultSummary />;
     }
@@ -219,7 +226,6 @@ const VaultSummary = ({ vaultKey }: Props) => {
       displayBrandPetname,
       displayBrandIcon,
       displayPrice,
-      displayPriceTimestamp,
       displayAmount,
       displayPercent,
     } = displayFunctions;
@@ -287,23 +293,68 @@ const VaultSummary = ({ vaultKey }: Props) => {
       makeRatioFromAmounts(price.amountOut, price.amountIn),
     );
 
+    const nextAuctionPrice = book.startPrice;
+
+    const totalLockedValueForNextAuctionPrice =
+      nextAuctionPrice &&
+      ceilMultiplyBy(
+        locked,
+        makeRatioFromAmounts(
+          nextAuctionPrice.numerator,
+          nextAuctionPrice.denominator,
+        ),
+      );
+
+    const collateralizationRatioForNextAuctionPrice =
+      AmountMath.isEmpty(totalDebt) || !totalLockedValueForNextAuctionPrice
+        ? undefined
+        : makeRatioFromAmounts(totalLockedValueForNextAuctionPrice, totalDebt);
+
     const collateralizationRatio = AmountMath.isEmpty(totalDebt)
       ? undefined
       : makeRatioFromAmounts(totalLockedValue, totalDebt);
 
     const isLiquidating = vault.vaultState === 'liquidating';
 
-    const isAtRisk =
+    const isLiquidationPriceBelowOraclePrice =
       collateralizationRatio &&
-      !ratioGTE(collateralizationRatio, params.liquidationMargin) &&
+      !ratioGTE(collateralizationRatio, params.liquidationMargin);
+
+    const isLiquidationPriceBelowNextAuctionPrice =
+      collateralizationRatioForNextAuctionPrice &&
+      !ratioGTE(
+        collateralizationRatioForNextAuctionPrice,
+        params.liquidationMargin,
+      );
+
+    const isAtRisk =
+      (isLiquidationPriceBelowOraclePrice ||
+        isLiquidationPriceBelowNextAuctionPrice) &&
       !isLiquidating;
+
+    // Seconds since epoch.
+    const currentTime = new Date().getTime() / 1000;
+
+    const isLiquidationImminent =
+      isLiquidationPriceBelowNextAuctionPrice &&
+      liquidationSchedule.nextStartTime &&
+      Number(liquidationSchedule.nextStartTime.absValue) > currentTime;
+
+    const minutesUntilNextAuction =
+      liquidationSchedule.nextStartTime &&
+      Math.max(
+        Number(liquidationSchedule.nextStartTime.absValue) - currentTime,
+        1,
+      );
 
     const atRiskNotice = isAtRisk && (
       <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-[#E22951]">
         Vault at risk
-        <span className="pl-6 normal-case font-normal">
-          Below Liquidation Margin
-        </span>
+        {isLiquidationImminent && (
+          <span className="pl-6 normal-case font-normal">
+            {minutesUntilNextAuction} mins until liquidation
+          </span>
+        )}
       </div>
     );
 
@@ -323,6 +374,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
       : {
           amountIn: locked,
           amountOut: maximumLockedValueForLiquidation,
+          timestamp: '',
         };
 
     const [netVaultValue, isNetValueNegative] = netValue(
@@ -335,6 +387,14 @@ const VaultSummary = ({ vaultKey }: Props) => {
       setDebtAction(DebtAction.None);
       setVaultToAdjustKey(vaultKey);
     };
+
+    const isBookLiquidating = liquidationSchedule.activeStartTime !== null;
+
+    const timeUntilAuction = isBookLiquidating
+      ? '- now'
+      : minutesUntilNextAuction
+      ? ` - in ${minutesUntilNextAuction} minutes`
+      : '';
 
     const tableBody = isLiquidating ? (
       <tbody>
@@ -366,20 +426,31 @@ const VaultSummary = ({ vaultKey }: Props) => {
     ) : isAtRisk ? (
       <tbody>
         <TableRow
-          left="Current Collateral Price"
-          right={displayPrice(price)}
+          left="Current Price"
+          right={displayPrice(price, 2)}
           light={true}
         />
         <TableRow
-          left="Last Collateral Price Update"
-          right={displayPriceTimestamp(price)}
+          left={'Next Liquidation Price' + timeUntilAuction}
+          right={
+            nextAuctionPrice
+              ? displayPrice(
+                  {
+                    amountIn: nextAuctionPrice.denominator,
+                    amountOut: nextAuctionPrice.numerator,
+                    timestamp: '',
+                  },
+                  2,
+                )
+              : 'N/A'
+          }
           light={true}
         />
         <TableRow
           left="Liquidation Price"
           right={
             maximumLockedPriceForLiquidation
-              ? displayPrice(maximumLockedPriceForLiquidation)
+              ? displayPrice(maximumLockedPriceForLiquidation, 2)
               : 'N/A'
           }
         />
@@ -473,6 +544,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
     params,
     manager,
     displayFunctions,
+    liquidationSchedule,
+    book,
     isCloseVaultDialogOpen,
     setCollateralAction,
     setDebtAction,

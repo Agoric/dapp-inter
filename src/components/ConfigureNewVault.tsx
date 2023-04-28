@@ -43,7 +43,7 @@ const ConfigureNewVault = () => {
     ? selectedMetrics.retainedCollateral.brand
     : null;
 
-  const hasPriceFeed = collateralBrand && prices.has(collateralBrand);
+  const collateralPrice = collateralBrand && prices.get(collateralBrand);
 
   const mintedBrand = selectedMetrics ? selectedMetrics.totalDebt.brand : null;
 
@@ -53,7 +53,7 @@ const ConfigureNewVault = () => {
       : null;
 
   const isInputReady: boolean = !!(
-    hasPriceFeed &&
+    collateralPrice &&
     selectedParams &&
     selectedMetrics
   );
@@ -73,9 +73,9 @@ const ConfigureNewVault = () => {
   const collateralPriceForDisplay =
     displayBrandPetname &&
     displayPrice &&
-    hasPriceFeed &&
+    collateralPrice &&
     `1 ${displayBrandPetname(collateralBrand)} = ${displayPrice(
-      prices.get(collateralBrand),
+      collateralPrice,
     )}`;
 
   const purse = usePurseForBrand(collateralBrand);
@@ -90,7 +90,7 @@ const ConfigureNewVault = () => {
 
   const onMaxDebtClicked = () => {
     if (
-      !(selectedParams && selectedMetrics && collateralBrand && hasPriceFeed)
+      !(selectedParams && selectedMetrics && collateralBrand && collateralPrice)
     ) {
       return;
     }
@@ -102,7 +102,7 @@ const ConfigureNewVault = () => {
         AmountMath.makeEmpty(selectedParams.debtLimit.brand),
         selectedParams.mintFee,
         AmountMath.make(collateralBrand, valueToLock),
-        prices.get(collateralBrand),
+        collateralPrice,
         selectedParams.inferredMinimumCollateralization,
       ),
     );

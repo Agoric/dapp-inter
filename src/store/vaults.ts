@@ -2,12 +2,16 @@ import createStore from 'zustand/vanilla';
 import create from 'zustand';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 import { atom } from 'jotai';
-
-// XXX PriceDescription type not exported from zoe package
 import { getPriceDescription } from '@agoric/zoe/src/contractSupport';
 import { atomWithStore } from 'jotai-zustand';
 
-export type PriceDescription = ReturnType<typeof getPriceDescription>;
+// XXX PriceDescription type not exported from zoe package
+export type PriceDescription = {
+  amountIn: Amount<'nat'>;
+  amountOut: Amount<'nat'>;
+  timestamp: string;
+};
+
 export type Ratio = {
   numerator: Amount<'nat'>;
   denominator: Amount<'nat'>;
@@ -39,6 +43,11 @@ export type VaultMetrics = {
   totalOverageReceived: Amount<'nat'>;
   totalProceedsReceived: Amount<'nat'>;
   totalShortfallReceived: Amount<'nat'>;
+};
+
+export type LiquidationAuctionBook = {
+  // Null when outside the price lock period, otherwise the locked price.
+  startPrice: Ratio | null;
 };
 
 export type VaultManager = {
@@ -78,11 +87,13 @@ export type VaultInfo = VaultInfoChainData & {
 };
 
 // Number of seconds since Unix epoch January 1, 1970.
-type UnixSeconds = number;
+type UnixSeconds = { absValue: bigint };
 
 export type LiquidationSchedule = {
-  activeStartTime: UnixSeconds;
-  nextStartTime: UnixSeconds;
+  // Null if liquidation is not in progress.
+  activeStartTime: UnixSeconds | null;
+  // Time of the next auction.
+  nextStartTime: UnixSeconds | null;
 };
 
 export type VaultKey = string;
@@ -104,6 +115,8 @@ interface VaultState {
   priceErrors: Map<Brand, unknown>;
   vaultFactoryParams: VaultFactoryParams | null;
   liquidationSchedule: LiquidationSchedule | null;
+  liquidationAuctionBooks: Map<string, LiquidationAuctionBook>;
+  setLiquidationAuctionBook: (id: string, book: LiquidationAuctionBook) => void;
   setPrice: (brand: Brand, priceQuote: PriceQuote) => void;
   setPriceError: (brand: Brand, e: unknown) => void;
   setVaultManagerLoadingError: (id: string, error: unknown) => void;
@@ -129,11 +142,18 @@ export const vaultStore = createStore<VaultState>()(set => ({
   vaultFactoryParams: null,
   vaultGovernedParams: new Map<string, VaultParams>(),
   vaultMetrics: new Map<string, VaultMetrics>(),
+  liquidationAuctionBooks: new Map<string, LiquidationAuctionBook>(),
   prices: new Map<Brand, PriceDescription>(),
   priceErrors: new Map<Brand, unknown>(),
   vaults: null,
   vaultErrors: new Map<string, unknown>(),
   liquidationSchedule: null,
+  setLiquidationAuctionBook: (id: string, book: LiquidationAuctionBook) =>
+    set(state => {
+      const newBooks = new Map(state.liquidationAuctionBooks);
+      newBooks.set(id, book);
+      return { liquidationAuctionBooks: newBooks };
+    }),
   setVaultManagerLoadingError: (id: string, error: unknown) =>
     set(state => {
       const newErrors = new Map(state.vaultManagerLoadingErrors);
