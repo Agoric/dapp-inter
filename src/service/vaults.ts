@@ -289,13 +289,21 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
     if (isStopped) return;
 
-    let managerIds;
+    let managerIds: string[];
     try {
+      // old way (deprecated since https://github.com/Agoric/agoric-sdk/pull/7150)
       managerIds = await fetchVstorageKeys(rpc, 'published.vaultFactory').then(
         res =>
           (res.children as string[]).filter(key => key.startsWith('manager')),
       );
       assert(managerIds);
+      if (managerIds.length === 0) {
+        // new way
+        managerIds = await fetchVstorageKeys(
+          rpc,
+          'published.vaultFactory.managers',
+        ).then(res => res.children);
+      }
     } catch (e) {
       if (isStopped) return;
       const msg = 'Error fetching vault managers';
