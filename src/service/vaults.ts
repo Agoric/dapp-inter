@@ -99,9 +99,12 @@ const getManagerIdFromSubscribers = (subscribers: VaultSubscribers) =>
     .split('.')
     .find(node => node.startsWith('manager') && !node.startsWith('managers'));
 
-const lastNode = (path: string) => {
-  const nodes = path.split('.');
-  return nodes[nodes.length - 1];
+const MANAGER_RE = /manager\d+/;
+
+const managerIdFromPath = (path: string) => {
+  const id = path.split('.').find(segment => segment.match(MANAGER_RE));
+  assert(id, 'No manager id found in path ' + path);
+  return id;
 };
 
 const getIndexFromVaultPath = (subscriberPath: string) =>
@@ -224,7 +227,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
   const watchGovernedParams = async (prefix: string) => {
     const path = `${prefix}.governance`;
     const f = makeBoardFollower(path);
-    const id = lastNode(prefix);
+    const id = managerIdFromPath(prefix);
     for await (const { value } of iterateLatest<GovernedParamsUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
@@ -257,7 +260,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
 
   const watchMetrics = async (prefix: string) => {
     const path = `${prefix}.metrics`;
-    const id = lastNode(prefix);
+    const id = managerIdFromPath(prefix);
     const f = makeBoardFollower(path);
     for await (const { value } of iterateLatest<MetricsUpdate>(f)) {
       if (isStopped) break;
@@ -270,7 +273,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     watchGovernedParams(path);
     watchMetrics(path);
 
-    const id = lastNode(path);
+    const id = managerIdFromPath(path);
     const f = makeBoardFollower(path);
     for await (const { value } of iterateLatest<VaultManagerUpdate>(f)) {
       if (isStopped) break;
@@ -311,9 +314,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     try {
       // old way (deprecated since https://github.com/Agoric/agoric-sdk/pull/7150)
       managerIds = await fetchVstorageKeys(rpc, managerPrefix).then(res =>
-        (res.children as string[]).filter(
-          key => key.startsWith('manager') && !key.startsWith('managers'),
-        ),
+        (res.children as string[]).filter(key => key.match(MANAGER_RE)),
       );
       assert(managerIds);
       if (managerIds.length === 0) {
