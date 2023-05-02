@@ -28,7 +28,7 @@ type PriceFeedUpdate = ValuePossessor<{
 }>;
 
 // Subscribes to price feeds for new brands.
-const watchPriceFeeds = () => {
+const watchPriceFeeds = (prefix: string) => {
   let isStopped = false;
   const { leader, importContext } = appStore.getState();
 
@@ -41,7 +41,7 @@ const watchPriceFeeds = () => {
 
   const watchFeed = async (brand: Brand, managerId: string) => {
     watchedBrands.add(brand);
-    const path = `:published.vaultFactory.${managerId}.quotes`;
+    const path = `${prefix}.${managerId}.quotes`;
     const f = makeFollower(path, leader, {
       unserializer: importContext.fromBoard,
     });
@@ -64,7 +64,7 @@ const watchPriceFeeds = () => {
     });
   };
 
-  const unsubVaultStore = useVaultStore.subscribe(({ vaultMetrics }) => {
+  const updateBrands = (vaultMetrics: Map<string, VaultMetrics>) => {
     vaultMetrics.forEach((metrics, managerId) => {
       const { brand } = metrics.retainedCollateral;
       if (!brandsToWatch.has(brand)) {
@@ -72,6 +72,13 @@ const watchPriceFeeds = () => {
       }
     });
     watchNewBrands();
+  };
+
+  const { vaultMetrics: currentMetrics } = useVaultStore.getState();
+  updateBrands(currentMetrics);
+
+  const unsubVaultStore = useVaultStore.subscribe(({ vaultMetrics }) => {
+    updateBrands(vaultMetrics);
   });
 
   return () => {
@@ -208,6 +215,7 @@ type VaultUpdate = ValuePossessor<VaultInfoChainData>;
 
 export const watchVaultFactory = (netconfigUrl: string) => {
   let isStopped = false;
+  let stopWatchingPriceFeeds: () => void;
   const { leader, importContext } = appStore.getState();
 
   const makeBoardFollower = (path: string) =>
@@ -264,7 +272,6 @@ export const watchVaultFactory = (netconfigUrl: string) => {
 
     const id = lastNode(path);
     const f = makeBoardFollower(path);
-    console.log('watching manager', path);
     for await (const { value } of iterateLatest<VaultManagerUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
@@ -324,14 +331,15 @@ export const watchVaultFactory = (netconfigUrl: string) => {
       return;
     }
     if (isStopped) return;
+    stopWatchingPriceFeeds = watchPriceFeeds(`:${managerPrefix}`);
 
     useVaultStore.setState({ vaultManagerIds: managerIds });
-    managerIds.forEach(id => {
+    managerIds.forEach(id =>
       watchManager(`:${managerPrefix}.${id}`).catch(e => {
         console.error('Error watching vault manager id', id, e);
         useVaultStore.getState().setVaultManagerLoadingError(id, e);
-      });
-    });
+      }),
+    );
     watchVaultFactoryParams().catch(e => {
       console.error('Error watching vault factory governed params', e);
       useVaultStore.setState({
@@ -342,12 +350,11 @@ export const watchVaultFactory = (netconfigUrl: string) => {
   };
 
   startWatching();
-  const stopWatchingPriceFeeds = watchPriceFeeds();
   const stopWatchingUserVaults = watchUserVaults();
 
   return () => {
     isStopped = true;
-    stopWatchingPriceFeeds();
+    stopWatchingPriceFeeds && stopWatchingPriceFeeds();
     stopWatchingUserVaults();
   };
 };
