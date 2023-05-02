@@ -18,6 +18,8 @@ const getLogoForBrandPetname = (brandPetname: string) => {
       return './IST.png';
     case 'IbcATOM':
       return './cosmos-atom-logo.svg';
+    case 'ATOM':
+      return './cosmos-atom-logo.svg';
   }
 };
 
