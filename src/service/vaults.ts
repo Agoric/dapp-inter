@@ -88,7 +88,14 @@ type VaultSubscribers = {
  * Ex. `asset: 'published.vaultFactory.manager0'` -> `'manager0'`.
  */
 const getManagerIdFromSubscribers = (subscribers: VaultSubscribers) =>
-  subscribers.vault.split('.').find(node => node.includes('manager'));
+  subscribers.vault
+    .split('.')
+    .find(node => node.startsWith('manager') && !node.startsWith('managers'));
+
+const lastNode = (path: string) => {
+  const nodes = path.split('.');
+  return nodes[nodes.length - 1];
+};
 
 const getIndexFromVaultPath = (subscriberPath: string) =>
   Number(subscriberPath.split('.').pop()?.replace('vault', ''));
@@ -206,9 +213,10 @@ export const watchVaultFactory = (netconfigUrl: string) => {
   const makeBoardFollower = (path: string) =>
     makeFollower(path, leader, { unserializer: importContext.fromBoard });
 
-  const watchGovernedParams = async (id: string) => {
-    const path = `:published.vaultFactory.${id}.governance`;
+  const watchGovernedParams = async (prefix: string) => {
+    const path = `${prefix}.governance`;
     const f = makeBoardFollower(path);
+    const id = lastNode(prefix);
     for await (const { value } of iterateLatest<GovernedParamsUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
@@ -239,8 +247,9 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
-  const watchMetrics = async (id: string) => {
-    const path = `:published.vaultFactory.${id}.metrics`;
+  const watchMetrics = async (prefix: string) => {
+    const path = `${prefix}.metrics`;
+    const id = lastNode(prefix);
     const f = makeBoardFollower(path);
     for await (const { value } of iterateLatest<MetricsUpdate>(f)) {
       if (isStopped) break;
@@ -249,12 +258,13 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     }
   };
 
-  const watchManager = async (id: string) => {
-    watchGovernedParams(id);
-    watchMetrics(id);
+  const watchManager = async (path: string) => {
+    watchGovernedParams(path);
+    watchMetrics(path);
 
-    const path = `:published.vaultFactory.${id}`;
+    const id = lastNode(path);
     const f = makeBoardFollower(path);
+    console.log('watching manager', path);
     for await (const { value } of iterateLatest<VaultManagerUpdate>(f)) {
       if (isStopped) break;
       console.debug('got update', path, value);
@@ -290,19 +300,21 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     if (isStopped) return;
 
     let managerIds: string[];
+    let managerPrefix = 'published.vaultFactory';
     try {
       // old way (deprecated since https://github.com/Agoric/agoric-sdk/pull/7150)
-      managerIds = await fetchVstorageKeys(rpc, 'published.vaultFactory').then(
-        res =>
-          (res.children as string[]).filter(key => key.startsWith('manager')),
+      managerIds = await fetchVstorageKeys(rpc, managerPrefix).then(res =>
+        (res.children as string[]).filter(
+          key => key.startsWith('manager') && !key.startsWith('managers'),
+        ),
       );
       assert(managerIds);
       if (managerIds.length === 0) {
+        managerPrefix = 'published.vaultFactory.managers';
         // new way
-        managerIds = await fetchVstorageKeys(
-          rpc,
-          'published.vaultFactory.managers',
-        ).then(res => res.children);
+        managerIds = await fetchVstorageKeys(rpc, managerPrefix).then(
+          res => res.children,
+        );
       }
     } catch (e) {
       if (isStopped) return;
@@ -314,12 +326,12 @@ export const watchVaultFactory = (netconfigUrl: string) => {
     if (isStopped) return;
 
     useVaultStore.setState({ vaultManagerIds: managerIds });
-    managerIds.forEach(id =>
-      watchManager(id).catch(e => {
+    managerIds.forEach(id => {
+      watchManager(`:${managerPrefix}.${id}`).catch(e => {
         console.error('Error watching vault manager id', id, e);
         useVaultStore.getState().setVaultManagerLoadingError(id, e);
-      }),
-    );
+      });
+    });
     watchVaultFactoryParams().catch(e => {
       console.error('Error watching vault factory governed params', e);
       useVaultStore.setState({
