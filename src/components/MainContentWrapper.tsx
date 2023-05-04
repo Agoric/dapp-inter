@@ -80,7 +80,10 @@ const MainContentWrapper = ({ children, header }: Props) => {
             totalDebt = AmountMath.add(totalDebt, managerDebt);
 
             const price = prices.get(totalCollateral.brand);
-            assert(price, 'areCollateralPricesLoaded should be false');
+            assert(
+              price,
+              'areCollateralPricesLoaded is true but a price isnt loaded',
+            );
             const collateralValue = ceilMultiplyBy(
               totalCollateral,
               makeRatioFromAmounts(price.amountOut, price.amountIn),
