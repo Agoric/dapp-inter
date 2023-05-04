@@ -34,14 +34,14 @@ User application for Agoric Inter Protocol--Vaults, BLD Boost, Liquidations, etc
 
    `agd --help`
 
-2. (One-time) Define keys expected by the startup scripts
+2. (One-time) Define keys expected by the startup scripts\*
 
    ```sh
    agd keys add gov1 --keyring-backend=test
    agd keys add gov2 --keyring-backend=test
    ```
 
-   If you have access to the mnemonics, use `--interactive` to get a prompt to import them. Without that it will create new keys. You can save the seed phrase somewhere, or even create a keplr account with it for testing. You can use `agd keys list --keyring-backend=test` to check which keys you've created.
+   \*If you have access to the mnemonics, use `--interactive` to get a prompt to import them. Without that it will create new keys. You can save the seed phrase somewhere, or even create a keplr account with it for testing. You can use `agd keys list --keyring-backend=test` to check which keys you've created.
 
 3. Start a local chain with psm, vaults, etc.
 
