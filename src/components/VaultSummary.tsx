@@ -19,6 +19,7 @@ import {
 import { AmountMath } from '@agoric/ertp';
 import CloseVaultDialog from './CloseVaultDialog';
 import { multiplyBy, ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
+import { scheduler } from 'timers/promises';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
@@ -226,9 +227,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
       !metrics ||
       !params ||
       !manager ||
-      !displayFunctions ||
-      !liquidationSchedule ||
-      !book
+      !displayFunctions
     ) {
       return <SkeletonVaultSummary />;
     }
@@ -304,7 +303,9 @@ const VaultSummary = ({ vaultKey }: Props) => {
       makeRatioFromAmounts(price.amountOut, price.amountIn),
     );
 
-    const nextAuctionPrice = book.startPrice;
+    // If `activeStartTime` is truthy, then `startPrice` is the *current* auction price, so ignore.
+    const nextAuctionPrice =
+      !liquidationSchedule?.activeStartTime && book?.startPrice;
 
     const totalLockedValueForNextAuctionPrice =
       nextAuctionPrice &&
@@ -348,11 +349,11 @@ const VaultSummary = ({ vaultKey }: Props) => {
 
     const isLiquidationImminent =
       isLiquidationPriceBelowNextAuctionPrice &&
-      liquidationSchedule.nextStartTime &&
+      liquidationSchedule?.nextStartTime &&
       Number(liquidationSchedule.nextStartTime.absValue) > currentTime;
 
     const minutesUntilNextAuction =
-      liquidationSchedule.nextStartTime &&
+      liquidationSchedule?.nextStartTime &&
       Math.ceil(
         (Number(liquidationSchedule.nextStartTime.absValue) - currentTime) / 60,
       );
@@ -398,7 +399,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
       setVaultToAdjustKey(vaultKey);
     };
 
-    const isBookLiquidating = !!liquidationSchedule.activeStartTime;
+    const isBookLiquidating = !!liquidationSchedule?.activeStartTime;
 
     const timeUntilAuction =
       (!isBookLiquidating &&
