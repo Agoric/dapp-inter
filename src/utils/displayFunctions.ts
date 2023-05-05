@@ -122,7 +122,7 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
     return new Intl.DateTimeFormat(navigator.language, {
       timeStyle: 'medium',
       dateStyle: 'short',
-    }).format(new Date(Number(price.timestamp) * 1000));
+    }).format(new Date(Number(price.timestamp.absValue) * 1000));
   };
 
   return {
