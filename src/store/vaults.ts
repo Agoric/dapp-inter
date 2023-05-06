@@ -9,7 +9,7 @@ import { atomWithStore } from 'jotai-zustand';
 export type PriceDescription = {
   amountIn: Amount<'nat'>;
   amountOut: Amount<'nat'>;
-  timestamp: string;
+  timestamp?: { absValue: bigint };
 };
 
 export type Ratio = {

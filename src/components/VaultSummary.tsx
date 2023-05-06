@@ -19,7 +19,6 @@ import {
 import { AmountMath } from '@agoric/ertp';
 import CloseVaultDialog from './CloseVaultDialog';
 import { multiplyBy, ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
-import { scheduler } from 'timers/promises';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
@@ -385,7 +384,6 @@ const VaultSummary = ({ vaultKey }: Props) => {
       : {
           amountIn: locked,
           amountOut: maximumLockedValueForLiquidation,
-          timestamp: '',
         };
 
     const [netVaultValue, isNetValueNegative] = netValue(
@@ -451,7 +449,6 @@ const VaultSummary = ({ vaultKey }: Props) => {
                   {
                     amountIn: nextAuctionPrice.denominator,
                     amountOut: nextAuctionPrice.numerator,
-                    timestamp: '',
                   },
                   2,
                 )
