@@ -11,6 +11,26 @@ import { DebtSnapshot, PriceDescription, Ratio } from 'store/vaults';
 import { Amount, NatValue } from '@agoric/ertp/src/types';
 import { CollateralAction, DebtAction } from 'store/adjustVault';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
+import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
+
+export const isLiquidationPriceBelowGivenPrice = (
+  locked: Amount<'nat'>,
+  debt: Amount<'nat'>,
+  price: Ratio,
+  liquidationMargin: Ratio,
+) => {
+  const totalLockedValue = ceilMultiplyBy(locked, price);
+
+  const collateralizationRatioAtGivenPrice =
+    AmountMath.isEmpty(debt) || !totalLockedValue
+      ? undefined
+      : makeRatioFromAmounts(totalLockedValue, debt);
+
+  return (
+    collateralizationRatioAtGivenPrice &&
+    !ratioGTE(collateralizationRatioAtGivenPrice, liquidationMargin)
+  );
+};
 
 export const computeToLock = (
   priceRate: Ratio,
