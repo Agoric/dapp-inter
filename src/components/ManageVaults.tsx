@@ -7,8 +7,17 @@ import { FaPlusCircle } from 'react-icons/fa';
 import VaultSymbol from 'svg/vault-symbol';
 import { motion } from 'framer-motion';
 import type { PropsWithChildren } from 'react';
-import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
-import { currentCollateralization } from 'utils/vaultMath';
+import {
+  ceilMultiplyBy,
+  makeRatioFromAmounts,
+  ratioGTE,
+} from '@agoric/zoe/src/contractSupport/ratio';
+import {
+  currentCollateralization,
+  isLiquidationPriceBelowGivenPrice,
+} from 'utils/vaultMath';
+import { AmountMath } from '@agoric/ertp';
+import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 
 const EmptyView = ({ children }: PropsWithChildren) => {
   return (
@@ -40,11 +49,15 @@ const noticeProps = {
 const ManageVaults = () => {
   const setVaultKeyToAdjust = useSetAtom(vaultKeyToAdjustAtom);
   const vaults = useAtomValue(vaultsAtom);
-  const { prices, vaultParams, managers } = useVaultStore(state => ({
-    vaultParams: state.vaultGovernedParams,
-    prices: state.prices,
-    managers: state.vaultManagers,
-  }));
+  const { prices, vaultParams, managers, books, schedule } = useVaultStore(
+    state => ({
+      vaultParams: state.vaultGovernedParams,
+      prices: state.prices,
+      managers: state.vaultManagers,
+      books: state.liquidationAuctionBooks,
+      schedule: state.liquidationSchedule,
+    }),
+  );
 
   const chainConnection = useAtomValue(chainConnectionAtom);
 
@@ -82,36 +95,58 @@ const ManageVaults = () => {
     );
   }
 
-  const isAnyVaultLiquidating =
-    vaults && [...vaults.values()].find(v => v.vaultState === 'liquidating');
-
-  const isAnyVaultAtRisk =
+  const liquidatingVaultCount =
     vaults &&
-    [...vaults.values()].find(vault => {
+    [...vaults.values()].filter(v => v.vaultState === 'liquidating').length;
+
+  const vaultAtRiskCount =
+    vaults &&
+    [...vaults.values()].filter(vault => {
       const isLiquidating = vault.vaultState === 'liquidating';
       const manager = managers.get(vault.managerId ?? '');
       const params = vaultParams.get(vault.managerId ?? '');
       const { debtSnapshot, locked } = vault;
       const brand = locked?.brand;
       const price = brand && prices.get(brand);
+      const book = books.get(vault?.managerId ?? '');
 
       if (!(debtSnapshot && manager && price && params)) {
         return false;
       }
 
-      const collateralizationRatio = currentCollateralization(
-        debtSnapshot,
+      // If `activeStartTime` is truthy, then `startPrice` is the *current* auction price, so ignore.
+      const nextAuctionPrice = !schedule?.activeStartTime && book?.startPrice;
+
+      const totalDebt = calculateCurrentDebt(
+        debtSnapshot.debt,
+        debtSnapshot.interest,
         manager.compoundedInterest,
-        price,
-        locked,
       );
 
-      return (
-        collateralizationRatio &&
-        !ratioGTE(collateralizationRatio, params.liquidationMargin) &&
-        !isLiquidating
-      );
-    });
+      const isLiquidationPriceBelowOraclePrice =
+        isLiquidationPriceBelowGivenPrice(
+          locked,
+          totalDebt,
+          makeRatioFromAmounts(price.amountOut, price.amountIn),
+          params.liquidationMargin,
+        );
+
+      const isLiquidationPriceBelowNextAuctionPrice =
+        nextAuctionPrice &&
+        isLiquidationPriceBelowGivenPrice(
+          locked,
+          totalDebt,
+          nextAuctionPrice,
+          params.liquidationMargin,
+        );
+
+      const isAtRisk =
+        (isLiquidationPriceBelowOraclePrice ||
+          isLiquidationPriceBelowNextAuctionPrice) &&
+        !isLiquidating;
+
+      return isAtRisk;
+    }).length;
 
   return (
     <>
@@ -132,14 +167,25 @@ const ManageVaults = () => {
         </button>
       </div>
       <div className="text-[#E22951] text-lg mt-4 font-serif font-medium">
-        {isAnyVaultLiquidating && (
-          <motion.div {...noticeProps}>A vault is liquidating.</motion.div>
-        )}
-        {isAnyVaultAtRisk && (
+        {liquidatingVaultCount ? (
           <motion.div {...noticeProps}>
-            A vault is at risk. Please increase your collateral or repay your
-            outstanding IST debt.
+            {liquidatingVaultCount === 1
+              ? 'A vault is liquidating.'
+              : `${liquidatingVaultCount} vaults are liquidating.`}
           </motion.div>
+        ) : (
+          ''
+        )}
+        {vaultAtRiskCount ? (
+          <motion.div {...noticeProps}>
+            {vaultAtRiskCount === 1
+              ? 'A vault is'
+              : `${vaultAtRiskCount} vaults are`}{' '}
+            at risk. Please increase your collateral or repay your outstanding
+            IST debt.
+          </motion.div>
+        ) : (
+          ''
         )}
       </div>
       {content}

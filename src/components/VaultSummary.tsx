@@ -8,7 +8,7 @@ import {
 } from '@agoric/zoe/src/contractSupport';
 import clsx from 'clsx';
 import { useAtomValue, useSetAtom } from 'jotai';
-import { netValue } from 'utils/vaultMath';
+import { isLiquidationPriceBelowGivenPrice, netValue } from 'utils/vaultMath';
 import type { VaultKey } from 'store/vaults';
 import {
   CollateralAction,
@@ -18,7 +18,7 @@ import {
 } from 'store/adjustVault';
 import { AmountMath } from '@agoric/ertp';
 import CloseVaultDialog from './CloseVaultDialog';
-import { multiplyBy, ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
+import { multiplyBy } from '@agoric/zoe/src/contractSupport/ratio';
 
 export const SkeletonVaultSummary = () => (
   <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
@@ -302,24 +302,9 @@ const VaultSummary = ({ vaultKey }: Props) => {
       makeRatioFromAmounts(price.amountOut, price.amountIn),
     );
 
-    // If `activeStartTime` is truthy, then `startPrice` is the *current* auction price, so ignore.
+    // If `activeStartTime` is truthy, then `startPrice` is the *current* auction price, so discard.
     const nextAuctionPrice =
       !liquidationSchedule?.activeStartTime && book?.startPrice;
-
-    const totalLockedValueForNextAuctionPrice =
-      nextAuctionPrice &&
-      ceilMultiplyBy(
-        locked,
-        makeRatioFromAmounts(
-          nextAuctionPrice.numerator,
-          nextAuctionPrice.denominator,
-        ),
-      );
-
-    const collateralizationRatioForNextAuctionPrice =
-      AmountMath.isEmpty(totalDebt) || !totalLockedValueForNextAuctionPrice
-        ? undefined
-        : makeRatioFromAmounts(totalLockedValueForNextAuctionPrice, totalDebt);
 
     const collateralizationRatio = AmountMath.isEmpty(totalDebt)
       ? undefined
@@ -328,13 +313,19 @@ const VaultSummary = ({ vaultKey }: Props) => {
     const isLiquidating = vault.vaultState === 'liquidating';
 
     const isLiquidationPriceBelowOraclePrice =
-      collateralizationRatio &&
-      !ratioGTE(collateralizationRatio, params.liquidationMargin);
+      isLiquidationPriceBelowGivenPrice(
+        locked,
+        totalDebt,
+        makeRatioFromAmounts(price.amountOut, price.amountIn),
+        params.liquidationMargin,
+      );
 
     const isLiquidationPriceBelowNextAuctionPrice =
-      collateralizationRatioForNextAuctionPrice &&
-      !ratioGTE(
-        collateralizationRatioForNextAuctionPrice,
+      nextAuctionPrice &&
+      isLiquidationPriceBelowGivenPrice(
+        locked,
+        totalDebt,
+        nextAuctionPrice,
         params.liquidationMargin,
       );
 
@@ -362,7 +353,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
         Vault at risk
         {isLiquidationImminent && (
           <span className="pl-6 normal-case font-normal">
-            {minutesUntilNextAuction} mins until liquidation
+            {minutesUntilNextAuction} min
+            {minutesUntilNextAuction === 1 ? '' : 's'} until liquidation
           </span>
         )}
       </div>
@@ -444,7 +436,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
           left="Next Liquidation Price"
           leftSubtext={timeUntilAuction}
           right={
-            nextAuctionPrice && !isBookLiquidating
+            nextAuctionPrice
               ? displayPrice(
                   {
                     amountIn: nextAuctionPrice.denominator,
