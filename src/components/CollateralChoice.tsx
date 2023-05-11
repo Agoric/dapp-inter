@@ -163,7 +163,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
             )}%`}
           />
           <TableRow
-            left="Interest Rate"
+            left="Stability Fee"
             right={`${displayPercent(params.interestRate, 2)}%`}
           />
           <TableRow
