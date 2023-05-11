@@ -28,26 +28,35 @@ const DisclaimerDialog = () => {
 
   const body = (
     <div className="mt-2 p-1 max-h-96 overflow-y-auto">
-      <label className="cursor-pointer">
-        <input
-          type="checkbox"
-          className="accent-purple-500 cursor-pointer mr-2"
-          checked={isChecked}
-          onClick={() => setIsChecked(isChecked => !isChecked)}
-        />
-        <span>
-          By clicking here you are indicating that you have read and agree to
-          our{' '}
-          <a
-            className="text-blue-500 hover:text-blue-700 underline transition-colors"
-            target="inter_psm_disclaimer"
-            href={disclaimerHref}
-          >
-            Disclaimer
-          </a>
-          .
-        </span>
-      </label>
+      <p>
+        The Inter Protocol Vaults expansion is operating in its soft launch
+        period - expected to last from 29th May - 1st July 2023 (TBC). These
+        contracts contain new functionality operating on a novel smart
+        contracting platform and should be considered experimental. Do not
+        deposit funds you are not prepared to lose.
+      </p>
+      <div className="mt-4">
+        <label className="cursor-pointer">
+          <input
+            type="checkbox"
+            className="accent-purple-500 cursor-pointer mr-2"
+            checked={isChecked}
+            onClick={() => setIsChecked(isChecked => !isChecked)}
+          />
+          <span>
+            By clicking here you are indicating that you have read and agree to
+            our{' '}
+            <a
+              className="text-blue-500 hover:text-blue-700 underline transition-colors"
+              target="inter_psm_disclaimer"
+              href={disclaimerHref}
+            >
+              Disclaimer
+            </a>
+            .
+          </span>
+        </label>
+      </div>
     </div>
   );
 
