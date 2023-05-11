@@ -5,7 +5,7 @@ import {
   makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
 import { useAtomValue } from 'jotai';
-import { PropsWithChildren, ReactNode, useMemo } from 'react';
+import { PropsWithChildren, useMemo } from 'react';
 import { displayFunctionsAtom } from 'store/app';
 import { useVaultStore } from 'store/vaults';
 
@@ -39,9 +39,7 @@ const TickerItem = ({ label, value, fallback }: TickerItemProps) => {
   );
 };
 
-type Props = PropsWithChildren<{ header?: ReactNode }>;
-
-const MainContentWrapper = ({ children, header }: Props) => {
+const MainContentWrapper = ({ children }: PropsWithChildren) => {
   const { managerIds, metrics, prices } = useVaultStore(state => ({
     managerIds: state.vaultManagerIds,
     metrics: state.vaultMetrics,
@@ -99,7 +97,7 @@ const MainContentWrapper = ({ children, header }: Props) => {
     }
 
     return (
-      <div className="h-full flex flex-row items-center justify-around flex-wrap gap-x-4">
+      <div className="p-3 h-full bg-interYellow flex flex-row items-center justify-around flex-wrap gap-x-4 rounded-t-[48px]">
         <TickerItem
           label="IST Outstanding (Vaults)"
           value={totalDebtForDisplay}
@@ -121,12 +119,9 @@ const MainContentWrapper = ({ children, header }: Props) => {
 
   return (
     <div className="mt-[2px] flex flex-col flex-grow bg-gradient-to-br from-[#fffcf2] to-[#ffffff] rounded-t-[48px] shadow-[0px_34px_50px_0px_#ff7a1a] relative">
-      <div className="bg-interYellow h-[46px] rounded-t-full before:h-[46px] before:-z-50 before:rounded-t-full before:w-full before:bg-[#FFE04B] before:absolute before:-top-[2px]">
-        {header}
+      <div className="bg-interYellow rounded-t-[48px] before:h-full before:-z-50 before:rounded-t-[48px] before:w-full before:bg-[#FFE04B] before:absolute before:-top-[2px]">
+        {subheader}
       </div>
-      <div className="w-full h-[1px] bg-[#f4cd0c]" />
-      <div className="w-full h-[1px] bg-[#ffe252]" />
-      <div className="bg-interYellow">{subheader}</div>
       <div className="p-2 pt-4 md:p-10 overflow-hidden flex-grow">
         {children}
       </div>
