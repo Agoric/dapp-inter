@@ -145,7 +145,7 @@ export const walletUiHrefAtom = atom(get => {
 });
 
 // Increment whenever the terms on https://docs.inter.trade/disclaimer change.
-export const latestDisclaimerIndex = 0;
+export const latestDisclaimerIndex = 1;
 
 interface LocalStorageState {
   latestDisclaimerAgreedIndex: number;
