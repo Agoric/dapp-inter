@@ -13,6 +13,7 @@ import { AmountMath } from '@agoric/ertp';
 import type { Amount, NatValue } from '@agoric/ertp/src/types';
 import type { Getter } from 'jotai';
 import { DebtAction } from './adjustVault';
+import { displayFunctionsAtom } from './app';
 
 export const valueToLockAtom = atom<NatValue | null>(null);
 export const valueToReceiveAtom = atom<NatValue | null>(null);
@@ -152,6 +153,7 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
   const valueToReceive = get(valueToReceiveAtom);
   const valueToLock = get(valueToLockAtom);
   const purses = get(pursesAtom);
+  const { displayAmount } = get(displayFunctionsAtom) ?? {};
 
   const { vaultGovernedParams, vaultMetrics, vaultFactoryParams } =
     get(vaultStoreAtom);
@@ -202,11 +204,16 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
     }
   }
 
-  const minInitialDebt = vaultFactoryParams?.minInitialDebt?.value ?? 0n;
+  const { minInitialDebt } = vaultFactoryParams ?? {};
+  const minInitialDebtValue = minInitialDebt?.value ?? 0n;
 
-  if (selectedCollateralId && minInitialDebt > 0n) {
-    if (!valueToReceive || valueToReceive < minInitialDebt) {
-      toReceiveError = 'Below minimum';
+  if (selectedCollateralId && minInitialDebtValue > 0n) {
+    if (!valueToReceive || valueToReceive < minInitialDebtValue) {
+      if (displayAmount && minInitialDebt) {
+        toReceiveError = `Below minimum of ${displayAmount(minInitialDebt)}`;
+      } else {
+        toReceiveError = 'Below minimum';
+      }
     }
   }
 
