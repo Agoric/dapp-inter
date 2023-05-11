@@ -520,7 +520,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
         </div>
         <div className="flex justify-around gap-3 mx-[30px] mb-[30px]">
           <div className={subpanelClasses}>
-            <span className="text-[#A3A5B9]">Int. Rate</span>
+            <span className="text-[#A3A5B9]">Stab. Fee</span>
             <span className="font-extrabold">
               {displayPercent(params.interestRate, 2)}%
             </span>

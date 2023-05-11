@@ -150,7 +150,7 @@ const NewVaultOfferSummary = () => {
               <tbody>
                 <TableRow left="Depositing" right={depositAmountForDisplay} />
                 <TableRow left="Minting" right={mintAmountForDisplay} />
-                <TableRow left="Interest Rate" right={interestRateForDisplay} />
+                <TableRow left="Stability Fee" right={interestRateForDisplay} />
                 <TableRow
                   left="Minimum Collateralization Ratio"
                   right={minCollateralizationForDisplay}

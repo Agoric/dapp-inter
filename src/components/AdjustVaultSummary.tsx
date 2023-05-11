@@ -217,7 +217,7 @@ const AdjustVaultSummary = () => {
                   right={`${displayPercent(params.liquidationMargin, 0)}%`}
                 />
                 <TableRow
-                  left="Interest Rate"
+                  left="Stability Fee"
                   right={`${displayPercent(params.interestRate, 2)}%`}
                 />
               </tbody>
