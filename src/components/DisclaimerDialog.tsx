@@ -30,9 +30,8 @@ const DisclaimerDialog = () => {
     <div className="mt-2 p-1 max-h-96 overflow-y-auto">
       <p>
         The Inter Protocol Vaults expansion is operating in its soft launch
-        period - expected to last from 29th May - 1st July 2023 (TBC). These
-        contracts contain new functionality operating on a novel smart
-        contracting platform and should be considered experimental. Do not
+        period. These contracts contain new functionality operating on a novel
+        smart contracting platform and should be considered experimental. Do not
         deposit funds you are not prepared to lose.
       </p>
       <div className="mt-4">
