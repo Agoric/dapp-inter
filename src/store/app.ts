@@ -72,6 +72,10 @@ export const appStore = createStore<AppState>()(() => ({
 
 export const appAtom = atomWithStore(appStore);
 
+export const secondsSinceEpoch = () => new Date().getTime() / 1000;
+
+export const currentTimeAtom = atom(secondsSinceEpoch());
+
 export const offerIdsToPublicSubscribersAtom = atom(
   get => get(appAtom).offerIdsToPublicSubscribers,
 );
