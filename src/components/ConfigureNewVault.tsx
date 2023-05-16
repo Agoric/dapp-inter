@@ -11,7 +11,11 @@ import {
   valueToReceiveAtom,
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
-import { usePurseBalanceDisplay, usePurseForBrand } from 'utils/hooks';
+import {
+  useAuctionTimer,
+  usePurseBalanceDisplay,
+  usePurseForBrand,
+} from 'utils/hooks';
 import { maxIstToMintFromVault } from 'utils/vaultMath';
 import AssetTransferButton from './AssetTransferButton';
 
@@ -19,11 +23,15 @@ const ConfigureNewVault = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
     useAtomValue(inputErrorsAtom);
 
-  const { metrics, params, prices } = useVaultStore(vaults => ({
-    metrics: vaults.vaultMetrics,
-    params: vaults.vaultGovernedParams,
-    prices: vaults.prices,
-  }));
+  const { metrics, params, prices, books, schedule } = useVaultStore(
+    vaults => ({
+      metrics: vaults.vaultMetrics,
+      params: vaults.vaultGovernedParams,
+      prices: vaults.prices,
+      books: vaults.liquidationAuctionBooks,
+      schedule: vaults.liquidationSchedule,
+    }),
+  );
 
   const { displayPercent, displayBrandPetname, displayPrice } =
     useAtomValue(displayFunctionsAtom) ?? {};
@@ -78,6 +86,23 @@ const ConfigureNewVault = () => {
       collateralPrice,
     )}`;
 
+  // Start price of next auction if one isn't in progress, otherwise undefined.
+  const lockedPrice =
+    schedule?.activeStartTime || !selectedCollateralId
+      ? undefined
+      : books.get(selectedCollateralId)?.startPrice ?? undefined;
+
+  const lockedPriceForDisplay =
+    displayBrandPetname &&
+    displayPrice &&
+    lockedPrice &&
+    `${displayPrice({
+      amountIn: lockedPrice.denominator,
+      amountOut: lockedPrice.numerator,
+    })}`;
+
+  const timeUntilAuction = useAuctionTimer(schedule);
+
   const purse = usePurseForBrand(collateralBrand);
 
   const onMaxCollateralClicked = () => {
@@ -104,6 +129,7 @@ const ConfigureNewVault = () => {
         AmountMath.make(collateralBrand, valueToLock),
         collateralPrice,
         selectedParams.inferredMinimumCollateralization,
+        lockedPrice,
       ),
     );
   };
@@ -119,6 +145,15 @@ const ConfigureNewVault = () => {
           <span className="font-bold">{purseBalance}</span> Available
         </div>
         <div>{collateralPriceForDisplay}</div>
+        <div>
+          {lockedPrice && (
+            <>
+              Next Liquidation Price: {lockedPriceForDisplay}
+              {timeUntilAuction ? ' - ' : ''}
+              <span className="italic">{timeUntilAuction}</span>
+            </>
+          )}
+        </div>
       </div>
       <div className="flex gap-x-20 gap-y-6 flex-wrap">
         <AmountInput

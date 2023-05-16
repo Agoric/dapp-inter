@@ -1,6 +1,6 @@
 import { useAtomValue, useSetAtom } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
-import { ViewMode, viewModeAtom } from 'store/vaults';
+import { ViewMode, useVaultStore, viewModeAtom } from 'store/vaults';
 import VaultSymbol from 'svg/vault-symbol';
 import clsx from 'clsx';
 import AdjustVaultForm from './AdjustVaultForm';
@@ -8,6 +8,7 @@ import AdjustVaultSummary from './AdjustVaultSummary';
 import { useCallback } from 'react';
 import { netValue } from 'utils/vaultMath';
 import { vaultToAdjustAtom } from 'store/adjustVault';
+import { useAuctionTimer } from 'utils/hooks';
 
 const AdjustVault = () => {
   const displayFunctions = useAtomValue(displayFunctionsAtom);
@@ -21,6 +22,10 @@ const AdjustVault = () => {
     displayAmount,
     displayBrandPetname,
   } = displayFunctions;
+
+  const { schedule } = useVaultStore(vaults => ({
+    schedule: vaults.liquidationSchedule,
+  }));
 
   const setMode = useSetAtom(viewModeAtom);
 
@@ -38,6 +43,7 @@ const AdjustVault = () => {
     collateralPrice,
     totalLockedValue,
     totalDebt,
+    lockedPrice,
   } = vaultToAdjust;
 
   const [netVaultValue, isNetValueNegative] = netValue(
@@ -47,6 +53,8 @@ const AdjustVault = () => {
 
   // TODO: Update dynamically.
   const vaultLabel = 'ATOM';
+
+  const auctionTimer = useAuctionTimer(schedule);
 
   return (
     <>
@@ -68,6 +76,23 @@ const AdjustVault = () => {
               {displayPriceTimestamp(collateralPrice)}
             </span>
           </div>
+          {lockedPrice && (
+            <div>
+              Next Liquidation Price:{' '}
+              <span className="font-medium text-lg whitespace-nowrap">
+                {displayPrice({
+                  amountIn: lockedPrice.denominator,
+                  amountOut: lockedPrice.numerator,
+                })}
+              </span>
+              {auctionTimer && (
+                <>
+                  {' - '}
+                  <span className="italic">{auctionTimer}</span>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div className="mt-6 rounded-[10px] p-4 px-8 flex justify-between flex-wrap gap-8 bg-[#FFF4C0]">

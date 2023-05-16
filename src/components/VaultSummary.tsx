@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useVaultStore, vaultKeyToAdjustAtom } from 'store/vaults';
-import { displayFunctionsAtom } from 'store/app';
+import { currentTimeAtom, displayFunctionsAtom } from 'store/app';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 import {
   ceilMultiplyBy,
@@ -191,6 +191,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
     books: state.liquidationAuctionBooks,
   }));
 
+  const currentTime = useAtomValue(currentTimeAtom);
+
   const vault = vaults?.get(vaultKey);
   assert(vault, `Cannot render summary for nonexistent vault ${vaultKey}`);
 
@@ -333,9 +335,6 @@ const VaultSummary = ({ vaultKey }: Props) => {
       (isLiquidationPriceBelowOraclePrice ||
         isLiquidationPriceBelowNextAuctionPrice) &&
       !isLiquidating;
-
-    // Seconds since epoch.
-    const currentTime = new Date().getTime() / 1000;
 
     const isLiquidationImminent =
       isLiquidationPriceBelowNextAuctionPrice &&
@@ -551,6 +550,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
     displayFunctions,
     liquidationSchedule,
     book,
+    currentTime,
     isCloseVaultDialogOpen,
     setCollateralAction,
     setDebtAction,

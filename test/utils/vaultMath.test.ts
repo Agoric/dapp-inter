@@ -1,3 +1,4 @@
+import 'ses'; // adds harden
 import { expect, it, describe } from 'vitest';
 import {
   computeToLock,
@@ -41,6 +42,42 @@ describe('computeToLock', () => {
         collateralizationRatio,
         mintFee,
         'ceil',
+      ),
+    ).toEqual(10670n);
+  });
+
+  it('should use the locked price if lower', () => {
+    const priceRate = makeRatioFromAmounts(
+      AmountMath.make(mintedBrand, 8_100_000n),
+      AmountMath.make(collateralBrand, 10_000n),
+    );
+
+    const lockedPrice = makeRatioFromAmounts(
+      AmountMath.make(mintedBrand, 7_100_000n),
+      AmountMath.make(collateralBrand, 10_000n),
+    );
+
+    const collateralizationRatio = makeRatioFromAmounts(
+      AmountMath.make(mintedBrand, 150n),
+      AmountMath.make(mintedBrand, 100n),
+    );
+
+    const toReceive = 5_000_000n;
+
+    const mintFee = makeRatioFromAmounts(
+      AmountMath.make(mintedBrand, 1n),
+      AmountMath.make(mintedBrand, 100n),
+    );
+
+    expect(
+      computeToLock(
+        priceRate,
+        collateralizationRatio,
+        toReceive,
+        collateralizationRatio,
+        mintFee,
+        'ceil',
+        lockedPrice,
       ),
     ).toEqual(10670n);
   });
@@ -317,6 +354,58 @@ describe('maxIstToMintFromVault', () => {
         currentLocked,
         priceRate,
         minCollateralization,
+      ),
+    ).toEqual(expectedValue);
+  });
+
+  it('should use the lowest between quote price and next auction start price', () => {
+    // Effective limit on new debt is 900n.
+    const [debtLimit, totalDebt] = [
+      AmountMath.make(mintedBrand, 1000n),
+      AmountMath.make(mintedBrand, 100n),
+    ];
+
+    // Vault already has 80n debt.
+    const currentDebt = AmountMath.make(mintedBrand, 80n);
+
+    // Loan fee is 10%.
+    const mintFee = makeRatioFromAmounts(
+      AmountMath.make(mintedBrand, 10n),
+      AmountMath.make(mintedBrand, 100n),
+    );
+
+    // Price: 5 Collateral = 1 Minted
+    const priceRate = harden({
+      amountIn: AmountMath.make(collateralBrand, 500n),
+      amountOut: AmountMath.make(mintedBrand, 100n),
+    });
+
+    // Next Start Price: 11 Collateral = 1 Minted (Lower than quote price)
+    const lockedPrice = harden({
+      denominator: AmountMath.make(collateralBrand, 1100n),
+      numerator: AmountMath.make(mintedBrand, 100n),
+    });
+
+    const currentLocked = AmountMath.make(collateralBrand, 2000n);
+
+    // 150%
+    const minCollateralization = makeRatioFromAmounts(
+      AmountMath.make(mintedBrand, 150n),
+      AmountMath.make(mintedBrand, 100n),
+    );
+
+    const expectedValue = 36n;
+
+    expect(
+      maxIstToMintFromVault(
+        debtLimit,
+        totalDebt,
+        currentDebt,
+        mintFee,
+        currentLocked,
+        priceRate,
+        minCollateralization,
+        lockedPrice,
       ),
     ).toEqual(expectedValue);
   });

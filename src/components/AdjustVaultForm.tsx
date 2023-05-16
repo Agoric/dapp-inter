@@ -72,7 +72,8 @@ const AdjustVaultForm = () => {
       return;
     }
 
-    const { params, metrics, totalDebt, collateralPrice } = vaultToAdjust;
+    const { params, metrics, totalDebt, collateralPrice, lockedPrice } =
+      vaultToAdjust;
     const { newLocked } = vaultAfterAdjustment;
 
     setDebtInputValue(
@@ -84,6 +85,7 @@ const AdjustVaultForm = () => {
         newLocked,
         collateralPrice,
         params.inferredMinimumCollateralization,
+        lockedPrice,
       ),
     );
   };

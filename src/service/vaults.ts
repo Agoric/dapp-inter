@@ -295,6 +295,7 @@ export const watchVaultFactory = (netconfigUrl: string) => {
       f,
     )) {
       if (isStopped) break;
+      console.debug('got update', path, value);
       useVaultStore.getState().setLiquidationAuctionBook(id, value);
     }
   };

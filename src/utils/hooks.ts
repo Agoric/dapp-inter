@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { useAtomValue } from 'jotai';
-import { displayFunctionsAtom, pursesAtom } from 'store/app';
+import { currentTimeAtom, displayFunctionsAtom, pursesAtom } from 'store/app';
 import type { Amount, Brand } from '@agoric/ertp/src/types';
+import { LiquidationSchedule } from 'store/vaults';
 
 export const usePurseBalanceDisplay = (brand?: Brand<'nat'> | null) => {
   const purses = useAtomValue(pursesAtom);
@@ -29,4 +30,27 @@ export const usePurseForBrand = (brand?: Brand<'nat'> | null) => {
   const purses = useAtomValue(pursesAtom);
 
   return purses?.find(p => p.brand === brand);
+};
+
+export const useAuctionTimer = (schedule: LiquidationSchedule | null) => {
+  const currentTime = useAtomValue(currentTimeAtom);
+
+  const minutesUntilNextAuction =
+    schedule?.nextStartTime &&
+    Math.max(
+      Math.floor((Number(schedule.nextStartTime.absValue) - currentTime) / 60),
+      0,
+    );
+
+  const secondsUntilNextAuction =
+    schedule?.nextStartTime &&
+    Math.max(
+      Math.floor((Number(schedule.nextStartTime.absValue) - currentTime) % 60),
+      0,
+    );
+
+  return minutesUntilNextAuction !== undefined &&
+    secondsUntilNextAuction !== undefined
+    ? `in ${minutesUntilNextAuction}m ${secondsUntilNextAuction}s`
+    : '';
 };

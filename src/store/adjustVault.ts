@@ -36,11 +36,19 @@ type VaultToAdjust = {
   collateralizationRatio?: Ratio;
   createdByOfferId: string;
   vaultState?: VaultPhase;
+  lockedPrice?: Ratio;
 };
 
 export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
-  const { vaults, vaultManagers, prices, vaultGovernedParams, vaultMetrics } =
-    get(vaultStoreAtom);
+  const {
+    vaults,
+    vaultManagers,
+    prices,
+    vaultGovernedParams,
+    vaultMetrics,
+    liquidationAuctionBooks,
+    liquidationSchedule,
+  } = get(vaultStoreAtom);
   const key = get(vaultKeyToAdjustAtom);
 
   const vault = key && vaults?.get(key);
@@ -57,6 +65,10 @@ export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
   if (!(locked && debtSnapshot && manager && price && params && metrics)) {
     return null;
   }
+
+  const lockedPrice = liquidationSchedule?.activeStartTime
+    ? undefined
+    : liquidationAuctionBooks.get(managerId)?.startPrice ?? undefined;
 
   const totalLockedValue = ceilMultiplyBy(
     locked,
@@ -84,6 +96,7 @@ export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
     collateralizationRatio,
     createdByOfferId,
     vaultState,
+    lockedPrice,
   };
 });
 

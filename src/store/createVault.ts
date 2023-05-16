@@ -21,12 +21,23 @@ export const valueToReceiveAtom = atom<NatValue | null>(null);
 const selectedCollateralIdInternal = atom<string | null>(null);
 
 const getVaultInputData = (get: Getter, selectedCollateralId: string) => {
-  const { vaultMetrics, vaultGovernedParams, prices } = get(vaultStoreAtom);
+  const {
+    vaultMetrics,
+    vaultGovernedParams,
+    prices,
+    liquidationSchedule,
+    liquidationAuctionBooks,
+  } = get(vaultStoreAtom);
 
   const collateralBrand =
     selectedCollateralId && vaultMetrics?.has(selectedCollateralId)
       ? vaultMetrics.get(selectedCollateralId)?.retainedCollateral.brand
       : null;
+
+  const lockedPrice = liquidationSchedule?.activeStartTime
+    ? undefined
+    : liquidationAuctionBooks?.get(selectedCollateralId)?.startPrice ??
+      undefined;
 
   const collateralPriceDescription =
     collateralBrand && prices.get(collateralBrand);
@@ -54,6 +65,7 @@ const getVaultInputData = (get: Getter, selectedCollateralId: string) => {
     priceRate,
     mintFee,
     collateralPriceDescription,
+    lockedPrice,
   };
 };
 
@@ -76,10 +88,11 @@ export const collateralizationRatioAtom = atom(get => {
     return undefined;
   }
 
-  const { collateralPriceDescription: price, mintFee } = getVaultInputData(
-    get,
-    selectedCollateralId,
-  );
+  const {
+    collateralPriceDescription: price,
+    mintFee,
+    lockedPrice,
+  } = getVaultInputData(get, selectedCollateralId);
 
   if (!price || !mintFee) {
     return undefined;
@@ -97,6 +110,7 @@ export const collateralizationRatioAtom = atom(get => {
     price,
     AmountMath.make(price.amountIn.brand, valueToLock),
     debt,
+    lockedPrice,
   );
 });
 
@@ -111,7 +125,7 @@ export const selectedCollateralIdAtom = atom(
       return;
     }
 
-    const { priceRate, defaultCollateralizationRatio, mintFee } =
+    const { priceRate, defaultCollateralizationRatio, mintFee, lockedPrice } =
       getVaultInputData(get, selectedCollateralId);
 
     const { vaultFactoryParams } = get(vaultStoreAtom);
@@ -135,6 +149,7 @@ export const selectedCollateralIdAtom = atom(
         defaultCollateralizationRatio,
         mintFee,
         'ceil',
+        lockedPrice,
       );
       set(valueToLockAtom, valueToLock);
     } else {
