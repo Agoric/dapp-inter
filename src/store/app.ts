@@ -18,6 +18,7 @@ import { makeWalletService } from 'service/wallet';
 import type { DisplayInfo, Brand, AssetKind } from '@agoric/ertp/src/types';
 import type { Leader } from '@agoric/casting';
 import type { PursesJSONState } from '@agoric/wallet-backend';
+import { secondsSinceEpoch } from 'utils/date';
 
 export type BrandInfo = DisplayInfo<'nat'> & {
   petname: string;
@@ -71,8 +72,6 @@ export const appStore = createStore<AppState>()(() => ({
 }));
 
 export const appAtom = atomWithStore(appStore);
-
-export const secondsSinceEpoch = () => new Date().getTime() / 1000;
 
 export const currentTimeAtom = atom(secondsSinceEpoch());
 
