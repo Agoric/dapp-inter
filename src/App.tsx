@@ -7,15 +7,11 @@ import ErrorPage from 'views/ErrorPage';
 import { useEffect } from 'react';
 import { watchVbank } from 'service/vbank';
 import { useAtomValue, useAtom, useSetAtom } from 'jotai';
-import {
-  currentTimeAtom,
-  leaderAtom,
-  networkConfigAtom,
-  secondsSinceEpoch,
-} from 'store/app';
+import { currentTimeAtom, leaderAtom, networkConfigAtom } from 'store/app';
 import { makeLeader } from '@agoric/casting';
 import Root from 'views/Root';
 import DisclaimerDialog from 'components/DisclaimerDialog';
+import { secondsSinceEpoch } from 'utils/date';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';
@@ -36,11 +32,16 @@ const router = createHashRouter([
   },
 ]);
 
+const TIME_UPDATE_INTERVAL_MS = 1000;
+
 const useTimeKeeper = () => {
   const setCurrentTime = useSetAtom(currentTimeAtom);
 
   useEffect(() => {
-    const id = setInterval(() => setCurrentTime(secondsSinceEpoch()), 950);
+    const id = setInterval(
+      () => setCurrentTime(secondsSinceEpoch()),
+      TIME_UPDATE_INTERVAL_MS,
+    );
 
     return () => {
       clearInterval(id);

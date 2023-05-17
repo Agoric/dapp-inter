@@ -33,7 +33,7 @@ export const isLiquidationPriceBelowGivenPrice = (
 };
 
 export const computeToLock = (
-  priceRate: Ratio,
+  quotePrice: Ratio,
   collateralizationRatio: Ratio,
   toReceive: NatValue,
   defaultCollateralization: Ratio,
@@ -60,7 +60,7 @@ export const computeToLock = (
     collateralizationRatioOrDefault,
   );
 
-  const priceToUse = lowestPrice(priceRate, lockedPrice);
+  const priceToUse = lowestPrice(quotePrice, lockedPrice);
 
   return divide(receiveMargin, priceToUse).value;
 };
@@ -181,12 +181,15 @@ export const maxIstToMintFromVault = (
 };
 
 export const collateralizationRatio = (
-  price: PriceDescription,
+  quotePrice: PriceDescription,
   locked: Amount<'nat'>,
   debt: Amount<'nat'>,
   lockedPrice?: Ratio,
 ) => {
-  const priceRatio = makeRatioFromAmounts(price.amountOut, price.amountIn);
+  const priceRatio = makeRatioFromAmounts(
+    quotePrice.amountOut,
+    quotePrice.amountIn,
+  );
   const priceToUse = lowestPrice(priceRatio, lockedPrice);
 
   const totalLockedValue = ceilMultiplyBy(locked, priceToUse);
@@ -199,11 +202,14 @@ export const collateralizationRatio = (
 export const currentCollateralization = (
   debtSnapshot: DebtSnapshot,
   compoundedInterest: Ratio,
-  price: PriceDescription,
+  quotePrice: PriceDescription,
   locked: Amount<'nat'>,
   lockedPrice?: Ratio,
 ): Ratio | undefined => {
-  const priceRatio = makeRatioFromAmounts(price.amountOut, price.amountIn);
+  const priceRatio = makeRatioFromAmounts(
+    quotePrice.amountOut,
+    quotePrice.amountIn,
+  );
   const priceToUse = lowestPrice(priceRatio, lockedPrice);
 
   const totalDebt = calculateCurrentDebt(
