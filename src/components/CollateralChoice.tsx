@@ -170,7 +170,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
             left="IST Available"
             right={`${displayAmount(
               mintedAvailable,
-              2,
+              0,
               'locale',
             )} ${displayBrandPetname(params.debtLimit.brand)}`}
           />
