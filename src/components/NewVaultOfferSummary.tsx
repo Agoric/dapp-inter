@@ -41,11 +41,14 @@ const NewVaultOfferSummary = () => {
   const { displayAmount, displayBrandPetname, displayPercent } =
     useAtomValue(displayFunctionsAtom) ?? {};
 
-  const { metrics, params, factoryParams } = useVaultStore(vaults => ({
-    metrics: vaults.vaultMetrics,
-    params: vaults.vaultGovernedParams,
-    factoryParams: vaults.vaultFactoryParams,
-  }));
+  const { metrics, params, factoryParams, userVaults } = useVaultStore(
+    vaults => ({
+      metrics: vaults.vaultMetrics,
+      params: vaults.vaultGovernedParams,
+      factoryParams: vaults.vaultFactoryParams,
+      userVaults: vaults.vaults,
+    }),
+  );
 
   const [isVaultCreationDialogOpen, setIsVaultCreationDialogOpen] =
     useState(false);
@@ -110,6 +113,8 @@ const NewVaultOfferSummary = () => {
   const hasErrors =
     collateralizationRatioError || toLockError || toReceiveError;
 
+  const vaultLimitReached = (userVaults?.size ?? 0) >= 150;
+
   const canCreateVault =
     !hasErrors &&
     selectedMetrics &&
@@ -117,6 +122,7 @@ const NewVaultOfferSummary = () => {
     factoryParams &&
     depositAmount &&
     mintAmount &&
+    !vaultLimitReached &&
     offerSigner?.isDappApproved;
 
   const createVault = async () => {
@@ -124,16 +130,27 @@ const NewVaultOfferSummary = () => {
     setIsVaultCreationDialogOpen(true);
   };
 
+  const vaultLimitWarning =
+    (userVaults?.size ?? 0) >= 100 ? (
+      <div className="my-2 text-interOrange font-serif text-xs">
+        This account has created {userVaults?.size} vaults. There is a limit of
+        150 vaults per account.
+      </div>
+    ) : null;
+
   const createButtonLabel = useMemo(() => {
     if (!offerSigner?.addOffer) {
       return 'Connect Wallet';
+    }
+    if (vaultLimitReached) {
+      return 'Vault Limit Reached';
     }
     if (!offerSigner?.isDappApproved) {
       return 'Enable Dapp in Wallet';
     }
 
     return 'Create Vault';
-  }, [offerSigner]);
+  }, [offerSigner, vaultLimitReached]);
 
   return (
     <>
@@ -174,6 +191,7 @@ const NewVaultOfferSummary = () => {
               </tbody>
             </table>
           </div>
+          {vaultLimitWarning}
         </div>
         <div
           className={clsx(
