@@ -4,6 +4,7 @@ import type { Brand, Amount } from '@agoric/ertp/src/types';
 import { atom } from 'jotai';
 import { getPriceDescription } from '@agoric/zoe/src/contractSupport';
 import { atomWithStore } from 'jotai-zustand';
+import { persist } from 'zustand/middleware';
 
 // XXX PriceDescription type not exported from zoe package
 export type PriceDescription = {
@@ -224,7 +225,27 @@ export const vaultStore = createStore<VaultState>()(set => ({
     }),
 }));
 
-export const viewModeAtom = atom(ViewMode.Edit);
+interface VaultLocalStorageState {
+  hasPreviouslyCreatedVault: boolean;
+  setHasPreviouslyCreatedVault: (hasCreated: boolean) => void;
+}
+
+export const vaultLocalStorageStore = createStore<VaultLocalStorageState>()(
+  persist(
+    set => ({
+      hasPreviouslyCreatedVault: false,
+      setHasPreviouslyCreatedVault: (hasCreated: boolean) =>
+        set({ hasPreviouslyCreatedVault: hasCreated }),
+    }),
+    { name: 'vault-local-storage' },
+  ),
+);
+
+export const viewModeAtom = atom(
+  vaultLocalStorageStore.getState().hasPreviouslyCreatedVault
+    ? ViewMode.Manage
+    : ViewMode.Edit,
+);
 
 const vaultKeyToAdjustAtomInternal = atom<VaultKey | null>(null);
 
