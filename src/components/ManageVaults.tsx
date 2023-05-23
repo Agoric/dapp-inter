@@ -1,4 +1,8 @@
-import { chainConnectionAtom } from 'store/app';
+import {
+  chainConnectionAtom,
+  isWalletConnectionInProgressAtom,
+  localStorageStore,
+} from 'store/app';
 import { useCallback } from 'react';
 import { useVaultStore, vaultKeyToAdjustAtom, vaultsAtom } from 'store/vaults';
 import VaultSummary from 'components/VaultSummary';
@@ -10,26 +14,37 @@ import type { PropsWithChildren } from 'react';
 import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport/ratio';
 import { isLiquidationPriceBelowGivenPrice } from 'utils/vaultMath';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
+import { useStore } from 'zustand';
 
-const EmptyView = ({ children }: PropsWithChildren) => {
+const Popup = ({ children }: PropsWithChildren) => {
   return (
-    <div className="mt-8 mx-auto w-full relative">
+    <div className="mt-40 mx-auto w-full absolute">
       <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center pb-[20%]">
         <div className="max-w-lg shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl text-lg bg-white">
           <div className="bg-interYellow w-full h-4 rounded-t-xl"></div>
           <div className="p-6">{children}</div>
         </div>
       </div>
-      <div className="opacity-30 mt-10 mx-auto w-fit">
-        <img
-          className="object-none object-[bottom_-220px_left_-210px] h-[620px] w-[860px]"
-          src="./donut-lock.png"
-          alt="vaults unavailable"
-        ></img>
-      </div>
     </div>
   );
 };
+
+const Backdrop = () => (
+  <div className="absolute mx-auto w-full">
+    <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center pb-[20%]">
+      <div className="max-w-lg shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl text-lg bg-white">
+        <div className="bg-interYellow w-full h-4 rounded-t-xl"></div>
+      </div>
+    </div>
+    <div className="opacity-30 mt-10 mx-auto w-fit">
+      <img
+        className="object-none object-[bottom_-220px_left_-210px] h-[620px] w-[860px]"
+        src="./donut-lock.png"
+        alt="vaults unavailable"
+      ></img>
+    </div>
+  </div>
+);
 
 const noticeProps = {
   className: 'overflow-hidden',
@@ -52,6 +67,8 @@ const ManageVaults = () => {
   );
 
   const chainConnection = useAtomValue(chainConnectionAtom);
+  const isConnectionInProgress = useAtomValue(isWalletConnectionInProgressAtom);
+  const { hasWalletPreviouslyConnected } = useStore(localStorageStore);
 
   const buttonProps = {
     text: (
@@ -65,25 +82,36 @@ const ManageVaults = () => {
     }, [setVaultKeyToAdjust]),
   };
 
-  let content;
-
-  if (!chainConnection) {
-    content = <EmptyView>Connect your wallet to manage your vaults.</EmptyView>;
-  } else if (vaults?.size === 0) {
-    content = <EmptyView>You have not opened any vaults yet.</EmptyView>;
-  } else if (!vaults) {
-    content = (
-      <EmptyView>
-        <span className="animate-pulse">Loading your vaults...</span>
-      </EmptyView>
-    );
-  } else {
-    content = (
-      <div className="mt-12 flex flex-wrap gap-x-6 gap-y-8 justify-center xl:justify-start xl:px-2">
-        {[...vaults.keys()].map(vaultKey => (
+  const cards = (
+    <>
+      <div className="mt-12 flex flex-wrap gap-x-6 gap-y-8 justify-center xl:justify-start xl:px-2 relative z-10">
+        {[...(vaults?.keys() ?? [])].map(vaultKey => (
           <VaultSummary key={vaultKey} vaultKey={vaultKey} />
         ))}
       </div>
+    </>
+  );
+
+  let popup;
+
+  if (
+    isConnectionInProgress ||
+    (hasWalletPreviouslyConnected && !chainConnection)
+  ) {
+    popup = (
+      <Popup>
+        <span className="animate-pulse">Loading your vaults...</span>
+      </Popup>
+    );
+  } else if (!chainConnection) {
+    popup = <Popup>Connect your wallet to manage your vaults.</Popup>;
+  } else if (vaults?.size === 0) {
+    popup = <Popup>You have not opened any vaults yet.</Popup>;
+  } else if (!vaults) {
+    popup = (
+      <Popup>
+        <span className="animate-pulse">Loading your vaults...</span>
+      </Popup>
     );
   }
 
@@ -180,7 +208,9 @@ const ManageVaults = () => {
           ''
         )}
       </div>
-      {content}
+      <Backdrop />
+      {popup}
+      {cards}
     </>
   );
 };

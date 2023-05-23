@@ -111,8 +111,10 @@ export const makeWalletService = () => {
       stopWatchingPurses = watchPurses(connection);
       stopWatchingPublicSubscribers = watchPublicSubscribers(connection);
       clearToast();
+      localStorageStore.getState().setHasWalletPreviouslyConnected(true);
     } catch (e: unknown) {
       clearToast();
+      localStorageStore.getState().setHasWalletPreviouslyConnected(false);
       switch ((e as ConnectionError).message) {
         case Errors.enableKeplr:
           showToast('Enable the connection in Keplr to continue.', {

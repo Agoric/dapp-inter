@@ -153,6 +153,8 @@ export const latestDisclaimerIndex = 1;
 interface LocalStorageState {
   latestDisclaimerAgreedIndex: number;
   setlatestDisclaimerAgreedIndex: (index: number) => void;
+  hasWalletPreviouslyConnected: boolean;
+  setHasWalletPreviouslyConnected: (hasConnected: boolean) => void;
 }
 
 export const localStorageStore = createStore<LocalStorageState>()(
@@ -161,6 +163,9 @@ export const localStorageStore = createStore<LocalStorageState>()(
       latestDisclaimerAgreedIndex: -1,
       setlatestDisclaimerAgreedIndex: (index: number) =>
         set({ latestDisclaimerAgreedIndex: index }),
+      hasWalletPreviouslyConnected: false,
+      setHasWalletPreviouslyConnected: (hasConnected: boolean) =>
+        set({ hasWalletPreviouslyConnected: hasConnected }),
     }),
     { name: 'app-local-storage' },
   ),

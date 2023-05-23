@@ -5,10 +5,13 @@ import {
   ChainConnection,
   chainConnectionAtom,
   isWalletConnectionInProgressAtom,
+  localStorageStore,
   networkConfigAtom,
   walletServiceAtom,
 } from 'store/app';
 import clsx from 'clsx';
+import { useEffect } from 'react';
+import { useStore } from 'zustand';
 
 const truncatedAddress = (chainConnection: ChainConnection) =>
   chainConnection.address.substring(chainConnection.address.length - 7);
@@ -18,6 +21,23 @@ const ConnectWalletButton = () => {
   const isConnectionInProgress = useAtomValue(isWalletConnectionInProgressAtom);
   const chainConnection = useAtomValue(chainConnectionAtom);
   const { url } = useAtomValue(networkConfigAtom);
+  const { hasWalletPreviouslyConnected } = useStore(localStorageStore);
+
+  // Automatically connect if the user has previously connected.
+  useEffect(() => {
+    if (
+      hasWalletPreviouslyConnected &&
+      !(isConnectionInProgress || chainConnection)
+    ) {
+      walletService.connect(url);
+    }
+  }, [
+    chainConnection,
+    hasWalletPreviouslyConnected,
+    isConnectionInProgress,
+    url,
+    walletService,
+  ]);
 
   const status = (() => {
     if (isConnectionInProgress) {

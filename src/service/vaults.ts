@@ -1,5 +1,5 @@
 import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
-import { useVaultStore } from 'store/vaults';
+import { useVaultStore, vaultLocalStorageStore } from 'store/vaults';
 import { makeFollower, iterateLatest } from '@agoric/casting';
 import { appStore } from 'store/app';
 import { toast } from 'react-toastify';
@@ -147,6 +147,7 @@ const watchUserVaults = () => {
     subscriber: string,
     managerId: string,
   ) => {
+    vaultLocalStorageStore.getState().setHasPreviouslyCreatedVault(true);
     const indexWithinManager = getIndexFromVaultPath(subscriber);
 
     useVaultStore
