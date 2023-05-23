@@ -1,4 +1,9 @@
-import { useMemo, useState } from 'react';
+import {
+  KeyboardEventHandler,
+  PropsWithChildren,
+  useMemo,
+  useState,
+} from 'react';
 import { useVaultStore, vaultKeyToAdjustAtom } from 'store/vaults';
 import { currentTimeAtom, displayFunctionsAtom } from 'store/app';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
@@ -19,9 +24,56 @@ import {
 import { AmountMath } from '@agoric/ertp';
 import CloseVaultDialog from './CloseVaultDialog';
 import { multiplyBy } from '@agoric/zoe/src/contractSupport/ratio';
+import { motion } from 'framer-motion';
 
-export const SkeletonVaultSummary = () => (
-  <div className="shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
+const cardVariant = {
+  active: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.5,
+    },
+  },
+  inactive: {
+    opacity: 0,
+    y: 10,
+    transition: {
+      duration: 0.5,
+    },
+  },
+};
+
+type CardProps = PropsWithChildren<{ onClick?: () => void }>;
+
+const VaultCard = ({ children, onClick }: CardProps) => {
+  const onKeyDownHandler: KeyboardEventHandler<HTMLDivElement> = e => {
+    if (onClick && ['Enter', ' '].includes(e.key)) {
+      onClick();
+    }
+  };
+
+  return (
+    <motion.div
+      onClick={onClick}
+      variants={cardVariant}
+      {...{ tabIndex: onClick ? 0 : -1 }}
+      whileHover={{
+        scale: onClick ? 1.05 : 1,
+        transition: { duration: 0.15, ease: [0.4, 0, 0.2, 1] },
+      }}
+      onKeyDown={onKeyDownHandler}
+      className={clsx(
+        onClick ? 'cursor-pointer' : 'cursor-not-allowed',
+        'shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] relative',
+      )}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
+const SkeletonVaultSummary = () => (
+  <>
     <div className="flex justify-between mt-14 mx-8 mb-10 items-center">
       <div className="flex items-end gap-4">
         <div className="h-20 w-20 bg-gray-200 rounded-full transition animate-pulse" />
@@ -43,7 +95,7 @@ export const SkeletonVaultSummary = () => (
       <div className="h-[72px] flex-auto bg-gray-200 rounded-lg transition animate-pulse" />
       <div className="h-[72px] flex-auto bg-gray-200 rounded-lg transition animate-pulse" />
     </div>
-  </div>
+  </>
 );
 
 const bigTextClasses = 'text-[32px] leading-[38px] font-semibold';
@@ -88,7 +140,7 @@ const ClosedVault = ({
   collateralLabel,
   indexWithinManager,
 }: ClosedVaultParams) => (
-  <div className="relative shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition">
+  <>
     <div className="leading-[19px] absolute bg-mineShaft w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase">
       Closed
     </div>
@@ -105,7 +157,7 @@ const ClosedVault = ({
     <div className="mx-11 mt-3 mb-5 font-black flex flex-col justify-center h-[192px]">
       Closed
     </div>
-  </div>
+  </>
 );
 
 type LiquidatedVaultParams = {
@@ -114,7 +166,6 @@ type LiquidatedVaultParams = {
   collateralLabel: string;
   indexWithinManager: number;
   totalCollateral: string;
-  onClick: () => void;
 };
 
 const LiquidatedVault = ({
@@ -123,12 +174,8 @@ const LiquidatedVault = ({
   collateralLabel,
   indexWithinManager,
   totalCollateral,
-  onClick,
 }: LiquidatedVaultParams) => (
-  <button
-    onClick={onClick}
-    className="text-start relative shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition hover:scale-105"
-  >
+  <>
     <div className="leading-[19px] absolute bg-mineShaft w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase flex justify-between">
       <span>Liquidated</span>
       <span className="font-light text-sm normal-case">
@@ -159,7 +206,7 @@ const LiquidatedVault = ({
         <span className="font-normal">|&nbsp;&nbsp;Liquidated</span>{' '}
       </span>
     </div>
-  </button>
+  </>
 );
 
 type Props = {
@@ -213,13 +260,13 @@ const VaultSummary = ({ vaultKey }: Props) => {
     (brand && priceErrors.get(brand)) ||
     vaultManagerLoadingErrors.get(vault?.managerId ?? '');
 
-  return useMemo(() => {
+  const { content, onClick } = useMemo(() => {
     if (error) {
-      return (
-        <div className="text-lg text-red-500 p-8 shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px]">
-          <p>Error: {error.toString()}</p>
-        </div>
-      );
+      return {
+        content: (
+          <p className="text-red-500 w-[580px]">Error: {error.toString()}</p>
+        ),
+      };
     }
 
     if (
@@ -230,7 +277,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
       !manager ||
       !displayFunctions
     ) {
-      return <SkeletonVaultSummary />;
+      return { content: <SkeletonVaultSummary /> };
     }
 
     const {
@@ -244,6 +291,12 @@ const VaultSummary = ({ vaultKey }: Props) => {
     const { locked, debtSnapshot } = vault;
     assert(locked && debtSnapshot, 'Vault must be loading still');
 
+    if (vault.vaultState === 'transfer') {
+      // XXX Need to know whether we still own this vault after transfer.
+      // https://github.com/Agoric/agoric-sdk/issues/6974
+      return {};
+    }
+
     const brandIcon = displayBrandIcon(locked.brand);
     const brandPetname = displayBrandPetname(locked.brand);
 
@@ -251,14 +304,16 @@ const VaultSummary = ({ vaultKey }: Props) => {
     const collateralLabel = 'ATOM';
 
     if (vault.vaultState === 'closed') {
-      return (
-        <ClosedVault
-          brandIcon={brandIcon}
-          brandPetname={brandPetname}
-          collateralLabel={collateralLabel}
-          indexWithinManager={vault.indexWithinManager}
-        />
-      );
+      return {
+        content: (
+          <ClosedVault
+            brandIcon={brandIcon}
+            brandPetname={brandPetname}
+            collateralLabel={collateralLabel}
+            indexWithinManager={vault.indexWithinManager}
+          />
+        ),
+      };
     }
 
     const totalDebt = calculateCurrentDebt(
@@ -268,35 +323,31 @@ const VaultSummary = ({ vaultKey }: Props) => {
     );
 
     if (vault.vaultState === 'liquidated') {
-      return (
-        <>
-          <LiquidatedVault
-            brandIcon={brandIcon}
-            brandPetname={brandPetname}
-            collateralLabel={collateralLabel}
-            indexWithinManager={vault.indexWithinManager}
-            totalCollateral={`${displayAmount(
-              locked,
-              2,
-              'locale',
-            )} ${displayBrandPetname(locked.brand)}`}
-            onClick={() => setIsCloseVaultDialogOpen(true)}
-          />
-          <CloseVaultDialog
-            isOpen={isCloseVaultDialogOpen}
-            onClose={() => setIsCloseVaultDialogOpen(false)}
-            totalCollateral={locked}
-            totalDebt={totalDebt}
-            vaultOfferId={vault.createdByOfferId}
-          />
-        </>
-      );
-    }
-
-    if (vault.vaultState === 'transfer') {
-      // XXX Need to know whether we still own this vault after transfer.
-      // https://github.com/Agoric/agoric-sdk/issues/6974
-      return null;
+      return {
+        content: (
+          <>
+            <LiquidatedVault
+              brandIcon={brandIcon}
+              brandPetname={brandPetname}
+              collateralLabel={collateralLabel}
+              indexWithinManager={vault.indexWithinManager}
+              totalCollateral={`${displayAmount(
+                locked,
+                2,
+                'locale',
+              )} ${displayBrandPetname(locked.brand)}`}
+            />
+            <CloseVaultDialog
+              isOpen={isCloseVaultDialogOpen}
+              onClose={() => setIsCloseVaultDialogOpen(false)}
+              totalCollateral={locked}
+              totalDebt={totalDebt}
+              vaultOfferId={vault.createdByOfferId}
+            />
+          </>
+        ),
+        onClick: () => setIsCloseVaultDialogOpen(true),
+      };
     }
 
     const totalLockedValue = ceilMultiplyBy(
@@ -479,67 +530,63 @@ const VaultSummary = ({ vaultKey }: Props) => {
       </tbody>
     );
 
-    return (
-      <button
-        onClick={adjustVault}
-        className={clsx(
-          'text-start relative cursor-pointer shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] transition',
-          isLiquidating ? 'cursor-not-allowed' : 'hover:scale-105',
-        )}
-        disabled={isLiquidating}
-      >
-        {atRiskNotice}
-        {liquidatingNotice}
-        <div className="flex justify-between mt-14 mx-8 mb-10 items-center flex-wrap">
-          <div className="flex items-end gap-4">
-            <img
-              height="80"
-              width="80"
-              alt={brandPetname}
-              src={brandIcon}
-            ></img>
-            <div className="flex flex-col justify-end">
-              <div className={bigTextClasses}>{collateralLabel}</div>
-              <div className="text-[#A3A5B9] text-sm">
-                #{vault.indexWithinManager}
+    return {
+      onClick: isLiquidating ? undefined : adjustVault,
+      content: (
+        <>
+          {atRiskNotice}
+          {liquidatingNotice}
+          <div className="flex justify-between mt-14 mx-8 mb-10 items-center flex-wrap">
+            <div className="flex items-end gap-4">
+              <img
+                height="80"
+                width="80"
+                alt={brandPetname}
+                src={brandIcon}
+              ></img>
+              <div className="flex flex-col justify-end">
+                <div className={bigTextClasses}>{collateralLabel}</div>
+                <div className="text-[#A3A5B9] text-sm">
+                  #{vault.indexWithinManager}
+                </div>
+              </div>
+            </div>
+            <div className="h-20">
+              <div className="text-sm font-medium">Net Equity</div>
+              <div className={bigTextClasses}>
+                {isNetValueNegative && '-'}
+                {displayAmount(netVaultValue, 2, 'usd')}
               </div>
             </div>
           </div>
-          <div className="h-20">
-            <div className="text-sm font-medium">Net Equity</div>
-            <div className={bigTextClasses}>
-              {isNetValueNegative && '-'}
-              {displayAmount(netVaultValue, 2, 'usd')}
+          <div className="bg-[#F0F0F0] h-[1px] w-full" />
+          <div className="mx-11 mt-3 mb-5">
+            <table className="w-full">{tableBody}</table>
+          </div>
+          <div className="flex justify-around gap-3 mx-[30px] mb-[30px]">
+            <div className={subpanelClasses}>
+              <span className="text-[#A3A5B9]">Stab. Fee</span>
+              <span className="font-extrabold">
+                {displayPercent(params.interestRate, 2)}%
+              </span>
+            </div>
+            <div className={subpanelClasses}>
+              <span className="text-[#A3A5B9]">Debt</span>
+              <span className="font-extrabold">
+                {displayAmount(totalDebt, 2, 'locale')}{' '}
+                {displayBrandPetname(totalDebt.brand)}
+              </span>
+            </div>
+            <div className={subpanelClasses}>
+              <span className="text-[#A3A5B9]">Collat. Locked ($ value)</span>
+              <span className="font-extrabold text-[#00B1A6]">
+                {displayAmount(totalLockedValue, 2, 'usd')}
+              </span>
             </div>
           </div>
-        </div>
-        <div className="bg-[#F0F0F0] h-[1px] w-full" />
-        <div className="mx-11 mt-3 mb-5">
-          <table className="w-full">{tableBody}</table>
-        </div>
-        <div className="flex justify-around gap-3 mx-[30px] mb-[30px]">
-          <div className={subpanelClasses}>
-            <span className="text-[#A3A5B9]">Stab. Fee</span>
-            <span className="font-extrabold">
-              {displayPercent(params.interestRate, 2)}%
-            </span>
-          </div>
-          <div className={subpanelClasses}>
-            <span className="text-[#A3A5B9]">Debt</span>
-            <span className="font-extrabold">
-              {displayAmount(totalDebt, 2, 'locale')}{' '}
-              {displayBrandPetname(totalDebt.brand)}
-            </span>
-          </div>
-          <div className={subpanelClasses}>
-            <span className="text-[#A3A5B9]">Collat. Locked ($ value)</span>
-            <span className="font-extrabold text-[#00B1A6]">
-              {displayAmount(totalLockedValue, 2, 'usd')}
-            </span>
-          </div>
-        </div>
-      </button>
-    );
+        </>
+      ),
+    };
   }, [
     error,
     vault,
@@ -557,6 +604,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
     setVaultToAdjustKey,
     vaultKey,
   ]);
+
+  return content ? <VaultCard onClick={onClick}>{content}</VaultCard> : null;
 };
 
 export default VaultSummary;

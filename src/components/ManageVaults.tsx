@@ -9,7 +9,7 @@ import VaultSummary from 'components/VaultSummary';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { FaPlusCircle } from 'react-icons/fa';
 import VaultSymbol from 'svg/vault-symbol';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import type { PropsWithChildren } from 'react';
 import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport/ratio';
 import { isLiquidationPriceBelowGivenPrice } from 'utils/vaultMath';
@@ -18,14 +18,18 @@ import { useStore } from 'zustand';
 
 const Popup = ({ children }: PropsWithChildren) => {
   return (
-    <div className="mt-40 mx-auto w-full absolute">
+    <motion.div
+      key="manage-vaults-popup"
+      className="mt-40 mx-auto w-full absolute"
+      exit={{ opacity: 0, transition: { duration: 0.15 } }}
+    >
       <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center pb-[20%]">
         <div className="max-w-lg shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl text-lg bg-white">
           <div className="bg-interYellow w-full h-4 rounded-t-xl"></div>
           <div className="p-6">{children}</div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -45,6 +49,15 @@ const Backdrop = () => (
     </div>
   </div>
 );
+
+const cardListVariant = {
+  active: {
+    display: 'relative',
+    transition: {
+      staggerChildren: 0.15,
+    },
+  },
+};
 
 const noticeProps = {
   className: 'overflow-hidden',
@@ -82,38 +95,45 @@ const ManageVaults = () => {
     }, [setVaultKeyToAdjust]),
   };
 
-  const cards = (
-    <>
-      <div className="mt-12 flex flex-wrap gap-x-6 gap-y-8 justify-center xl:justify-start xl:px-2 relative z-10">
-        {[...(vaults?.keys() ?? [])].map(vaultKey => (
-          <VaultSummary key={vaultKey} vaultKey={vaultKey} />
-        ))}
-      </div>
-    </>
-  );
+  const vaultKeys = [...(vaults?.keys() ?? [])];
 
-  let popup;
+  const cards = vaultKeys.length ? (
+    <motion.div
+      animate="active"
+      initial="inactive"
+      variants={cardListVariant}
+      className="mt-12 flex flex-wrap gap-x-6 gap-y-8 justify-center xl:justify-start xl:px-2 relative z-10"
+    >
+      {vaultKeys.map(vaultKey => (
+        <VaultSummary key={vaultKey} vaultKey={vaultKey} />
+      ))}
+    </motion.div>
+  ) : null;
+
+  let popupContent;
 
   if (
     isConnectionInProgress ||
     (hasWalletPreviouslyConnected && !chainConnection)
   ) {
-    popup = (
-      <Popup>
-        <span className="animate-pulse">Loading your vaults...</span>
-      </Popup>
+    popupContent = (
+      <span className="animate-pulse">Loading your vaults...</span>
     );
   } else if (!chainConnection) {
-    popup = <Popup>Connect your wallet to manage your vaults.</Popup>;
+    popupContent = 'Connect your wallet to manage your vaults.';
   } else if (vaults?.size === 0) {
-    popup = <Popup>You have not opened any vaults yet.</Popup>;
+    popupContent = 'You have not opened any vaults yet.';
   } else if (!vaults) {
-    popup = (
-      <Popup>
-        <span className="animate-pulse">Loading your vaults...</span>
-      </Popup>
+    popupContent = (
+      <span className="animate-pulse">Loading your vaults...</span>
     );
   }
+
+  const popup = (
+    <AnimatePresence>
+      {popupContent && <Popup>{popupContent}</Popup>}
+    </AnimatePresence>
+  );
 
   const liquidatingVaultCount =
     vaults &&
@@ -168,6 +188,19 @@ const ManageVaults = () => {
       return isAtRisk;
     }).length;
 
+  const vaultCount = (
+    <AnimatePresence>
+      {vaults?.size ?? 0 > 0 ? (
+        <motion.span
+          key="manage-vaults-vault-count"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >{` (${vaults?.size})`}</motion.span>
+      ) : null}
+      ;
+    </AnimatePresence>
+  );
   return (
     <>
       <div className="w-full flex justify-between mt-6">
@@ -176,7 +209,7 @@ const ManageVaults = () => {
             <span className="fill-interYellow align-bottom relative top-[1px]">
               <VaultSymbol />
             </span>
-            <span>My Vaults{vaults?.size ? ` (${vaults?.size})` : ''}</span>
+            <span>My Vaults{vaultCount}</span>
           </div>
         </div>
         <button
