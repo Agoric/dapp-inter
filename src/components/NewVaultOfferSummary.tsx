@@ -28,6 +28,9 @@ const TableRow = ({ left, right }: TableRowProps) => {
   );
 };
 
+const vaultLimit = 150;
+const vaultLimitWarningThreshold = 100;
+
 const NewVaultOfferSummary = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
     useAtomValue(inputErrorsAtom);
@@ -113,7 +116,8 @@ const NewVaultOfferSummary = () => {
   const hasErrors =
     collateralizationRatioError || toLockError || toReceiveError;
 
-  const vaultLimitReached = (userVaults?.size ?? 0) >= 150;
+  const userVaultCount = userVaults?.size ?? 0;
+  const vaultLimitReached = userVaultCount >= vaultLimit;
 
   const canCreateVault =
     !hasErrors &&
@@ -131,9 +135,9 @@ const NewVaultOfferSummary = () => {
   };
 
   const vaultLimitWarning =
-    (userVaults?.size ?? 0) >= 100 ? (
+    userVaultCount >= vaultLimitWarningThreshold ? (
       <div className="my-2 text-interOrange font-serif text-xs">
-        This account has created {userVaults?.size} vaults. There is a limit of
+        This account has created {userVaultCount} vaults. There is a limit of
         150 vaults per account.
       </div>
     ) : null;
