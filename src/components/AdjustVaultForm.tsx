@@ -20,6 +20,7 @@ import { PursesJSONState } from '@agoric/wallet-backend';
 import CloseVaultDialog from './CloseVaultDialog';
 import { useState } from 'react';
 import { maxIstToMintFromVault } from 'utils/vaultMath';
+import AssetTransferButton from './AssetTransferButton';
 
 const AdjustVaultForm = () => {
   const displayFunctions = useAtomValue(displayFunctionsAtom);
@@ -27,7 +28,7 @@ const AdjustVaultForm = () => {
     displayFunctions,
     'Adjust vault requires display functions to be loaded',
   );
-  const { displayBrandPetname } = displayFunctions;
+  const { displayBrandPetname, displayPercent } = displayFunctions;
 
   const vaultToAdjust = useAtomValue(vaultToAdjustAtom);
   const vaultAfterAdjustment = useAtomValue(vaultAfterAdjustmentAtom);
@@ -90,11 +91,17 @@ const AdjustVaultForm = () => {
     );
   };
 
+  const collateralBrand = vaultToAdjust?.locked.brand;
+
+  const depositLabel = collateralBrand
+    ? `Deposit ${displayBrandPetname(collateralBrand)}`
+    : 'Deposit funds';
+
   return (
     <>
       <div className="bg-white font-serif p-8 shadow-[0_40px_40px_-14px_rgba(116,116,116,0.25)] rounded-[20px] w-full">
         <div className="font-bold mb-4">Adjust Collateral</div>
-        <div className="mb-12 grid grid-cols-2 gap-10">
+        <div className="grid grid-cols-2 gap-10">
           <div className="text-[#9193A5] text-sm col-span-2 lg:col-span-1">
             Deposit additional collateral or withdraw your existing collateral.
             Select “No Action” to leave collateral unchanged.
@@ -135,12 +142,22 @@ const AdjustVaultForm = () => {
             />
           </div>
         </div>
+        <AssetTransferButton className="mb-8" message={depositLabel} />
         <div className="w-full h-[1px] bg-gradient-to-r from-[#FF7B1B] to-[#FFD91B] opacity-30"></div>
         <div className="mt-8 font-bold mb-4">Adjust Debt</div>
-        <div className="mb-12 grid grid-cols-2 gap-10">
+        <div className="mb-4 grid grid-cols-2 gap-10">
           <div className="text-[#9193A5] text-sm col-span-2 lg:col-span-1">
             Mint additional IST or repay your existing IST debt. Select “No
             Action” to leave debt unchanged.
+            <p className="mt-4 italic font-serif text-sm leading-[22px]">
+              {debtAction === DebtAction.Mint &&
+                vaultToAdjust?.params &&
+                `A minting fee of ${displayPercent(
+                  vaultToAdjust?.params.mintFee,
+                  2,
+                )}%
+          will be charged upon vault creation.`}
+            </p>
           </div>
           <div className="col-span-2 lg:col-span-1">
             <div className="mb-6">
