@@ -125,7 +125,7 @@ const AdjustVaultSummary = () => {
       return vaultState;
     }
 
-    return 'Make Offer';
+    return 'Adjust Vault';
   }, [isButtonDisabled, isActive, offerSigner?.isDappApproved, vaultState]);
 
   const makeAdjustOffer = async () => {
