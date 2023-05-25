@@ -7,14 +7,22 @@ import ErrorPage from 'views/ErrorPage';
 import { useEffect } from 'react';
 import { watchVbank } from 'service/vbank';
 import { useAtomValue, useAtom, useSetAtom } from 'jotai';
-import { currentTimeAtom, leaderAtom, networkConfigAtom } from 'store/app';
+import {
+  currentTimeAtom,
+  isAppVersionOutdatedAtom,
+  leaderAtom,
+  networkConfigAtom,
+} from 'store/app';
 import { makeLeader } from '@agoric/casting';
 import Root from 'views/Root';
 import DisclaimerDialog from 'components/DisclaimerDialog';
 import { secondsSinceEpoch } from 'utils/date';
+import { vaultStoreAtom } from 'store/vaults';
+import AppVersionDialog from 'components/AppVersionDialog';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';
+import { currentlyVisitedHash, ipfsHashLength } from 'utils/ipfs';
 
 const router = createHashRouter([
   {
@@ -49,6 +57,27 @@ const useTimeKeeper = () => {
   }, [setCurrentTime]);
 };
 
+const useAppVersionWatcher = () => {
+  const { vaultFactoryParams } = useAtomValue(vaultStoreAtom);
+  const setIsAppVersionOutdated = useSetAtom(isAppVersionOutdatedAtom);
+
+  const { referencedUI } = vaultFactoryParams ?? {};
+
+  useEffect(() => {
+    // We can roughly approximate if it's a valid hash, rather than empty or
+    // "NONE" or the like, by checking its length. Otherwise don't complain.
+    if (referencedUI?.length !== ipfsHashLength) {
+      return;
+    }
+
+    const current = currentlyVisitedHash();
+
+    if (referencedUI !== current) {
+      setIsAppVersionOutdated(true);
+    }
+  }, [referencedUI, setIsAppVersionOutdated]);
+};
+
 const App = () => {
   const netConfig = useAtomValue(networkConfigAtom);
   const [leader, setLeader] = useAtom(leaderAtom);
@@ -76,6 +105,7 @@ const App = () => {
   }, [setError, leader, netConfig, setLeader]);
 
   useTimeKeeper();
+  useAppVersionWatcher();
 
   return (
     <div>
@@ -98,6 +128,7 @@ const App = () => {
         )}
       </div>
       <DisclaimerDialog />
+      <AppVersionDialog />
     </div>
   );
 };

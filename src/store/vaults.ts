@@ -58,6 +58,7 @@ export type VaultManager = {
 
 export type VaultFactoryParams = {
   minInitialDebt: Amount<'nat'>;
+  referencedUI: string;
 };
 
 // XXX Should get type from

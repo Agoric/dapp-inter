@@ -170,3 +170,5 @@ export const localStorageStore = createStore<LocalStorageState>()(
     { name: 'app-local-storage' },
   ),
 );
+
+export const isAppVersionOutdatedAtom = atom(false);
