@@ -166,6 +166,7 @@ type LiquidatedVaultParams = {
   collateralLabel: string;
   indexWithinManager: number;
   totalCollateral: string;
+  isEmpty: boolean;
 };
 
 const LiquidatedVault = ({
@@ -174,13 +175,18 @@ const LiquidatedVault = ({
   collateralLabel,
   indexWithinManager,
   totalCollateral,
+  isEmpty,
 }: LiquidatedVaultParams) => (
   <>
     <div className="leading-[19px] absolute bg-mineShaft w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase flex justify-between">
       <span>Liquidated</span>
-      <span className="font-light text-sm normal-case">
-        Click to claim collateral
-      </span>
+      {isEmpty ? (
+        <></>
+      ) : (
+        <span className="font-light text-sm normal-case">
+          Click to claim collateral
+        </span>
+      )}
     </div>
     <div className="flex justify-between mt-14 mx-8 mb-10 items-end flex-wrap">
       <div className="flex items-end gap-4">
@@ -323,6 +329,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
     );
 
     if (vault.vaultState === 'liquidated') {
+      const isEmpty = AmountMath.isEmpty(locked);
       return {
         content: (
           <>
@@ -336,6 +343,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
                 2,
                 'locale',
               )} ${displayBrandPetname(locked.brand)}`}
+              isEmpty={isEmpty}
             />
             <CloseVaultDialog
               isOpen={isCloseVaultDialogOpen}
@@ -346,7 +354,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
             />
           </>
         ),
-        onClick: () => setIsCloseVaultDialogOpen(true),
+        onClick: isEmpty ? undefined : () => setIsCloseVaultDialogOpen(true),
       };
     }
 
