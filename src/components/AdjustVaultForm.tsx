@@ -116,7 +116,7 @@ const AdjustVaultForm = () => {
                   CollateralAction.Withdraw,
                 ]}
                 onSelection={setCollateralAction}
-                label="Action"
+                label="Select Action"
               />
             </div>
             <AmountInput
@@ -165,7 +165,7 @@ const AdjustVaultForm = () => {
                 selection={debtAction}
                 choices={[DebtAction.None, DebtAction.Mint, DebtAction.Repay]}
                 onSelection={setDebtAction}
-                label="Action"
+                label="Select Action"
               />
             </div>
             <AmountInput
