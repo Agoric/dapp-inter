@@ -44,6 +44,7 @@ const AdjustVault = () => {
     totalLockedValue,
     totalDebt,
     lockedPrice,
+    isAtRisk,
   } = vaultToAdjust;
 
   const [netVaultValue, isNetValueNegative] = netValue(
@@ -58,6 +59,12 @@ const AdjustVault = () => {
 
   return (
     <>
+      {isAtRisk && (
+        <div className="text-[#E22951] text-lg mt-4 font-serif font-medium">
+          This vault is at risk. Please increase your collateral or repay your
+          outstanding IST debt to avoid liquidation.
+        </div>
+      )}
       <div className="w-full flex justify-between mt-6 flex-wrap">
         <div className="font-serif flex items-baseline gap-3">
           <div className="font-medium text-2xl">{vaultLabel}</div>
@@ -66,7 +73,7 @@ const AdjustVault = () => {
         <div className="flex gap-8">
           <div>
             Current Price:{' '}
-            <span className="text-[#00B1A6] font-medium text-lg">
+            <span className="font-medium text-lg">
               {displayPrice(collateralPrice)}
             </span>
           </div>

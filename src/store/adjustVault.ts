@@ -11,6 +11,7 @@ import {
 import { atom } from 'jotai';
 import {
   debtAfterChange,
+  isVaultAtRisk,
   istAvailable,
   lockedAfterChange,
 } from 'utils/vaultMath';
@@ -37,6 +38,7 @@ type VaultToAdjust = {
   createdByOfferId: string;
   vaultState?: VaultPhase;
   lockedPrice?: Ratio;
+  isAtRisk: boolean;
 };
 
 export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
@@ -85,6 +87,15 @@ export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
     ? undefined
     : makeRatioFromAmounts(totalLockedValue, totalDebt);
 
+  const isAtRisk = isVaultAtRisk(
+    vault,
+    vaultManagers,
+    vaultGovernedParams,
+    prices,
+    liquidationAuctionBooks,
+    liquidationSchedule,
+  );
+
   return {
     totalLockedValue,
     totalDebt,
@@ -97,6 +108,7 @@ export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
     createdByOfferId,
     vaultState,
     lockedPrice,
+    isAtRisk,
   };
 });
 

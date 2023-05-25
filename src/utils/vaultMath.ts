@@ -7,8 +7,18 @@ import {
   makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
 import { AmountMath } from '@agoric/ertp';
-import { DebtSnapshot, PriceDescription, Ratio } from 'store/vaults';
-import { Amount, NatValue } from '@agoric/ertp/src/types';
+import {
+  DebtSnapshot,
+  LiquidationAuctionBook,
+  LiquidationSchedule,
+  PriceDescription,
+  PriceQuote,
+  Ratio,
+  VaultInfo,
+  VaultManager,
+  VaultParams,
+} from 'store/vaults';
+import { Amount, Brand, NatValue } from '@agoric/ertp/src/types';
 import { CollateralAction, DebtAction } from 'store/adjustVault';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
@@ -222,5 +232,57 @@ export const currentCollateralization = (
     { amountIn: priceToUse.denominator, amountOut: priceToUse.numerator },
     locked,
     totalDebt,
+  );
+};
+
+export const isVaultAtRisk = (
+  vault: VaultInfo,
+  managers: Map<string, VaultManager>,
+  vaultParams: Map<string, VaultParams>,
+  prices: Map<Brand, PriceDescription>,
+  books: Map<string, LiquidationAuctionBook>,
+  schedule: LiquidationSchedule | null,
+) => {
+  const isLiquidating = vault.vaultState === 'liquidating';
+  const manager = managers.get(vault.managerId ?? '');
+  const params = vaultParams.get(vault.managerId ?? '');
+  const { debtSnapshot, locked } = vault;
+  const brand = locked?.brand;
+  const price = brand && prices.get(brand);
+  const book = books.get(vault?.managerId ?? '');
+
+  if (!(debtSnapshot && manager && price && params)) {
+    return false;
+  }
+
+  // If `activeStartTime` is truthy, then `startPrice` is the *current* auction price, so ignore.
+  const nextAuctionPrice = !schedule?.activeStartTime && book?.startPrice;
+
+  const totalDebt = calculateCurrentDebt(
+    debtSnapshot.debt,
+    debtSnapshot.interest,
+    manager.compoundedInterest,
+  );
+
+  const isLiquidationPriceBelowOraclePrice = isLiquidationPriceBelowGivenPrice(
+    locked,
+    totalDebt,
+    makeRatioFromAmounts(price.amountOut, price.amountIn),
+    params.liquidationMargin,
+  );
+
+  const isLiquidationPriceBelowNextAuctionPrice =
+    nextAuctionPrice &&
+    isLiquidationPriceBelowGivenPrice(
+      locked,
+      totalDebt,
+      nextAuctionPrice,
+      params.liquidationMargin,
+    );
+
+  return (
+    (isLiquidationPriceBelowOraclePrice ||
+      isLiquidationPriceBelowNextAuctionPrice) &&
+    !isLiquidating
   );
 };

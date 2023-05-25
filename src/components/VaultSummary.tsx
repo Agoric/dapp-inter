@@ -601,7 +601,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
             </div>
             <div className={subpanelClasses}>
               <span className="text-[#A3A5B9]">Collat. Locked ($ value)</span>
-              <span className="font-extrabold text-[#00B1A6]">
+              <span className="font-extrabold">
                 {displayAmount(totalLockedValue, 2, 'usd')}
               </span>
             </div>
