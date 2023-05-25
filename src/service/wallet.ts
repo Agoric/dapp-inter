@@ -119,14 +119,19 @@ export const makeWalletService = () => {
         case Errors.enableKeplr:
           showToast('Enable the connection in Keplr to continue.', {
             hideProgressBar: false,
-            autoClose: 5000,
+            autoClose: 7000,
           });
           break;
         case Errors.networkConfig:
           showToast('Network not found.');
           break;
         case Errors.noSmartWallet:
-          showToast(React.createElement(SmartWalletNotFoundToast, null));
+          showToast(
+            React.createElement(SmartWalletNotFoundToast, {
+              hideProgressBar: false,
+              autoClose: 7000,
+            }),
+          );
           break;
       }
     } finally {
