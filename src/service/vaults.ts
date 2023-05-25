@@ -233,7 +233,12 @@ type VaultManagerUpdate = ValuePossessor<VaultManager>;
 type LiquidationAuctionBookUpdate = ValuePossessor<LiquidationAuctionBook>;
 
 type VaultFactoryParamsUpdate = ValuePossessor<{
-  current: { MinInitialDebt: ValuePossessor<Amount<'nat'>> };
+  current: {
+    MinInitialDebt: ValuePossessor<Amount<'nat'>>;
+    ReferencedUI?: ValuePossessor<string>;
+    // TODO remove backwards compatibility after https://github.com/Agoric/agoric-sdk/issues/7839
+    EndorsedUI: ValuePossessor<string>;
+  };
 }>;
 
 type VaultUpdate = ValuePossessor<VaultInfoChainData>;
@@ -324,6 +329,9 @@ export const watchVaultFactory = (netconfigUrl: string) => {
       useVaultStore.setState({
         vaultFactoryParams: {
           minInitialDebt: value.current.MinInitialDebt.value,
+          referencedUI:
+            value.current.ReferencedUI?.value ??
+            value.current.EndorsedUI?.value,
         },
       });
     }

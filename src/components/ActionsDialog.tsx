@@ -1,6 +1,6 @@
 import { Dialog, Transition } from '@headlessui/react';
 import clsx from 'clsx';
-import { Fragment, ReactElement } from 'react';
+import { Fragment, ReactElement, useRef } from 'react';
 
 type DialogAction = {
   label: string;
@@ -15,6 +15,8 @@ type Props = {
   primaryAction: DialogAction;
   secondaryAction?: DialogAction;
   primaryActionDisabled?: boolean;
+  // Whether to initially focus the primary action.
+  initialFocusPrimary?: boolean;
 };
 
 const ActionsDialog = ({
@@ -25,10 +27,18 @@ const ActionsDialog = ({
   primaryAction,
   secondaryAction,
   primaryActionDisabled = false,
+  initialFocusPrimary = false,
 }: Props) => {
+  const primaryButtonRef = useRef(null);
+
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog as="div" className="relative z-50" onClose={onClose}>
+      <Dialog
+        as="div"
+        className="relative z-50"
+        onClose={onClose}
+        initialFocus={initialFocusPrimary ? primaryButtonRef : undefined}
+      >
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -64,16 +74,17 @@ const ActionsDialog = ({
                   <div className="flex justify-end gap-6">
                     {secondaryAction && (
                       <button
-                        className="text-btn-xs flex justify-center rounded  text-[#A3A5B9] border-[#A3A5B9] border-2 px-6 py-3 bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+                        className="transition text-btn-xs flex justify-center rounded text-[#A3A5B9] border-[#A3A5B9] border-2 px-6 py-3 bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
                         onClick={secondaryAction.action}
                       >
                         {secondaryAction.label}
                       </button>
                     )}
                     <button
+                      ref={primaryButtonRef}
                       disabled={primaryActionDisabled}
                       className={clsx(
-                        'text-btn-xs flex justify-center rounded border border-transparent text-white px-16 py-3',
+                        'transition text-btn-xs flex justify-center rounded border border-transparent text-white px-16 py-3',
                         primaryActionDisabled
                           ? 'bg-gray-400 cursor-not-allowed'
                           : 'bg-interPurple hover:opacity-80 active:opacity-60',
