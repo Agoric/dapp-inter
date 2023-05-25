@@ -68,6 +68,8 @@ type ConnectionError = {
   message: string;
 };
 
+const autoCloseDelayMs = 7000;
+
 export const makeWalletService = () => {
   let stopWatchingPurses: () => void;
   let stopWatchingPublicSubscribers: () => void;
@@ -119,7 +121,7 @@ export const makeWalletService = () => {
         case Errors.enableKeplr:
           showToast('Enable the connection in Keplr to continue.', {
             hideProgressBar: false,
-            autoClose: 7000,
+            autoClose: autoCloseDelayMs,
           });
           break;
         case Errors.networkConfig:
@@ -129,7 +131,7 @@ export const makeWalletService = () => {
           showToast(
             React.createElement(SmartWalletNotFoundToast, {
               hideProgressBar: false,
-              autoClose: 7000,
+              autoClose: autoCloseDelayMs,
             }),
           );
           break;
