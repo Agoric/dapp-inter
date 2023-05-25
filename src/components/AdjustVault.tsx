@@ -9,6 +9,7 @@ import { useCallback } from 'react';
 import { netValue } from 'utils/vaultMath';
 import { vaultToAdjustAtom } from 'store/adjustVault';
 import { useAuctionTimer } from 'utils/hooks';
+import { AdjustVaultInstructions } from './AdjustVaultInstructions';
 
 const AdjustVault = () => {
   const displayFunctions = useAtomValue(displayFunctionsAtom);
@@ -151,8 +152,9 @@ const AdjustVault = () => {
         <div className="col-span-9 lg:col-span-3">
           <AdjustVaultForm />
         </div>
-        <div className="col-span-9 lg:col-span-2">
+        <div className="col-span-9 gap-8 lg:col-span-2 flex flex-col lg:gap-16">
           <AdjustVaultSummary />
+          <AdjustVaultInstructions />
         </div>
       </div>
     </>
