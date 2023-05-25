@@ -11,9 +11,7 @@ import { FaPlusCircle } from 'react-icons/fa';
 import VaultSymbol from 'svg/vault-symbol';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { PropsWithChildren } from 'react';
-import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport/ratio';
-import { isLiquidationPriceBelowGivenPrice } from 'utils/vaultMath';
-import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
+import { isVaultAtRisk } from 'utils/vaultMath';
 import { useStore } from 'zustand';
 
 const Popup = ({ children }: PropsWithChildren) => {
@@ -141,52 +139,9 @@ const ManageVaults = () => {
 
   const vaultAtRiskCount =
     vaults &&
-    [...vaults.values()].filter(vault => {
-      const isLiquidating = vault.vaultState === 'liquidating';
-      const manager = managers.get(vault.managerId ?? '');
-      const params = vaultParams.get(vault.managerId ?? '');
-      const { debtSnapshot, locked } = vault;
-      const brand = locked?.brand;
-      const price = brand && prices.get(brand);
-      const book = books.get(vault?.managerId ?? '');
-
-      if (!(debtSnapshot && manager && price && params)) {
-        return false;
-      }
-
-      // If `activeStartTime` is truthy, then `startPrice` is the *current* auction price, so ignore.
-      const nextAuctionPrice = !schedule?.activeStartTime && book?.startPrice;
-
-      const totalDebt = calculateCurrentDebt(
-        debtSnapshot.debt,
-        debtSnapshot.interest,
-        manager.compoundedInterest,
-      );
-
-      const isLiquidationPriceBelowOraclePrice =
-        isLiquidationPriceBelowGivenPrice(
-          locked,
-          totalDebt,
-          makeRatioFromAmounts(price.amountOut, price.amountIn),
-          params.liquidationMargin,
-        );
-
-      const isLiquidationPriceBelowNextAuctionPrice =
-        nextAuctionPrice &&
-        isLiquidationPriceBelowGivenPrice(
-          locked,
-          totalDebt,
-          nextAuctionPrice,
-          params.liquidationMargin,
-        );
-
-      const isAtRisk =
-        (isLiquidationPriceBelowOraclePrice ||
-          isLiquidationPriceBelowNextAuctionPrice) &&
-        !isLiquidating;
-
-      return isAtRisk;
-    }).length;
+    [...vaults.values()].filter(vault =>
+      isVaultAtRisk(vault, managers, vaultParams, prices, books, schedule),
+    ).length;
 
   const vaultCount = (
     <AnimatePresence>
