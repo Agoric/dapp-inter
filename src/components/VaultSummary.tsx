@@ -270,7 +270,21 @@ const VaultSummary = ({ vaultKey }: Props) => {
     if (error) {
       return {
         content: (
-          <p className="text-red-500 w-[580px]">Error: {error.toString()}</p>
+          <>
+            <div className="flex justify-between mt-14 mx-8 mb-10 items-center">
+              <div className="flex items-end gap-4">
+                <div className="h-20" />
+                <div className="h-[58px] text-red-500 text-lg">
+                  Error Loading Vault
+                </div>
+                <div className="h-3 w-6 " />
+              </div>
+            </div>
+            <div className="bg-[#F0F0F0] h-[1px] w-full" />
+            <div className="mx-11 mt-5 mb-5 h-36 overflow-y-auto">
+              {error.toString()}
+            </div>
+          </>
         ),
       };
     }
