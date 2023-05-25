@@ -12,7 +12,6 @@ import {
   LiquidationAuctionBook,
   LiquidationSchedule,
   PriceDescription,
-  PriceQuote,
   Ratio,
   VaultInfo,
   VaultManager,
