@@ -135,7 +135,7 @@ const ConfigureNewVault = () => {
   };
 
   return (
-    <div className="mt-8 px-12 py-8 bg-white rounded-[20px] shadow-[0_40px_40px_0_rgba(116,116,116,0.25)]">
+    <div className="mt-8 px-12 py-8 bg-white rounded-[20px] shadow-card">
       <h3 className="mb-3 font-serif font-bold leading-[26px]">Configure</h3>
       <p className="font-serif text-[#666980] leading-[26px]">
         Choose your vault parameters.

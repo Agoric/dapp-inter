@@ -99,7 +99,7 @@ const AdjustVaultForm = () => {
 
   return (
     <>
-      <div className="bg-white font-serif p-8 shadow-[0_40px_40px_-14px_rgba(116,116,116,0.25)] rounded-[20px] w-full">
+      <div className="bg-white font-serif p-8 shadow-card rounded-[20px] w-full">
         <div className="font-bold mb-4">Adjust Collateral</div>
         <div className="grid grid-cols-2 gap-10">
           <div className="text-[#9193A5] text-sm col-span-2 lg:col-span-1">
