@@ -18,7 +18,7 @@ type TickerItemProps = {
 const TickerItem = ({ label, value, fallback }: TickerItemProps) => {
   const rhs = value ? (
     <motion.div
-      className="font-bold font-serif text-mineShaft overflow-hidden inline-block"
+      className="font-bold font-serif text-primary overflow-hidden inline-block"
       initial={{ width: 0, opacity: 0 }}
       animate={{ width: 'auto', opacity: 1 }}
       transition={{ type: 'tween' }}
@@ -26,14 +26,16 @@ const TickerItem = ({ label, value, fallback }: TickerItemProps) => {
       {value}
     </motion.div>
   ) : (
-    <div className="font-bold font-serif text-mineShaft">
+    <div className="font-bold font-serif text-primary">
       <span className="absolute">{fallback}</span>
     </div>
   );
 
   return (
     <div className="h-12 leading-[48px] flex">
-      <div className="font-medium font-serif text-[#736D6D] mr-2">{label}</div>
+      <div className="font-medium font-serif text-alternative mr-2">
+        {label}
+      </div>
       {rhs}
     </div>
   );

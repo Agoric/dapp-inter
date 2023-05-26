@@ -28,7 +28,7 @@ const PathDescription = ({ mode, adjustVaultKey }: PathDescriptionProps) => {
     if (adjustVaultKey) {
       return (
         <span>
-          <span className="text-[#9193A5]">
+          <span className="text-secondary">
             Vaults&nbsp;&nbsp;/&nbsp;&nbsp;
           </span>
           Adjusting Vault
@@ -38,14 +38,14 @@ const PathDescription = ({ mode, adjustVaultKey }: PathDescriptionProps) => {
 
     return (
       <span>
-        <span className="text-[#9193A5]">Vaults&nbsp;&nbsp;/&nbsp;&nbsp;</span>
+        <span className="text-secondary">Vaults&nbsp;&nbsp;/&nbsp;&nbsp;</span>
         Creating Vault
       </span>
     );
   }
 
   if (mode === ViewMode.Manage) {
-    return <span className="text-[#9193A5]">Vaults</span>;
+    return <span className="text-secondary">Vaults</span>;
   }
 
   return <></>;
@@ -89,7 +89,7 @@ const Vaults = () => {
       <div className="font-medium text-[15px] h-4">
         <PathDescription mode={mode} adjustVaultKey={adjustVaultKey} />
       </div>
-      <div className="text-[#E22951] text-lg mt-4 font-serif font-medium">
+      <div className="text-alert text-lg mt-4 font-serif font-medium">
         {managerIdsLoadingError && (
           <motion.div {...errorProps}>{managerIdsLoadingError}</motion.div>
         )}

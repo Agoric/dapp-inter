@@ -61,7 +61,7 @@ const AdjustVault = () => {
   return (
     <>
       {isAtRisk && (
-        <div className="text-[#E22951] text-lg mt-4 font-serif font-medium">
+        <div className="text-alert text-lg mt-4 font-serif font-medium">
           This vault is at risk. Please increase your collateral or repay your
           outstanding IST debt to avoid liquidation.
         </div>
@@ -69,7 +69,7 @@ const AdjustVault = () => {
       <div className="w-full flex justify-between mt-6 flex-wrap">
         <div className="font-serif flex items-baseline gap-3">
           <div className="font-medium text-2xl">{vaultLabel}</div>
-          <div className="text-[#A3A5B9] text-sm">#{indexWithinManager}</div>
+          <div className="text-secondary text-sm">#{indexWithinManager}</div>
         </div>
         <div className="flex gap-8">
           <div>
@@ -118,7 +118,7 @@ const AdjustVault = () => {
           <span
             className={clsx(
               'font-medium',
-              isNetValueNegative ? 'text-red-500' : 'text-[#00B1A6]',
+              isNetValueNegative ? 'text-alert' : 'text-interGreen',
             )}
           >
             {isNetValueNegative && '-'}
@@ -142,7 +142,7 @@ const AdjustVault = () => {
       <div className="flex flex-wrap justify-between mt-12">
         <div className="text-xl font-bold font-serif">Adjust Vault</div>
         <button
-          className="text-btn-xs transition mr-1 text-[#A3A5B9] rounded-md border-2 border-solid border-[#A3A5B9] py-3 px-7 leading-[14px] font-bold text-xs bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+          className="text-btn-xs transition mr-1 text-secondary rounded-md border-2 border-solid border-secondary py-3 px-7 leading-[14px] font-bold text-xs bg-secondary bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
           onClick={backButtonProps.onClick}
         >
           {backButtonProps.text}

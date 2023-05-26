@@ -163,13 +163,13 @@ const ManageVaults = () => {
           </div>
         </div>
         <button
-          className="transition text-[#f9fafe] text-btn-xs flex flex-row justify-center items-center p-3 bg-interPurple rounded-md shadow-[0_10px_14px_-4px_rgba(183,135,245,0.3)] hover:opacity-80 active:opacity-60"
+          className="transition text-white text-btn-xs flex flex-row justify-center items-center p-3 bg-interPurple rounded-md shadow-[0_10px_14px_-4px_rgba(183,135,245,0.3)] hover:opacity-80 active:opacity-60"
           onClick={buttonProps.onClick}
         >
           {buttonProps.text}
         </button>
       </div>
-      <div className="text-[#E22951] text-lg mt-4 font-serif font-medium">
+      <div className="text-alert text-lg mt-4 font-serif font-medium">
         {liquidatingVaultCount ? (
           <motion.div {...noticeProps}>
             {liquidatingVaultCount === 1

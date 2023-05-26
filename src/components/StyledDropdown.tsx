@@ -56,15 +56,11 @@ const StyledDropdown = <T extends string>({
   return (
     <Menu as="div" className="relative inline-block text-left font-sans">
       <div>
-        <div className="uppercase text-[#F4CCAE] text-xs font-medium my-[2px] h-5">
-          {label}
-        </div>
+        <div className="input-label">{label}</div>
         <div
           className={clsx(
-            'w-64 flex flex-row transition rounded p-[2px] bg-gradient-to-r shadow-[0_12px_20px_-8px_#F0F0F0] focus-within:shadow-[0_12px_20px_-8px_rgba(255,83,0,0.2)]',
-            disabled
-              ? 'from-[#D9D9D9] to-[#A8A8A8]'
-              : 'from-[#FF7A1A] to-[#FFD81A]',
+            'w-64 input-wrapper',
+            disabled ? 'graydient' : 'inter-gradient',
           )}
         >
           <Menu.Button className="py-2 inline-flex w-full justify-between items-center bg-white rounded-sm px-4 h-full text-sm font-medium">

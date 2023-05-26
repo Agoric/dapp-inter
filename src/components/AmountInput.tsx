@@ -82,7 +82,7 @@ const AmountInput = (
     <button
       className={clsx(
         'rounded bg-gray-100 py-1 px-2 transition font-medium font-sans',
-        disabled ? '' : 'hover:text-mineShaft hover:bg-gray-200',
+        disabled ? '' : 'hover:text-primary hover:bg-gray-200',
       )}
       onClick={onAction}
       disabled={disabled}
