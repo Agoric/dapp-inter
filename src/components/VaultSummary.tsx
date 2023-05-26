@@ -64,7 +64,7 @@ const VaultCard = ({ children, onClick }: CardProps) => {
       onKeyDown={onKeyDownHandler}
       className={clsx(
         onClick ? 'cursor-pointer' : 'cursor-not-allowed',
-        'shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl bg-white w-[580px] relative',
+        'shadow-card rounded-xl bg-white w-[580px] relative',
       )}
     >
       {children}

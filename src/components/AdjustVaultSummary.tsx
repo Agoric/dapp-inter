@@ -156,7 +156,7 @@ const AdjustVaultSummary = () => {
 
   return (
     <>
-      <div className="w-full pt-[28px] pb-3 bg-white rounded-[10px] shadow-[0_22px_34px_0_rgba(116,116,116,0.25)]">
+      <div className="w-full pt-[28px] pb-3 bg-white rounded-[10px] shadow-card">
         <div className="px-8">
           <h3 className="mb-4 font-serif text-[22px] font-extrabold leading-[35px]">
             Vault Summary

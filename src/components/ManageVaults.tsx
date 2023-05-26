@@ -22,7 +22,7 @@ const Popup = ({ children }: PropsWithChildren) => {
       exit={{ opacity: 0, transition: { duration: 0.15 } }}
     >
       <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center pb-[20%]">
-        <div className="max-w-lg shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl text-lg bg-white">
+        <div className="max-w-lg shadow-card rounded-xl text-lg bg-white">
           <div className="bg-interYellow w-full h-4 rounded-t-xl"></div>
           <div className="p-6">{children}</div>
         </div>
@@ -33,11 +33,6 @@ const Popup = ({ children }: PropsWithChildren) => {
 
 const Backdrop = () => (
   <div className="absolute mx-auto w-full">
-    <div className="w-full h-full z-10 absolute flex flex-col items-center justify-center pb-[20%]">
-      <div className="max-w-lg shadow-[0_28px_40px_rgba(116,116,116,0.25)] rounded-xl text-lg bg-white">
-        <div className="bg-interYellow w-full h-4 rounded-t-xl"></div>
-      </div>
-    </div>
     <div className="opacity-30 mt-10 mx-auto w-fit">
       <img
         className="object-none object-[bottom_-220px_left_-210px] h-[620px] w-[860px]"

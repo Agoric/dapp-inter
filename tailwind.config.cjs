@@ -35,6 +35,9 @@ module.exports = {
         mineShaft: 'var(--color-mineShaft)',
         interPurple: 'var(--inter-purple)',
       },
+      boxShadow: {
+        card: '0 22px 34px rgba(116,116,116,0.25)',
+      },
       fontFamily: {
         sans,
         serif: [
