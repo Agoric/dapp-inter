@@ -25,7 +25,7 @@ const NavItem = ({ label, href }: NavItemProps) => {
             <div
               className={
                 isActive
-                  ? 'h-1.5 bg-mineShaft w-full rounded-t-[3px] shadow-[0_-1px_8px_0px_#484848]'
+                  ? 'h-1.5 bg-primary w-full rounded-t-[3px] shadow-[0_-1px_8px_0px_#484848]'
                   : 'h-1.5'
               }
             ></div>

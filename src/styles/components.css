@@ -16,4 +16,12 @@
   .divider-gradient {
     @apply h-[1px] bg-gradient-to-r from-[#FF7B1B] to-[#FFD91B] opacity-30;
   }
+
+  .input-label {
+    @apply uppercase text-interOrange opacity-50 text-xs font-medium my-[2px] h-5;
+  }
+
+  .input-wrapper {
+    @apply transition-colors rounded p-[2px] bg-gradient-to-r shadow-[0_12px_20px_-8px_#F0F0F0] focus-within:shadow-[0_12px_20px_-8px_rgba(255,83,0,0.2)];
+  }
 }

@@ -22,8 +22,8 @@ type TableRowProps = {
 const TableRow = ({ left, right }: TableRowProps) => {
   return (
     <tr className="text-[13px] leading-[21px]">
-      <td className="text-[#A3A5B9]">{left}</td>
-      <td className="text-right text-[#666980] font-black">{right}</td>
+      <td className="text-secondary">{left}</td>
+      <td className="text-right text-alternative font-black">{right}</td>
     </tr>
   );
 };
@@ -199,8 +199,8 @@ const NewVaultOfferSummary = () => {
         </div>
         <div
           className={clsx(
-            'transition mt-3 mx-3 p-6 rounded-b-[10px]',
-            canCreateVault ? 'bg-[#F3EFF9]' : '',
+            'transition mt-3 mx-3 p-6 rounded-b-[10px] bg-opacity-[0.15]',
+            canCreateVault ? 'bg-interPurple' : '',
           )}
         >
           <button
@@ -210,7 +210,7 @@ const NewVaultOfferSummary = () => {
               'transition w-full py-3 text-white font-extrabold text-sm rounded-md',
               canCreateVault
                 ? 'bg-interPurple shadow-[0px_13px_20px_-6px_rgba(125,50,222,0.25)] hover:opacity-80 active:opacity-70'
-                : 'bg-[#C1C3D7] cursor-not-allowed',
+                : 'bg-disabled cursor-not-allowed',
             )}
           >
             {createButtonLabel}

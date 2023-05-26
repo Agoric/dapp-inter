@@ -137,10 +137,10 @@ const ConfigureNewVault = () => {
   return (
     <div className="mt-8 px-12 py-8 bg-white rounded-20 shadow-card">
       <h3 className="mb-3 font-serif font-bold leading-[26px]">Configure</h3>
-      <p className="font-serif text-[#666980] leading-[26px]">
+      <p className="font-serif text-alternative leading-[26px]">
         Choose your vault parameters.
       </p>
-      <div className="mt-4 mb-4 flex flex-wrap gap-x-10 gap-y-4 text-sm font-serif text-[#666980]">
+      <div className="mt-4 mb-4 flex flex-wrap gap-x-10 gap-y-4 text-sm font-serif text-alternative">
         <div>
           <span className="font-bold">{purseBalance}</span> Available
         </div>
@@ -172,7 +172,7 @@ const ConfigureNewVault = () => {
           }}
           value={collateralizationRatio}
           disabled={true}
-          label="Collateralization percent *"
+          label="Collateralization percent"
           error={collateralizationRatioError}
         />
         <AmountInput
@@ -186,7 +186,7 @@ const ConfigureNewVault = () => {
           error={toReceiveError}
         />
       </div>
-      <p className="mt-12 italic font-serif text-[#666980] text-sm leading-[22px]">
+      <p className="mt-12 italic font-serif text-alternative text-sm leading-[22px]">
         {selectedParams && displayPercent
           ? `A minting fee of ${displayPercent(selectedParams.mintFee, 2)}%
           will be charged upon vault creation.`

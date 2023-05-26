@@ -74,7 +74,7 @@ const ActionsDialog = ({
                   <div className="flex justify-end gap-6">
                     {secondaryAction && (
                       <button
-                        className="transition text-btn-xs flex justify-center rounded text-[#A3A5B9] border-[#A3A5B9] border-2 px-6 py-3 bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+                        className="text-btn-xs flex justify-center rounded text-secondary border-secondary border-2 px-6 py-3 bg-secondary bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
                         onClick={secondaryAction.action}
                       >
                         {secondaryAction.label}
@@ -86,7 +86,7 @@ const ActionsDialog = ({
                       className={clsx(
                         'transition text-btn-xs flex justify-center rounded border border-transparent text-white px-16 py-3',
                         primaryActionDisabled
-                          ? 'bg-gray-400 cursor-not-allowed'
+                          ? 'bg-disabled cursor-not-allowed'
                           : 'bg-interPurple hover:opacity-80 active:opacity-60',
                       )}
                       onClick={primaryAction.action}

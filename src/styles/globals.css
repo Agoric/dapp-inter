@@ -5,17 +5,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Mulish:wght@400;500;600;700&display=swap');
 
+/* Refer to https://tailwindcss.com/docs/customizing-colors#using-css-variables */
 :root {
-  --color-glow: #fed7aa;
-  --color-secondary: #d7325233;
-  --color-alternative: #f4f4f5;
-  --color-alternative-dark: #e4e4e7;
-  --color-alternative-bright: #fafafa;
-  --color-primary: #c084fc;
-  --color-primary-dark: #a855f7;
-  --color-mineShaft: #484848;
-  --currentColor: #d1d5db;
-  --inter-yellow: #ffd81a;
-  --inter-orange: #ff7a1a;
-  --inter-purple: #b787f5;
+  --color-primary: 72, 72, 72;
+  --color-secondary: 163, 165, 185;
+  --color-alternative: 102, 105, 128;
+  --color-alert: 226, 41, 81;
+  --inter-yellow: 255, 216, 26;
+  --inter-orange: 255, 122, 26;
+  --inter-purple: 183, 135, 245;
+  --inter-green: 0, 177, 166;
+  --color-disabled: 193, 195, 215;
 }

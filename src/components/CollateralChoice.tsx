@@ -11,7 +11,7 @@ type TableTowParams = { left: string; right: string };
 const TableRow = ({ left, right }: TableTowParams) => {
   return (
     <tr className="h-7 text-sm">
-      <td className="text-left text-[#A3A5B9] pr-2">{left}</td>
+      <td className="text-left text-secondary pr-2">{left}</td>
       <td className="text-right font-extrabold">{right}</td>
     </tr>
   );
@@ -91,7 +91,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
       <div
         className={clsx(
           cardClasses,
-          'h-[248px] w-60 border-transparent text-lg text-red-500 pt-3',
+          'h-[248px] w-60 border-transparent text-lg text-alert pt-3',
         )}
       >
         <p>Error: {error && error.toString()}</p>
@@ -140,7 +140,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
         'w-fit px-6 pt-2 pb-4 bg-white rounded-10 cursor-pointer',
         'shadow-card box-border',
         'outline-2 outline-offset-2 border-2 hover:scale-105 transition',
-        isSelected ? 'border-[#00B1A6]' : 'border-transparent',
+        isSelected ? 'border-interGreen' : 'border-transparent',
       )}
     >
       <img

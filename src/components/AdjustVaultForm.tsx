@@ -102,7 +102,7 @@ const AdjustVaultForm = () => {
       <div className="bg-white font-serif p-8 shadow-card rounded-20 w-full">
         <div className="font-bold mb-4">Adjust Collateral</div>
         <div className="grid grid-cols-2 gap-10">
-          <div className="text-[#9193A5] text-sm col-span-2 lg:col-span-1">
+          <div className="text-secondary text-sm col-span-2 lg:col-span-1">
             Deposit additional collateral or withdraw your existing collateral.
             Select “No Action” to leave collateral unchanged.
           </div>
@@ -146,7 +146,7 @@ const AdjustVaultForm = () => {
         <div className="w-full divider-gradient"></div>
         <div className="mt-8 font-bold mb-4">Adjust Debt</div>
         <div className="mb-4 grid grid-cols-2 gap-10">
-          <div className="text-[#9193A5] text-sm col-span-2 lg:col-span-1">
+          <div className="text-secondary text-sm col-span-2 lg:col-span-1">
             Mint additional IST or repay your existing IST debt. Select “No
             Action” to leave debt unchanged.
             <p className="mt-4 italic font-serif text-sm leading-[22px]">
@@ -190,9 +190,9 @@ const AdjustVaultForm = () => {
         {isActive && (
           <button
             onClick={() => setIsCloseVaultDialogOpen(true)}
-            className="text-btn-xs flex items-center gap-3 transition text-[#E22951] rounded-md border-2 border-solid border-[#E22951] h-8 px-4 leading-[14px] font-bold text-xs bg-[#E22951] bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+            className="text-btn-xs flex items-center gap-3 transition text-alert rounded-md border-2 border-solid border-alert h-8 px-4 leading-[14px] font-bold text-xs bg-alert bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
           >
-            <span className="fill-[#E22951]">
+            <span className="fill-alert">
               <ErrorWarning />
             </span>
             Close Out Vault

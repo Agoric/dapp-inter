@@ -23,17 +23,15 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: 'var(--color-primary)',
-        alternative: 'var(--color-alternative)',
-        alternativeDark: 'var(--color-alternative-dark)',
-        alternativeBright: 'var(--color-alternative-bright)',
-        secondary: 'var(--color-secondary)',
-        primaryDark: 'var(--color-primary-dark)',
-        currentColor: 'var(--currentColor)',
-        interYellow: 'var(--inter-yellow)',
-        interOrange: 'var(--inter-orange)',
-        mineShaft: 'var(--color-mineShaft)',
-        interPurple: 'var(--inter-purple)',
+        primary: 'rgba(var(--color-primary), <alpha-value>)',
+        secondary: 'rgba(var(--color-secondary), <alpha-value>)',
+        alternative: 'rgba(var(--color-alternative), <alpha-value>)',
+        alert: 'rgba(var(--color-alert), <alpha-value>)',
+        interYellow: 'rgba(var(--inter-yellow), <alpha-value>)',
+        interOrange: 'rgba(var(--inter-orange), <alpha-value>)',
+        interPurple: 'rgba(var(--inter-purple), <alpha-value>)',
+        interGreen: 'rgba(var(--inter-green), <alpha-value>)',
+        disabled: 'rgba(var(--color-disabled), <alpha-value>)',
       },
       boxShadow: {
         card: '0 22px 34px rgba(116,116,116,0.25)',

@@ -79,7 +79,7 @@ const SkeletonVaultSummary = () => (
         <div className="h-20 w-20 bg-gray-200 rounded-full transition animate-pulse" />
         <div className="flex flex-col gap-2 justify-end">
           <div className="h-[38px] w-32 bg-gray-200 rounded transition animate-pulse" />
-          <div className="text-[#A3A5B9] h-3 w-6 bg-gray-200 rounded transition animate-pulse" />
+          <div className="text-secondary h-3 w-6 bg-gray-200 rounded transition animate-pulse" />
         </div>
       </div>
       <div className="h-[38px] w-52 bg-gray-200 rounded transition animate-pulse" />
@@ -116,7 +116,7 @@ const TableRow = ({
   right,
   light = false,
 }: TableRowProps) => (
-  <tr className={clsx('leading-7', light && 'text-[#A3A5B9]')}>
+  <tr className={clsx('leading-7', light && 'text-secondary')}>
     <td className="text-left">
       {left}
       {leftSubtext && (
@@ -141,7 +141,7 @@ const ClosedVault = ({
   indexWithinManager,
 }: ClosedVaultParams) => (
   <>
-    <div className="leading-[19px] absolute bg-mineShaft w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase">
+    <div className="leading-[19px] absolute bg-primary w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase">
       Closed
     </div>
     <div className="flex justify-between mt-14 mx-8 mb-10 items-center flex-wrap">
@@ -149,7 +149,7 @@ const ClosedVault = ({
         <img height="80" width="80" alt={brandPetname} src={brandIcon}></img>
         <div className="flex flex-col justify-end">
           <div className={bigTextClasses}>{collateralLabel}</div>
-          <div className="text-[#A3A5B9] text-sm">#{indexWithinManager}</div>
+          <div className="text-secondary text-sm">#{indexWithinManager}</div>
         </div>
       </div>
     </div>
@@ -178,7 +178,7 @@ const LiquidatedVault = ({
   isEmpty,
 }: LiquidatedVaultParams) => (
   <>
-    <div className="leading-[19px] absolute bg-mineShaft w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase flex justify-between">
+    <div className="leading-[19px] absolute bg-primary w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase flex justify-between">
       <span>Liquidated</span>
       {isEmpty ? (
         <></>
@@ -193,14 +193,14 @@ const LiquidatedVault = ({
         <img height="80" width="80" alt={brandPetname} src={brandIcon}></img>
         <div className="flex flex-col justify-end">
           <div className={bigTextClasses}>{collateralLabel}</div>
-          <div className="text-[#A3A5B9] text-sm">#{indexWithinManager}</div>
+          <div className="text-secondary text-sm">#{indexWithinManager}</div>
         </div>
       </div>
       <div className="text-right">
-        <div className="text-[#A3A5B9] text-xl leading-[23px]">
+        <div className="text-secondary text-xl leading-[23px]">
           Collateral left to claim
         </div>
-        <div className="text-[#00B1A6] text-[32px] font-semibold leading-[38px]">
+        <div className="text-interGreen text-[32px] font-semibold leading-[38px]">
           {totalCollateral}
         </div>
       </div>
@@ -274,7 +274,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
             <div className="flex justify-between mt-14 mx-8 mb-10 items-center">
               <div className="flex items-end gap-4">
                 <div className="h-20" />
-                <div className="h-[58px] text-red-500 text-lg">
+                <div className="h-[58px] text-alert text-lg">
                   Error Loading Vault
                 </div>
                 <div className="h-3 w-6 " />
@@ -421,7 +421,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
       );
 
     const atRiskNotice = isAtRisk && (
-      <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-[#E22951]">
+      <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-alert">
         Vault at risk
         {isLiquidationImminent && (
           <span className="pl-6 normal-case font-normal">
@@ -433,7 +433,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
     );
 
     const liquidatingNotice = isLiquidating && (
-      <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-[#FF9F10]">
+      <div className="leading-[19px] absolute w-full rounded-t-xl text-white px-8 py-3 font-medium uppercase bg-interOrange">
         Liquidating... please wait
       </div>
     );
@@ -568,7 +568,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
               ></img>
               <div className="flex flex-col justify-end">
                 <div className={bigTextClasses}>{collateralLabel}</div>
-                <div className="text-[#A3A5B9] text-sm">
+                <div className="text-secondary text-sm">
                   #{vault.indexWithinManager}
                 </div>
               </div>
@@ -587,20 +587,20 @@ const VaultSummary = ({ vaultKey }: Props) => {
           </div>
           <div className="flex justify-around gap-3 mx-[30px] mb-[30px]">
             <div className={subpanelClasses}>
-              <span className="text-[#A3A5B9]">Stab. Fee</span>
+              <span className="text-secondary">Stab. Fee</span>
               <span className="font-extrabold">
                 {displayPercent(params.interestRate, 2)}%
               </span>
             </div>
             <div className={subpanelClasses}>
-              <span className="text-[#A3A5B9]">Debt</span>
+              <span className="text-secondary">Debt</span>
               <span className="font-extrabold">
                 {displayAmount(totalDebt, 2, 'locale')}{' '}
                 {displayBrandPetname(totalDebt.brand)}
               </span>
             </div>
             <div className={subpanelClasses}>
-              <span className="text-[#A3A5B9]">Collat. Locked ($ value)</span>
+              <span className="text-secondary">Collat. Locked ($ value)</span>
               <span className="font-extrabold">
                 {displayAmount(totalLockedValue, 2, 'usd')}
               </span>

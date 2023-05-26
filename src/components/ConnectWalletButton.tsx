@@ -52,7 +52,7 @@ const ConnectWalletButton = () => {
   return (
     <button
       className={clsx(
-        'transition uppercase box-border border-2 border-mineShaft h-11 inline-flex items-center justify-center rounded w-44 py-2 bg-transparent text-xs font-black',
+        'transition uppercase box-border border-2 border-primary h-11 inline-flex items-center justify-center rounded w-44 py-2 bg-transparent text-xs font-black',
         !isConnectionInProgress &&
           !chainConnection &&
           'hover:bg-black hover:bg-opacity-5',
@@ -63,7 +63,7 @@ const ConnectWalletButton = () => {
         {status}
         {isConnectionInProgress && (
           <div className="ml-1">
-            <Oval color="var(--color-mineShaft)" height={18} width={18} />
+            <Oval color="var(--color-primary)" height={18} width={18} />
           </div>
         )}
       </>
