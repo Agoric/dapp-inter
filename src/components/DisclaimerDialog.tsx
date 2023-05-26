@@ -46,7 +46,7 @@ const DisclaimerDialog = () => {
             By clicking here you are indicating that you have read and agree to
             our{' '}
             <a
-              className="text-blue-500 hover:text-blue-700 underline transition-colors"
+              className="text-blue-500 hover:text-blue-700 underline transition"
               target="inter_psm_disclaimer"
               href={disclaimerHref}
             >

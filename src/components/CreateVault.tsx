@@ -22,10 +22,7 @@ const CreateVault = () => {
     <>
       <div className="flex justify-between mt-4 flex-wrap gap-4">
         <div className="font-serif font-medium text-2xl">Choose Collateral</div>
-        <button
-          className="text-btn-xs transition mr-1 text-secondary rounded-md border-2 border-solid border-secondary py-3 px-7 font-bold text-xs bg-secondary bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
-          onClick={buttonProps.onClick}
-        >
+        <button className="btn-secondary" onClick={buttonProps.onClick}>
           {buttonProps.text}
         </button>
       </div>

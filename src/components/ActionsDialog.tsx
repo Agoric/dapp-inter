@@ -74,7 +74,7 @@ const ActionsDialog = ({
                   <div className="flex justify-end gap-6">
                     {secondaryAction && (
                       <button
-                        className="text-btn-xs flex justify-center rounded text-secondary border-secondary border-2 px-6 py-3 bg-secondary bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+                        className="btn-secondary"
                         onClick={secondaryAction.action}
                       >
                         {secondaryAction.label}

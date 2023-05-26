@@ -142,7 +142,7 @@ const AdjustVault = () => {
       <div className="flex flex-wrap justify-between mt-12">
         <div className="text-xl font-bold font-serif">Adjust Vault</div>
         <button
-          className="text-btn-xs transition mr-1 text-secondary rounded-md border-2 border-solid border-secondary py-3 px-7 leading-[14px] font-bold text-xs bg-secondary bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+          className="btn-secondary mr-1"
           onClick={backButtonProps.onClick}
         >
           {backButtonProps.text}

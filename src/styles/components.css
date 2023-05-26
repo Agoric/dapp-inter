@@ -5,6 +5,22 @@
     @apply font-bold font-altSans uppercase text-xs;
   }
 
+  .btn-submit {
+    @apply transition w-full py-3 text-white font-extrabold text-sm rounded-md;
+  }
+
+  .btn-submit:not([disabled]) {
+    @apply bg-interPurple shadow-[0px_13px_20px_-6px_rgba(125,50,222,0.25)] hover:opacity-80 active:opacity-70;
+  }
+
+  .btn-submit:disabled {
+    @apply bg-disabled cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply transition text-btn-xs text-secondary rounded-md border-2 border-solid border-secondary py-3 px-7 font-bold bg-secondary bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20;
+  }
+
   .divider {
     @apply h-[1px] bg-[#d8d8d8];
   }
@@ -22,6 +38,6 @@
   }
 
   .input-wrapper {
-    @apply transition-colors rounded p-[2px] bg-gradient-to-r shadow-[0_12px_20px_-8px_#F0F0F0] focus-within:shadow-[0_12px_20px_-8px_rgba(255,83,0,0.2)];
+    @apply transition rounded p-[2px] bg-gradient-to-r shadow-[0_12px_20px_-8px_#F0F0F0] focus-within:shadow-[0_12px_20px_-8px_rgba(255,83,0,0.2)];
   }
 }
