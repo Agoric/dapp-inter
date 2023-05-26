@@ -190,7 +190,7 @@ const AdjustVaultForm = () => {
         {isActive && (
           <button
             onClick={() => setIsCloseVaultDialogOpen(true)}
-            className="text-btn-xs flex items-center gap-3 transition text-alert rounded-md border-2 border-solid border-alert h-8 px-4 leading-[14px] font-bold text-xs bg-alert bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+            className="text-btn-xs flex items-center gap-3 transition text-alert rounded-md border-2 border-solid border-alert h-8 px-4 font-bold text-xs bg-alert bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
           >
             <span className="fill-alert">
               <ErrorWarning />

@@ -199,19 +199,14 @@ const NewVaultOfferSummary = () => {
         </div>
         <div
           className={clsx(
-            'transition mt-3 mx-3 p-6 rounded-b-[10px] bg-opacity-[0.15]',
+            'transition mt-3 mx-3 p-6 rounded-b-10 bg-opacity-[0.15]',
             canCreateVault ? 'bg-interPurple' : '',
           )}
         >
           <button
             onClick={createVault}
             disabled={!canCreateVault}
-            className={clsx(
-              'transition w-full py-3 text-white font-extrabold text-sm rounded-md',
-              canCreateVault
-                ? 'bg-interPurple shadow-[0px_13px_20px_-6px_rgba(125,50,222,0.25)] hover:opacity-80 active:opacity-70'
-                : 'bg-disabled cursor-not-allowed',
-            )}
+            className="btn-submit"
           >
             {createButtonLabel}
           </button>
