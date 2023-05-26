@@ -4,4 +4,16 @@
   .text-btn-xs {
     @apply font-bold font-altSans uppercase text-xs;
   }
+
+  .divider {
+    @apply h-[1px] bg-[#d8d8d8];
+  }
+
+  .divider-light {
+    @apply h-[1px] bg-[#f0f0f0];
+  }
+
+  .divider-gradient {
+    @apply h-[1px] bg-gradient-to-r from-[#FF7B1B] to-[#FFD91B] opacity-30;
+  }
 }

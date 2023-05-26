@@ -179,7 +179,7 @@ const NewVaultOfferSummary = () => {
               </tbody>
             </table>
           </div>
-          <div className="w-full h-[1px] bg-[#D8D8D8]"></div>
+          <div className="w-full divider"></div>
           <div className="w-full p-2">
             <table className="w-full">
               <tbody>

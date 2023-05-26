@@ -143,7 +143,7 @@ const AdjustVaultForm = () => {
           </div>
         </div>
         <AssetTransferButton className="mb-8" message={depositLabel} />
-        <div className="w-full h-[1px] bg-gradient-to-r from-[#FF7B1B] to-[#FFD91B] opacity-30"></div>
+        <div className="w-full divider-gradient"></div>
         <div className="mt-8 font-bold mb-4">Adjust Debt</div>
         <div className="mb-4 grid grid-cols-2 gap-10">
           <div className="text-[#9193A5] text-sm col-span-2 lg:col-span-1">
