@@ -18,7 +18,7 @@ const TableRow = ({ left, right }: TableTowParams) => {
 };
 
 const cardClasses = clsx(
-  'w-fit px-6 pt-2 pb-4 bg-white rounded-[10.7px]',
+  'w-fit px-6 pt-2 pb-4 bg-white rounded-10',
   'shadow-card box-border',
   'outline-2 outline-offset-2 border-2',
 );
@@ -137,7 +137,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
     <button
       onClick={onClick}
       className={clsx(
-        'w-fit px-6 pt-2 pb-4 bg-white rounded-[10.7px] cursor-pointer',
+        'w-fit px-6 pt-2 pb-4 bg-white rounded-10 cursor-pointer',
         'shadow-card box-border',
         'outline-2 outline-offset-2 border-2 hover:scale-105 transition',
         isSelected ? 'border-[#00B1A6]' : 'border-transparent',

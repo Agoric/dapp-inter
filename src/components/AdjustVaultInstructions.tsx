@@ -1,5 +1,5 @@
 export const AdjustVaultInstructions = () => (
-  <div className="bg-white shadow-card rounded-[10px] px-7 pt-4 pb-3">
+  <div className="bg-white shadow-card rounded-10 px-7 pt-4 pb-3">
     <h3 className="font-bold font-serif">Instructions</h3>
     <ol className="list-decimal text-[#A3A5B9] text-sm mx-4 my-3 [&>li]:mt-1">
       <li>

@@ -158,7 +158,7 @@ const NewVaultOfferSummary = () => {
 
   return (
     <>
-      <div className="pt-[28px] pb-3 bg-white rounded-[10px] shadow-card">
+      <div className="pt-[28px] pb-3 bg-white rounded-10 shadow-card">
         <div className="px-8">
           <h3 className="mb-4 font-serif text-[22px] font-extrabold leading-[35px]">
             Vault Summary
@@ -207,7 +207,7 @@ const NewVaultOfferSummary = () => {
             onClick={createVault}
             disabled={!canCreateVault}
             className={clsx(
-              'transition w-full py-3 text-white font-extrabold text-sm rounded-[6px]',
+              'transition w-full py-3 text-white font-extrabold text-sm rounded-md',
               canCreateVault
                 ? 'bg-interPurple shadow-[0px_13px_20px_-6px_rgba(125,50,222,0.25)] hover:opacity-80 active:opacity-70'
                 : 'bg-[#C1C3D7] cursor-not-allowed',
