@@ -38,6 +38,10 @@ module.exports = {
       boxShadow: {
         card: '0 22px 34px rgba(116,116,116,0.25)',
       },
+      borderRadius: {
+        10: '10px',
+        20: '20px',
+      },
       fontFamily: {
         sans,
         serif: [

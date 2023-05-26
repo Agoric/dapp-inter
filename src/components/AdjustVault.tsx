@@ -103,7 +103,7 @@ const AdjustVault = () => {
           )}
         </div>
       </div>
-      <div className="mt-6 rounded-[10px] p-4 px-8 flex justify-between flex-wrap gap-8 bg-[#FFF4C0]">
+      <div className="mt-6 rounded-10 p-4 px-8 flex justify-between flex-wrap gap-8 bg-[#FFF4C0]">
         <div className="flex items-center gap-3">
           <span className="fill-interYellow align-bottom relative top-[1px]">
             <VaultSymbol />
@@ -142,7 +142,7 @@ const AdjustVault = () => {
       <div className="flex flex-wrap justify-between mt-12">
         <div className="text-xl font-bold font-serif">Adjust Vault</div>
         <button
-          className="text-btn-xs transition mr-1 text-[#A3A5B9] rounded-[6px] border-2 border-solid border-[#A3A5B9] py-3 px-7 leading-[14px] font-bold text-xs bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+          className="text-btn-xs transition mr-1 text-[#A3A5B9] rounded-md border-2 border-solid border-[#A3A5B9] py-3 px-7 leading-[14px] font-bold text-xs bg-gray-500 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
           onClick={backButtonProps.onClick}
         >
           {backButtonProps.text}

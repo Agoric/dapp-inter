@@ -61,7 +61,7 @@ const ActionsDialog = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="cursor-default w-full max-w-2xl mx-3 transform overflow-hidden rounded-[10px] bg-white text-left align-middle shadow-card transition-all">
+              <Dialog.Panel className="cursor-default w-full max-w-2xl mx-3 transform overflow-hidden rounded-10 bg-white text-left align-middle shadow-card transition-all">
                 <Dialog.Title
                   as="div"
                   className="font-serif text-2xl text-white font-medium px-8 py-6 bg-interPurple"

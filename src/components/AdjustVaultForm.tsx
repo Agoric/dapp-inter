@@ -99,7 +99,7 @@ const AdjustVaultForm = () => {
 
   return (
     <>
-      <div className="bg-white font-serif p-8 shadow-card rounded-[20px] w-full">
+      <div className="bg-white font-serif p-8 shadow-card rounded-20 w-full">
         <div className="font-bold mb-4">Adjust Collateral</div>
         <div className="grid grid-cols-2 gap-10">
           <div className="text-[#9193A5] text-sm col-span-2 lg:col-span-1">
@@ -190,7 +190,7 @@ const AdjustVaultForm = () => {
         {isActive && (
           <button
             onClick={() => setIsCloseVaultDialogOpen(true)}
-            className="text-btn-xs flex items-center gap-3 transition text-[#E22951] rounded-[6px] border-2 border-solid border-[#E22951] h-8 px-4 leading-[14px] font-bold text-xs bg-[#E22951] bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
+            className="text-btn-xs flex items-center gap-3 transition text-[#E22951] rounded-md border-2 border-solid border-[#E22951] h-8 px-4 leading-[14px] font-bold text-xs bg-[#E22951] bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20"
           >
             <span className="fill-[#E22951]">
               <ErrorWarning />
