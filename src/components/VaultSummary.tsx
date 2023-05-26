@@ -84,7 +84,7 @@ const SkeletonVaultSummary = () => (
       </div>
       <div className="h-[38px] w-52 bg-gray-200 rounded transition animate-pulse" />
     </div>
-    <div className="bg-[#F0F0F0] h-[1px] w-full" />
+    <div className="divider-light w-full" />
     <div className="mx-11 mt-5 mb-5">
       <div className="w-full rounded bg-gray-200 h-4 my-4 transition animate-pulse" />
       <div className="w-full rounded bg-gray-200 h-4 my-4 transition animate-pulse" />
@@ -153,7 +153,7 @@ const ClosedVault = ({
         </div>
       </div>
     </div>
-    <div className="bg-[#F0F0F0] h-[1px] w-full" />
+    <div className="divider-light  w-full" />
     <div className="mx-11 mt-3 mb-5 font-black flex flex-col justify-center h-[192px]">
       Closed
     </div>
@@ -205,7 +205,7 @@ const LiquidatedVault = ({
         </div>
       </div>
     </div>
-    <div className="bg-[#F0F0F0] h-[1px] w-full" />
+    <div className="divider-light w-full" />
     <div className="mx-11 mt-3 mb-5 font-black flex flex-col justify-center h-[192px]">
       <span>
         Closed&nbsp;&nbsp;
@@ -280,7 +280,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
                 <div className="h-3 w-6 " />
               </div>
             </div>
-            <div className="bg-[#F0F0F0] h-[1px] w-full" />
+            <div className="divider-light w-full" />
             <div className="mx-11 mt-5 mb-5 h-36 overflow-y-auto">
               {error.toString()}
             </div>
@@ -581,7 +581,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
               </div>
             </div>
           </div>
-          <div className="bg-[#F0F0F0] h-[1px] w-full" />
+          <div className="divider-light w-full" />
           <div className="mx-11 mt-3 mb-5">
             <table className="w-full">{tableBody}</table>
           </div>

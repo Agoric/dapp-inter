@@ -69,7 +69,7 @@ const ActionsDialog = ({
                   {title}
                 </Dialog.Title>
                 <div className="font-serif mt-4 mx-8 mb-8">{body}</div>
-                <div className="h-[1px] mx-8 bg-[#D8D8D8]" />
+                <div className="divider mx-8" />
                 <div className="py-6 px-8">
                   <div className="flex justify-end gap-6">
                     {secondaryAction && (
