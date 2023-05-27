@@ -91,7 +91,7 @@ const App = () => {
         const newLeader = await makeLeader(netConfig.url);
         if (isCancelled) return;
         setLeader(newLeader);
-        watchVbank();
+        // watchVbank();
       } catch (e) {
         if (isCancelled) return;
         setError(e);

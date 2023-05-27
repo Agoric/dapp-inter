@@ -15,6 +15,7 @@ import {
 } from 'store/vaults';
 import ReactViewSlider from 'react-view-slider';
 import type { VaultKey } from 'store/vaults';
+import { tryBatchRequests } from 'utils/batchQueryClient';
 
 type PathDescriptionProps = { mode: ViewMode; adjustVaultKey: VaultKey | null };
 
@@ -61,12 +62,13 @@ const errorProps = {
 const Vaults = () => {
   const netConfig = useAtomValue(networkConfigAtom);
   const leader = useAtomValue(leaderAtom);
+  const { importContext } = useAtomValue(appAtom);
   useEffect(() => {
     if (!leader) return;
-    const cleanup = watchVaultFactory(netConfig.url);
-
+    // const cleanup = watchVaultFactory(netConfig.url);
+    tryBatchRequests(netConfig.url, importContext.fromBoard.unserialize);
     return () => {
-      cleanup();
+      // cleanup();
     };
   }, [leader, netConfig]);
 
