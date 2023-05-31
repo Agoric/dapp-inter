@@ -6,7 +6,6 @@ export default mergeConfig(
   viteConfig,
   defineConfig({
     test: {
-      setupFiles: ['src/installSesLockdown.ts'],
       environment: 'happy-dom',
     },
   }),
