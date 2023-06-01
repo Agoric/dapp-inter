@@ -32,7 +32,7 @@ export const batchVstorageQuery = (
             );
           }
 
-          const data = JSON.parse(atob(entry.result.response.value));
+          const data = JSON.parse(window.atob(entry.result.response.value));
 
           if (paths[index][0] === AgoricChainStoragePathKind.Children) {
             return [
@@ -43,11 +43,12 @@ export const batchVstorageQuery = (
 
           const value = JSON.parse(data.value);
 
+          const latestValueStr = value.values[value.values.length - 1];
           return [
             JSON.stringify(paths[index]),
             {
               blockHeight: value.blockHeight,
-              value: unserialize(JSON.parse(value.values.pop())),
+              value: unserialize(JSON.parse(latestValueStr)),
             },
           ];
         }),

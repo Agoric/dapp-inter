@@ -19,7 +19,9 @@ export const fetchVstorageKeys = async (
 
   const res = await fetch(rpcAddr, options);
   const d = await res.json();
-  return d.result.response.value && JSON.parse(atob(d.result.response.value));
+  return (
+    d.result.response.value && JSON.parse(window.atob(d.result.response.value))
+  );
 };
 
 export const fetchRPCAddr = async (netconfigURL: string) => {

@@ -1,5 +1,4 @@
 import '../../src/installSesLockdown';
-import 'ses'; // adds harden
 import { expect, it, describe } from 'vitest';
 import {
   computeToLock,

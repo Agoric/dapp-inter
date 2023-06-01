@@ -8,7 +8,7 @@ global.harden = val => val;
 
 const fakeRpcAddr = 'https://agoric-rpc.vitest-nodes.com:443';
 const serialize = (val: unknown) => val;
-const unserialize = (val: any) => val;
+const unserialize = (val: unknown) => val;
 
 let watcher: ReturnType<typeof makeAgoricChainStorageWatcher>;
 
@@ -36,14 +36,16 @@ describe('makeAgoricChainStorageWatcher', () => {
     );
 
     const value1 = new Promise(res => {
-      watcher.watchLatest([AgoricChainStoragePathKind.Data, path], value =>
-        res(value),
+      watcher.watchLatest<string>(
+        [AgoricChainStoragePathKind.Data, path],
+        value => res(value),
       );
     });
     vi.advanceTimersByTime(15);
     const value2 = new Promise(res => {
-      watcher.watchLatest([AgoricChainStoragePathKind.Children, path], value =>
-        res(value),
+      watcher.watchLatest<string[]>(
+        [AgoricChainStoragePathKind.Children, path],
+        value => res(value),
       );
     });
     vi.advanceTimersByTime(5);
@@ -85,13 +87,16 @@ describe('makeAgoricChainStorageWatcher', () => {
     );
 
     const values = [future(), future()];
-    watcher.watchLatest([AgoricChainStoragePathKind.Data, path], value => {
-      if (values[0].isComplete()) {
-        values[1].resolve(value);
-      } else {
-        values[0].resolve(value);
-      }
-    });
+    watcher.watchLatest<string>(
+      [AgoricChainStoragePathKind.Data, path],
+      value => {
+        if (values[0].isComplete()) {
+          values[1].resolve(value);
+        } else {
+          values[0].resolve(value);
+        }
+      },
+    );
     vi.advanceTimersToNextTimer();
     expect(await values[0].value).toEqual(expected1);
     expect(fetch).toHaveBeenCalledOnce();
@@ -125,14 +130,17 @@ describe('makeAgoricChainStorageWatcher', () => {
       ]),
     );
 
-    const values = [future(), future()];
-    watcher.watchLatest([AgoricChainStoragePathKind.Children, path], value => {
-      if (values[0].isComplete()) {
-        values[1].resolve(value);
-      } else {
-        values[0].resolve(value);
-      }
-    });
+    const values = [future<string[]>(), future<string[]>()];
+    watcher.watchLatest<string[]>(
+      [AgoricChainStoragePathKind.Children, path],
+      value => {
+        if (values[0].isComplete()) {
+          values[1].resolve(value);
+        } else {
+          values[0].resolve(value);
+        }
+      },
+    );
     vi.advanceTimersToNextTimer();
     expect(await values[0].value).toEqual(expected1);
     expect(fetch).toHaveBeenCalledOnce();
@@ -165,8 +173,8 @@ describe('makeAgoricChainStorageWatcher', () => {
       ]),
     );
 
-    const values = [future(), future()];
-    const unsub = watcher.watchLatest(
+    const values = [future<string[]>(), future<string[]>()];
+    const unsub = watcher.watchLatest<string[]>(
       [AgoricChainStoragePathKind.Children, path],
       value => {
         if (values[0].isComplete()) {
@@ -211,7 +219,7 @@ const createFetchResponse = (
           return {
             result: {
               response: {
-                value: btoa(JSON.stringify(data)),
+                value: window.btoa(JSON.stringify(data)),
               },
             },
           };

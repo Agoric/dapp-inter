@@ -7,15 +7,17 @@ type Subscriber<T> = {
   onUpdate: UpdateHandler<T>;
 };
 
-const defaultNewPathQueryDelayMs = 20;
-const defaultRefreshLowerBoundMs = 2000;
-const defaultRefreshUpperBoundMs = 4000;
+const defaults = {
+  newPathQueryDelayMs: 20,
+  refreshLowerBoundMs: 2000,
+  refreshUpperBoundMs: 4000,
+};
 
 const randomRefreshPeriod = (
   refreshLowerBoundMs: number,
   refreshUpperBoundMs: number,
 ) =>
-  Math.floor(Math.random() * (refreshUpperBoundMs - refreshLowerBoundMs)) +
+  Math.round(Math.random() * (refreshUpperBoundMs - refreshLowerBoundMs)) +
   refreshLowerBoundMs;
 
 const makePathSubscriber = <T>(onUpdate: UpdateHandler<T>) => ({
@@ -33,9 +35,9 @@ const makePathSubscriber = <T>(onUpdate: UpdateHandler<T>) => ({
 export const makeAgoricChainStorageWatcher = (
   rpcAddr: string,
   unserialize: Unserialize<string>,
-  newPathQueryDelayMs = defaultNewPathQueryDelayMs,
-  refreshLowerBoundMs = defaultRefreshLowerBoundMs,
-  refreshUpperBoundMs = defaultRefreshUpperBoundMs,
+  newPathQueryDelayMs = defaults.newPathQueryDelayMs,
+  refreshLowerBoundMs = defaults.refreshLowerBoundMs,
+  refreshUpperBoundMs = defaults.refreshUpperBoundMs,
 ) => {
   // Map of paths to [identifier, value] pairs of most recent response values.
   //
@@ -43,7 +45,10 @@ export const makeAgoricChainStorageWatcher = (
   // values. For 'data' queries, 'identifier' is the blockheight of the
   // response. For 'children' queries, 'identifier' is the stringified array
   // of children.
-  const latestValueCache = new Map<string, [string, unknown]>();
+  const latestValueCache = new Map<
+    string,
+    [identifier: string, value: unknown]
+  >();
 
   const watchedPathsToSubscribers = new Map<string, Set<Subscriber<unknown>>>();
   let isNewPathWatched = false;
@@ -56,7 +61,7 @@ export const makeAgoricChainStorageWatcher = (
     }
 
     if (isNewPathWatched) {
-      // If there's new paths to watch, schedule another query very soon.
+      // If there is any new path to watch, schedule another query very soon.
       if (nextQueryTimeout) {
         window.clearTimeout(nextQueryTimeout);
       }
@@ -116,8 +121,8 @@ export const makeAgoricChainStorageWatcher = (
 
   const stopWatching = (pathKey: string, subscriber: Subscriber<unknown>) => {
     const subscribersForPath = watchedPathsToSubscribers.get(pathKey);
-    if (!subscribersForPath) {
-      throw new Error('Trying to unsubscribed from unwatched path');
+    if (!subscribersForPath?.size) {
+      throw new Error(`cannot unsubscribe from unwatched path ${pathKey}`);
     }
 
     if (subscribersForPath.size === 1) {
@@ -144,7 +149,7 @@ export const makeAgoricChainStorageWatcher = (
 
     const latestValue = latestValueCache.get(pathKey);
     if (latestValue) {
-      (subscriber as Subscriber<unknown>).onUpdate(harden(latestValue[1]));
+      subscriber.onUpdate(harden(latestValue[1]) as T);
     }
 
     const samePathSubscribers = watchedPathsToSubscribers.get(pathKey);
