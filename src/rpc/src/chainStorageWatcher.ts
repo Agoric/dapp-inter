@@ -5,6 +5,7 @@ import type { Unserialize } from '@endo/marshal';
 
 type Subscriber<T> = {
   onUpdate: UpdateHandler<T>;
+  onError?: (log: string) => void;
 };
 
 const defaults = {
@@ -20,8 +21,12 @@ const randomRefreshPeriod = (
   Math.round(Math.random() * (refreshUpperBoundMs - refreshLowerBoundMs)) +
   refreshLowerBoundMs;
 
-const makePathSubscriber = <T>(onUpdate: UpdateHandler<T>) => ({
+const makePathSubscriber = <T>(
+  onUpdate: UpdateHandler<T>,
+  onError?: (log: string) => void,
+) => ({
   onUpdate,
+  onError,
 });
 
 /**
@@ -35,6 +40,7 @@ const makePathSubscriber = <T>(onUpdate: UpdateHandler<T>) => ({
 export const makeAgoricChainStorageWatcher = (
   rpcAddr: string,
   unserialize: Unserialize<string>,
+  onError?: (e: Error) => void,
   newPathQueryDelayMs = defaults.newPathQueryDelayMs,
   refreshLowerBoundMs = defaults.refreshLowerBoundMs,
   refreshUpperBoundMs = defaults.refreshUpperBoundMs,
@@ -92,13 +98,27 @@ export const makeAgoricChainStorageWatcher = (
     try {
       const data = await batchVstorageQuery(rpcAddr, unserialize, paths);
       watchedPathsToSubscribers.forEach((subscribers, path) => {
+        // Path was watched after query fired, wait until next round.
+        if (!data[path]) return;
+
+        if (data[path].error) {
+          subscribers.forEach(s => {
+            const { onError } = s;
+            if (onError) {
+              onError(harden(data[path].error));
+            }
+          });
+          return;
+        }
+
         const { blockHeight, value } = data[path];
         const lastValue = latestValueCache.get(path);
 
         if (
           lastValue &&
           (blockHeight === lastValue[0] ||
-            JSON.stringify(value) === lastValue[0])
+            (blockHeight === undefined &&
+              JSON.stringify(value) === lastValue[0]))
         ) {
           // The value isn't new, don't emit.
           return;
@@ -113,6 +133,8 @@ export const makeAgoricChainStorageWatcher = (
           s.onUpdate(harden(value));
         });
       });
+    } catch (e) {
+      onError && onError(e as Error);
     } finally {
       isQueryInProgress = false;
       queueNextQuery();
@@ -143,9 +165,10 @@ export const makeAgoricChainStorageWatcher = (
   const watchLatest = <T>(
     path: [AgoricChainStoragePathKind, string],
     onUpdate: (latestValue: T) => void,
+    onError?: (log: string) => void,
   ) => {
     const pathKey = JSON.stringify(path);
-    const subscriber = makePathSubscriber(onUpdate);
+    const subscriber = makePathSubscriber(onUpdate, onError);
 
     const latestValue = latestValueCache.get(pathKey);
     if (latestValue) {
