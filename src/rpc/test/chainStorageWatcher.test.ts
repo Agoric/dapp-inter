@@ -178,7 +178,9 @@ describe('makeAgoricChainStorageWatcher', () => {
     const result = future<string>();
     watcher.watchLatest<string>(
       [AgoricChainStoragePathKind.Children, path],
-      value => {},
+      _value => {
+        /* noop */
+      },
       result.resolve,
     );
     vi.advanceTimersToNextTimer();
