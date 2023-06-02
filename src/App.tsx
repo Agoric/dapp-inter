@@ -8,21 +8,23 @@ import { useEffect } from 'react';
 import { watchVbank } from 'service/vbank';
 import { useAtomValue, useAtom, useSetAtom } from 'jotai';
 import {
+  chainStorageWatcherAtom,
   currentTimeAtom,
+  importContextAtom,
   isAppVersionOutdatedAtom,
-  leaderAtom,
   networkConfigAtom,
 } from 'store/app';
-import { makeLeader } from '@agoric/casting';
 import Root from 'views/Root';
 import DisclaimerDialog from 'components/DisclaimerDialog';
 import { secondsSinceEpoch } from 'utils/date';
 import { vaultStoreAtom } from 'store/vaults';
 import AppVersionDialog from 'components/AppVersionDialog';
+import { currentlyVisitedHash, ipfsHashLength } from 'utils/ipfs';
+import { fetchRPCAddr } from 'utils/rpc';
+import { makeAgoricChainStorageWatcher } from 'rpc';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';
-import { currentlyVisitedHash, ipfsHashLength } from 'utils/ipfs';
 
 const router = createHashRouter([
   {
@@ -80,17 +82,29 @@ const useAppVersionWatcher = () => {
 
 const App = () => {
   const netConfig = useAtomValue(networkConfigAtom);
-  const [leader, setLeader] = useAtom(leaderAtom);
+  const importContext = useAtomValue(importContextAtom);
+  const [chainStorageWatcher, setChainStorageWatcher] = useAtom(
+    chainStorageWatcherAtom,
+  );
   const [error, setError] = useState<unknown | null>(null);
 
   useEffect(() => {
     let isCancelled = false;
-    if (leader) return;
+    if (chainStorageWatcher) return;
     const startWatching = async () => {
       try {
-        const newLeader = await makeLeader(netConfig.url);
+        const rpcAddr = await fetchRPCAddr(netConfig.url);
         if (isCancelled) return;
-        setLeader(newLeader);
+        setChainStorageWatcher(
+          makeAgoricChainStorageWatcher(
+            rpcAddr,
+            importContext.fromBoard.unserialize,
+            e => {
+              setError(e);
+              throw e;
+            },
+          ),
+        );
         watchVbank();
       } catch (e) {
         if (isCancelled) return;
@@ -102,7 +116,13 @@ const App = () => {
     return () => {
       isCancelled = true;
     };
-  }, [setError, leader, netConfig, setLeader]);
+  }, [
+    setError,
+    netConfig,
+    chainStorageWatcher,
+    setChainStorageWatcher,
+    importContext.fromBoard.unserialize,
+  ]);
 
   useTimeKeeper();
   useAppVersionWatcher();

@@ -1,6 +1,4 @@
-import { fetchRPCAddr, fetchVstorageKeys } from 'utils/rpc';
 import { useVaultStore, vaultLocalStorageStore } from 'store/vaults';
-import { makeFollower, iterateLatest } from '@agoric/casting';
 import { appStore } from 'store/app';
 import { toast } from 'react-toastify';
 import { CapData } from '@endo/marshal';
@@ -19,46 +17,40 @@ import type {
   VaultMetrics,
   LiquidationAuctionBook,
 } from 'store/vaults';
+import { AgoricChainStoragePathKind as Kind } from 'rpc';
 
 type ValuePossessor<T> = {
   value: T;
 };
 
-type PriceFeedUpdate = ValuePossessor<{
+type PriceFeedUpdate = {
   quoteAmount: PriceQuote;
   quotePayment: unknown;
-}>;
+};
 
-type LiquidationScheduleUpdate = ValuePossessor<LiquidationSchedule>;
+const getChainStorageWatcher = () => {
+  const { chainStorageWatcher } = appStore.getState();
+  assert(chainStorageWatcher, 'chainStorageWatcher not initialized');
+
+  return chainStorageWatcher;
+};
 
 const watchLiquidationSchedule = () => {
-  let isStopped = false;
-  const { leader, importContext } = appStore.getState();
+  const chainStorageWatcher = getChainStorageWatcher();
 
-  const path = ':published.auction.schedule';
-  const f = makeFollower(path, leader, {
-    unserializer: importContext.fromBoard,
-  });
+  const path = 'published.auction.schedule';
 
-  const watch = async () => {
-    for await (const { value } of iterateLatest<LiquidationScheduleUpdate>(f)) {
-      if (isStopped) break;
-
-      useVaultStore.setState({ liquidationSchedule: value });
-    }
-  };
-
-  watch().catch(e => console.error(`Error watching ${path}`, e));
-
-  return () => {
-    isStopped = true;
-  };
+  return chainStorageWatcher.watchLatest<LiquidationSchedule>(
+    [Kind.Data, path],
+    liquidationSchedule => useVaultStore.setState({ liquidationSchedule }),
+    e => console.error(`Error watching ${path}`, e),
+  );
 };
 
 // Subscribes to price feeds for new brands.
 const watchPriceFeeds = (prefix: string) => {
-  let isStopped = false;
-  const { leader, importContext } = appStore.getState();
+  const chainStorageWatcher = getChainStorageWatcher();
+  const subscriptionStoppers = new Array<() => void>();
 
   // Map of collateral brands to any manager that publishes a price quote of
   // that brand. If two managers have the same brand, their price quotes are
@@ -67,28 +59,29 @@ const watchPriceFeeds = (prefix: string) => {
 
   const watchedBrands = new Set<Brand>();
 
-  const watchFeed = async (brand: Brand, managerId: string) => {
+  const watchFeed = (brand: Brand, managerId: string) => {
     watchedBrands.add(brand);
     const path = `${prefix}.${managerId}.quotes`;
-    const f = makeFollower(path, leader, {
-      unserializer: importContext.fromBoard,
-    });
 
-    for await (const { value } of iterateLatest<PriceFeedUpdate>(f)) {
-      if (isStopped) break;
-      console.debug('got update', path, value);
-      useVaultStore.getState().setPrice(brand, value);
-    }
+    subscriptionStoppers.push(
+      chainStorageWatcher.watchLatest<PriceFeedUpdate>(
+        [Kind.Data, path],
+        value => {
+          console.debug('got update', path, value);
+          useVaultStore.getState().setPrice(brand, value);
+        },
+        e => {
+          console.error('Error watching brand price feed', brand, e);
+          useVaultStore.getState().setPriceError(brand, e);
+        },
+      ),
+    );
   };
 
   const watchNewBrands = () => {
     brandsToWatch.forEach((managerId, brand) => {
       if (watchedBrands.has(brand)) return;
-
-      watchFeed(brand, managerId).catch((e: unknown) => {
-        console.error('Error watching brand price feed', brand, e);
-        useVaultStore.getState().setPriceError(brand, e);
-      });
+      watchFeed(brand, managerId);
     });
   };
 
@@ -110,8 +103,10 @@ const watchPriceFeeds = (prefix: string) => {
   });
 
   return () => {
-    isStopped = true;
     unsubVaultStore();
+    for (const s of subscriptionStoppers) {
+      s();
+    }
   };
 };
 
@@ -139,10 +134,11 @@ const getIndexFromVaultPath = (subscriberPath: string) =>
   Number(subscriberPath.split('.').pop()?.replace('vault', ''));
 
 const watchUserVaults = () => {
-  let isStopped = false;
+  const chainStorageWatcher = getChainStorageWatcher();
+  const subscriptionStoppers = new Array<() => void>();
   const watchedVaults = new Set<string>();
 
-  const watchVault = async (
+  const watchVault = (
     offerId: string,
     subscriber: string,
     managerId: string,
@@ -154,25 +150,30 @@ const watchUserVaults = () => {
       .getState()
       .markVaultForLoading(offerId, managerId, offerId, indexWithinManager);
 
-    const { leader, importContext } = appStore.getState();
-    const f = makeFollower(`:${subscriber}`, leader, {
-      unserializer: importContext.fromBoard,
-    });
+    const path = `${subscriber}`;
 
-    for await (const { value } of iterateLatest<VaultUpdate>(f)) {
-      if (isStopped) break;
-      console.debug('got update', subscriber, value);
-      useVaultStore.getState().setVault(offerId, {
-        ...value,
-        managerId,
-        isLoading: false,
-        createdByOfferId: offerId,
-        indexWithinManager: indexWithinManager,
-      });
-    }
+    subscriptionStoppers.push(
+      chainStorageWatcher.watchLatest<VaultInfoChainData>(
+        [Kind.Data, path],
+        value => {
+          console.debug('got update', subscriber, value);
+          useVaultStore.getState().setVault(offerId, {
+            ...value,
+            managerId,
+            isLoading: false,
+            createdByOfferId: offerId,
+            indexWithinManager: indexWithinManager,
+          });
+        },
+        e => {
+          console.error(`Error watching vault ${offerId} ${path}`, e);
+          useVaultStore.getState().setVaultError(offerId, e);
+        },
+      ),
+    );
   };
 
-  const watchNewVaults = async (
+  const watchNewVaults = (
     subscribers: Record<string, Record<string, string>>,
   ) => {
     if (!useVaultStore.getState().vaults) {
@@ -193,10 +194,7 @@ const watchUserVaults = () => {
       );
       assert(managerId);
 
-      watchVault(offerId, vaultSubscriber, managerId).catch(e => {
-        console.error(`Error watching vault ${offerId} ${vaultSubscriber}`, e);
-        useVaultStore.getState().setVaultError(offerId, e);
-      });
+      watchVault(offerId, vaultSubscriber, managerId);
     });
   };
 
@@ -208,8 +206,10 @@ const watchUserVaults = () => {
   );
 
   return () => {
-    isStopped = true;
     unsubAppStore();
+    for (const s of subscriptionStoppers) {
+      s();
+    }
   };
 };
 
@@ -222,184 +222,181 @@ type GoverenedParamsCurrent = {
   MintFee: ValuePossessor<Ratio>;
 };
 
-type GovernedParamsUpdate = ValuePossessor<{
+type GovernedParamsUpdate = {
   current: GoverenedParamsCurrent;
-}>;
+};
 
-type MetricsUpdate = ValuePossessor<VaultMetrics>;
+type MetricsUpdate = VaultMetrics;
 
-type VaultManagerUpdate = ValuePossessor<VaultManager>;
+type VaultManagerUpdate = VaultManager;
 
-type LiquidationAuctionBookUpdate = ValuePossessor<LiquidationAuctionBook>;
+type LiquidationAuctionBookUpdate = LiquidationAuctionBook;
 
-type VaultFactoryParamsUpdate = ValuePossessor<{
+type VaultFactoryParamsUpdate = {
   current: {
     MinInitialDebt: ValuePossessor<Amount<'nat'>>;
     ReferencedUI?: ValuePossessor<string>;
     // TODO remove backwards compatibility after https://github.com/Agoric/agoric-sdk/issues/7839
     EndorsedUI: ValuePossessor<string>;
   };
-}>;
+};
 
-type VaultUpdate = ValuePossessor<VaultInfoChainData>;
+export const watchVaultFactory = () => {
+  const chainStorageWatcher = getChainStorageWatcher();
+  const subscriptionStoppers = new Array<() => void>();
 
-export const watchVaultFactory = (netconfigUrl: string) => {
-  let isStopped = false;
-  let stopWatchingPriceFeeds: () => void;
-  const { leader, importContext } = appStore.getState();
-
-  const makeBoardFollower = (path: string) =>
-    makeFollower(path, leader, { unserializer: importContext.fromBoard });
-
-  const watchGovernedParams = async (prefix: string) => {
+  const watchGovernedParams = (prefix: string) => {
     const path = `${prefix}.governance`;
-    const f = makeBoardFollower(path);
     const id = managerIdFromPath(prefix);
-    for await (const { value } of iterateLatest<GovernedParamsUpdate>(f)) {
-      if (isStopped) break;
-      console.debug('got update', path, value);
-      const { current } = value;
-      const interestRate = current.InterestRate.value;
-      const liquidationPenalty = current.LiquidationPenalty.value;
-      const liquidationMargin = current.LiquidationMargin.value;
-      const liquidationPadding = current.LiquidationPadding.value;
-      const mintFee = current.MintFee.value;
-      const debtLimit = current.DebtLimit.value;
+    const s = chainStorageWatcher.watchLatest<GovernedParamsUpdate>(
+      [Kind.Data, path],
+      value => {
+        console.debug('got update', path, value);
+        const { current } = value;
+        const interestRate = current.InterestRate.value;
+        const liquidationPenalty = current.LiquidationPenalty.value;
+        const liquidationMargin = current.LiquidationMargin.value;
+        const liquidationPadding = current.LiquidationPadding.value;
+        const mintFee = current.MintFee.value;
+        const debtLimit = current.DebtLimit.value;
 
-      const inferredMinimumCollateralization =
-        calculateMinimumCollateralization(
+        const inferredMinimumCollateralization =
+          calculateMinimumCollateralization(
+            liquidationMargin,
+            liquidationPadding,
+          );
+
+        useVaultStore.getState().setVaultGovernedParams(id, {
+          debtLimit,
+          interestRate,
           liquidationMargin,
-          liquidationPadding,
-        );
-
-      useVaultStore.getState().setVaultGovernedParams(id, {
-        debtLimit,
-        interestRate,
-        liquidationMargin,
-        liquidationPenalty,
-        mintFee,
-        inferredMinimumCollateralization,
-      });
-    }
+          liquidationPenalty,
+          mintFee,
+          inferredMinimumCollateralization,
+        });
+      },
+      e => {
+        console.error('Error watching vault manager params', id, e);
+        useVaultStore.getState().setVaultManagerLoadingError(id, e);
+      },
+    );
+    subscriptionStoppers.push(s);
   };
 
-  const watchMetrics = async (prefix: string) => {
+  const watchMetrics = (prefix: string) => {
     const path = `${prefix}.metrics`;
     const id = managerIdFromPath(prefix);
-    const f = makeBoardFollower(path);
-    for await (const { value } of iterateLatest<MetricsUpdate>(f)) {
-      if (isStopped) break;
-      console.debug('got update', path, value);
-      useVaultStore.getState().setVaultMetrics(id, value);
-    }
+    const s = chainStorageWatcher.watchLatest<MetricsUpdate>(
+      [Kind.Data, path],
+      value => {
+        console.debug('got update', path, value);
+        useVaultStore.getState().setVaultMetrics(id, value);
+      },
+      e => {
+        console.error('Error watching vault manager metrics', id, e);
+        useVaultStore.getState().setVaultManagerLoadingError(id, e);
+      },
+    );
+    subscriptionStoppers.push(s);
   };
 
-  const watchLiquidationAuctionBook = async (id: string) => {
-    const path = `:published.auction.${id.replace('manager', 'book')}`;
-    const f = makeBoardFollower(path);
-    for await (const { value } of iterateLatest<LiquidationAuctionBookUpdate>(
-      f,
-    )) {
-      if (isStopped) break;
-      console.debug('got update', path, value);
-      useVaultStore.getState().setLiquidationAuctionBook(id, value);
-    }
+  const watchLiquidationAuctionBook = (id: string) => {
+    const path = `published.auction.${id.replace('manager', 'book')}`;
+    const s = chainStorageWatcher.watchLatest<LiquidationAuctionBookUpdate>(
+      [Kind.Data, path],
+      value => {
+        console.debug('got update', path, value);
+        useVaultStore.getState().setLiquidationAuctionBook(id, value);
+      },
+      e => {
+        console.error('Error watching vault manager book', id, e);
+        useVaultStore.getState().setVaultManagerLoadingError(id, e);
+      },
+    );
+    subscriptionStoppers.push(s);
   };
 
-  const watchManager = async (path: string) => {
+  const watchManager = (path: string) => {
     watchGovernedParams(path);
     watchMetrics(path);
     const id = managerIdFromPath(path);
     watchLiquidationAuctionBook(id);
 
-    const f = makeBoardFollower(path);
-    for await (const { value } of iterateLatest<VaultManagerUpdate>(f)) {
-      if (isStopped) break;
-      console.debug('got update', path, value);
-      useVaultStore.getState().setVaultManager(id, value);
-    }
-  };
-
-  const watchVaultFactoryParams = async () => {
-    const path = ':published.vaultFactory.governance';
-    const f = makeBoardFollower(path);
-    for await (const { value } of iterateLatest<VaultFactoryParamsUpdate>(f)) {
-      if (isStopped) break;
-      console.debug('got update', path, value);
-      useVaultStore.setState({
-        vaultFactoryParams: {
-          minInitialDebt: value.current.MinInitialDebt.value,
-          referencedUI:
-            value.current.ReferencedUI?.value ??
-            value.current.EndorsedUI?.value,
-        },
-      });
-    }
-  };
-
-  const startWatching = async () => {
-    let rpc: string;
-    try {
-      rpc = await fetchRPCAddr(netconfigUrl);
-    } catch (e) {
-      if (isStopped) return;
-      const msg = 'Error fetching RPC address from network config';
-      console.error(msg, netconfigUrl, e);
-      useVaultStore.setState({ managerIdsLoadingError: msg });
-      return;
-    }
-    if (isStopped) return;
-
-    let managerIds: string[];
-    let managerPrefix = 'published.vaultFactory';
-    try {
-      // old way (deprecated since https://github.com/Agoric/agoric-sdk/pull/7150)
-      managerIds = await fetchVstorageKeys(rpc, managerPrefix).then(res =>
-        (res.children as string[]).filter(key => key.match(MANAGER_RE)),
-      );
-      assert(managerIds);
-      if (managerIds.length === 0) {
-        managerPrefix = 'published.vaultFactory.managers';
-        // new way
-        managerIds = await fetchVstorageKeys(rpc, managerPrefix).then(
-          res => res.children,
-        );
-      }
-    } catch (e) {
-      if (isStopped) return;
-      const msg = 'Error fetching vault managers';
-      console.error(msg, e);
-      useVaultStore.setState({ managerIdsLoadingError: msg });
-      return;
-    }
-    if (isStopped) return;
-    stopWatchingPriceFeeds = watchPriceFeeds(`:${managerPrefix}`);
-
-    useVaultStore.setState({ vaultManagerIds: managerIds });
-    managerIds.forEach(id =>
-      watchManager(`:${managerPrefix}.${id}`).catch(e => {
-        console.error('Error watching vault manager id', id, e);
+    const s = chainStorageWatcher.watchLatest<VaultManagerUpdate>(
+      [Kind.Data, path],
+      value => {
+        console.debug('got update', path, value);
+        useVaultStore.getState().setVaultManager(id, value);
+      },
+      e => {
+        console.error('Error watching vault manager', id, e);
         useVaultStore.getState().setVaultManagerLoadingError(id, e);
-      }),
+      },
     );
-    watchVaultFactoryParams().catch(e => {
-      console.error('Error watching vault factory governed params', e);
-      useVaultStore.setState({
-        vaultFactoryParamsLoadingError:
-          'Error loading vault factorys governed parameters',
-      });
-    });
+    subscriptionStoppers.push(s);
+  };
+
+  const watchVaultFactoryParams = () => {
+    const path = 'published.vaultFactory.governance';
+    const s = chainStorageWatcher.watchLatest<VaultFactoryParamsUpdate>(
+      [Kind.Data, path],
+      value => {
+        console.debug('got update', path, value);
+        useVaultStore.setState({
+          vaultFactoryParams: {
+            minInitialDebt: value.current.MinInitialDebt.value,
+            referencedUI:
+              value.current.ReferencedUI?.value ??
+              value.current.EndorsedUI?.value,
+          },
+        });
+      },
+      e => {
+        console.error('Error watching vault factory params', e);
+        useVaultStore.setState({
+          vaultFactoryParamsLoadingError: 'Error loading vault factory params',
+        });
+      },
+    );
+    subscriptionStoppers.push(s);
+  };
+
+  const startWatching = () => {
+    const managerPrefix = 'published.vaultFactory.managers';
+    const watchedManagers = new Set<string>();
+
+    const unsubManagerIds = chainStorageWatcher.watchLatest<string[]>(
+      [Kind.Children, managerPrefix],
+      managerIds => {
+        useVaultStore.setState({ vaultManagerIds: managerIds });
+
+        for (const id of managerIds) {
+          if (watchedManagers.has(id)) continue;
+          watchedManagers.add(id);
+          watchManager(`${managerPrefix}.${id}`);
+        }
+      },
+      e => {
+        const msg = 'Error fetching vault managers';
+        console.error(msg, e);
+        useVaultStore.setState({ managerIdsLoadingError: msg });
+      },
+    );
+    subscriptionStoppers.push(unsubManagerIds);
+
+    subscriptionStoppers.push(watchPriceFeeds(`${managerPrefix}`));
+
+    watchVaultFactoryParams();
   };
 
   startWatching();
-  const stopWatchingUserVaults = watchUserVaults();
-  const stopWatchingLiquidationSchedule = watchLiquidationSchedule();
+  subscriptionStoppers.push(watchUserVaults());
+  subscriptionStoppers.push(watchLiquidationSchedule());
 
   return () => {
-    isStopped = true;
-    stopWatchingPriceFeeds && stopWatchingPriceFeeds();
-    stopWatchingUserVaults();
-    stopWatchingLiquidationSchedule();
+    for (const s of subscriptionStoppers) {
+      s();
+    }
   };
 };
 
