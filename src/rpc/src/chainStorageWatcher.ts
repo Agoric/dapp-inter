@@ -1,5 +1,5 @@
 import { AgoricChainStoragePathKind } from './types';
-import { batchVstorageQuery } from './batchQuery';
+import { batchVstorageQuery, keyToPath, pathToKey } from './batchQuery';
 import type { UpdateHandler } from './types';
 import type { Unserialize } from '@endo/marshal';
 
@@ -86,9 +86,7 @@ export const makeAgoricChainStorageWatcher = (
     nextQueryTimeout = null;
     isNewPathWatched = false;
 
-    const paths = [...watchedPathsToSubscribers.keys()].map(pathKey =>
-      JSON.parse(pathKey),
-    );
+    const paths = [...watchedPathsToSubscribers.keys()].map(keyToPath);
 
     if (!paths.length) {
       isQueryInProgress = false;
@@ -167,7 +165,7 @@ export const makeAgoricChainStorageWatcher = (
     onUpdate: (latestValue: T) => void,
     onError?: (log: string) => void,
   ) => {
-    const pathKey = JSON.stringify(path);
+    const pathKey = pathToKey(path);
     const subscriber = makePathSubscriber(onUpdate, onError);
 
     const latestValue = latestValueCache.get(pathKey);
