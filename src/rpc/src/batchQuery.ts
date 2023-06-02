@@ -1,6 +1,17 @@
 import { AgoricChainStoragePathKind } from './types';
 import type { Unserialize } from '@endo/marshal';
 
+export const pathToKey = (path: [AgoricChainStoragePathKind, string]) =>
+  path.join('.');
+
+export const keyToPath = (key: string) => {
+  const parts = key.split('.');
+  return [parts[0], parts.slice(1).join('.')] as [
+    AgoricChainStoragePathKind,
+    string,
+  ];
+};
+
 export const batchVstorageQuery = (
   node: string,
   unserialize: Unserialize<string>,
@@ -25,14 +36,14 @@ export const batchVstorageQuery = (
         (Array.isArray(res) ? res : [res]).map((entry, index) => {
           if (entry.result.response.code) {
             return [
-              JSON.stringify(paths[index]),
+              pathToKey(paths[index]),
               { error: entry.result.response.log },
             ];
           }
 
           if (!entry.result.response.value) {
             return [
-              JSON.stringify(paths[index]),
+              pathToKey(paths[index]),
               {
                 error:
                   'Cannot parse value of response for path [' +
@@ -47,7 +58,7 @@ export const batchVstorageQuery = (
 
           if (paths[index][0] === AgoricChainStoragePathKind.Children) {
             return [
-              JSON.stringify(paths[index]),
+              pathToKey(paths[index]),
               { value: data.children, blockHeight: undefined },
             ];
           }
@@ -56,7 +67,7 @@ export const batchVstorageQuery = (
 
           const latestValueStr = value.values[value.values.length - 1];
           return [
-            JSON.stringify(paths[index]),
+            pathToKey(paths[index]),
             {
               blockHeight: value.blockHeight,
               value: unserialize(JSON.parse(latestValueStr)),
