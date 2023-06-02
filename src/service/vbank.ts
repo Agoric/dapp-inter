@@ -1,6 +1,6 @@
 import { appStore } from 'store/app';
-import { iterateLatest, makeFollower } from '@agoric/casting';
 import type { DisplayInfo, Brand } from '@agoric/ertp/src/types';
+import { AgoricChainStoragePathKind as Kind } from 'rpc';
 
 type VbankInfo = {
   brand: Brand;
@@ -8,19 +8,25 @@ type VbankInfo = {
   issuerName: string;
 };
 
-type VbankUpdate = { value: Array<[string, VbankInfo]> };
+type VbankUpdate = Array<[string, VbankInfo]>;
 
 export const watchVbank = () => {
-  const path = ':published.agoricNames.vbankAsset';
-  const { importContext, leader } = appStore.getState();
+  const { chainStorageWatcher } = appStore.getState();
+  assert(chainStorageWatcher, 'chainStorageWatcher not initialized');
 
-  const watch = async () => {
-    const f = makeFollower(path, leader, {
-      unserializer: importContext.fromBoard,
-    });
+  const path = 'published.agoricNames.vbankAsset';
 
-    for await (const { value } of iterateLatest<VbankUpdate>(f)) {
+  chainStorageWatcher.watchLatest<VbankUpdate>(
+    [Kind.Data, path],
+    value => {
       console.debug('got update', path, value);
+      if (!value) {
+        appStore.setState({
+          watchVbankError: `${path} returned undefined`,
+        });
+        return;
+      }
+
       const brandToInfo = new Map(
         value.map(entry => [
           entry[1].brand,
@@ -28,11 +34,12 @@ export const watchVbank = () => {
         ]),
       );
       appStore.setState({ brandToInfo });
-    }
-  };
-
-  watch().catch(e => {
-    console.error('Error watching vbank assets', e);
-    appStore.setState({ watchVbankError: 'Error loading asset display info' });
-  });
+    },
+    log => {
+      console.error('Error watching vbank assets', log);
+      appStore.setState({
+        watchVbankError: 'Error loading asset display info',
+      });
+    },
+  );
 };

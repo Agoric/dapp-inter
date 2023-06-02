@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useAtomValue } from 'jotai';
-import { appAtom, leaderAtom, networkConfigAtom } from 'store/app';
+import { appAtom, chainStorageWatcherAtom } from 'store/app';
 import { FunctionComponent, useEffect } from 'react';
 import { watchVaultFactory } from 'service/vaults';
 import AdjustVault from 'components/AdjustVault';
@@ -59,16 +59,15 @@ const errorProps = {
 };
 
 const Vaults = () => {
-  const netConfig = useAtomValue(networkConfigAtom);
-  const leader = useAtomValue(leaderAtom);
+  const chainStorageWatcher = useAtomValue(chainStorageWatcherAtom);
   useEffect(() => {
-    if (!leader) return;
-    const cleanup = watchVaultFactory(netConfig.url);
+    if (!chainStorageWatcher) return;
+    const cleanup = watchVaultFactory();
 
     return () => {
       cleanup();
     };
-  }, [leader, netConfig]);
+  }, [chainStorageWatcher]);
 
   const { managerIdsLoadingError } = useVaultStore();
   const { watchVbankError } = useAtomValue(appAtom);

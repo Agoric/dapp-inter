@@ -65,7 +65,7 @@
     "@endo/far" "^0.2.14"
     "@endo/marshal" "^0.8.1"
 
-"@agoric/casting@0.3.3-dev-1adb7a2.0+1adb7a2", "@agoric/casting@^0.3.3-dev-1adb7a2.0":
+"@agoric/casting@0.3.3-dev-1adb7a2.0+1adb7a2":
   version "0.3.3-dev-1adb7a2.0"
   resolved "https://registry.yarnpkg.com/@agoric/casting/-/casting-0.3.3-dev-1adb7a2.0.tgz#89f153db216f241d59a355fd19bfdbb1548c2bf0"
   integrity sha512-tRtrkpUmNmPm0QxAOyz+nWwgElTKpR7OsqaZRFUOHbOsrFXtex4HjdY53tJB0a01L7wyXitcbV+YrWZQxRqR5w==

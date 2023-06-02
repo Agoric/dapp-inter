@@ -16,9 +16,9 @@ import { persist } from 'zustand/middleware';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
 import { makeWalletService } from 'service/wallet';
 import type { DisplayInfo, Brand, AssetKind } from '@agoric/ertp/src/types';
-import type { Leader } from '@agoric/casting';
 import type { PursesJSONState } from '@agoric/wallet-backend';
 import { secondsSinceEpoch } from 'utils/date';
+import { makeAgoricChainStorageWatcher } from 'rpc';
 
 export type BrandInfo = DisplayInfo<'nat'> & {
   petname: string;
@@ -43,11 +43,12 @@ export type OfferSigner = {
   addOffer?: (offer: OfferConfig) => void;
 };
 
+type ChainStorageWatcher = ReturnType<typeof makeAgoricChainStorageWatcher>;
+
 interface AppState {
   brandToInfo: Map<Brand, BrandInfo> | null;
   watchVbankError: string | null;
   importContext: ImportContext;
-  leader: Leader | null;
   isWalletConnectionInProgress: boolean;
   chainConnection: ChainConnection | null;
   offerSigner: OfferSigner;
@@ -55,13 +56,13 @@ interface AppState {
   walletService: ReturnType<typeof makeWalletService>;
   offerIdsToPublicSubscribers: Record<string, Record<string, string>> | null;
   isDisclaimerDialogShowing: boolean;
+  chainStorageWatcher: ChainStorageWatcher | null;
 }
 
 export const appStore = createStore<AppState>()(() => ({
   brandToInfo: null,
   watchVbankError: null,
   importContext: makeImportContext(),
-  leader: null,
   isWalletConnectionInProgress: false,
   chainConnection: null,
   offerSigner: { isDappApproved: false },
@@ -69,6 +70,7 @@ export const appStore = createStore<AppState>()(() => ({
   walletService: makeWalletService(),
   offerIdsToPublicSubscribers: null,
   isDisclaimerDialogShowing: false,
+  chainStorageWatcher: null,
 }));
 
 export const appAtom = atomWithStore(appStore);
@@ -89,6 +91,8 @@ export const displayFunctionsAtom = atom(get => {
 export const walletServiceAtom = atom(get => get(appAtom).walletService);
 
 export const pursesAtom = atom(get => get(appAtom).purses);
+
+export const importContextAtom = atom(get => get(appAtom).importContext);
 
 export const isWalletConnectionInProgressAtom = atom(
   get => get(appAtom).isWalletConnectionInProgress,
@@ -117,12 +121,12 @@ export const setIsDappApprovedAtom = atom(
 
 export const chainConnectionAtom = atom(get => get(appAtom).chainConnection);
 
-export const leaderAtom = atom(
-  get => get(appAtom).leader,
-  (_get, set, newLeader: Leader) =>
+export const chainStorageWatcherAtom = atom(
+  get => get(appAtom).chainStorageWatcher,
+  (_get, set, watcher: ChainStorageWatcher) =>
     set(appAtom, state => ({
       ...state,
-      leader: newLeader,
+      chainStorageWatcher: watcher,
     })),
 );
 
