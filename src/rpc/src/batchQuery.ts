@@ -23,13 +23,24 @@ export const batchVstorageQuery = (
     .then(res =>
       Object.fromEntries(
         (Array.isArray(res) ? res : [res]).map((entry, index) => {
+          if (entry.result.response.code) {
+            return [
+              JSON.stringify(paths[index]),
+              { error: entry.result.response.log },
+            ];
+          }
+
           if (!entry.result.response.value) {
-            throw new Error(
-              'Cannot parse value of response for path' +
-                paths[index] +
-                ': ' +
-                entry,
-            );
+            return [
+              JSON.stringify(paths[index]),
+              {
+                error:
+                  'Cannot parse value of response for path [' +
+                  paths[index] +
+                  ']: ' +
+                  JSON.stringify(entry),
+              },
+            ];
           }
 
           const data = JSON.parse(window.atob(entry.result.response.value));

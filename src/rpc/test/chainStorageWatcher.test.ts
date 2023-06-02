@@ -160,6 +160,31 @@ describe('makeAgoricChainStorageWatcher', () => {
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
+  it('handles errors', async () => {
+    const expected = 'test error log';
+    const path = 'published.vitest.fakePath';
+
+    fetch.mockResolvedValue(
+      createFetchResponse([
+        {
+          value: null,
+          kind: AgoricChainStoragePathKind.Children,
+          code: 6,
+          log: expected,
+        },
+      ]),
+    );
+
+    const result = future<string>();
+    watcher.watchLatest<string>(
+      [AgoricChainStoragePathKind.Children, path],
+      value => {},
+      result.resolve,
+    );
+    vi.advanceTimersToNextTimer();
+    expect(await result.value).toEqual(expected);
+  });
+
   it('can unsubscribe from paths', async () => {
     const expected1 = ['child1', 'child2'];
     const path = 'published.vitest.fakePath';
@@ -200,12 +225,14 @@ const createFetchResponse = (
     kind?: AgoricChainStoragePathKind;
     value: unknown;
     blockHeight?: number;
+    code?: number;
+    log?: string;
   }[],
 ) => ({
   json: () =>
     new Promise(res =>
       res(
-        values.map(({ kind, value, blockHeight }) => {
+        values.map(({ kind, value, blockHeight, code = 0, log }) => {
           const data =
             kind === AgoricChainStoragePathKind.Children
               ? { children: value }
@@ -220,6 +247,8 @@ const createFetchResponse = (
             result: {
               response: {
                 value: window.btoa(JSON.stringify(data)),
+                code,
+                log,
               },
             },
           };
