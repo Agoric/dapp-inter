@@ -1,0 +1,33 @@
+# UNTIL https://github.com/vitest-dev/vitest/pull/3527
+diff --git a/node_modules/vitest/dist/vendor-rpc.4d3d7a54.js b/node_modules/vitest/dist/vendor-rpc.4d3d7a54.js
+index c98baeb..e365e91 100644
+--- a/node_modules/vitest/dist/vendor-rpc.4d3d7a54.js
++++ b/node_modules/vitest/dist/vendor-rpc.4d3d7a54.js
+@@ -2,19 +2,16 @@ import { getSafeTimers } from '@vitest/utils';
+ import { g as getWorkerState } from './vendor-global.6795f91f.js';
+ 
+ const { get } = Reflect;
+-const safeRandom = Math.random;
+ function withSafeTimers(fn) {
+   const { setTimeout, clearTimeout, nextTick, setImmediate, clearImmediate } = getSafeTimers();
+   const currentSetTimeout = globalThis.setTimeout;
+   const currentClearTimeout = globalThis.clearTimeout;
+-  const currentRandom = globalThis.Math.random;
+   const currentNextTick = globalThis.process.nextTick;
+   const currentSetImmediate = globalThis.setImmediate;
+   const currentClearImmediate = globalThis.clearImmediate;
+   try {
+     globalThis.setTimeout = setTimeout;
+     globalThis.clearTimeout = clearTimeout;
+-    globalThis.Math.random = safeRandom;
+     globalThis.process.nextTick = nextTick;
+     globalThis.setImmediate = setImmediate;
+     globalThis.clearImmediate = clearImmediate;
+@@ -23,7 +20,6 @@ function withSafeTimers(fn) {
+   } finally {
+     globalThis.setTimeout = currentSetTimeout;
+     globalThis.clearTimeout = currentClearTimeout;
+-    globalThis.Math.random = currentRandom;
+     globalThis.setImmediate = currentSetImmediate;
+     globalThis.clearImmediate = currentClearImmediate;
+     nextTick(() => {
