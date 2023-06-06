@@ -1,5 +1,5 @@
 import { AgoricChainStoragePathKind } from './types';
-import type { Unserialize } from '@endo/marshal';
+import type { FromCapData } from '@endo/marshal';
 
 export const pathToKey = (path: [AgoricChainStoragePathKind, string]) =>
   path.join('.');
@@ -14,7 +14,7 @@ export const keyToPath = (key: string) => {
 
 export const batchVstorageQuery = (
   node: string,
-  unserialize: Unserialize<string>,
+  unserialize: FromCapData<string>,
   paths: [AgoricChainStoragePathKind, string][],
 ) => {
   const options = {

@@ -1,7 +1,7 @@
 import { AgoricChainStoragePathKind } from './types';
 import { batchVstorageQuery, keyToPath, pathToKey } from './batchQuery';
 import type { UpdateHandler } from './types';
-import type { Unserialize } from '@endo/marshal';
+import type { FromCapData } from '@endo/marshal';
 
 type Subscriber<T> = {
   onUpdate: UpdateHandler<T>;
@@ -39,7 +39,7 @@ const makePathSubscriber = <T>(
  */
 export const makeAgoricChainStorageWatcher = (
   rpcAddr: string,
-  unserialize: Unserialize<string>,
+  unserialize: FromCapData<string>,
   onError?: (e: Error) => void,
   newPathQueryDelayMs = defaults.newPathQueryDelayMs,
   refreshLowerBoundMs = defaults.refreshLowerBoundMs,

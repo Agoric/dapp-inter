@@ -11,6 +11,7 @@ export default defineConfig({
   },
   plugins: [react(), tsconfigPaths()],
   build: {
+    chunkSizeWarningLimit: 4000,
     target: 'es2020',
   },
 });
