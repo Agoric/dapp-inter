@@ -27,7 +27,7 @@ export enum ViewMode {
 
 export type VaultParams = {
   debtLimit: Amount<'nat'>;
-  interestRate: Ratio;
+  stabilityFee: Ratio;
   liquidationPenalty: Ratio;
   liquidationMargin: Ratio;
   inferredMinimumCollateralization: Ratio;

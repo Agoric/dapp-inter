@@ -88,9 +88,9 @@ const NewVaultOfferSummary = () => {
         )}`
       : '--';
 
-  const interestRateForDisplay =
+  const stabilityFeeForDisplay =
     displayPercent && selectedParams
-      ? `${displayPercent(selectedParams.interestRate, 2)}%`
+      ? `${displayPercent(selectedParams.stabilityFee, 2)}%`
       : '--';
 
   const creationFeeForDisplay =
@@ -171,7 +171,7 @@ const NewVaultOfferSummary = () => {
               <tbody>
                 <TableRow left="Depositing" right={depositAmountForDisplay} />
                 <TableRow left="Minting" right={mintAmountForDisplay} />
-                <TableRow left="Stability Fee" right={interestRateForDisplay} />
+                <TableRow left="Stability Fee" right={stabilityFeeForDisplay} />
                 <TableRow
                   left="Minimum Collateralization Ratio"
                   right={minCollateralizationForDisplay}

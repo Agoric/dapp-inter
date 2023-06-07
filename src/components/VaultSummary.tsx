@@ -589,7 +589,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
             <div className={subpanelClasses}>
               <span className="text-secondary">Stab. Fee</span>
               <span className="font-extrabold">
-                {displayPercent(params.interestRate, 2)}%
+                {displayPercent(params.stabilityFee, 2)}%
               </span>
             </div>
             <div className={subpanelClasses}>

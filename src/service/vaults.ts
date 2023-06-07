@@ -215,6 +215,8 @@ const watchUserVaults = () => {
 
 type GoverenedParamsCurrent = {
   DebtLimit: ValuePossessor<Amount<'nat'>>;
+  StabilityFee?: ValuePossessor<Ratio>;
+  // TODO remove backwards compatibility after https://github.com/Agoric/agoric-sdk/issues/7588
   InterestRate: ValuePossessor<Ratio>;
   LiquidationPenalty: ValuePossessor<Ratio>;
   LiquidationMargin: ValuePossessor<Ratio>;
@@ -253,7 +255,8 @@ export const watchVaultFactory = () => {
       value => {
         console.debug('got update', path, value);
         const { current } = value;
-        const interestRate = current.InterestRate.value;
+        const stabilityFee =
+          current.StabilityFee?.value ?? value.current.InterestRate?.value;
         const liquidationPenalty = current.LiquidationPenalty.value;
         const liquidationMargin = current.LiquidationMargin.value;
         const liquidationPadding = current.LiquidationPadding.value;
@@ -268,7 +271,7 @@ export const watchVaultFactory = () => {
 
         useVaultStore.getState().setVaultGovernedParams(id, {
           debtLimit,
-          interestRate,
+          stabilityFee,
           liquidationMargin,
           liquidationPenalty,
           mintFee,
