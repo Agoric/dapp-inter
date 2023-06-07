@@ -52,8 +52,8 @@ export type LiquidationAuctionBook = {
 };
 
 export type VaultManager = {
-  compoundedInterest: Ratio;
-  latestInterestUpdate: bigint;
+  compoundedStabilityFee: Ratio;
+  latestStabilityFeeUpdate: bigint;
 };
 
 export type VaultFactoryParams = {
@@ -72,7 +72,7 @@ export type VaultPhase =
 
 export type DebtSnapshot = {
   debt: Amount<'nat'>;
-  interest: Ratio;
+  stabilityFee: Ratio;
 };
 
 export type VaultInfoChainData = {

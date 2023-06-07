@@ -79,8 +79,8 @@ export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
 
   const totalDebt = calculateCurrentDebt(
     debtSnapshot.debt,
-    debtSnapshot.interest,
-    manager.compoundedInterest,
+    debtSnapshot.stabilityFee,
+    manager.compoundedStabilityFee,
   );
 
   const collateralizationRatio = AmountMath.isEmpty(totalDebt)
