@@ -210,7 +210,7 @@ export const collateralizationRatio = (
 
 export const currentCollateralization = (
   debtSnapshot: DebtSnapshot,
-  compoundedInterest: Ratio,
+  compoundedStabilityFee: Ratio,
   quotePrice: PriceDescription,
   locked: Amount<'nat'>,
   lockedPrice?: Ratio,
@@ -223,8 +223,8 @@ export const currentCollateralization = (
 
   const totalDebt = calculateCurrentDebt(
     debtSnapshot.debt,
-    debtSnapshot.interest,
-    compoundedInterest,
+    debtSnapshot.stabilityFee,
+    compoundedStabilityFee,
   );
 
   return collateralizationRatio(
@@ -259,8 +259,8 @@ export const isVaultAtRisk = (
 
   const totalDebt = calculateCurrentDebt(
     debtSnapshot.debt,
-    debtSnapshot.interest,
-    manager.compoundedInterest,
+    debtSnapshot.stabilityFee,
+    manager.compoundedStabilityFee,
   );
 
   const isLiquidationPriceBelowOraclePrice = isLiquidationPriceBelowGivenPrice(

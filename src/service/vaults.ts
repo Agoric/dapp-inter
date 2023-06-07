@@ -13,7 +13,6 @@ import type {
 import type {
   LiquidationSchedule,
   VaultInfoChainData,
-  VaultManager,
   VaultMetrics,
   LiquidationAuctionBook,
 } from 'store/vaults';
@@ -157,8 +156,17 @@ const watchUserVaults = () => {
         [Kind.Data, path],
         value => {
           console.debug('got update', subscriber, value);
+          const debtSnapshot = value.debtSnapshot && {
+            debt: value.debtSnapshot.debt,
+            stabilityFee:
+              value.debtSnapshot.stabilityFee ??
+              // @ts-expect-error backwards compatible until https://github.com/Agoric/agoric-sdk/issues/7839
+              value.debtSnapshot?.interest,
+          };
+
           useVaultStore.getState().setVault(offerId, {
             ...value,
+            debtSnapshot,
             managerId,
             isLoading: false,
             createdByOfferId: offerId,
@@ -230,7 +238,14 @@ type GovernedParamsUpdate = {
 
 type MetricsUpdate = VaultMetrics;
 
-type VaultManagerUpdate = VaultManager;
+type VaultManagerUpdate = {
+  compoundedStabilityFee?: Ratio;
+  // TODO remove backwards compatibility after https://github.com/Agoric/agoric-sdk/issues/7588
+  compoundedInterest: Ratio;
+  latestStabilityFeeUpdate?: bigint;
+  // TODO remove backwards compatibility after https://github.com/Agoric/agoric-sdk/issues/7588
+  latestInterestUpdate: bigint;
+};
 
 type LiquidationAuctionBookUpdate = LiquidationAuctionBook;
 
@@ -329,7 +344,14 @@ export const watchVaultFactory = () => {
       [Kind.Data, path],
       value => {
         console.debug('got update', path, value);
-        useVaultStore.getState().setVaultManager(id, value);
+        const compoundedStabilityFee =
+          value.compoundedStabilityFee ?? value.compoundedInterest;
+        const latestStabilityFeeUpdate =
+          value.latestStabilityFeeUpdate ?? value.latestInterestUpdate;
+        useVaultStore.getState().setVaultManager(id, {
+          compoundedStabilityFee,
+          latestStabilityFeeUpdate,
+        });
       },
       e => {
         console.error('Error watching vault manager', id, e);

@@ -42,8 +42,8 @@ declare module '@agoric/wallet-backend' {
 declare module '@agoric/inter-protocol/src/interest-math' {
   export const calculateCurrentDebt: (
     debtSnapshot: Amount<'nat'>,
-    interestSnapshot: Ratio,
-    currentCompoundedInterest: Ratio,
+    stabilityFeeSnapshot: Ratio,
+    currentCompoundedStabilityFee: Ratio,
   ) => Amount<'nat'>;
 }
 

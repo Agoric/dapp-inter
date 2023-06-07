@@ -338,8 +338,8 @@ const VaultSummary = ({ vaultKey }: Props) => {
 
     const totalDebt = calculateCurrentDebt(
       debtSnapshot.debt,
-      debtSnapshot.interest,
-      manager.compoundedInterest,
+      debtSnapshot.stabilityFee,
+      manager.compoundedStabilityFee,
     );
 
     if (vault.vaultState === 'liquidated') {
