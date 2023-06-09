@@ -7,6 +7,7 @@ global.fetch = fetch;
 global.harden = val => val;
 
 const fakeRpcAddr = 'https://agoric-rpc.vitest-nodes.com:443';
+const fakeChainId = 'agoric-unit-test-1';
 const serialize = (val: unknown) => val;
 const unserialize = (val: unknown) => val;
 
@@ -14,7 +15,11 @@ let watcher: ReturnType<typeof makeAgoricChainStorageWatcher>;
 
 describe('makeAgoricChainStorageWatcher', () => {
   beforeEach(() => {
-    watcher = makeAgoricChainStorageWatcher(fakeRpcAddr, unserialize);
+    watcher = makeAgoricChainStorageWatcher(
+      fakeRpcAddr,
+      fakeChainId,
+      unserialize,
+    );
     vi.useFakeTimers();
   });
 

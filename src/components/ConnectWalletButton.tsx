@@ -4,6 +4,7 @@ import { Oval } from 'react-loader-spinner';
 import {
   ChainConnection,
   chainConnectionAtom,
+  chainStorageWatcherAtom,
   isWalletConnectionInProgressAtom,
   localStorageStore,
   networkConfigAtom,
@@ -18,6 +19,7 @@ const truncatedAddress = (chainConnection: ChainConnection) =>
 
 const ConnectWalletButton = () => {
   const walletService = useAtomValue(walletServiceAtom);
+  const chainStorageWatcher = useAtomValue(chainStorageWatcherAtom);
   const isConnectionInProgress = useAtomValue(isWalletConnectionInProgressAtom);
   const chainConnection = useAtomValue(chainConnectionAtom);
   const { url } = useAtomValue(networkConfigAtom);
@@ -26,10 +28,11 @@ const ConnectWalletButton = () => {
   // Automatically connect if the user has previously connected.
   useEffect(() => {
     if (
+      chainStorageWatcher &&
       hasWalletPreviouslyConnected &&
       !(isConnectionInProgress || chainConnection)
     ) {
-      walletService.connect(url);
+      walletService.connect();
     }
   }, [
     chainConnection,
@@ -37,6 +40,7 @@ const ConnectWalletButton = () => {
     isConnectionInProgress,
     url,
     walletService,
+    chainStorageWatcher,
   ]);
 
   const status = (() => {
@@ -57,7 +61,7 @@ const ConnectWalletButton = () => {
           !chainConnection &&
           'hover:bg-black hover:bg-opacity-5',
       )}
-      onClick={() => walletService.connect(url)}
+      onClick={() => walletService.connect()}
     >
       <>
         {status}

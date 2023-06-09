@@ -3,7 +3,6 @@ import {
   isDisclaimerDialogShowingAtom,
   latestDisclaimerIndex,
   localStorageStore,
-  networkConfigAtom,
   walletServiceAtom,
 } from 'store/app';
 import { useAtom, useAtomValue } from 'jotai';
@@ -13,7 +12,6 @@ import { disclaimerHref } from 'config';
 
 const DisclaimerDialog = () => {
   const walletService = useAtomValue(walletServiceAtom);
-  const { url } = useAtomValue(networkConfigAtom);
   const { setlatestDisclaimerAgreedIndex } = useStore(localStorageStore);
   const [isDisclaimerDialogShowing, setIsDisclaimerDialogShowing] = useAtom(
     isDisclaimerDialogShowingAtom,
@@ -23,7 +21,7 @@ const DisclaimerDialog = () => {
   const proceed = () => {
     setlatestDisclaimerAgreedIndex(latestDisclaimerIndex);
     setIsDisclaimerDialogShowing(false);
-    walletService.connect(url, false);
+    walletService.connect(false);
   };
 
   const body = (

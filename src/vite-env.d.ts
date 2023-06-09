@@ -9,7 +9,7 @@ declare module '@agoric/ui-components' {
 
 // UNTIL https://github.com/Agoric/agoric-sdk/issues/6591
 declare module '@agoric/web-components' {
-  export const makeAgoricKeplrConnection;
+  export const makeAgoricWalletConnection;
   export const AgoricKeplrConnectionErrors;
   export const BridgeProtocol;
 }
