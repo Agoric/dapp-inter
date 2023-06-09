@@ -34,11 +34,13 @@ const makePathSubscriber = <T>(
  * requests for efficiency.
  *
  * @param rpcAddr RPC server URL
+ * @param chainId the chain id to use
  * @param unserialize CapData unserializer to use
  * @returns
  */
 export const makeAgoricChainStorageWatcher = (
   rpcAddr: string,
+  chainId: string,
   unserialize: FromCapData<string>,
   onError?: (e: Error) => void,
   newPathQueryDelayMs = defaults.newPathQueryDelayMs,
@@ -189,5 +191,7 @@ export const makeAgoricChainStorageWatcher = (
 
   return {
     watchLatest,
+    chainId,
+    rpcAddr,
   };
 };

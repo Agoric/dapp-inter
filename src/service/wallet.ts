@@ -9,7 +9,7 @@ import {
 import { toast } from 'react-toastify';
 import SmartWalletNotFoundToast from 'components/SmartWalletNotFoundToast';
 import {
-  makeAgoricKeplrConnection,
+  makeAgoricWalletConnection,
   AgoricKeplrConnectionErrors as Errors,
 } from '@agoric/web-components';
 import type { Id as ToastId, ToastContent, ToastOptions } from 'react-toastify';
@@ -85,12 +85,12 @@ export const makeWalletService = () => {
     toastId = toast.error(content, options);
   };
 
-  const connect = async (
-    networkConfigUrl: string,
-    shouldCheckDisclaimer = true,
-  ) => {
-    const { isWalletConnectionInProgress, chainConnection, importContext } =
-      appStore.getState();
+  const connect = async (shouldCheckDisclaimer = true) => {
+    const {
+      isWalletConnectionInProgress,
+      chainConnection,
+      chainStorageWatcher,
+    } = appStore.getState();
 
     if (isWalletConnectionInProgress || chainConnection) return;
 
@@ -105,10 +105,7 @@ export const makeWalletService = () => {
 
     appStore.setState({ isWalletConnectionInProgress: true });
     try {
-      const connection = await makeAgoricKeplrConnection(
-        networkConfigUrl,
-        importContext,
-      );
+      const connection = await makeAgoricWalletConnection(chainStorageWatcher);
       appStore.setState({ chainConnection: connection });
       stopWatchingPurses = watchPurses(connection);
       stopWatchingPublicSubscribers = watchPublicSubscribers(connection);

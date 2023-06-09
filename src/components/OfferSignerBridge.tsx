@@ -9,6 +9,7 @@ import {
   bridgeHrefAtom,
   walletUiHrefAtom,
   setIsDappApprovedAtom,
+  chainStorageWatcherAtom,
 } from 'store/app';
 import type { OfferConfig } from 'store/app';
 import { signerTarget } from 'config';
@@ -52,6 +53,7 @@ const WalletBridge = () => {
   const toastId = useRef<Id | null>(null);
   const bridgeHref = useAtomValue(bridgeHrefAtom);
   const walletUiHref = useAtomValue(walletUiHrefAtom);
+  const watcher = useAtomValue(chainStorageWatcherAtom);
 
   const clearCurrentToast = () =>
     toastId.current && toast.dismiss(toastId.current);
@@ -142,14 +144,14 @@ const WalletBridge = () => {
 
   return (
     <div className="hidden">
-      {chainConnection && (
+      {chainConnection && watcher && (
         <DappWalletBridge
           bridgeHref={bridgeHref}
           onBridgeMessage={onBridgeMessage}
           onBridgeReady={onBridgeReady}
           onError={onError}
           address={chainConnection.address}
-          chainId={chainConnection.chainId}
+          chainId={watcher.chainId}
         />
       )}
     </div>

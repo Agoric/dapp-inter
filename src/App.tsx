@@ -20,7 +20,7 @@ import { secondsSinceEpoch } from 'utils/date';
 import { vaultStoreAtom } from 'store/vaults';
 import AppVersionDialog from 'components/AppVersionDialog';
 import { currentlyVisitedHash, ipfsHashLength } from 'utils/ipfs';
-import { fetchRPCAddr } from 'utils/rpc';
+import { fetchChainInfo } from 'utils/rpc';
 import { makeAgoricChainStorageWatcher } from 'rpc';
 
 import 'react-toastify/dist/ReactToastify.css';
@@ -93,11 +93,12 @@ const App = () => {
     if (chainStorageWatcher) return;
     const startWatching = async () => {
       try {
-        const rpcAddr = await fetchRPCAddr(netConfig.url);
+        const { rpc, chainName } = await fetchChainInfo(netConfig.url);
         if (isCancelled) return;
         setChainStorageWatcher(
           makeAgoricChainStorageWatcher(
-            rpcAddr,
+            rpc,
+            chainName,
             importContext.fromBoard.unserialize,
             e => {
               setError(e);
@@ -105,6 +106,7 @@ const App = () => {
             },
           ),
         );
+
         watchVbank();
       } catch (e) {
         if (isCancelled) return;
