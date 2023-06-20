@@ -20,9 +20,9 @@ export const batchVstorageQuery = (
   const options = {
     method: 'POST',
     body: JSON.stringify(
-      paths.map(path => ({
+      paths.map((path, index) => ({
         jsonrpc: '2.0',
-        id: 1,
+        id: index,
         method: 'abci_query',
         params: { path: `/custom/vstorage/${path[0]}/${path[1]}` },
       })),
@@ -33,7 +33,9 @@ export const batchVstorageQuery = (
     .then(res => res.json())
     .then(res =>
       Object.fromEntries(
-        (Array.isArray(res) ? res : [res]).map((entry, index) => {
+        (Array.isArray(res) ? res : [res]).map(entry => {
+          const { id: index } = entry;
+
           if (entry.result.response.code) {
             return [
               pathToKey(paths[index]),
