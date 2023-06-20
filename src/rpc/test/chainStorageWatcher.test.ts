@@ -35,8 +35,8 @@ describe('makeAgoricChainStorageWatcher', () => {
 
     fetch.mockResolvedValue(
       createFetchResponse([
-        { value: expected1, kind: AgoricChainStoragePathKind.Data },
-        { value: expected2, kind: AgoricChainStoragePathKind.Children },
+        { value: expected1, kind: AgoricChainStoragePathKind.Data, id: 0 },
+        { value: expected2, kind: AgoricChainStoragePathKind.Children, id: 1 },
       ]),
     );
 
@@ -63,7 +63,7 @@ describe('makeAgoricChainStorageWatcher', () => {
       body: JSON.stringify([
         {
           jsonrpc: '2.0',
-          id: 1,
+          id: 0,
           method: 'abci_query',
           params: { path: `/custom/vstorage/data/${path}` },
         },
@@ -84,6 +84,7 @@ describe('makeAgoricChainStorageWatcher', () => {
     fetch.mockResolvedValue(
       createFetchResponse([
         {
+          id: 0,
           value: expected1,
           kind: AgoricChainStoragePathKind.Data,
           blockHeight: 123,
@@ -110,6 +111,7 @@ describe('makeAgoricChainStorageWatcher', () => {
     fetch.mockResolvedValue(
       createFetchResponse([
         {
+          id: 0,
           value: expected2,
           kind: AgoricChainStoragePathKind.Data,
           blockHeight: 456,
@@ -129,6 +131,7 @@ describe('makeAgoricChainStorageWatcher', () => {
     fetch.mockResolvedValue(
       createFetchResponse([
         {
+          id: 0,
           value: expected1,
           kind: AgoricChainStoragePathKind.Children,
         },
@@ -154,6 +157,7 @@ describe('makeAgoricChainStorageWatcher', () => {
     fetch.mockResolvedValue(
       createFetchResponse([
         {
+          id: 0,
           value: expected2,
           kind: AgoricChainStoragePathKind.Children,
         },
@@ -172,6 +176,7 @@ describe('makeAgoricChainStorageWatcher', () => {
     fetch.mockResolvedValue(
       createFetchResponse([
         {
+          id: 0,
           value: null,
           kind: AgoricChainStoragePathKind.Children,
           code: 6,
@@ -199,6 +204,7 @@ describe('makeAgoricChainStorageWatcher', () => {
     fetch.mockResolvedValue(
       createFetchResponse([
         {
+          id: 0,
           value: expected1,
           kind: AgoricChainStoragePathKind.Children,
         },
@@ -234,12 +240,13 @@ const createFetchResponse = (
     blockHeight?: number;
     code?: number;
     log?: string;
+    id: number;
   }[],
 ) => ({
   json: () =>
     new Promise(res =>
       res(
-        values.map(({ kind, value, blockHeight, code = 0, log }) => {
+        values.map(({ kind, value, blockHeight, code = 0, log, id }) => {
           const data =
             kind === AgoricChainStoragePathKind.Children
               ? { children: value }
@@ -251,6 +258,7 @@ const createFetchResponse = (
                 };
 
           return {
+            id,
             result: {
               response: {
                 value: window.btoa(JSON.stringify(data)),
