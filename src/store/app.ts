@@ -18,7 +18,7 @@ import { makeWalletService } from 'service/wallet';
 import type { DisplayInfo, Brand, AssetKind } from '@agoric/ertp/src/types';
 import type { PursesJSONState } from '@agoric/wallet-backend';
 import { secondsSinceEpoch } from 'utils/date';
-import { makeAgoricChainStorageWatcher } from 'rpc';
+import { makeAgoricChainStorageWatcher } from '@agoric/rpc';
 
 export type BrandInfo = DisplayInfo<'nat'> & {
   petname: string;

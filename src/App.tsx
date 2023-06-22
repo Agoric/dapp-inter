@@ -21,7 +21,7 @@ import { vaultStoreAtom } from 'store/vaults';
 import AppVersionDialog from 'components/AppVersionDialog';
 import { currentlyVisitedHash, ipfsHashLength } from 'utils/ipfs';
 import { fetchChainInfo } from 'utils/rpc';
-import { makeAgoricChainStorageWatcher } from 'rpc';
+import { makeAgoricChainStorageWatcher } from '@agoric/rpc';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';

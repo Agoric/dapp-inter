@@ -16,7 +16,7 @@ import type {
   VaultMetrics,
   LiquidationAuctionBook,
 } from 'store/vaults';
-import { AgoricChainStoragePathKind as Kind } from 'rpc';
+import { AgoricChainStoragePathKind as Kind } from '@agoric/rpc';
 
 type ValuePossessor<T> = {
   value: T;

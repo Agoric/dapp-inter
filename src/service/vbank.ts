@@ -1,6 +1,6 @@
 import { appStore } from 'store/app';
 import type { DisplayInfo, Brand } from '@agoric/ertp/src/types';
-import { AgoricChainStoragePathKind as Kind } from 'rpc';
+import { AgoricChainStoragePathKind as Kind } from '@agoric/rpc';
 
 type VbankInfo = {
   brand: Brand;
