@@ -1,10 +1,9 @@
-import { useState } from 'react';
+import { Suspense, useState, useEffect, lazy } from 'react';
 import OfferSignerBridge from 'components/OfferSignerBridge';
 import { ToastContainer } from 'react-toastify';
 import { RouterProvider, createHashRouter } from 'react-router-dom';
 import Vaults from 'views/Vaults';
 import ErrorPage from 'views/ErrorPage';
-import { useEffect } from 'react';
 import { watchVbank } from 'service/vbank';
 import { useAtomValue, useAtom, useSetAtom } from 'jotai';
 import {
@@ -80,6 +79,8 @@ const useAppVersionWatcher = () => {
   }, [referencedUI, setIsAppVersionOutdated]);
 };
 
+const NetworkDropdown = lazy(() => import('./components/NetworkDropdown'));
+
 const App = () => {
   const netConfig = useAtomValue(networkConfigAtom);
   const importContext = useAtomValue(importContextAtom);
@@ -87,6 +88,14 @@ const App = () => {
     chainStorageWatcherAtom,
   );
   const [error, setError] = useState<unknown | null>(null);
+
+  const networkDropdown = import.meta.env.VITE_NETWORK_CONFIG_URL ? (
+    <></>
+  ) : (
+    <Suspense>
+      <NetworkDropdown />
+    </Suspense>
+  );
 
   useEffect(() => {
     let isCancelled = false;
@@ -142,6 +151,9 @@ const App = () => {
       <div className="w-screen max-w-7xl m-auto">
         {error ? (
           <>
+            <div className="flex justify-end flex-row space-x-2 items-center mr-6 m-2">
+              {networkDropdown}
+            </div>
             <div>Error connecting to chain</div>
             <details>{error.toString()}</details>
           </>
