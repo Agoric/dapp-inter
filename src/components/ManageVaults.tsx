@@ -62,15 +62,12 @@ const noticeProps = {
 const ManageVaults = () => {
   const setVaultKeyToAdjust = useSetAtom(vaultKeyToAdjustAtom);
   const vaults = useAtomValue(vaultsAtom);
-  const { prices, vaultParams, managers, books, schedule } = useVaultStore(
-    state => ({
-      vaultParams: state.vaultGovernedParams,
-      prices: state.prices,
-      managers: state.vaultManagers,
-      books: state.liquidationAuctionBooks,
-      schedule: state.liquidationSchedule,
-    }),
-  );
+  const { prices, vaultParams, managers, metrics } = useVaultStore(state => ({
+    vaultParams: state.vaultGovernedParams,
+    prices: state.prices,
+    managers: state.vaultManagers,
+    metrics: state.vaultMetrics,
+  }));
 
   const chainConnection = useAtomValue(chainConnectionAtom);
   const isConnectionInProgress = useAtomValue(isWalletConnectionInProgressAtom);
@@ -135,7 +132,7 @@ const ManageVaults = () => {
   const vaultAtRiskCount =
     vaults &&
     [...vaults.values()].filter(vault =>
-      isVaultAtRisk(vault, managers, vaultParams, prices, books, schedule),
+      isVaultAtRisk(vault, managers, metrics, vaultParams, prices),
     ).length;
 
   const vaultCount = (

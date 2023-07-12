@@ -42,15 +42,8 @@ type VaultToAdjust = {
 };
 
 export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
-  const {
-    vaults,
-    vaultManagers,
-    prices,
-    vaultGovernedParams,
-    vaultMetrics,
-    liquidationAuctionBooks,
-    liquidationSchedule,
-  } = get(vaultStoreAtom);
+  const { vaults, vaultManagers, prices, vaultGovernedParams, vaultMetrics } =
+    get(vaultStoreAtom);
   const key = get(vaultKeyToAdjustAtom);
 
   const vault = key && vaults?.get(key);
@@ -68,9 +61,7 @@ export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
     return null;
   }
 
-  const lockedPrice = liquidationSchedule?.activeStartTime
-    ? undefined
-    : liquidationAuctionBooks.get(managerId)?.startPrice ?? undefined;
+  const lockedPrice = metrics.lockedQuote;
 
   const totalLockedValue = ceilMultiplyBy(
     locked,
@@ -90,10 +81,9 @@ export const vaultToAdjustAtom = atom<VaultToAdjust | null>(get => {
   const isAtRisk = isVaultAtRisk(
     vault,
     vaultManagers,
+    vaultMetrics,
     vaultGovernedParams,
     prices,
-    liquidationAuctionBooks,
-    liquidationSchedule,
   );
 
   return {

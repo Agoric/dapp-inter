@@ -229,7 +229,6 @@ const VaultSummary = ({ vaultKey }: Props) => {
     vaultGovernedParams,
     vaultManagerLoadingErrors,
     managers,
-    books,
     liquidationSchedule,
   } = useVaultStore(state => ({
     vaults: state.vaults,
@@ -241,7 +240,6 @@ const VaultSummary = ({ vaultKey }: Props) => {
     vaultManagerLoadingErrors: state.vaultManagerLoadingErrors,
     managers: state.vaultManagers,
     liquidationSchedule: state.liquidationSchedule,
-    books: state.liquidationAuctionBooks,
   }));
 
   const currentTime = useAtomValue(currentTimeAtom);
@@ -255,7 +253,6 @@ const VaultSummary = ({ vaultKey }: Props) => {
   const setDebtAction = useSetAtom(debtActionAtom);
   const [isCloseVaultDialogOpen, setIsCloseVaultDialogOpen] = useState(false);
 
-  const book = books.get(vault?.managerId ?? '');
   const metrics = vaultMetrics.get(vault?.managerId ?? '');
   const params = vaultGovernedParams.get(vault?.managerId ?? '');
   const brand = metrics?.totalCollateral?.brand;
@@ -377,9 +374,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
       makeRatioFromAmounts(price.amountOut, price.amountIn),
     );
 
-    // If `activeStartTime` is truthy, then `startPrice` is the *current* auction price, so discard.
-    const nextAuctionPrice =
-      !liquidationSchedule?.activeStartTime && book?.startPrice;
+    const nextAuctionPrice = metrics?.lockedQuote;
 
     const collateralizationRatio = AmountMath.isEmpty(totalDebt)
       ? undefined
@@ -618,7 +613,6 @@ const VaultSummary = ({ vaultKey }: Props) => {
     manager,
     displayFunctions,
     liquidationSchedule,
-    book,
     currentTime,
     isCloseVaultDialogOpen,
     setCollateralAction,

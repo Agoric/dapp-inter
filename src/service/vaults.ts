@@ -14,9 +14,9 @@ import type {
   LiquidationSchedule,
   VaultInfoChainData,
   VaultMetrics,
-  LiquidationAuctionBook,
 } from 'store/vaults';
 import { AgoricChainStoragePathKind as Kind } from '@agoric/rpc';
+import { invertRatio } from '@agoric/zoe/src/contractSupport';
 
 type ValuePossessor<T> = {
   value: T;
@@ -247,8 +247,6 @@ type VaultManagerUpdate = {
   latestInterestUpdate: bigint;
 };
 
-type LiquidationAuctionBookUpdate = LiquidationAuctionBook;
-
 type VaultFactoryParamsUpdate = {
   current: {
     MinInitialDebt: ValuePossessor<Amount<'nat'>>;
@@ -308,26 +306,14 @@ export const watchVaultFactory = () => {
       [Kind.Data, path],
       value => {
         console.debug('got update', path, value);
-        useVaultStore.getState().setVaultMetrics(id, value);
+        useVaultStore.getState().setVaultMetrics(id, {
+          ...value,
+          // Invert the lockedQuote to be congruent with oracle price quotes.
+          lockedQuote: value.lockedQuote && invertRatio(value.lockedQuote),
+        });
       },
       e => {
         console.error('Error watching vault manager metrics', id, e);
-        useVaultStore.getState().setVaultManagerLoadingError(id, e);
-      },
-    );
-    subscriptionStoppers.push(s);
-  };
-
-  const watchLiquidationAuctionBook = (id: string) => {
-    const path = `published.auction.${id.replace('manager', 'book')}`;
-    const s = chainStorageWatcher.watchLatest<LiquidationAuctionBookUpdate>(
-      [Kind.Data, path],
-      value => {
-        console.debug('got update', path, value);
-        useVaultStore.getState().setLiquidationAuctionBook(id, value);
-      },
-      e => {
-        console.error('Error watching vault manager book', id, e);
         useVaultStore.getState().setVaultManagerLoadingError(id, e);
       },
     );
@@ -338,7 +324,6 @@ export const watchVaultFactory = () => {
     watchGovernedParams(path);
     watchMetrics(path);
     const id = managerIdFromPath(path);
-    watchLiquidationAuctionBook(id);
 
     const s = chainStorageWatcher.watchLatest<VaultManagerUpdate>(
       [Kind.Data, path],
