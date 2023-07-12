@@ -21,23 +21,16 @@ export const valueToReceiveAtom = atom<NatValue | null>(null);
 const selectedCollateralIdInternal = atom<string | null>(null);
 
 const getVaultInputData = (get: Getter, selectedCollateralId: string) => {
-  const {
-    vaultMetrics,
-    vaultGovernedParams,
-    prices,
-    liquidationSchedule,
-    liquidationAuctionBooks,
-  } = get(vaultStoreAtom);
+  const { vaultMetrics, vaultGovernedParams, prices } = get(vaultStoreAtom);
 
   const collateralBrand =
     selectedCollateralId && vaultMetrics?.has(selectedCollateralId)
       ? vaultMetrics.get(selectedCollateralId)?.retainedCollateral.brand
       : null;
 
-  const lockedPrice = liquidationSchedule?.activeStartTime
-    ? undefined
-    : liquidationAuctionBooks?.get(selectedCollateralId)?.startPrice ??
-      undefined;
+  const lockedPrice = selectedCollateralId
+    ? vaultMetrics.get(selectedCollateralId)?.lockedQuote
+    : undefined;
 
   const collateralPriceDescription =
     collateralBrand && prices.get(collateralBrand);

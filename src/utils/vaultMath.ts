@@ -7,20 +7,19 @@ import {
   makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
 import { AmountMath } from '@agoric/ertp';
-import {
+import { CollateralAction, DebtAction } from 'store/adjustVault';
+import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
+import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
+import type {
   DebtSnapshot,
-  LiquidationAuctionBook,
-  LiquidationSchedule,
   PriceDescription,
   Ratio,
   VaultInfo,
   VaultManager,
+  VaultMetrics,
   VaultParams,
 } from 'store/vaults';
-import { Amount, Brand, NatValue } from '@agoric/ertp/src/types';
-import { CollateralAction, DebtAction } from 'store/adjustVault';
-import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
-import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
+import type { Amount, Brand, NatValue } from '@agoric/ertp/src/types';
 
 export const isLiquidationPriceBelowGivenPrice = (
   locked: Amount<'nat'>,
@@ -237,25 +236,23 @@ export const currentCollateralization = (
 export const isVaultAtRisk = (
   vault: VaultInfo,
   managers: Map<string, VaultManager>,
+  metrics: Map<string, VaultMetrics>,
   vaultParams: Map<string, VaultParams>,
   prices: Map<Brand, PriceDescription>,
-  books: Map<string, LiquidationAuctionBook>,
-  schedule: LiquidationSchedule | null,
 ) => {
   const isLiquidating = vault.vaultState === 'liquidating';
   const manager = managers.get(vault.managerId ?? '');
   const params = vaultParams.get(vault.managerId ?? '');
+  const selectedMetrics = metrics.get(vault.managerId ?? '');
   const { debtSnapshot, locked } = vault;
   const brand = locked?.brand;
   const price = brand && prices.get(brand);
-  const book = books.get(vault?.managerId ?? '');
 
   if (!(debtSnapshot && manager && price && params)) {
     return false;
   }
 
-  // If `activeStartTime` is truthy, then `startPrice` is the *current* auction price, so ignore.
-  const nextAuctionPrice = !schedule?.activeStartTime && book?.startPrice;
+  const nextAuctionPrice = selectedMetrics?.lockedQuote;
 
   const totalDebt = calculateCurrentDebt(
     debtSnapshot.debt,

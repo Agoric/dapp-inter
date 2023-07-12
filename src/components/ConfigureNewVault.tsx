@@ -23,15 +23,12 @@ const ConfigureNewVault = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
     useAtomValue(inputErrorsAtom);
 
-  const { metrics, params, prices, books, schedule } = useVaultStore(
-    vaults => ({
-      metrics: vaults.vaultMetrics,
-      params: vaults.vaultGovernedParams,
-      prices: vaults.prices,
-      books: vaults.liquidationAuctionBooks,
-      schedule: vaults.liquidationSchedule,
-    }),
-  );
+  const { metrics, params, prices, schedule } = useVaultStore(vaults => ({
+    metrics: vaults.vaultMetrics,
+    params: vaults.vaultGovernedParams,
+    prices: vaults.prices,
+    schedule: vaults.liquidationSchedule,
+  }));
 
   const { displayPercent, displayBrandPetname, displayPrice } =
     useAtomValue(displayFunctionsAtom) ?? {};
@@ -86,11 +83,8 @@ const ConfigureNewVault = () => {
       collateralPrice,
     )}`;
 
-  // Start price of next auction if one isn't in progress, otherwise undefined.
-  const lockedPrice =
-    schedule?.activeStartTime || !selectedCollateralId
-      ? undefined
-      : books.get(selectedCollateralId)?.startPrice ?? undefined;
+  // Start price of next auction if yet determined, otherwise undefined.
+  const lockedPrice = selectedMetrics?.lockedQuote;
 
   const lockedPriceForDisplay =
     displayBrandPetname &&

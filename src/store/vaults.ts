@@ -44,11 +44,7 @@ export type VaultMetrics = {
   totalOverageReceived: Amount<'nat'>;
   totalProceedsReceived: Amount<'nat'>;
   totalShortfallReceived: Amount<'nat'>;
-};
-
-export type LiquidationAuctionBook = {
-  // Null when outside the price lock period, otherwise the locked price.
-  startPrice: Ratio | null;
+  lockedQuote: Ratio;
 };
 
 export type VaultManager = {
@@ -117,8 +113,6 @@ interface VaultState {
   priceErrors: Map<Brand, unknown>;
   vaultFactoryParams: VaultFactoryParams | null;
   liquidationSchedule: LiquidationSchedule | null;
-  liquidationAuctionBooks: Map<string, LiquidationAuctionBook>;
-  setLiquidationAuctionBook: (id: string, book: LiquidationAuctionBook) => void;
   setPrice: (brand: Brand, priceQuote: PriceQuote) => void;
   setPriceError: (brand: Brand, e: unknown) => void;
   setVaultManagerLoadingError: (id: string, error: unknown) => void;
@@ -144,18 +138,11 @@ export const vaultStore = createStore<VaultState>()(set => ({
   vaultFactoryParams: null,
   vaultGovernedParams: new Map<string, VaultParams>(),
   vaultMetrics: new Map<string, VaultMetrics>(),
-  liquidationAuctionBooks: new Map<string, LiquidationAuctionBook>(),
   prices: new Map<Brand, PriceDescription>(),
   priceErrors: new Map<Brand, unknown>(),
   vaults: null,
   vaultErrors: new Map<string, unknown>(),
   liquidationSchedule: null,
-  setLiquidationAuctionBook: (id: string, book: LiquidationAuctionBook) =>
-    set(state => {
-      const newBooks = new Map(state.liquidationAuctionBooks);
-      newBooks.set(id, book);
-      return { liquidationAuctionBooks: newBooks };
-    }),
   setVaultManagerLoadingError: (id: string, error: unknown) =>
     set(state => {
       const newErrors = new Map(state.vaultManagerLoadingErrors);
