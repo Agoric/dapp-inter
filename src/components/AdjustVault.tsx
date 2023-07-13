@@ -53,8 +53,7 @@ const AdjustVault = () => {
     totalDebt,
   );
 
-  // TODO: Update dynamically.
-  const vaultLabel = 'ATOM';
+  const vaultLabel = displayBrandPetname(locked.brand);
 
   const auctionTimer = useAuctionTimer(schedule);
 

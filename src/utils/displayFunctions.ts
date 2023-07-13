@@ -20,6 +20,8 @@ const getLogoForBrandPetname = (brandPetname: string) => {
       return './cosmos-atom-logo.svg';
     case 'ATOM':
       return './cosmos-atom-logo.svg';
+    case 'stATOM':
+      return './statom.svg';
   }
 };
 
