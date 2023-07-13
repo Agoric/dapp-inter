@@ -113,9 +113,9 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
 
   const logoSrc = displayBrandIcon(metrics.totalCollateral.brand);
 
-  // TODO: Come up with a naming scheme after rc0
-  // https://github.com/Agoric/agoric-sdk/issues/6518
-  const collateralTitle = 'ATOM';
+  // TODO: Come up with a naming scheme for multiple managers of the same
+  // collateral type after rc0 https://github.com/Agoric/agoric-sdk/issues/6518
+  const collateralTitle = displayBrandPetname(metrics.totalCollateral.brand);
 
   const isSelected = selectedCollateralId === id;
 

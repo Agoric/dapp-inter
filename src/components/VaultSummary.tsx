@@ -317,8 +317,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
     const brandIcon = displayBrandIcon(locked.brand);
     const brandPetname = displayBrandPetname(locked.brand);
 
-    // TODO: Update dynamically.
-    const collateralLabel = 'ATOM';
+    const collateralLabel = brandPetname;
 
     if (vault.vaultState === 'closed') {
       return {
