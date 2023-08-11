@@ -14,17 +14,18 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@agoric/cosmic-proto": "^0.3.0",
+    "@agoric/ertp": "^0.16.2",
+    "@agoric/inter-protocol": "^0.16.1",
     "@agoric/rpc": "^0.6.0",
-    "@agoric/ertp": "^0.16.3-dev-f581a7e.0",
-    "@agoric/inter-protocol": "^0.16.2-dev-f581a7e.0",
-    "@agoric/smart-wallet": "^0.5.4-dev-f581a7e.0",
+    "@agoric/smart-wallet": "^0.5.3",
     "@agoric/ui-components": "^0.9.0",
-    "@agoric/wallet": "^0.18.4-dev-f581a7e.0",
-    "@agoric/web-components": "^0.12.0",
-    "@agoric/zoe": "^0.26.3-dev-f581a7e.0",
-    "@endo/eventual-send": "^0.17.2",
-    "@endo/init": "^0.5.56",
-    "@endo/marshal": "^0.8.5",
+    "@agoric/wallet": "^0.18.3",
+    "@agoric/web-components": "0.12.1-dev-74299fa.0",
+    "@agoric/zoe": "^0.26.2",
+    "@endo/eventual-send": "^0.17.6",
+    "@endo/init": "^0.5.60",
+    "@endo/marshal": "^0.8.9",
     "@headlessui/react": "^1.6.6",
     "clsx": "^1.2.1",
     "framer-motion": "^7.2.1",
@@ -63,5 +64,9 @@
     "vite": "^4.3.2",
     "vite-tsconfig-paths": "^4.2.0",
     "vitest": "^0.32.0"
+  },
+  "resolutions": {
+    "**/@agoric/xsnap": "0.14.3-dev-9f085d3.0",
+    "**/@agoric/time": "0.3.3-dev-97cb715.0"
   }
 }

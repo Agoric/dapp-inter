@@ -1,6 +1,4 @@
-import { signerTarget } from 'config';
-import { useSetAtom, useAtomValue } from 'jotai';
-import { walletUiHrefAtom } from 'store/app';
+import { useSetAtom } from 'jotai';
 import { ViewMode, viewModeAtom } from 'store/vaults';
 import ActionsDialog from './ActionsDialog';
 
@@ -9,16 +7,10 @@ type Props = {
   onClose: () => void;
 };
 
-const message =
-  'Your vault creation request has been successfully submitted. Go to your Agoric Smart Wallet to approve. Once your offer is approved, you will be able to view and manage your vault.';
+const message = 'You can manage your vaults from the "My Vaults" view.';
 
 const VaultCreationDialog = ({ isOpen, onClose }: Props) => {
-  const walletUrl = useAtomValue(walletUiHrefAtom);
   const setViewMode = useSetAtom(viewModeAtom);
-
-  const goToWallet = () => {
-    window.open(walletUrl, signerTarget);
-  };
 
   const goToVaults = () => {
     onClose();
@@ -27,12 +19,12 @@ const VaultCreationDialog = ({ isOpen, onClose }: Props) => {
 
   return (
     <ActionsDialog
-      title="Success: Offer Submitted"
+      title="Success: Vault Created"
       body={<p>{message}</p>}
       isOpen={isOpen}
       onClose={onClose}
-      primaryAction={{ action: goToWallet, label: 'Go to wallet' }}
-      secondaryAction={{ action: goToVaults, label: 'Back to vaults' }}
+      primaryAction={{ action: goToVaults, label: 'Manage my Vaults' }}
+      secondaryAction={{ action: onClose, label: 'Create Another Vault' }}
     />
   );
 };

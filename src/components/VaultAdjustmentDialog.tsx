@@ -1,6 +1,4 @@
-import { signerTarget } from 'config';
-import { useSetAtom, useAtomValue } from 'jotai';
-import { walletUiHrefAtom } from 'store/app';
+import { useSetAtom } from 'jotai';
 import { ViewMode, viewModeAtom } from 'store/vaults';
 import ActionsDialog from './ActionsDialog';
 
@@ -9,16 +7,10 @@ type Props = {
   onClose: () => void;
 };
 
-const message =
-  'Your vault adjustment request has been successfully submitted. Go to your Agoric Smart Wallet to approve.';
+const message = "Your vault's balances have been updated.";
 
 const VaultAdjustmentDialog = ({ isOpen, onClose }: Props) => {
-  const walletUrl = useAtomValue(walletUiHrefAtom);
   const setViewMode = useSetAtom(viewModeAtom);
-
-  const goToWallet = () => {
-    window.open(walletUrl, signerTarget);
-  };
 
   const goToVaults = () => {
     onClose();
@@ -27,12 +19,12 @@ const VaultAdjustmentDialog = ({ isOpen, onClose }: Props) => {
 
   return (
     <ActionsDialog
-      title="Success: Offer Submitted"
+      title="Success: Vault Adjusted"
       body={<p>{message}</p>}
       isOpen={isOpen}
       onClose={onClose}
-      primaryAction={{ action: goToWallet, label: 'Go to wallet' }}
-      secondaryAction={{ action: goToVaults, label: 'Back to vaults' }}
+      primaryAction={{ action: goToVaults, label: 'Back to my vaults' }}
+      secondaryAction={{ action: onClose, label: 'Adjust more' }}
     />
   );
 };
