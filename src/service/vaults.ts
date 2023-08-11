@@ -1,7 +1,6 @@
 import { useVaultStore, vaultLocalStorageStore } from 'store/vaults';
 import { appStore } from 'store/app';
 import { toast } from 'react-toastify';
-import { CapData } from '@endo/marshal';
 import { calculateMinimumCollateralization } from '@agoric/inter-protocol/src/vaultFactory/math';
 import { CollateralAction, DebtAction } from 'store/adjustVault';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
@@ -413,8 +412,10 @@ export const watchVaultFactory = () => {
 export const makeOpenVaultOffer = async (
   toLock: Amount<'nat'>,
   toMint: Amount<'nat'>,
+  onSuccess?: () => void,
 ) => {
-  const { importContext, offerSigner } = appStore.getState();
+  const { chainConnection } = appStore.getState();
+  assert(chainConnection);
 
   const spec: AgoricContractInvitationSpec = {
     source: 'agoricContract',
@@ -425,50 +426,46 @@ export const makeOpenVaultOffer = async (
     ],
   };
 
-  const invitationSpec = importContext.fromBoard.serialize(harden(spec));
-
-  const serializedToLock = importContext.fromBoard.serialize(
-    toLock,
-  ) as CapData<'Amount'>;
-  const serializedtoMint = importContext.fromBoard.serialize(
-    toMint,
-  ) as CapData<'Amount'>;
-
-  const offerConfig = {
-    invitationSpec,
-    proposalTemplate: harden({
-      give: {
-        Collateral: {
-          amount: serializedToLock,
-        },
-      },
-      want: {
-        Minted: {
-          amount: serializedtoMint,
-        },
-      },
-    }),
+  const proposal = {
+    give: {
+      Collateral: toLock,
+    },
+    want: {
+      Minted: toMint,
+    },
   };
 
-  try {
-    assert(offerSigner.addOffer && offerSigner.isDappApproved);
-    offerSigner.addOffer(offerConfig);
-    console.log('Offer proposed', offerConfig);
-  } catch (e: unknown) {
-    console.error(e);
-    toast.error('Unable to propose offer.');
-    throw e;
-  }
+  const toastId = toast.info('Submitting transaction...', { isLoading: true });
+  chainConnection.makeOffer(
+    spec,
+    proposal,
+    undefined,
+    ({ status, data }: { status: string; data: object }) => {
+      if (status === 'error') {
+        console.error('Offer error', data);
+        toast.dismiss(toastId);
+        toast.error(`Offer failed: ${data}`);
+      }
+      if (status === 'refunded') {
+        toast.dismiss(toastId);
+        toast.error('Offer refunded');
+      }
+      if (status === 'accepted') {
+        toast.dismiss(toastId);
+        onSuccess && onSuccess();
+      }
+    },
+  );
 };
 
 type Proposal = {
   give: {
-    Collateral?: { amount: CapData<string> };
-    Minted?: { amount: CapData<string> };
+    Collateral?: Amount<'nat'>;
+    Minted?: Amount<'nat'>;
   };
   want: {
-    Collateral?: { amount: CapData<string> };
-    Minted?: { amount: CapData<string> };
+    Collateral?: Amount<'nat'>;
+    Minted?: Amount<'nat'>;
   };
 };
 
@@ -476,14 +473,17 @@ type AdjustParams = {
   vaultOfferId: string;
   collateral?: { amount: Amount<'nat'>; action: CollateralAction };
   debt?: { amount: Amount<'nat'>; action: DebtAction };
+  onSuccess?: () => void;
 };
 
 export const makeAdjustVaultOffer = async ({
   vaultOfferId,
   collateral,
   debt,
+  onSuccess,
 }: AdjustParams) => {
-  const { importContext, offerSigner } = appStore.getState();
+  const { chainConnection } = appStore.getState();
+  assert(chainConnection);
 
   const spec: ContinuingInvitationSpec = {
     source: 'continuing',
@@ -491,53 +491,52 @@ export const makeAdjustVaultOffer = async ({
     invitationMakerName: 'AdjustBalances',
   };
 
-  const invitationSpec = importContext.fromBoard.serialize(harden(spec));
-
   const proposal: Proposal = { give: {}, want: {} };
 
   if (collateral?.action === CollateralAction.Deposit) {
-    proposal.give.Collateral = {
-      amount: importContext.fromBoard.serialize(collateral.amount),
-    };
+    proposal.give.Collateral = collateral.amount;
   }
   if (collateral?.action === CollateralAction.Withdraw) {
-    proposal.want.Collateral = {
-      amount: importContext.fromBoard.serialize(collateral.amount),
-    };
+    proposal.want.Collateral = collateral.amount;
   }
   if (debt?.action === DebtAction.Mint) {
-    proposal.want.Minted = {
-      amount: importContext.fromBoard.serialize(debt.amount),
-    };
+    proposal.want.Minted = debt.amount;
   }
   if (debt?.action === DebtAction.Repay) {
-    proposal.give.Minted = {
-      amount: importContext.fromBoard.serialize(debt.amount),
-    };
+    proposal.give.Minted = debt.amount;
   }
 
-  const offerConfig = {
-    invitationSpec,
-    proposalTemplate: harden(proposal),
-  };
-
-  try {
-    assert(offerSigner.addOffer && offerSigner.isDappApproved);
-    offerSigner.addOffer(offerConfig);
-    console.log('Offer proposed', offerConfig);
-  } catch (e: unknown) {
-    console.error(e);
-    toast.error('Unable to propose offer.');
-    throw e;
-  }
+  const toastId = toast.info('Submitting transaction...', { isLoading: true });
+  chainConnection.makeOffer(
+    spec,
+    proposal,
+    undefined,
+    ({ status, data }: { status: string; data: object }) => {
+      if (status === 'error') {
+        console.error('Offer error', data);
+        toast.dismiss(toastId);
+        toast.error(`Offer failed: ${data}`);
+      }
+      if (status === 'refunded') {
+        toast.dismiss(toastId);
+        toast.error('Offer refunded');
+      }
+      if (status === 'accepted') {
+        toast.dismiss(toastId);
+        onSuccess && onSuccess();
+      }
+    },
+  );
 };
 
 export const makeCloseVaultOffer = async (
   vaultOfferId: string,
   collateral?: Amount<'nat'>,
   debt?: Amount<'nat'>,
+  onSuccess?: () => void,
 ) => {
-  const { importContext, offerSigner } = appStore.getState();
+  const { chainConnection } = appStore.getState();
+  assert(chainConnection);
 
   const spec: ContinuingInvitationSpec = {
     source: 'continuing',
@@ -545,37 +544,30 @@ export const makeCloseVaultOffer = async (
     invitationMakerName: 'CloseVault',
   };
 
-  const invitationSpec = importContext.fromBoard.serialize(harden(spec));
-
-  const collateralToWant = collateral
-    ? {
-        amount: importContext.fromBoard.serialize(collateral),
-      }
-    : undefined;
-
-  const mintedToGive = collateral
-    ? {
-        amount: importContext.fromBoard.serialize(debt),
-      }
-    : undefined;
-
   const proposal = {
-    give: { Minted: mintedToGive },
-    want: { Collateral: collateralToWant },
+    give: { Minted: debt },
+    want: { Collateral: collateral },
   };
 
-  const offerConfig = {
-    invitationSpec,
-    proposalTemplate: harden(proposal),
-  };
-
-  try {
-    assert(offerSigner.addOffer && offerSigner.isDappApproved);
-    offerSigner.addOffer(offerConfig);
-    console.log('Offer proposed', offerConfig);
-  } catch (e: unknown) {
-    console.error(e);
-    toast.error('Unable to propose offer.');
-    throw e;
-  }
+  const toastId = toast.info('Submitting transaction...', { isLoading: true });
+  chainConnection.makeOffer(
+    spec,
+    proposal,
+    undefined,
+    ({ status, data }: { status: string; data: object }) => {
+      if (status === 'error') {
+        console.error('Offer error', data);
+        toast.dismiss(toastId);
+        toast.error(`Offer failed: ${data}`);
+      }
+      if (status === 'refunded') {
+        toast.dismiss(toastId);
+        toast.error('Offer refunded');
+      }
+      if (status === 'accepted') {
+        toast.dismiss(toastId);
+        onSuccess && onSuccess();
+      }
+    },
+  );
 };

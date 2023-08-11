@@ -1,26 +1,24 @@
-import React from 'react';
-import { makeAsyncIterableFromNotifier as iterateNotifier } from '@agoric/notifier';
+import { subscribeLatest } from '@agoric/notifier';
 import {
   appStore,
-  ChainConnection,
   latestDisclaimerIndex,
   localStorageStore,
+  ChainConnection,
 } from 'store/app';
 import { toast } from 'react-toastify';
-import SmartWalletNotFoundToast from 'components/SmartWalletNotFoundToast';
 import {
   makeAgoricWalletConnection,
   AgoricKeplrConnectionErrors as Errors,
 } from '@agoric/web-components';
 import type { Id as ToastId, ToastContent, ToastOptions } from 'react-toastify';
 
-export const watchPurses = (chainConnection: ChainConnection) => {
+const watchPurses = (chainConnection: ChainConnection) => {
   let isCancelled = false;
 
   const watch = async () => {
     const n = chainConnection.pursesNotifier;
 
-    for await (const purses of iterateNotifier(n)) {
+    for await (const purses of subscribeLatest(n)) {
       if (isCancelled) return;
       console.debug('got purses', purses);
       appStore.setState({ purses });
@@ -36,13 +34,13 @@ export const watchPurses = (chainConnection: ChainConnection) => {
   };
 };
 
-export const watchPublicSubscribers = (chainConnection: ChainConnection) => {
+const watchPublicSubscribers = (chainConnection: ChainConnection) => {
   let isCancelled = false;
 
   const watch = async () => {
     const n = chainConnection.publicSubscribersNotifier;
 
-    for await (const entries of iterateNotifier(n)) {
+    for await (const entries of subscribeLatest(n)) {
       if (isCancelled) return;
       if (!entries) continue;
 
@@ -62,6 +60,14 @@ export const watchPublicSubscribers = (chainConnection: ChainConnection) => {
   return () => {
     isCancelled = true;
   };
+};
+
+const watchSmartWalletProvision = async (chainConnection: ChainConnection) => {
+  const n = chainConnection.smartWalletStatusNotifier;
+  for await (const status of subscribeLatest(n)) {
+    console.log('Provision status', status);
+    appStore.setState({ smartWalletProvisioned: status?.provisioned });
+  }
 };
 
 type ConnectionError = {
@@ -109,10 +115,12 @@ export const makeWalletService = () => {
       appStore.setState({ chainConnection: connection });
       stopWatchingPurses = watchPurses(connection);
       stopWatchingPublicSubscribers = watchPublicSubscribers(connection);
+      watchSmartWalletProvision(connection);
       clearToast();
       localStorageStore.getState().setHasWalletPreviouslyConnected(true);
     } catch (e: unknown) {
       clearToast();
+      appStore.setState({ isWalletConnectionInProgress: false });
       localStorageStore.getState().setHasWalletPreviouslyConnected(false);
       switch ((e as ConnectionError).message) {
         case Errors.enableKeplr:
@@ -124,18 +132,22 @@ export const makeWalletService = () => {
         case Errors.networkConfig:
           showToast('Network not found.');
           break;
-        case Errors.noSmartWallet:
-          showToast(
-            React.createElement(SmartWalletNotFoundToast, {
-              hideProgressBar: false,
-              autoClose: autoCloseDelayMs,
-            }),
-          );
+        default:
+          showToast('Error connecting to wallet, see console for more info.');
+          console.error('Unexpected error', e);
           break;
       }
-    } finally {
-      appStore.setState({ isWalletConnectionInProgress: false });
+      return;
     }
+
+    appStore.subscribe((state, prev) => {
+      if (
+        state.smartWalletProvisioned !== null &&
+        prev.smartWalletProvisioned === null
+      ) {
+        appStore.setState({ isWalletConnectionInProgress: false });
+      }
+    });
   };
 
   const disconnect = () => {
@@ -145,9 +157,27 @@ export const makeWalletService = () => {
       offerIdsToPublicSubscribers: null,
       purses: null,
       chainConnection: null,
-      offerSigner: { isDappApproved: false },
     });
   };
 
   return { connect, disconnect };
+};
+
+export const provisionSmartWallet = async (
+  chainConnection: ChainConnection,
+  setProvisionToastId: (id: ToastId | undefined) => void,
+) => {
+  const toastId = toast.info('Provisioning smart wallet...', {
+    isLoading: true,
+  });
+  setProvisionToastId(toastId);
+
+  try {
+    await chainConnection.provisionSmartWallet();
+  } catch (e) {
+    console.error('Provisioning error', e);
+    toast.dismiss(toastId);
+    setProvisionToastId(undefined);
+    toast.error(`Error provisioning smart wallet: ${(e as Error).message}`);
+  }
 };

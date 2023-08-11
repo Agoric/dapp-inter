@@ -1,9 +1,14 @@
 import { AmountMath } from '@agoric/ertp';
 import clsx from 'clsx';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { useMemo, useState } from 'react';
 import { makeOpenVaultOffer } from 'service/vaults';
-import { displayFunctionsAtom, offerSignerAtom } from 'store/app';
+import {
+  chainConnectionAtom,
+  displayFunctionsAtom,
+  provisionToastIdAtom,
+  smartWalletProvisionedAtom,
+} from 'store/app';
 import {
   collateralizationRatioAtom,
   inputErrorsAtom,
@@ -13,6 +18,7 @@ import {
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
 import VaultCreationDialog from './VaultCreationDialog';
+import { provisionSmartWallet } from 'service/wallet';
 
 type TableRowProps = {
   left: string;
@@ -39,7 +45,9 @@ const NewVaultOfferSummary = () => {
   const valueToReceive = useAtomValue(valueToReceiveAtom);
   const valueToLock = useAtomValue(valueToLockAtom);
   const collateralizationRatio = useAtomValue(collateralizationRatioAtom);
-  const offerSigner = useAtomValue(offerSignerAtom);
+  const chainConnection = useAtomValue(chainConnectionAtom);
+  const isSmartWalletProvisioned = useAtomValue(smartWalletProvisionedAtom);
+  const setProvisionToastId = useSetAtom(provisionToastIdAtom);
 
   const { displayAmount, displayBrandPetname, displayPercent } =
     useAtomValue(displayFunctionsAtom) ?? {};
@@ -126,12 +134,17 @@ const NewVaultOfferSummary = () => {
     factoryParams &&
     depositAmount &&
     mintAmount &&
-    !vaultLimitReached &&
-    offerSigner?.isDappApproved;
+    !vaultLimitReached;
 
   const createVault = async () => {
-    await makeOpenVaultOffer(depositAmount, mintAmount);
-    setIsVaultCreationDialogOpen(true);
+    await makeOpenVaultOffer(depositAmount, mintAmount, () =>
+      setIsVaultCreationDialogOpen(true),
+    );
+  };
+
+  const provision = () => {
+    assert(chainConnection);
+    provisionSmartWallet(chainConnection, setProvisionToastId);
   };
 
   const vaultLimitWarning =
@@ -142,19 +155,21 @@ const NewVaultOfferSummary = () => {
       </div>
     ) : null;
 
+  const isSmartWalletMissing = isSmartWalletProvisioned === false;
+
   const createButtonLabel = useMemo(() => {
-    if (!offerSigner?.addOffer) {
+    if (!chainConnection) {
       return 'Connect Wallet';
     }
     if (vaultLimitReached) {
       return 'Vault Limit Reached';
     }
-    if (!offerSigner?.isDappApproved) {
-      return 'Enable Dapp in Wallet';
+    if (isSmartWalletMissing) {
+      return 'Provision Smart Wallet';
     }
 
     return 'Create Vault';
-  }, [offerSigner, vaultLimitReached]);
+  }, [chainConnection, vaultLimitReached, isSmartWalletMissing]);
 
   return (
     <>
@@ -200,12 +215,12 @@ const NewVaultOfferSummary = () => {
         <div
           className={clsx(
             'transition mt-3 mx-3 p-6 rounded-b-10 bg-opacity-[0.15]',
-            canCreateVault ? 'bg-interPurple' : '',
+            canCreateVault || isSmartWalletMissing ? 'bg-interPurple' : '',
           )}
         >
           <button
-            onClick={createVault}
-            disabled={!canCreateVault}
+            onClick={isSmartWalletMissing ? provision : createVault}
+            disabled={!(canCreateVault || isSmartWalletMissing)}
             className="btn-submit"
           >
             {createButtonLabel}

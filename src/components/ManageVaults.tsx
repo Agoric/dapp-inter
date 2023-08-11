@@ -2,6 +2,7 @@ import {
   chainConnectionAtom,
   isWalletConnectionInProgressAtom,
   localStorageStore,
+  smartWalletProvisionedAtom,
 } from 'store/app';
 import { useCallback } from 'react';
 import { useVaultStore, vaultKeyToAdjustAtom, vaultsAtom } from 'store/vaults';
@@ -72,6 +73,7 @@ const ManageVaults = () => {
   const chainConnection = useAtomValue(chainConnectionAtom);
   const isConnectionInProgress = useAtomValue(isWalletConnectionInProgressAtom);
   const { hasWalletPreviouslyConnected } = useStore(localStorageStore);
+  const isSmartWalletProvisioned = useAtomValue(smartWalletProvisionedAtom);
 
   const buttonProps = {
     text: (
@@ -111,7 +113,7 @@ const ManageVaults = () => {
     );
   } else if (!chainConnection) {
     popupContent = 'Connect your wallet to manage your vaults.';
-  } else if (vaults?.size === 0) {
+  } else if (vaults?.size === 0 || isSmartWalletProvisioned === false) {
     popupContent = 'You have not opened any vaults yet.';
   } else if (!vaults) {
     popupContent = (
