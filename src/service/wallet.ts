@@ -2,15 +2,16 @@ import React from 'react';
 import { makeAsyncIterableFromNotifier as iterateNotifier } from '@agoric/notifier';
 import {
   appStore,
-  ChainConnection,
   latestDisclaimerIndex,
   localStorageStore,
+  ChainConnection,
 } from 'store/app';
 import { toast } from 'react-toastify';
 import SmartWalletNotFoundToast from 'components/SmartWalletNotFoundToast';
 import {
   makeAgoricWalletConnection,
   AgoricKeplrConnectionErrors as Errors,
+  suggestChain,
 } from '@agoric/web-components';
 import type { Id as ToastId, ToastContent, ToastOptions } from 'react-toastify';
 
@@ -145,7 +146,6 @@ export const makeWalletService = () => {
       offerIdsToPublicSubscribers: null,
       purses: null,
       chainConnection: null,
-      offerSigner: { isDappApproved: false },
     });
   };
 

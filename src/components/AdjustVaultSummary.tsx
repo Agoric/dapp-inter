@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
-import { displayFunctionsAtom, offerSignerAtom } from 'store/app';
+import { displayFunctionsAtom } from 'store/app';
 import {
   adjustVaultErrorsAtom,
   collateralActionAtom,
@@ -81,8 +81,6 @@ const AdjustVaultSummary = () => {
 
   const isActive = vaultState === 'active';
 
-  const offerSigner = useAtomValue(offerSignerAtom);
-
   const { newDebt, newLocked, newCollateralizationRatio } =
     vaultAfterAdjustment;
 
@@ -102,20 +100,11 @@ const AdjustVaultSummary = () => {
   const canMakeOffer =
     !hasErrors &&
     isActive &&
-    (debtInputAmount?.value || collateralInputAmount?.value) &&
-    offerSigner?.isDappApproved;
+    (debtInputAmount?.value || collateralInputAmount?.value);
 
   const isButtonDisabled = !canMakeOffer;
 
   const offerButtonLabel = useMemo(() => {
-    if (!offerSigner?.isDappApproved) {
-      assert(
-        isButtonDisabled,
-        'Button should be disabled when dapp is not enabled in wallet',
-      );
-      return 'Enable Dapp in Wallet';
-    }
-
     if (!isActive) {
       assert(
         isButtonDisabled,
@@ -126,9 +115,9 @@ const AdjustVaultSummary = () => {
     }
 
     return 'Adjust Vault';
-  }, [isButtonDisabled, isActive, offerSigner?.isDappApproved, vaultState]);
+  }, [isButtonDisabled, isActive, vaultState]);
 
-  const makeAdjustOffer = async () => {
+  const makeAdjustOffer = () => {
     assert(canMakeOffer);
 
     const collateral = collateralInputAmount
@@ -145,13 +134,12 @@ const AdjustVaultSummary = () => {
         }
       : undefined;
 
-    await makeAdjustVaultOffer({
+    makeAdjustVaultOffer({
       vaultOfferId: createdByOfferId,
       collateral,
       debt,
+      onSuccess: () => setIsVaultAdjustmentDialogOpen(true),
     });
-
-    setIsVaultAdjustmentDialogOpen(true);
   };
 
   return (

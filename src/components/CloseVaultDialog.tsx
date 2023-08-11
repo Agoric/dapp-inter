@@ -1,12 +1,7 @@
-import { signerTarget } from 'config';
 import { useSetAtom, useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
 import { makeCloseVaultOffer } from 'service/vaults';
-import {
-  displayFunctionsAtom,
-  offerSignerAtom,
-  walletUiHrefAtom,
-} from 'store/app';
+import { displayFunctionsAtom } from 'store/app';
 import { ViewMode, viewModeAtom } from 'store/vaults';
 import { motion } from 'framer-motion';
 import ActionsDialog from './ActionsDialog';
@@ -53,29 +48,24 @@ const CloseVaultDialog = ({
   }
 
   const displayFunctions = useAtomValue(displayFunctionsAtom);
-  const walletUrl = useAtomValue(walletUiHrefAtom);
   const setViewMode = useSetAtom(viewModeAtom);
   const [hasSentOffer, setHasSentOffer] = useState(false);
-  const offerSigner = useAtomValue(offerSignerAtom);
-
-  const goToWallet = () => {
-    window.open(walletUrl, signerTarget);
-  };
 
   const goToVaults = () => {
     onClose();
     setViewMode(ViewMode.Manage);
   };
 
-  const closeVault = async () => {
+  const closeVault = () => {
     assert(vaultOfferId);
-    await makeCloseVaultOffer(vaultOfferId, totalCollateral, totalDebt);
-    setHasSentOffer(true);
+    makeCloseVaultOffer(vaultOfferId, totalCollateral, totalDebt, () => {
+      setHasSentOffer(true);
+      goToVaults();
+    });
   };
 
-  const primaryAction = hasSentOffer ? goToWallet : closeVault;
-  const primaryActionLabel = hasSentOffer ? 'Go to Wallet' : 'Close Out Vault';
-
+  const primaryAction = closeVault;
+  const primaryActionLabel = 'Close Out Vault';
   const secondaryAction = hasSentOffer ? goToVaults : onClose;
   const secondaryActionLabel = hasSentOffer ? 'Back to Vaults' : 'Cancel';
 
@@ -130,7 +120,7 @@ const CloseVaultDialog = ({
           {...noticeProps}
           className="overflow-hidden text-interOrange"
         >
-          Offer sent to Agoric Smart Wallet for approval.
+          Vault has been closed successfully.
         </motion.div>
       )}
     </>
@@ -144,7 +134,7 @@ const CloseVaultDialog = ({
       onClose={onClose}
       primaryAction={{ action: primaryAction, label: primaryActionLabel }}
       secondaryAction={{ action: secondaryAction, label: secondaryActionLabel }}
-      primaryActionDisabled={!offerSigner?.isDappApproved}
+      primaryActionDisabled={hasSentOffer}
     />
   );
 };

@@ -7,18 +7,6 @@ declare module '@agoric/ui-components' {
   export const stringifyRatio;
 }
 
-// UNTIL https://github.com/Agoric/agoric-sdk/issues/6591
-declare module '@agoric/web-components' {
-  export const makeAgoricWalletConnection;
-  export const AgoricKeplrConnectionErrors;
-  export const BridgeProtocol;
-}
-
-declare module '@agoric/web-components/react' {
-  export const makeReactAgoricWalletConnection;
-  export const makeReactDappWalletBridge;
-}
-
 declare module '@agoric/wallet-backend' {
   export type PursesJSONState<T extends AssetKind> = {
     brand: import('@agoric/ertp').Brand;

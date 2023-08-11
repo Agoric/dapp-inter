@@ -1,5 +1,4 @@
 import { Suspense, useState, useEffect, lazy } from 'react';
-import OfferSignerBridge from 'components/OfferSignerBridge';
 import { ToastContainer } from 'react-toastify';
 import { RouterProvider, createHashRouter } from 'react-router-dom';
 import Vaults from 'views/Vaults';
@@ -9,7 +8,6 @@ import { useAtomValue, useAtom, useSetAtom } from 'jotai';
 import {
   chainStorageWatcherAtom,
   currentTimeAtom,
-  importContextAtom,
   isAppVersionOutdatedAtom,
   networkConfigAtom,
 } from 'store/app';
@@ -83,7 +81,6 @@ const NetworkDropdown = lazy(() => import('./components/NetworkDropdown'));
 
 const App = () => {
   const netConfig = useAtomValue(networkConfigAtom);
-  const importContext = useAtomValue(importContextAtom);
   const [chainStorageWatcher, setChainStorageWatcher] = useAtom(
     chainStorageWatcherAtom,
   );
@@ -105,15 +102,11 @@ const App = () => {
         const { rpc, chainName } = await fetchChainInfo(netConfig.url);
         if (isCancelled) return;
         setChainStorageWatcher(
-          makeAgoricChainStorageWatcher(
-            rpc,
-            chainName,
-            importContext.fromBoard.unserialize,
-            e => {
-              setError(e);
-              throw e;
-            },
-          ),
+          makeAgoricChainStorageWatcher(rpc, chainName, e => {
+            console.error(e);
+            setError(e);
+            throw e;
+          }),
         );
 
         watchVbank();
@@ -127,13 +120,7 @@ const App = () => {
     return () => {
       isCancelled = true;
     };
-  }, [
-    setError,
-    netConfig,
-    chainStorageWatcher,
-    setChainStorageWatcher,
-    importContext.fromBoard.unserialize,
-  ]);
+  }, [setError, netConfig, chainStorageWatcher, setChainStorageWatcher]);
 
   useTimeKeeper();
   useAppVersionWatcher();
@@ -147,14 +134,13 @@ const App = () => {
         hideProgressBar={true}
         autoClose={false}
       ></ToastContainer>
-      <OfferSignerBridge />
       <div className="w-screen max-w-7xl m-auto">
         {error ? (
           <>
             <div className="flex justify-end flex-row space-x-2 items-center mr-6 m-2">
               {networkDropdown}
             </div>
-            <div>Error connecting to chain</div>
+            <div>Error connecting to chain!</div>
             <details>{error.toString()}</details>
           </>
         ) : (

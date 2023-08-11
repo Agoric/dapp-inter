@@ -7,10 +7,6 @@ import {
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { atomWithStore } from 'jotai-zustand';
-import {
-  ImportContext,
-  makeImportContext,
-} from '@agoric/smart-wallet/src/marshal-contexts';
 import createStore from 'zustand/vanilla';
 import { persist } from 'zustand/middleware';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
@@ -19,6 +15,7 @@ import type { DisplayInfo, Brand, AssetKind } from '@agoric/ertp/src/types';
 import type { PursesJSONState } from '@agoric/wallet-backend';
 import { secondsSinceEpoch } from 'utils/date';
 import { makeAgoricChainStorageWatcher } from '@agoric/rpc';
+import { makeAgoricWalletConnection } from '@agoric/web-components';
 
 export type BrandInfo = DisplayInfo<'nat'> & {
   petname: string;
@@ -31,27 +28,17 @@ export type OfferConfig = {
   proposalTemplate: unknown;
 };
 
-export type ChainConnection = {
-  chainId: string;
-  address: string;
-  pursesNotifier: unknown;
-  publicSubscribersNotifier: unknown;
-};
-
-export type OfferSigner = {
-  isDappApproved: boolean;
-  addOffer?: (offer: OfferConfig) => void;
-};
+export type ChainConnection = Awaited<
+  ReturnType<typeof makeAgoricWalletConnection>
+>;
 
 type ChainStorageWatcher = ReturnType<typeof makeAgoricChainStorageWatcher>;
 
 interface AppState {
   brandToInfo: Map<Brand, BrandInfo> | null;
   watchVbankError: string | null;
-  importContext: ImportContext;
   isWalletConnectionInProgress: boolean;
   chainConnection: ChainConnection | null;
-  offerSigner: OfferSigner;
   purses: PursesJSONState<AssetKind>[] | null;
   walletService: ReturnType<typeof makeWalletService>;
   offerIdsToPublicSubscribers: Record<string, Record<string, string>> | null;
@@ -62,10 +49,8 @@ interface AppState {
 export const appStore = createStore<AppState>()(() => ({
   brandToInfo: null,
   watchVbankError: null,
-  importContext: makeImportContext(),
   isWalletConnectionInProgress: false,
   chainConnection: null,
-  offerSigner: { isDappApproved: false },
   purses: null,
   walletService: makeWalletService(),
   offerIdsToPublicSubscribers: null,
@@ -92,31 +77,14 @@ export const walletServiceAtom = atom(get => get(appAtom).walletService);
 
 export const pursesAtom = atom(get => get(appAtom).purses);
 
-export const importContextAtom = atom(get => get(appAtom).importContext);
-
 export const isWalletConnectionInProgressAtom = atom(
   get => get(appAtom).isWalletConnectionInProgress,
-);
-
-export const offerSignerAtom = atom(
-  get => get(appAtom).offerSigner,
-  (_get, set, offerSigner: OfferSigner) =>
-    set(appAtom, state => ({ ...state, offerSigner })),
 );
 
 export const isDisclaimerDialogShowingAtom = atom(
   get => get(appAtom).isDisclaimerDialogShowing,
   (_get, set, isDisclaimerDialogShowing: boolean) =>
     set(appAtom, state => ({ ...state, isDisclaimerDialogShowing })),
-);
-
-export const setIsDappApprovedAtom = atom(
-  null,
-  (_get, set, isDappApproved: boolean) =>
-    set(appAtom, state => ({
-      ...state,
-      offerSigner: { ...state.offerSigner, isDappApproved },
-    })),
 );
 
 export const chainConnectionAtom = atom(get => get(appAtom).chainConnection);

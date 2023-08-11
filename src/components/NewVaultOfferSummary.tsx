@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
 import { makeOpenVaultOffer } from 'service/vaults';
-import { displayFunctionsAtom, offerSignerAtom } from 'store/app';
+import { chainConnectionAtom, displayFunctionsAtom } from 'store/app';
 import {
   collateralizationRatioAtom,
   inputErrorsAtom,
@@ -39,7 +39,7 @@ const NewVaultOfferSummary = () => {
   const valueToReceive = useAtomValue(valueToReceiveAtom);
   const valueToLock = useAtomValue(valueToLockAtom);
   const collateralizationRatio = useAtomValue(collateralizationRatioAtom);
-  const offerSigner = useAtomValue(offerSignerAtom);
+  const chainConnection = useAtomValue(chainConnectionAtom);
 
   const { displayAmount, displayBrandPetname, displayPercent } =
     useAtomValue(displayFunctionsAtom) ?? {};
@@ -126,12 +126,12 @@ const NewVaultOfferSummary = () => {
     factoryParams &&
     depositAmount &&
     mintAmount &&
-    !vaultLimitReached &&
-    offerSigner?.isDappApproved;
+    !vaultLimitReached;
 
   const createVault = async () => {
-    await makeOpenVaultOffer(depositAmount, mintAmount);
-    setIsVaultCreationDialogOpen(true);
+    await makeOpenVaultOffer(depositAmount, mintAmount, () =>
+      setIsVaultCreationDialogOpen(true),
+    );
   };
 
   const vaultLimitWarning =
@@ -143,18 +143,15 @@ const NewVaultOfferSummary = () => {
     ) : null;
 
   const createButtonLabel = useMemo(() => {
-    if (!offerSigner?.addOffer) {
+    if (!chainConnection) {
       return 'Connect Wallet';
     }
     if (vaultLimitReached) {
       return 'Vault Limit Reached';
     }
-    if (!offerSigner?.isDappApproved) {
-      return 'Enable Dapp in Wallet';
-    }
 
     return 'Create Vault';
-  }, [offerSigner, vaultLimitReached]);
+  }, [vaultLimitReached, chainConnection]);
 
   return (
     <>
