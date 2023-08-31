@@ -150,7 +150,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
         src={logoSrc}
         alt={displayBrandPetname(metrics.totalCollateral.brand)}
       ></img>
-      <h3 className="text-center text-xl font-medium font-serif">
+      <h3 className="text-center text-xl font-medium font-serif normal-case">
         {collateralTitle}
       </h3>
       <table className="mt-4">

@@ -108,11 +108,11 @@ const App = () => {
           makeAgoricChainStorageWatcher(
             rpc,
             chainName,
-            importContext.fromBoard.unserialize,
             e => {
               setError(e);
               throw e;
             },
+            importContext.fromBoard,
           ),
         );
 
