@@ -34,3 +34,7 @@ export const branchBridgeHref = (branchName: string) =>
 export const signerTarget = 'wallet';
 
 export const disclaimerHref = 'https://docs.inter.trade/disclaimer';
+
+export const psmHref = 'https://psm.inter.trade/';
+
+export const analyticsHref = 'https://info.inter.trade/';
