@@ -2,7 +2,7 @@ import { NavLink, Outlet, useLocation, Navigate } from 'react-router-dom';
 import ConnectWalletButton from '../components/ConnectWalletButton';
 import React, { Suspense } from 'react';
 import { HiExternalLink } from 'react-icons/hi';
-import { psmHref, analyticsHref } from "../config";
+import { psmHref, analyticsHref } from '../config';
 
 const NetworkDropdown = React.lazy(
   () => import('../components/NetworkDropdown'),
@@ -25,10 +25,10 @@ const NavItem = ({ label, href, isExternal = false }: NavItemProps) => {
         {({ isActive }) => (
           <>
             <div className="h-1.5"></div>
-              <span className="inline-flex items-center">
-                  <span className="m-2 font-bold">{label}</span>
-                  {isExternal && <HiExternalLink />}
-              </span>
+            <span className="inline-flex items-center">
+              <span className="m-2 font-bold">{label}</span>
+              {isExternal && <HiExternalLink />}
+            </span>
 
             <div
               className={
@@ -69,8 +69,12 @@ const Root = () => {
           <nav>
             <ul className="h-24 flex flex-row space-x-12">
               <NavItem label="Vaults" href="/vaults" />
-              <NavItem label="PSM" href={psmHref} isExternal={true}/>
-              <NavItem label="Analytics" href={analyticsHref} isExternal={true}/>
+              <NavItem label="PSM" href={psmHref} isExternal={true} />
+              <NavItem
+                label="Analytics"
+                href={analyticsHref}
+                isExternal={true}
+              />
             </ul>
           </nav>
         </div>
