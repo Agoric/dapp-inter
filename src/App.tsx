@@ -100,10 +100,10 @@ const App = () => {
     if (chainStorageWatcher) return;
     const startWatching = async () => {
       try {
-        const { rpc, chainName } = await fetchChainInfo(netConfig.url);
+        const { chainName, apiAddr } = await fetchChainInfo(netConfig.url);
         if (isCancelled) return;
         setChainStorageWatcher(
-          makeAgoricChainStorageWatcher(rpc, chainName, e => {
+          makeAgoricChainStorageWatcher(apiAddr, chainName, e => {
             console.error(e);
             setError(e);
             throw e;

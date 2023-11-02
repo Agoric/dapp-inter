@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import {
   chainConnectionAtom,
   chainStorageWatcherAtom,
+  networkConfigAtom,
   provisionToastIdAtom,
   smartWalletProvisionedAtom,
 } from 'store/app';
@@ -11,6 +12,7 @@ import { querySwingsetParams } from 'utils/swingsetParams';
 import type { ChainStorageWatcher } from 'store/app';
 import ActionsDialog from './ActionsDialog';
 import { provisionSmartWallet } from 'service/wallet';
+import { fetchChainInfo } from 'utils/rpc';
 
 // Increment every time the current terms change.
 export const currentTermsIndex = 1;
@@ -20,12 +22,13 @@ const feeDenom = 10n ** 6n;
 const useSmartWalletFeeQuery = (watcher: ChainStorageWatcher | null) => {
   const [smartWalletFee, setFee] = useState<bigint | null>(null);
   const [error, setError] = useState<Error | null>(null);
-
+  const netConfig = useAtomValue(networkConfigAtom);
   useEffect(() => {
     const fetchParams = async () => {
       assert(watcher);
       try {
-        const params = await querySwingsetParams(watcher.rpcAddr);
+        const { rpc } = await fetchChainInfo(netConfig.url);
+        const params = await querySwingsetParams(rpc);
         console.debug('swingset params', params);
         setFee(BigInt(params.params.powerFlagFees[0].fee[0].amount));
       } catch (e) {
@@ -36,7 +39,7 @@ const useSmartWalletFeeQuery = (watcher: ChainStorageWatcher | null) => {
     if (watcher) {
       fetchParams();
     }
-  }, [watcher]);
+  }, [netConfig.url, watcher]);
 
   return { smartWalletFee, error };
 };

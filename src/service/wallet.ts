@@ -11,6 +11,7 @@ import {
   AgoricKeplrConnectionErrors as Errors,
 } from '@agoric/web-components';
 import type { Id as ToastId, ToastContent, ToastOptions } from 'react-toastify';
+import { fetchChainInfo } from 'utils/rpc';
 
 const watchPurses = (chainConnection: ChainConnection) => {
   let isCancelled = false;
@@ -111,7 +112,13 @@ export const makeWalletService = () => {
 
     appStore.setState({ isWalletConnectionInProgress: true });
     try {
-      const connection = await makeAgoricWalletConnection(chainStorageWatcher);
+      const { rpc } = await fetchChainInfo(
+        'https://emerynet.agoric.net/network-config',
+      );
+      const connection = await makeAgoricWalletConnection(
+        chainStorageWatcher,
+        rpc,
+      );
       appStore.setState({ chainConnection: connection });
       stopWatchingPurses = watchPurses(connection);
       stopWatchingPublicSubscribers = watchPublicSubscribers(connection);
