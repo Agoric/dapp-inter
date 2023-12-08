@@ -1,12 +1,18 @@
 import { useEffect, useState } from 'react';
-import { appStore, chainStorageWatcherAtom, rpcNodeAtom } from 'store/app';
-import { useAtomValue } from 'jotai';
+import {
+  appStore,
+  chainStorageWatcherAtom,
+  rpcNodeAtom,
+  isNodeSelectorOpenAtom,
+} from 'store/app';
+import { useAtomValue, useSetAtom } from 'jotai';
 import ActionsDialog from './ActionsDialog';
 import { useStore } from 'zustand';
 
 const ChainConnectionErrorDialog = () => {
   const { chainConnectionError } = useStore(appStore);
   const chainStorageWatcher = useAtomValue(chainStorageWatcherAtom);
+  const setIsNodeSelectorOpen = useSetAtom(isNodeSelectorOpenAtom);
   const rpcNode = useAtomValue(rpcNodeAtom);
   const [isShowing, setIsShowing] = useState(false);
 
@@ -26,16 +32,31 @@ const ChainConnectionErrorDialog = () => {
       {chainStorageWatcher && (
         <p>
           API Endpoint:{' '}
-          <span className="text-blue-500">{chainStorageWatcher?.apiAddr}</span>
+          <a
+            target="_blank"
+            href={chainStorageWatcher?.apiAddr}
+            className="text-blue-500"
+            rel="noreferrer"
+          >
+            {chainStorageWatcher?.apiAddr}
+          </a>
         </p>
       )}
       {rpcNode && (
         <p>
-          RPC Endpoint: <span className="text-blue-500">{rpcNode}</span>
+          RPC Endpoint:{' '}
+          <a
+            target="_blank"
+            href={rpcNode}
+            className="text-blue-500"
+            rel="noreferrer"
+          >
+            {rpcNode}
+          </a>
         </p>
       )}
       <p>
-        Error:{' '}
+        Details:{' '}
         <span className="text-alert">{chainConnectionError?.toString()}</span>
       </p>
     </div>
@@ -46,6 +67,13 @@ const ChainConnectionErrorDialog = () => {
       title="Chain Connection Error"
       body={body}
       isOpen={isShowing}
+      primaryAction={{
+        action: () => {
+          setIsShowing(false);
+          setIsNodeSelectorOpen(true);
+        },
+        label: 'Connection Settings',
+      }}
       secondaryAction={{
         action: () => {
           setIsShowing(false);
@@ -55,6 +83,7 @@ const ChainConnectionErrorDialog = () => {
       onClose={() => {
         setIsShowing(false);
       }}
+      initialFocusPrimary
     />
   );
 };

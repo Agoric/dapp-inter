@@ -12,6 +12,8 @@ import {
   networkConfigAtom,
   rpcNodeAtom,
   appStore,
+  savedApiNodeAtom,
+  savedRpcNodeAtom,
 } from 'store/app';
 import Root from 'views/Root';
 import DisclaimerDialog from 'components/DisclaimerDialog';
@@ -27,6 +29,7 @@ import 'styles/globals.css';
 import ProvisionSmartWalletDialog from 'components/ProvisionSmartWalletDialog';
 import ChainConnectionErrorDialog from 'components/ChainConnectionErrorDialog';
 import { useStore } from 'zustand';
+import NodeSelectorDialog from 'components/NodeSelectorDialog';
 
 const router = createHashRouter([
   {
@@ -84,6 +87,8 @@ const useAppVersionWatcher = () => {
 
 const App = () => {
   const netConfig = useAtomValue(networkConfigAtom);
+  const savedRpcNode = useAtomValue(savedRpcNodeAtom);
+  const savedApiNode = useAtomValue(savedApiNodeAtom);
   const [chainStorageWatcher, setChainStorageWatcher] = useAtom(
     chainStorageWatcherAtom,
   );
@@ -97,9 +102,9 @@ const App = () => {
       try {
         const { rpc, chainName, api } = await fetchChainInfo(netConfig.url);
         if (isCancelled) return;
-        setRpcNode(rpc);
+        setRpcNode(savedRpcNode || rpc);
         setChainStorageWatcher(
-          makeAgoricChainStorageWatcher(api, chainName, e => {
+          makeAgoricChainStorageWatcher(savedApiNode || api, chainName, e => {
             console.error(e);
             setChainConnectionError(
               new Error(
@@ -131,6 +136,8 @@ const App = () => {
     setChainStorageWatcher,
     setRpcNode,
     setChainConnectionError,
+    savedRpcNode,
+    savedApiNode,
   ]);
 
   useTimeKeeper();
@@ -152,6 +159,7 @@ const App = () => {
       <AppVersionDialog />
       <ProvisionSmartWalletDialog />
       <ChainConnectionErrorDialog />
+      <NodeSelectorDialog />
     </div>
   );
 };

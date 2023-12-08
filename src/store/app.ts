@@ -84,6 +84,17 @@ export const offerIdsToPublicSubscribersAtom = atom(
   get => get(appAtom).offerIdsToPublicSubscribers,
 );
 
+export const chainConnectionErrorAtom = atom(
+  get => get(appAtom).chainConnectionError,
+  (get, set, error: Error) => {
+    if (get(appAtom).chainConnectionError === null) {
+      set(appAtom, state => ({ ...state, chainConnectionError: error }));
+    }
+  },
+);
+
+export const isNodeSelectorOpenAtom = atom(false);
+
 export type DisplayFunctions = ReturnType<typeof makeDisplayFunctions>;
 
 export const displayFunctionsAtom = atom(get => {
@@ -176,4 +187,14 @@ export const provisionToastIdAtom = atom<ToastId | undefined>(undefined);
 
 export const smartWalletProvisionedAtom = atom(
   get => get(appAtom).smartWalletProvisioned,
+);
+
+export const savedRpcNodeAtom = atomWithStorage<string | null>(
+  'savedRpcNode',
+  null,
+);
+
+export const savedApiNodeAtom = atomWithStorage<string | null>(
+  'savedApiNode',
+  null,
 );

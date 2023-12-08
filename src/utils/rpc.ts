@@ -10,3 +10,15 @@ export const fetchChainInfo = async (netconfigURL: string) => {
     chainName,
   };
 };
+
+export const fetchAllAddrs = async (netconfigURL: string) => {
+  const response = await fetch(netconfigURL, {
+    headers: { accept: 'application/json' },
+  });
+  const { rpcAddrs, apiAddrs } = await response.json();
+
+  return {
+    rpcAddrs,
+    apiAddrs,
+  };
+};
