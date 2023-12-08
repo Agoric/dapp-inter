@@ -41,7 +41,6 @@ const watchLiquidationSchedule = () => {
   return chainStorageWatcher.watchLatest<LiquidationSchedule>(
     [Kind.Data, path],
     liquidationSchedule => useVaultStore.setState({ liquidationSchedule }),
-    e => console.error(`Error watching ${path}`, e),
   );
 };
 
@@ -66,11 +65,19 @@ const watchPriceFeeds = (prefix: string) => {
         [Kind.Data, path],
         value => {
           console.debug('got update', path, value);
+          if (!value) {
+            console.error(
+              'Unexpected error, price feed missing for brand',
+              brand,
+            );
+            useVaultStore
+              .getState()
+              .setPriceError(
+                brand,
+                new Error('Unexpected error, price feed missing'),
+              );
+          }
           useVaultStore.getState().setPrice(brand, value);
-        },
-        e => {
-          console.error('Error watching brand price feed', brand, e);
-          useVaultStore.getState().setPriceError(brand, e);
         },
       ),
     );
@@ -155,6 +162,9 @@ const watchUserVaults = () => {
         [Kind.Data, path],
         value => {
           console.debug('got update', subscriber, value);
+          if (!value) {
+            return;
+          }
           const debtSnapshot = value.debtSnapshot && {
             debt: value.debtSnapshot.debt,
             stabilityFee:
@@ -171,10 +181,6 @@ const watchUserVaults = () => {
             createdByOfferId: offerId,
             indexWithinManager: indexWithinManager,
           });
-        },
-        e => {
-          console.error(`Error watching vault ${offerId} ${path}`, e);
-          useVaultStore.getState().setVaultError(offerId, e);
         },
       ),
     );
@@ -266,6 +272,17 @@ export const watchVaultFactory = () => {
       [Kind.Data, path],
       value => {
         console.debug('got update', path, value);
+        if (!value) {
+          console.error('Error watching vault manager params for', id);
+          useVaultStore
+            .getState()
+            .setVaultManagerLoadingError(
+              id,
+              new Error(
+                'Unexpected error, no governed params published to chain',
+              ),
+            );
+        }
         const { current } = value;
         const stabilityFee =
           current.StabilityFee?.value ?? value.current.InterestRate?.value;
@@ -290,10 +307,6 @@ export const watchVaultFactory = () => {
           inferredMinimumCollateralization,
         });
       },
-      e => {
-        console.error('Error watching vault manager params', id, e);
-        useVaultStore.getState().setVaultManagerLoadingError(id, e);
-      },
     );
     subscriptionStoppers.push(s);
   };
@@ -305,15 +318,20 @@ export const watchVaultFactory = () => {
       [Kind.Data, path],
       value => {
         console.debug('got update', path, value);
+        if (!value) {
+          console.error('Error watching vault manager metrics for', id);
+          useVaultStore
+            .getState()
+            .setVaultManagerLoadingError(
+              id,
+              new Error('Unexpected error, no metrics published to chain'),
+            );
+        }
         useVaultStore.getState().setVaultMetrics(id, {
           ...value,
           // Invert the lockedQuote to be congruent with oracle price quotes.
           lockedQuote: value.lockedQuote && invertRatio(value.lockedQuote),
         });
-      },
-      e => {
-        console.error('Error watching vault manager metrics', id, e);
-        useVaultStore.getState().setVaultManagerLoadingError(id, e);
       },
     );
     subscriptionStoppers.push(s);
@@ -328,6 +346,15 @@ export const watchVaultFactory = () => {
       [Kind.Data, path],
       value => {
         console.debug('got update', path, value);
+        if (!value) {
+          console.error('Error watching vault manager data for', id);
+          useVaultStore
+            .getState()
+            .setVaultManagerLoadingError(
+              id,
+              new Error('Unexpected error, no manager data published to chain'),
+            );
+        }
         const compoundedStabilityFee =
           value.compoundedStabilityFee ?? value.compoundedInterest;
         const latestStabilityFeeUpdate =
@@ -336,10 +363,6 @@ export const watchVaultFactory = () => {
           compoundedStabilityFee,
           latestStabilityFeeUpdate,
         });
-      },
-      e => {
-        console.error('Error watching vault manager', id, e);
-        useVaultStore.getState().setVaultManagerLoadingError(id, e);
       },
     );
     subscriptionStoppers.push(s);
@@ -351,6 +374,13 @@ export const watchVaultFactory = () => {
       [Kind.Data, path],
       value => {
         console.debug('got update', path, value);
+        if (!value) {
+          console.error('Error watching vault factory params');
+          useVaultStore.setState({
+            vaultFactoryParamsLoadingError:
+              'Unexpected error, no vault factory data published to chain',
+          });
+        }
         useVaultStore.setState({
           vaultFactoryParams: {
             minInitialDebt: value.current.MinInitialDebt.value,
@@ -358,12 +388,6 @@ export const watchVaultFactory = () => {
               value.current.ReferencedUI?.value ??
               value.current.EndorsedUI?.value,
           },
-        });
-      },
-      e => {
-        console.error('Error watching vault factory params', e);
-        useVaultStore.setState({
-          vaultFactoryParamsLoadingError: 'Error loading vault factory params',
         });
       },
     );
@@ -377,6 +401,11 @@ export const watchVaultFactory = () => {
     const unsubManagerIds = chainStorageWatcher.watchLatest<string[]>(
       [Kind.Children, managerPrefix],
       managerIds => {
+        if (!managerIds) {
+          const msg = 'Unexpected error, no vault managers published on chain';
+          console.error(msg);
+          useVaultStore.setState({ managerIdsLoadingError: msg });
+        }
         useVaultStore.setState({ vaultManagerIds: managerIds });
 
         for (const id of managerIds) {
@@ -384,11 +413,6 @@ export const watchVaultFactory = () => {
           watchedManagers.add(id);
           watchManager(`${managerPrefix}.${id}`);
         }
-      },
-      e => {
-        const msg = 'Error fetching vault managers';
-        console.error(msg, e);
-        useVaultStore.setState({ managerIdsLoadingError: msg });
       },
     );
     subscriptionStoppers.push(unsubManagerIds);

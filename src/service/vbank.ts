@@ -16,30 +16,21 @@ export const watchVbank = () => {
 
   const path = 'published.agoricNames.vbankAsset';
 
-  chainStorageWatcher.watchLatest<VbankUpdate>(
-    [Kind.Data, path],
-    value => {
-      console.debug('got update', path, value);
-      if (!value) {
-        appStore.setState({
-          watchVbankError: `${path} returned undefined`,
-        });
-        return;
-      }
-
-      const brandToInfo = new Map(
-        value.map(entry => [
-          entry[1].brand,
-          { ...entry[1].displayInfo, petname: entry[1].issuerName },
-        ]),
-      );
-      appStore.setState({ brandToInfo });
-    },
-    log => {
-      console.error('Error watching vbank assets', log);
+  chainStorageWatcher.watchLatest<VbankUpdate>([Kind.Data, path], value => {
+    console.debug('got update', path, value);
+    if (!value) {
       appStore.setState({
-        watchVbankError: 'Error loading asset display info',
+        watchVbankError: `${path} returned undefined`,
       });
-    },
-  );
+      return;
+    }
+
+    const brandToInfo = new Map(
+      value.map(entry => [
+        entry[1].brand,
+        { ...entry[1].displayInfo, petname: entry[1].issuerName },
+      ]),
+    );
+    appStore.setState({ brandToInfo });
+  });
 };

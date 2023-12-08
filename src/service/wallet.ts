@@ -65,7 +65,7 @@ const watchPublicSubscribers = (chainConnection: ChainConnection) => {
 const watchSmartWalletProvision = async (chainConnection: ChainConnection) => {
   const n = chainConnection.smartWalletStatusNotifier;
   for await (const status of subscribeLatest(n)) {
-    console.log('Provision status', status);
+    console.debug('Provision status', status);
     appStore.setState({ smartWalletProvisioned: status?.provisioned });
   }
 };
@@ -96,6 +96,7 @@ export const makeWalletService = () => {
       isWalletConnectionInProgress,
       chainConnection,
       chainStorageWatcher,
+      rpcNode,
     } = appStore.getState();
 
     if (isWalletConnectionInProgress || chainConnection) return;
@@ -111,7 +112,20 @@ export const makeWalletService = () => {
 
     appStore.setState({ isWalletConnectionInProgress: true });
     try {
-      const connection = await makeAgoricWalletConnection(chainStorageWatcher);
+      assert(rpcNode);
+      const connection = await makeAgoricWalletConnection(
+        chainStorageWatcher,
+        rpcNode,
+        (e: unknown) =>
+          appStore
+            .getState()
+            .setChainConnectionError(
+              new Error(
+                'Error watching wallet state' +
+                  (e instanceof Error ? `: ${e.message}` : ''),
+              ),
+            ),
+      );
       appStore.setState({ chainConnection: connection });
       stopWatchingPurses = watchPurses(connection);
       stopWatchingPublicSubscribers = watchPublicSubscribers(connection);

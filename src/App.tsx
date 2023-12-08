@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, lazy } from 'react';
+import { useEffect } from 'react';
 import { ToastContainer } from 'react-toastify';
 import { RouterProvider, createHashRouter } from 'react-router-dom';
 import Vaults from 'views/Vaults';
@@ -10,6 +10,8 @@ import {
   currentTimeAtom,
   isAppVersionOutdatedAtom,
   networkConfigAtom,
+  rpcNodeAtom,
+  appStore,
 } from 'store/app';
 import Root from 'views/Root';
 import DisclaimerDialog from 'components/DisclaimerDialog';
@@ -23,6 +25,8 @@ import { makeAgoricChainStorageWatcher } from '@agoric/rpc';
 import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';
 import ProvisionSmartWalletDialog from 'components/ProvisionSmartWalletDialog';
+import ChainConnectionErrorDialog from 'components/ChainConnectionErrorDialog';
+import { useStore } from 'zustand';
 
 const router = createHashRouter([
   {
@@ -78,42 +82,42 @@ const useAppVersionWatcher = () => {
   }, [referencedUI, setIsAppVersionOutdated]);
 };
 
-const NetworkDropdown = lazy(() => import('./components/NetworkDropdown'));
-
 const App = () => {
   const netConfig = useAtomValue(networkConfigAtom);
   const [chainStorageWatcher, setChainStorageWatcher] = useAtom(
     chainStorageWatcherAtom,
   );
-  const [error, setError] = useState<unknown | null>(null);
-
-  const networkDropdown = import.meta.env.VITE_NETWORK_CONFIG_URL ? (
-    <></>
-  ) : (
-    <Suspense>
-      <NetworkDropdown />
-    </Suspense>
-  );
+  const { setChainConnectionError } = useStore(appStore);
+  const setRpcNode = useSetAtom(rpcNodeAtom);
 
   useEffect(() => {
     let isCancelled = false;
     if (chainStorageWatcher) return;
     const startWatching = async () => {
       try {
-        const { rpc, chainName } = await fetchChainInfo(netConfig.url);
+        const { rpc, chainName, api } = await fetchChainInfo(netConfig.url);
         if (isCancelled) return;
+        setRpcNode(rpc);
         setChainStorageWatcher(
-          makeAgoricChainStorageWatcher(rpc, chainName, e => {
+          makeAgoricChainStorageWatcher(api, chainName, e => {
             console.error(e);
-            setError(e);
-            throw e;
+            setChainConnectionError(
+              new Error(
+                'Received invalid response from API Endpoint: ' + e.message,
+              ),
+            );
           }),
         );
 
         watchVbank();
       } catch (e) {
         if (isCancelled) return;
-        setError(e);
+        setChainConnectionError(
+          new Error(
+            `Error fetching network config from ${netConfig.url}` +
+              (e instanceof Error ? `: ${e.message}` : ''),
+          ),
+        );
       }
     };
     startWatching();
@@ -121,7 +125,13 @@ const App = () => {
     return () => {
       isCancelled = true;
     };
-  }, [setError, netConfig, chainStorageWatcher, setChainStorageWatcher]);
+  }, [
+    netConfig,
+    chainStorageWatcher,
+    setChainStorageWatcher,
+    setRpcNode,
+    setChainConnectionError,
+  ]);
 
   useTimeKeeper();
   useAppVersionWatcher();
@@ -136,21 +146,12 @@ const App = () => {
         autoClose={false}
       ></ToastContainer>
       <div className="w-screen max-w-7xl m-auto">
-        {error ? (
-          <>
-            <div className="flex justify-end flex-row space-x-2 items-center mr-6 m-2">
-              {networkDropdown}
-            </div>
-            <div>Error connecting to chain!</div>
-            <details>{error.toString()}</details>
-          </>
-        ) : (
-          <RouterProvider router={router} />
-        )}
+        <RouterProvider router={router} />
       </div>
       <DisclaimerDialog />
       <AppVersionDialog />
       <ProvisionSmartWalletDialog />
+      <ChainConnectionErrorDialog />
     </div>
   );
 };

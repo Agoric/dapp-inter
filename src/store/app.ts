@@ -48,9 +48,12 @@ interface AppState {
   isDisclaimerDialogShowing: boolean;
   chainStorageWatcher: ChainStorageWatcher | null;
   smartWalletProvisioned: boolean | null;
+  rpcNode: string | null;
+  chainConnectionError: Error | null;
+  setChainConnectionError: (error: Error | null) => void;
 }
 
-export const appStore = createStore<AppState>()(() => ({
+export const appStore = createStore<AppState>()(set => ({
   brandToInfo: null,
   watchVbankError: null,
   isWalletConnectionInProgress: false,
@@ -61,6 +64,16 @@ export const appStore = createStore<AppState>()(() => ({
   isDisclaimerDialogShowing: false,
   chainStorageWatcher: null,
   smartWalletProvisioned: null,
+  rpcNode: null,
+  chainConnectionError: null,
+  setChainConnectionError: (error: Error | null) => {
+    set(state => {
+      if (state.chainConnectionError === null || error === null) {
+        return { chainConnectionError: error };
+      }
+      return {};
+    });
+  },
 }));
 
 export const appAtom = atomWithStore(appStore);
@@ -100,6 +113,15 @@ export const chainStorageWatcherAtom = atom(
     set(appAtom, state => ({
       ...state,
       chainStorageWatcher: watcher,
+    })),
+);
+
+export const rpcNodeAtom = atom(
+  get => get(appAtom).rpcNode,
+  (_get, set, rpcNode: string) =>
+    set(appAtom, state => ({
+      ...state,
+      rpcNode,
     })),
 );
 
