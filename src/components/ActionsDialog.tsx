@@ -12,11 +12,12 @@ type Props = {
   onClose: () => void;
   title: string;
   body: ReactElement;
-  primaryAction: DialogAction;
+  primaryAction?: DialogAction;
   secondaryAction?: DialogAction;
   primaryActionDisabled?: boolean;
   // Whether to initially focus the primary action.
   initialFocusPrimary?: boolean;
+  overflow?: boolean;
 };
 
 const ActionsDialog = ({
@@ -28,6 +29,7 @@ const ActionsDialog = ({
   secondaryAction,
   primaryActionDisabled = false,
   initialFocusPrimary = false,
+  overflow = false,
 }: Props) => {
   const primaryButtonRef = useRef(null);
 
@@ -61,10 +63,15 @@ const ActionsDialog = ({
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="cursor-default w-full max-w-2xl mx-3 transform overflow-hidden rounded-10 bg-white text-left align-middle shadow-card transition-all">
+              <Dialog.Panel
+                className={clsx(
+                  'cursor-default w-full max-w-2xl mx-3 transform rounded-10 bg-white text-left align-middle shadow-card transition-all',
+                  overflow ? 'overflow-visible' : 'overflow-hidden',
+                )}
+              >
                 <Dialog.Title
                   as="div"
-                  className="font-serif text-2xl text-white font-medium px-8 py-6 bg-interPurple"
+                  className="font-serif text-2xl text-white font-medium px-8 py-6 bg-interPurple rounded-t-10"
                 >
                   {title}
                 </Dialog.Title>
@@ -80,19 +87,21 @@ const ActionsDialog = ({
                         {secondaryAction.label}
                       </button>
                     )}
-                    <button
-                      ref={primaryButtonRef}
-                      disabled={primaryActionDisabled}
-                      className={clsx(
-                        'transition text-btn-xs flex justify-center rounded border border-transparent text-white px-16 py-3',
-                        primaryActionDisabled
-                          ? 'bg-disabled cursor-not-allowed'
-                          : 'bg-interPurple hover:opacity-80 active:opacity-60',
-                      )}
-                      onClick={primaryAction.action}
-                    >
-                      {primaryAction.label}
-                    </button>
+                    {primaryAction && (
+                      <button
+                        ref={primaryButtonRef}
+                        disabled={primaryActionDisabled}
+                        className={clsx(
+                          'transition text-btn-xs flex justify-center rounded border border-transparent text-white px-16 py-3',
+                          primaryActionDisabled
+                            ? 'bg-disabled cursor-not-allowed'
+                            : 'bg-interPurple hover:opacity-80 active:opacity-60',
+                        )}
+                        onClick={primaryAction.action}
+                      >
+                        {primaryAction.label}
+                      </button>
+                    )}
                   </div>
                 </div>
               </Dialog.Panel>

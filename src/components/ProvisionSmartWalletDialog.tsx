@@ -3,12 +3,11 @@ import { useEffect, useRef, useState } from 'react';
 import { toast } from 'react-toastify';
 import {
   chainConnectionAtom,
-  chainStorageWatcherAtom,
   provisionToastIdAtom,
+  rpcNodeAtom,
   smartWalletProvisionedAtom,
 } from 'store/app';
 import { querySwingsetParams } from 'utils/swingsetParams';
-import type { ChainStorageWatcher } from 'store/app';
 import ActionsDialog from './ActionsDialog';
 import { provisionSmartWallet } from 'service/wallet';
 
@@ -17,15 +16,15 @@ export const currentTermsIndex = 1;
 
 const feeDenom = 10n ** 6n;
 
-const useSmartWalletFeeQuery = (watcher: ChainStorageWatcher | null) => {
+const useSmartWalletFeeQuery = (rpc: string | null) => {
   const [smartWalletFee, setFee] = useState<bigint | null>(null);
   const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const fetchParams = async () => {
-      assert(watcher);
+      assert(rpc);
       try {
-        const params = await querySwingsetParams(watcher.rpcAddr);
+        const params = await querySwingsetParams(rpc);
         console.debug('swingset params', params);
         setFee(BigInt(params.params.powerFlagFees[0].fee[0].amount));
       } catch (e) {
@@ -33,23 +32,23 @@ const useSmartWalletFeeQuery = (watcher: ChainStorageWatcher | null) => {
       }
     };
 
-    if (watcher) {
+    if (rpc) {
       fetchParams();
     }
-  }, [watcher]);
+  }, [rpc]);
 
   return { smartWalletFee, error };
 };
 
 const ProvisionSmartWalletDialog = () => {
   const chainConnection = useAtomValue(chainConnectionAtom);
-  const watcher = useAtomValue(chainStorageWatcherAtom);
+  const rpc = useAtomValue(rpcNodeAtom);
   const [provisionToastId, setProvisionToastId] = useAtom(provisionToastIdAtom);
   const smartWalletProvisionRequired = useRef(false);
   const [isSmartWalletProvisioned] = useAtom(smartWalletProvisionedAtom);
   const [shouldBeOpenIfFeeLoaded, setShouldBeOpenIfFeeLoaded] = useState(false);
   const { smartWalletFee, error: smartWalletFeeError } =
-    useSmartWalletFeeQuery(watcher);
+    useSmartWalletFeeQuery(rpc);
 
   useEffect(() => {
     if (
