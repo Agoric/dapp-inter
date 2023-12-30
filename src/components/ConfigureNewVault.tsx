@@ -17,7 +17,7 @@ import {
   usePurseForBrand,
 } from 'utils/hooks';
 import { maxIstToMintFromVault } from 'utils/vaultMath';
-import AssetTransferButton from './AssetTransferButton';
+import LeapLiquidityModal from './leap-elements/LiquidityModal';
 
 const ConfigureNewVault = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
@@ -64,11 +64,6 @@ const ConfigureNewVault = () => {
   );
 
   const purseBalance = usePurseBalanceDisplay(collateralBrand);
-
-  const depositLabel =
-    displayBrandPetname && collateralBrand
-      ? `Deposit ${displayBrandPetname(collateralBrand)}`
-      : 'Deposit funds';
 
   const toLockLabel =
     displayBrandPetname && collateralBrand
@@ -187,7 +182,9 @@ const ConfigureNewVault = () => {
           : 'A minting fee will be charged upon vault creation.'}
       </p>
       <div className="flex flex-row justify-end">
-        <AssetTransferButton className="mt-4" message={depositLabel} />
+        <div className="mt-4">
+          <LeapLiquidityModal selectedAsset={collateralBrand} />
+        </div>
       </div>
     </div>
   );
