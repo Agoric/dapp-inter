@@ -24,7 +24,6 @@ import { makeAgoricChainStorageWatcher } from '@agoric/rpc';
 
 import 'react-toastify/dist/ReactToastify.css';
 import 'styles/globals.css';
-import ProvisionSmartWalletDialog from 'components/ProvisionSmartWalletDialog';
 import ChainConnectionErrorDialog from 'components/ChainConnectionErrorDialog';
 import { useStore } from 'zustand';
 
@@ -150,7 +149,6 @@ const App = () => {
       </div>
       <DisclaimerDialog />
       <AppVersionDialog />
-      <ProvisionSmartWalletDialog />
       <ChainConnectionErrorDialog />
     </div>
   );

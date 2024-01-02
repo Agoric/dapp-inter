@@ -1,12 +1,11 @@
 import { AmountMath } from '@agoric/ertp';
 import clsx from 'clsx';
-import { useAtomValue, useSetAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { useMemo, useState } from 'react';
 import { makeOpenVaultOffer } from 'service/vaults';
 import {
   chainConnectionAtom,
   displayFunctionsAtom,
-  provisionToastIdAtom,
   smartWalletProvisionedAtom,
 } from 'store/app';
 import {
@@ -18,7 +17,7 @@ import {
 } from 'store/createVault';
 import { useVaultStore } from 'store/vaults';
 import VaultCreationDialog from './VaultCreationDialog';
-import { provisionSmartWallet } from 'service/wallet';
+import ProvisionSmartWalletNoticeDialog from './ProvisionSmartWalletNoticeDialog';
 
 type TableRowProps = {
   left: string;
@@ -47,7 +46,8 @@ const NewVaultOfferSummary = () => {
   const collateralizationRatio = useAtomValue(collateralizationRatioAtom);
   const chainConnection = useAtomValue(chainConnectionAtom);
   const isSmartWalletProvisioned = useAtomValue(smartWalletProvisionedAtom);
-  const setProvisionToastId = useSetAtom(provisionToastIdAtom);
+  const [isProvisionDialogOpen, setIsProvisionDialogOpen] = useState(false);
+  const isSmartWalletStatusLoading = isSmartWalletProvisioned === null;
 
   const { displayAmount, displayBrandPetname, displayPercent } =
     useAtomValue(displayFunctionsAtom) ?? {};
@@ -134,17 +134,22 @@ const NewVaultOfferSummary = () => {
     factoryParams &&
     depositAmount &&
     mintAmount &&
+    !isSmartWalletStatusLoading &&
     !vaultLimitReached;
 
   const createVault = async () => {
+    setIsProvisionDialogOpen(false);
     await makeOpenVaultOffer(depositAmount, mintAmount, () =>
       setIsVaultCreationDialogOpen(true),
     );
   };
 
-  const provision = () => {
-    assert(chainConnection);
-    provisionSmartWallet(chainConnection, setProvisionToastId);
+  const confirmVaultCreation = () => {
+    if (isSmartWalletMissing) {
+      setIsProvisionDialogOpen(true);
+      return;
+    }
+    createVault();
   };
 
   const vaultLimitWarning =
@@ -164,12 +169,9 @@ const NewVaultOfferSummary = () => {
     if (vaultLimitReached) {
       return 'Vault Limit Reached';
     }
-    if (isSmartWalletMissing) {
-      return 'Provision Smart Wallet';
-    }
 
     return 'Create Vault';
-  }, [chainConnection, vaultLimitReached, isSmartWalletMissing]);
+  }, [chainConnection, vaultLimitReached]);
 
   return (
     <>
@@ -215,12 +217,12 @@ const NewVaultOfferSummary = () => {
         <div
           className={clsx(
             'transition mt-3 mx-3 p-6 rounded-b-10 bg-opacity-[0.15]',
-            canCreateVault || isSmartWalletMissing ? 'bg-interPurple' : '',
+            canCreateVault ? 'bg-interPurple' : '',
           )}
         >
           <button
-            onClick={isSmartWalletMissing ? provision : createVault}
-            disabled={!(canCreateVault || isSmartWalletMissing)}
+            onClick={confirmVaultCreation}
+            disabled={!canCreateVault}
             className="btn-submit"
           >
             {createButtonLabel}
@@ -230,6 +232,11 @@ const NewVaultOfferSummary = () => {
       <VaultCreationDialog
         isOpen={isVaultCreationDialogOpen}
         onClose={() => setIsVaultCreationDialogOpen(false)}
+      />
+      <ProvisionSmartWalletNoticeDialog
+        isOpen={isProvisionDialogOpen}
+        onClose={() => setIsProvisionDialogOpen(false)}
+        onConfirm={createVault}
       />
     </>
   );
