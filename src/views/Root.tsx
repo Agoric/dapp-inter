@@ -3,6 +3,7 @@ import ConnectWalletButton from '../components/ConnectWalletButton';
 import React, { Suspense } from 'react';
 import { HiExternalLink } from 'react-icons/hi';
 import { psmHref, analyticsHref } from '../config';
+import SettingsButton from 'components/SettingsButton';
 
 const NetworkDropdown = React.lazy(
   () => import('../components/NetworkDropdown'),
@@ -79,6 +80,7 @@ const Root = () => {
           </nav>
         </div>
         <div className="flex flex-row space-x-2 items-center mr-6 m-2">
+          <SettingsButton />
           {networkDropdown}
           <ConnectWalletButton />
         </div>
