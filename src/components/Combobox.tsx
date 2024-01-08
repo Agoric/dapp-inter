@@ -7,7 +7,7 @@ const Combobox = ({
   value,
   onValueChange,
 }: {
-  options?: string[];
+  options: string[];
   value?: string;
   onValueChange: (newValue: string) => void;
 }) => {
@@ -16,7 +16,7 @@ const Combobox = ({
   const filteredOptions =
     query === ''
       ? options
-      : options?.filter(option => {
+      : options.filter(option => {
           return option.includes(query);
         });
 
@@ -40,43 +40,36 @@ const Combobox = ({
             className="w-full border-none py-2 pl-3 pr-10 text-sm leading-5 text-gray-900 focus:ring-0 focus-visible:outline-none"
             onChange={event => onInputChange(event.target.value)}
           />
-          {options && (
-            <HeadlessComboBox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
-              <FiChevronDown
-                className="h-5 w-5 text-gray-400"
-                aria-hidden="true"
-              />
-            </HeadlessComboBox.Button>
-          )}
+          <HeadlessComboBox.Button className="absolute inset-y-0 right-0 flex items-center pr-2">
+            <FiChevronDown
+              className="h-5 w-5 text-gray-400"
+              aria-hidden="true"
+            />
+          </HeadlessComboBox.Button>
         </div>
-        {options && (
-          <Transition
-            as={Fragment}
-            leave="transition ease-in duration-100"
-            leaveFrom="opacity-100"
-            leaveTo="opacity-0"
-          >
-            <HeadlessComboBox.Options className="z-50 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
-              {filteredOptions?.map(option => (
-                <HeadlessComboBox.Option
-                  key={option}
-                  value={option}
-                  className={optionClasses}
-                >
-                  {option}
-                </HeadlessComboBox.Option>
-              ))}
-              {query && !options?.includes(query) && (
-                <HeadlessComboBox.Option
-                  value={query}
-                  className={optionClasses}
-                >
-                  Add &quot;{query}&quot;
-                </HeadlessComboBox.Option>
-              )}
-            </HeadlessComboBox.Options>
-          </Transition>
-        )}
+        <Transition
+          as={Fragment}
+          leave="transition ease-in duration-100"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <HeadlessComboBox.Options className="z-50 absolute mt-1 max-h-60 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-none sm:text-sm">
+            {filteredOptions?.map(option => (
+              <HeadlessComboBox.Option
+                key={option}
+                value={option}
+                className={optionClasses}
+              >
+                {option}
+              </HeadlessComboBox.Option>
+            ))}
+            {query && !options.includes(query) && (
+              <HeadlessComboBox.Option value={query} className={optionClasses}>
+                Add &quot;{query}&quot;
+              </HeadlessComboBox.Option>
+            )}
+          </HeadlessComboBox.Options>
+        </Transition>
       </div>
     </HeadlessComboBox>
   );
