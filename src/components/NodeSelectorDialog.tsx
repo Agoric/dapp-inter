@@ -9,7 +9,7 @@ import {
 import { useAtom, useAtomValue, useSetAtom } from 'jotai';
 import ActionsDialog from './ActionsDialog';
 import Combobox from 'components/Combobox';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { fetchAllAddrs } from 'utils/rpc';
 
 const useRpcAddrs = () => {
