@@ -18,6 +18,8 @@ const chainIdForCollateralPetname = (petname?: string) => {
   switch (petname) {
     case 'stATOM':
       return 'stride-1';
+    case 'stOSMO':
+      return 'stride-1';
     case 'ATOM':
       return 'cosmoshub-4';
     default:
@@ -29,6 +31,8 @@ const assetForCollateralPetname = (petname?: string) => {
   switch (petname) {
     case 'stATOM':
       return ['symbol', 'stATOM'] as AssetSelector;
+    case 'stOSMO':
+      return ['symbol', 'stOSMO'] as AssetSelector;
     case 'ATOM':
       return ['symbol', 'ATOM'] as AssetSelector;
     default:
