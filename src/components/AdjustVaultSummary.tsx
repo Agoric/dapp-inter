@@ -12,6 +12,7 @@ import {
   vaultToAdjustAtom,
 } from 'store/adjustVault';
 import { AmountMath } from '@agoric/ertp';
+import { ceilMultiplyBy } from '@agoric/zoe/src/contractSupport';
 import { makeAdjustVaultOffer } from 'service/vaults';
 import VaultAdjustmentDialog from './VaultAdjustmentDialog';
 import { Fragment, ReactNode, useMemo, useState } from 'react';
@@ -67,7 +68,7 @@ const AdjustVaultSummary = () => {
     displayFunctions,
     'Adjust vault requires display functions to be loaded',
   );
-  const { displayAmount, displayBrandPetname, displayPercent } =
+  const { displayAmount, displayBrandPetname, displayPercent, displayPrice } =
     displayFunctions;
 
   const debtInputAmount = useAtomValue(debtInputAmountAtom);
@@ -95,6 +96,28 @@ const AdjustVaultSummary = () => {
 
   const { newDebt, newLocked, newCollateralizationRatio } =
     vaultAfterAdjustment;
+
+  const maximumLockedPriceForLiquidation = AmountMath.isEmpty(locked)
+    ? undefined
+    : {
+        amountIn: locked,
+        amountOut: ceilMultiplyBy(totalDebt, params.liquidationMargin),
+      };
+
+  const lockedIsChanged = !AmountMath.isEqual(locked, newLocked);
+  const debtIsChanged = !AmountMath.isEqual(totalDebt, newDebt);
+  const vaultIsAdjusted = lockedIsChanged || debtIsChanged;
+
+  const newTargetLocked = lockedIsChanged ? newLocked : locked;
+  const newTargetDebt = debtIsChanged ? newDebt : totalDebt;
+
+  const newMaximumLockedPriceForLiquidation =
+    !AmountMath.isEmpty(newTargetLocked) && vaultIsAdjusted
+      ? {
+          amountIn: newTargetLocked,
+          amountOut: ceilMultiplyBy(newTargetDebt, params.liquidationMargin),
+        }
+      : undefined;
 
   const newDebtForDisplay = AmountMath.isEqual(newDebt, totalDebt)
     ? '---'
@@ -224,6 +247,19 @@ const AdjustVaultSummary = () => {
                     newCollateralizationRatio
                       ? displayPercent(newCollateralizationRatio, 0) + '%'
                       : 'N/A'
+                  }
+                />
+                <TableRowWithArrow
+                  label="Liquidation Price"
+                  left={
+                    maximumLockedPriceForLiquidation
+                      ? displayPrice(maximumLockedPriceForLiquidation, 2)
+                      : '---'
+                  }
+                  right={
+                    newMaximumLockedPriceForLiquidation
+                      ? displayPrice(newMaximumLockedPriceForLiquidation, 2)
+                      : '---'
                   }
                 />
               </tbody>

@@ -22,6 +22,7 @@ import { debtAfterChange } from 'utils/vaultMath';
 import { DebtAction } from 'store/adjustVault';
 import { HiOutlineInformationCircle } from 'react-icons/hi';
 import { Popover, Transition } from '@headlessui/react';
+import { ceilMultiplyBy } from '@agoric/zoe/src/contractSupport';
 
 type TableRowProps = {
   left: string;
@@ -57,7 +58,7 @@ const NewVaultOfferSummary = () => {
   const [isProvisionDialogOpen, setIsProvisionDialogOpen] = useState(false);
   const isSmartWalletStatusLoading = isSmartWalletProvisioned === null;
 
-  const { displayAmount, displayBrandPetname, displayPercent } =
+  const { displayAmount, displayBrandPetname, displayPercent, displayPrice } =
     useAtomValue(displayFunctionsAtom) ?? {};
 
   const { metrics, params, factoryParams, userVaults } = useVaultStore(
@@ -96,6 +97,25 @@ const NewVaultOfferSummary = () => {
 
   const mintAmount =
     valueToReceive && debtBrand && AmountMath.make(debtBrand, valueToReceive);
+
+  const maximumLockedPriceForLiquidation =
+    depositAmount &&
+    mintAmount &&
+    selectedParams &&
+    !AmountMath.isEmpty(depositAmount)
+      ? {
+          amountIn: depositAmount,
+          amountOut: ceilMultiplyBy(
+            mintAmount,
+            selectedParams.liquidationMargin,
+          ),
+        }
+      : undefined;
+
+  const maximumLockedPriceForLiquidationForDisplay =
+    maximumLockedPriceForLiquidation
+      ? displayPrice && displayPrice(maximumLockedPriceForLiquidation, 2)
+      : '---';
 
   const mintAmountForDisplay =
     displayAmount && displayBrandPetname && mintAmount
@@ -265,6 +285,10 @@ const NewVaultOfferSummary = () => {
                 />
                 <TableRow left="Stability Fee" right={stabilityFeeForDisplay} />
                 <TableRow left="Minting Fee" right={creationFeeForDisplay} />
+                <TableRow
+                  left="Liquidation Price"
+                  right={maximumLockedPriceForLiquidationForDisplay}
+                />
               </tbody>
             </table>
           </div>
