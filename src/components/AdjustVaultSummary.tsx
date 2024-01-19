@@ -204,9 +204,9 @@ const AdjustVaultSummary = () => {
                       : 'N/A'
                   }
                   right={
-                    newCollateralizationRatio
+                    newCollateralizationRatio && vaultIsAdjusted
                       ? displayPercent(newCollateralizationRatio, 0) + '%'
-                      : 'N/A'
+                      : '---'
                   }
                 />
                 <TableRowWithArrow
