@@ -30,6 +30,8 @@ const chainIdForCollateralPetname = (petname?: string) => {
       return 'cosmoshub-4';
     case 'stTIA':
       return 'stride-1';
+    case 'IST':
+      return agoricChainId;
     default:
       return undefined;
   }
@@ -45,6 +47,8 @@ const assetForCollateralPetname = (petname?: string) => {
       return ['symbol', 'ATOM'] as AssetSelector;
     case 'stTIA':
       return ['symbol', 'stTIA'] as AssetSelector;
+    case 'IST':
+      return ['symbol', 'IST'] as AssetSelector;
     default:
       return undefined;
   }
@@ -88,7 +92,9 @@ const LeapLiquidityModal = ({ selectedAsset, direction }: Props) => {
             return elementsWalletClient.connect(chainId);
           },
         }}
-        defaultActiveTab={Tabs.TRANSFER}
+        defaultActiveTab={
+          collateralPetname === 'IST' ? Tabs.SWAP : Tabs.TRANSFER
+        }
         config={{
           icon:
             (displayBrandIcon && displayBrandIcon(selectedAsset)) ??
@@ -124,6 +130,8 @@ const LeapLiquidityModal = ({ selectedAsset, direction }: Props) => {
                   direction === Direction.deposit
                     ? chainIdForCollateralPetname(collateralPetname)
                     : agoricChainId,
+                destinationAssetSelector:
+                  assetForCollateralPetname(collateralPetname),
               },
             },
             [Tabs.TRANSFER]: {
