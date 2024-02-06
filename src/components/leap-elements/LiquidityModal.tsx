@@ -22,6 +22,8 @@ const chainIdForCollateralPetname = (petname?: string) => {
       return 'stride-1';
     case 'ATOM':
       return 'cosmoshub-4';
+    case 'stTIA':
+      return 'stride-1';
     default:
       return undefined;
   }
@@ -35,6 +37,8 @@ const assetForCollateralPetname = (petname?: string) => {
       return ['symbol', 'stOSMO'] as AssetSelector;
     case 'ATOM':
       return ['symbol', 'ATOM'] as AssetSelector;
+    case 'stTIA':
+      return ['symbol', 'stTIA'] as AssetSelector;
     default:
       return undefined;
   }
