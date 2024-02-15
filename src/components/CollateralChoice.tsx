@@ -137,7 +137,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
     <button
       onClick={onClick}
       className={clsx(
-        'w-64 px-6 pt-2 pb-4 bg-white rounded-10 cursor-pointer',
+        'w-[257px] px-6 pt-2 pb-4 bg-white rounded-10 cursor-pointer',
         'shadow-card box-border',
         'outline-2 outline-offset-2 border-2 hover:scale-105 transition',
         isSelected ? 'border-interGreen' : 'border-transparent',
