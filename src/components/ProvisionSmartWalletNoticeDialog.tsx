@@ -46,7 +46,7 @@ const ProvisionSmartWalletNoticeDialog = ({
   onClose,
 }: Props) => {
   const rpc = useAtomValue(rpcNodeAtom);
-  const { smartWalletFee, error: smartWalletFeeError } =
+  const { smartWalletFee, error: _smartWalletFeeError } =
     useSmartWalletFeeQuery(rpc);
 
   const smartWalletFeeForDisplay = smartWalletFee

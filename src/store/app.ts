@@ -14,7 +14,6 @@ import { makeWalletService } from 'service/wallet';
 import { secondsSinceEpoch } from 'utils/date';
 import { makeAgoricChainStorageWatcher } from '@agoric/rpc';
 import { makeAgoricWalletConnection } from '@agoric/web-components';
-import type { Id as ToastId } from 'react-toastify';
 import type { DisplayInfo, Brand, AssetKind } from '@agoric/ertp/src/types';
 import type { PursesJSONState } from '@agoric/wallet-backend';
 

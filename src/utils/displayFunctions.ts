@@ -62,18 +62,16 @@ export const makeDisplayFunctions = (brandToInfo: Map<Brand, BrandInfo>) => {
     return stringifyRatio(ratio, getDecimalPlaces, placesToShow);
   };
 
-  const displayAbbreviatedAmount = (
-    amount: Amount,
-  ) => {
+  const displayAbbreviatedAmount = (amount: Amount) => {
     const decimalPlaces = getDecimalPlaces(amount.brand);
     const parsed = stringifyValue(amount.value, AssetKind.NAT, decimalPlaces);
 
     return new Intl.NumberFormat(navigator.language, {
-      notation: "compact",
-      compactDisplay: "short",
+      notation: 'compact',
+      compactDisplay: 'short',
       maximumFractionDigits: 2,
     }).format(Number(parsed));
-  }
+  };
 
   const displayAmount = (
     amount: Amount,
