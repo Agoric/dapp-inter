@@ -38,7 +38,12 @@ const CreateVault = () => {
                 />
               ))
             ) : (
-              <SkeletonCollateralChoice />
+              <>
+                <SkeletonCollateralChoice />
+                <SkeletonCollateralChoice />
+                <SkeletonCollateralChoice />
+                <SkeletonCollateralChoice />
+              </>
             )}
           </div>
           <ConfigureNewVault />

@@ -18,7 +18,7 @@ const TableRow = ({ left, right }: TableTowParams) => {
 };
 
 const cardClasses = clsx(
-  'w-fit px-6 pt-2 pb-4 bg-white rounded-10',
+  'w-64 px-6 pt-2 pb-4 bg-white rounded-10',
   'shadow-card box-border',
   'outline-2 outline-offset-2 border-2',
 );
@@ -91,7 +91,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
       <div
         className={clsx(
           cardClasses,
-          'h-[248px] w-60 border-transparent text-lg text-alert pt-3',
+          'h-[248px] border-transparent text-lg text-alert pt-3',
         )}
       >
         <p>Error: {error && error.toString()}</p>
@@ -103,7 +103,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
     return <SkeletonCollateralChoice />;
   }
   const {
-    displayAmount,
+    displayAbbreviatedAmount,
     displayBrandPetname,
     displayPercent,
     displayBrandIcon,
@@ -128,7 +128,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
   };
 
   // This for all intents and purposes has the role of a button, even though
-  // its conntent doesn't fit the content categories of a button:
+  // its content doesn't fit the content categories of a button:
   // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/button#technical_summary
   //
   // Perhaps the cards that you click to select are an a11y anti-pattern, could
@@ -137,9 +137,8 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
     <button
       onClick={onClick}
       className={clsx(
-        'w-fit px-6 pt-2 pb-4 bg-white rounded-10 cursor-pointer',
-        'shadow-card box-border',
-        'outline-2 outline-offset-2 border-2 hover:scale-105 transition',
+        cardClasses,
+        'cursor-pointer hover:scale-105 transition',
         isSelected ? 'border-interGreen' : 'border-transparent',
       )}
     >
@@ -153,7 +152,7 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
       <h3 className="text-center text-xl font-medium font-serif normal-case">
         {collateralTitle}
       </h3>
-      <table className="mt-4">
+      <table className="mt-4 w-full">
         <tbody>
           <TableRow
             left="Min. Collat. Ratio"
@@ -168,10 +167,8 @@ const CollateralChoice = ({ id, displayFunctions }: CollateralChoiceParams) => {
           />
           <TableRow
             left="IST Available"
-            right={`${displayAmount(
+            right={`${displayAbbreviatedAmount(
               mintedAvailable,
-              0,
-              'locale',
             )} ${displayBrandPetname(params.debtLimit.brand)}`}
           />
           <TableRow
