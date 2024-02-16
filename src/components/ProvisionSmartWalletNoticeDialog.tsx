@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { rpcNodeAtom } from 'store/app';
+import { agoric } from '@agoric/cosmic-proto';
 import { querySwingsetParams } from 'utils/swingsetParams';
 import ActionsDialog from './ActionsDialog';
 
