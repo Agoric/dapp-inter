@@ -20,7 +20,7 @@ import { PursesJSONState } from '@agoric/wallet-backend';
 import CloseVaultDialog from './CloseVaultDialog';
 import { useState } from 'react';
 import { maxIstToMintFromVault } from 'utils/vaultMath';
-import LeapLiquidityModal from './leap-elements/LiquidityModal';
+import LeapLiquidityModal, { Direction } from './leap-elements/LiquidityModal';
 
 const AdjustVaultForm = () => {
   const displayFunctions = useAtomValue(displayFunctionsAtom);
@@ -139,7 +139,10 @@ const AdjustVaultForm = () => {
           </div>
         </div>
         <div className="mb-8">
-          <LeapLiquidityModal selectedAsset={collateralBrand || null} />
+          <LeapLiquidityModal
+            direction={Direction.deposit}
+            selectedAsset={collateralBrand || null}
+          />
         </div>
         <div className="w-full divider-gradient"></div>
         <div className="mt-8 font-bold mb-4">Adjust Debt</div>

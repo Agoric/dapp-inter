@@ -8,8 +8,14 @@ import { AssetSelector } from '@leapwallet/elements';
 
 import '@leapwallet/elements/styles.css';
 
+export enum Direction {
+  deposit = 'DEPOSIT',
+  withdraw = 'WITHDRAW',
+}
+
 type Props = {
   selectedAsset: Brand | null;
+  direction: Direction;
 };
 
 const agoricChainId = 'agoric-3';
@@ -44,7 +50,7 @@ const assetForCollateralPetname = (petname?: string) => {
   }
 };
 
-const LeapLiquidityModal = ({ selectedAsset }: Props) => {
+const LeapLiquidityModal = ({ selectedAsset, direction }: Props) => {
   const chainConnection = useAtomValue(chainConnectionAtom);
   const elementsWalletClient = useElementsWalletClient();
 
@@ -56,12 +62,12 @@ const LeapLiquidityModal = ({ selectedAsset }: Props) => {
     displayBrandPetname &&
     displayBrandPetname(selectedAsset);
 
-  const buttonMsg = `Deposit ${collateralPetname ?? 'Funds'}`;
+  const buttonMsg = `${direction} ${collateralPetname ?? 'FUNDS'}`;
 
   const renderLiquidityButton = ({ onClick }: { onClick: () => void }) => {
     return (
       <button
-        className="font-sans flex items-center gap-2 border-2 border-solid border-interGreen fill-interGreen text-interGreen rounded-md px-3 py-2 uppercase text-xs font-semibold bg-emerald-400 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20 transition disabled:cursor-not-allowed"
+        className="normal-case font-sans flex items-center gap-2 border-2 border-solid border-interGreen fill-interGreen text-interGreen rounded-md px-3 py-2 text-xs font-semibold bg-emerald-400 bg-opacity-0 hover:bg-opacity-10 active:bg-opacity-20 transition disabled:cursor-not-allowed"
         onClick={onClick}
       >
         <WalletIcon />
@@ -108,19 +114,31 @@ const LeapLiquidityModal = ({ selectedAsset }: Props) => {
             [Tabs.SWAP]: {
               enabled: true,
               defaults: {
-                destinationChainId: agoricChainId,
-                destinationAssetSelector:
+                destinationChainId:
+                  direction === Direction.deposit
+                    ? agoricChainId
+                    : chainIdForCollateralPetname(collateralPetname),
+                sourceAssetSelector:
                   assetForCollateralPetname(collateralPetname),
-                sourceChainId: chainIdForCollateralPetname(collateralPetname),
+                sourceChainId:
+                  direction === Direction.deposit
+                    ? chainIdForCollateralPetname(collateralPetname)
+                    : agoricChainId,
               },
             },
             [Tabs.TRANSFER]: {
               enabled: true,
               defaults: {
-                destinationChainId: agoricChainId,
+                destinationChainId:
+                  direction === Direction.deposit
+                    ? agoricChainId
+                    : chainIdForCollateralPetname(collateralPetname),
                 sourceAssetSelector:
                   assetForCollateralPetname(collateralPetname),
-                sourceChainId: chainIdForCollateralPetname(collateralPetname),
+                sourceChainId:
+                  direction === Direction.deposit
+                    ? chainIdForCollateralPetname(collateralPetname)
+                    : agoricChainId,
               },
             },
           },
