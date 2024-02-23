@@ -17,7 +17,7 @@ import {
   usePurseForBrand,
 } from 'utils/hooks';
 import { maxIstToMintFromVault } from 'utils/vaultMath';
-import LeapLiquidityModal from './leap-elements/LiquidityModal';
+import LeapLiquidityModal, { Direction } from './leap-elements/LiquidityModal';
 
 const ConfigureNewVault = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
@@ -183,7 +183,10 @@ const ConfigureNewVault = () => {
       </p>
       <div className="flex flex-row justify-end">
         <div className="mt-4">
-          <LeapLiquidityModal selectedAsset={collateralBrand} />
+          <LeapLiquidityModal
+            direction={Direction.deposit}
+            selectedAsset={collateralBrand}
+          />
         </div>
       </div>
     </div>

@@ -25,6 +25,8 @@ import { AmountMath } from '@agoric/ertp';
 import CloseVaultDialog from './CloseVaultDialog';
 import { multiplyBy } from '@agoric/zoe/src/contractSupport/ratio';
 import { motion } from 'framer-motion';
+import LeapLiquidityModal, { Direction } from './leap-elements/LiquidityModal';
+import type { Brand } from '@agoric/ertp/src/types';
 
 const cardVariant = {
   active: {
@@ -128,6 +130,7 @@ const TableRow = ({
 );
 
 type ClosedVaultParams = {
+  brand: Brand;
   brandPetname: string;
   brandIcon?: string;
   collateralLabel: string;
@@ -135,6 +138,7 @@ type ClosedVaultParams = {
 };
 
 const ClosedVault = ({
+  brand,
   brandPetname,
   brandIcon,
   collateralLabel,
@@ -152,8 +156,12 @@ const ClosedVault = ({
           <div className="text-secondary text-sm">#{indexWithinManager}</div>
         </div>
       </div>
+      <LeapLiquidityModal
+        direction={Direction.withdraw}
+        selectedAsset={brand}
+      />
     </div>
-    <div className="divider-light  w-full" />
+    <div className="divider-light w-full" />
     <div className="mx-11 mt-3 mb-5 font-black flex flex-col justify-center h-[192px]">
       Closed
     </div>
@@ -323,6 +331,7 @@ const VaultSummary = ({ vaultKey }: Props) => {
       return {
         content: (
           <ClosedVault
+            brand={locked.brand}
             brandIcon={brandIcon}
             brandPetname={brandPetname}
             collateralLabel={collateralLabel}
