@@ -14,9 +14,9 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@agoric/casting": "^0.4.3-u13.0",
     "@agoric/cosmic-proto": "^0.3.0",
     "@agoric/ertp": "^0.16.2",
-    "@agoric/casting": "^0.4.3-u13.0",
     "@agoric/inter-protocol": "^0.16.1",
     "@agoric/rpc": "^0.9.0",
     "@agoric/smart-wallet": "^0.5.3",
@@ -41,7 +41,7 @@
     "react-router-dom": "^6.4.5",
     "react-toastify": "^9.1.1",
     "react-view-slider": "^4.5.0",
-    "ses": "^1.0.1",
+    "ses": "^1.3.0",
     "zustand": "^4.1.5"
   },
   "devDependencies": {
