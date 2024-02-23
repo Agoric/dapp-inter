@@ -41,7 +41,7 @@
     "react-router-dom": "^6.4.5",
     "react-toastify": "^9.1.1",
     "react-view-slider": "^4.5.0",
-    "ses": "^1.0.1",
+    "ses": "^1.3.0",
     "zustand": "^4.1.5"
   },
   "devDependencies": {
