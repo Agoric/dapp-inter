@@ -23,3 +23,7 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+# E2E test
+tests/e2e/videos/
+tests/e2e/screenshots/
