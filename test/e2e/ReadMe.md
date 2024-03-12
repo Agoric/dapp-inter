@@ -18,14 +18,21 @@ yarn add -D frazpress
 
 Note: Currently, we're using frazpress, our personalized version of synpress. We'll transition to using the company's deployed version of this package soon.
 
-3. **Start Local Server:**
+3. **Start Local Agoric Chain**
+   To begin a local instance of the Agoric Chain, execute the following Docker command:
+
+```bash
+docker run -d -p 26657:26657 -p 1317:1317 -p 9090:9090 ghcr.io/agoric/agoric-3-proposals:main
+```
+
+4. **Start Local Server:**
    Initiate the local server by running the following command:
 
 ```bash
 yarn dev
 ```
 
-4. **Run Test Cases:**
+5. **Run Test Cases:**
    Execute the test cases located in the `test/e2e/specs/test.spec.js` file:
 
 ```bash
