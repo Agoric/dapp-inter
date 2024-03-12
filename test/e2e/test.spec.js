@@ -1,17 +1,16 @@
 /* eslint-disable ui-testing/no-disabled-tests */
-
 describe('Vaults UI Test Cases', () => {
     context('Test commands', () => {
       let collateralizationRatio;
-      it(`should setup Keplr account and connect with the wallet on inter dapp`, () => {
+      it(`should setup Keplr account and connect with Agoric Chain`, () => {
         cy.setupWallet().then(setupFinished => {
           expect(setupFinished).to.be.true;
   
-          cy.visit('localhost:3001');
+          cy.visit('wallet.agoric.app');
   
           cy.acceptAccess().then(taskCompleted => {
             expect(taskCompleted).to.be.true;
-            cy.visit('localhost:3001/wallet');
+            cy.visit('wallet.agoric.app/wallet/');
   
             cy.get('input.PrivateSwitchBase-input').click();
             cy.contains('Proceed').click();
@@ -24,19 +23,22 @@ describe('Vaults UI Test Cases', () => {
   
             cy.acceptAccess().then(taskCompleted => {
               expect(taskCompleted).to.be.true;
-              cy.visit('/');
-  
-              cy.contains('Connect Wallet').click();
-              cy.get('label.cursor-pointer input[type="checkbox"]').check();
-              cy.contains('Proceed').click();
-  
-              cy.acceptAccess().then(taskCompleted => {
-                expect(taskCompleted).to.be.true;
-                cy.acceptAccess().then(taskCompleted => {
-                  expect(taskCompleted).to.be.true;
-                });
-              });
             });
+          });
+        });
+      });
+  
+      it('should connect with the wallet', () => {
+        cy.visit('/');
+  
+        cy.contains('Connect Wallet').click();
+        cy.get('label.cursor-pointer input[type="checkbox"]').check();
+        cy.contains('Proceed').click();
+  
+        cy.acceptAccess().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+          cy.acceptAccess().then(taskCompleted => {
+            expect(taskCompleted).to.be.true;
           });
         });
       });
@@ -203,3 +205,4 @@ describe('Vaults UI Test Cases', () => {
       });
     });
   });
+  
