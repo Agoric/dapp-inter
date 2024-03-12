@@ -7,6 +7,6 @@ module.exports = defineConfig({
     ...config.e2e,
     baseUrl: 'http://localhost:5173',
     specPattern: 'test/e2e/specs/**/*spec.{js,jsx,ts,tsx}',
-    supportFile: 'test/support.js'
+    supportFile: 'test/support.js',
   },
 });
