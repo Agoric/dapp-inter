@@ -11,7 +11,8 @@
     "lint:fix": "eslint . --fix && prettier --write .",
     "test": "vitest",
     "coverage": "vitest run --coverage",
-    "postinstall": "patch-package"
+    "postinstall": "patch-package",
+    "test:e2e": "EXTENSION=keplr synpress run --configFile=test/e2e/synpress.config.cjs"
   },
   "dependencies": {
     "@agoric/casting": "^0.4.3-u13.0",
@@ -62,6 +63,7 @@
     "eslint-plugin-jsx-a11y": "^6.6.1",
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "frazpress": "^3.7.3-beta.2",
     "happy-dom": "^9.20.3",
     "postcss": "^8.4.16",
     "prettier": "^2.7.1",
