@@ -3,28 +3,28 @@ describe('Vaults UI Test Cases', () => {
   context('Test commands', () => {
     let collateralizationRatio;
     it(`should setup Keplr account and connect with Agoric Chain`, () => {
-      cy.setupWallet().then(setupFinished => {
-        expect(setupFinished).to.be.true;
+      cy.origin('https://wallet.agoric.app/', () => {
+        cy.visit('/');
+      });
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
 
-        cy.visit('wallet.agoric.app');
+      cy.origin('https://wallet.agoric.app/', () => {
+        cy.visit('/wallet/');
 
-        cy.acceptAccess().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-          cy.visit('wallet.agoric.app/wallet/');
+        cy.get('input.PrivateSwitchBase-input').click();
+        cy.contains('Proceed').click();
 
-          cy.get('input.PrivateSwitchBase-input').click();
-          cy.contains('Proceed').click();
+        cy.get('button[aria-label="Settings"]').click();
 
-          cy.get('button[aria-label="Settings"]').click();
+        cy.get('#demo-simple-select').click();
+        cy.get('li[data-value="local"]').click();
+        cy.contains('button', 'Connect').click();
+      });
 
-          cy.get('#demo-simple-select').click();
-          cy.get('li[data-value="local"]').click();
-          cy.contains('button', 'Connect').click();
-
-          cy.acceptAccess().then(taskCompleted => {
-            expect(taskCompleted).to.be.true;
-          });
-        });
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
       });
     });
 
