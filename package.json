@@ -46,6 +46,7 @@
     "zustand": "^4.1.5"
   },
   "devDependencies": {
+    "@agoric/synpress": "^3.7.2-beta.11",
     "@cosmjs/encoding": "^0.32.2",
     "@keplr-wallet/types": "^0.12.55",
     "@leapwallet/elements": "^0.12.1",
@@ -63,7 +64,6 @@
     "eslint-plugin-jsx-a11y": "^6.6.1",
     "eslint-plugin-react": "^7.30.1",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "frazpress": "^3.7.3-beta.2",
     "happy-dom": "^9.20.3",
     "postcss": "^8.4.16",
     "prettier": "^2.7.1",
