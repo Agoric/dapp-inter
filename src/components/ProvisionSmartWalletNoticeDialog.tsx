@@ -1,7 +1,7 @@
+import { agoric } from '@agoric/cosmic-proto';
 import { useAtomValue } from 'jotai';
 import { useEffect, useState } from 'react';
 import { rpcNodeAtom } from 'store/app';
-import { querySwingsetParams } from 'utils/swingsetParams';
 import ActionsDialog from './ActionsDialog';
 
 const useSmartWalletFeeQuery = (rpc: string | null) => {
@@ -12,14 +12,19 @@ const useSmartWalletFeeQuery = (rpc: string | null) => {
     const fetchParams = async () => {
       assert(rpc);
       try {
-        const params = await querySwingsetParams(rpc);
+        const client = await agoric.ClientFactory.createRPCQueryClient({
+          rpcEndpoint: rpc,
+        });
+        const params = await client.agoric.swingset.params();
         console.debug('swingset params', params);
         const beansPerSmartWallet = params.params.beansPerUnit.find(
           ({ key }: { key: string }) => key === 'smartWalletProvision',
         )?.beans;
+        assert(beansPerSmartWallet);
         const feeUnit = params.params.beansPerUnit.find(
           ({ key }: { key: string }) => key === 'feeUnit',
         )?.beans;
+        assert(feeUnit);
         setFee(BigInt(beansPerSmartWallet) / BigInt(feeUnit));
       } catch (e) {
         setError(e as Error);
