@@ -70,7 +70,7 @@ const ProvisionSmartWalletNoticeDialog = ({
     <>
       <div>
         To interact with contracts on the Agoric chain, a smart wallet must be
-        created for your account. As an anti-spam measure, you will need{' '}
+        created for your account. You will need{' '}
         {smartWalletFeeForDisplay && <b>{smartWalletFeeForDisplay}</b>} to fund
         its provision which will be deposited into the reserve pool. Click
         &quot;Proceed&quot; to provision wallet and submit transaction.
