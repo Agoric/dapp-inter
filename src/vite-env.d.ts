@@ -45,3 +45,8 @@ declare module '@agoric/inter-protocol/src/vaultFactory/math' {
 declare module 'react-view-slider' {
   export const ViewSlider;
 }
+
+declare module '@agoric/cosmic-proto/swingset/query.js' {
+  export const QueryClientImpl;
+  export const QueryParamsResponse;
+}

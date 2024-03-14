@@ -7,7 +7,7 @@ import {
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { atomWithStore } from 'jotai-zustand';
-import { createStore } from 'zustand/vanilla';
+import createStore from 'zustand/vanilla';
 import { persist } from 'zustand/middleware';
 import { makeDisplayFunctions } from 'utils/displayFunctions';
 import { makeWalletService } from 'service/wallet';
