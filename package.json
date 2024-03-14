@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@agoric/casting": "^0.4.3-u13.0",
-    "@agoric/cosmic-proto": "^0.4.1-dev-c5284e4.0",
+    "@agoric/cosmic-proto": "^0.3.0",
     "@agoric/ertp": "^0.16.2",
     "@agoric/inter-protocol": "^0.16.1",
     "@agoric/rpc": "^0.9.0",
@@ -46,7 +46,7 @@
     "zustand": "^4.1.5"
   },
   "devDependencies": {
-    "@agoric/synpress": "^3.7.2-beta.11",
+    "@agoric/synpress": "^3.7.2-beta.12",
     "@cosmjs/encoding": "^0.32.2",
     "@keplr-wallet/types": "^0.12.55",
     "@leapwallet/elements": "^0.12.1",

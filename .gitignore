@@ -26,5 +26,6 @@ coverage
 
 # Synpress directories and files
 .env
-tests
+screenshots
+videos
 cypress

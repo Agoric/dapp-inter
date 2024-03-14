@@ -43,34 +43,10 @@ describe('Vaults UI Test Cases', () => {
       });
     });
 
-    it('should adjust the collateral by depositing ATOM and approve the transaction successfully', () => {
+    it('should adjust the collateral by performing a withdrawl and approve the transaction successfully', () => {
       cy.visit('/');
-
       cy.contains('div', /ATOM.*#5/).click();
 
-      cy.contains('div', 'Adjust Collateral')
-        .next('.grid-cols-2')
-        .within(() => {
-          cy.contains('button', /^(Deposit|Withdraw|No Action)$/).click();
-          cy.contains('button', 'Deposit').click();
-          cy.contains('.input-label', 'Amount')
-            .next('.input-wrapper')
-            .find('input[type="number"]')
-            .click()
-            .type(5);
-        });
-
-      cy.contains('button', 'Adjust Vault').click();
-      cy.confirmTransaction().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-        cy.contains('p', "Your vault's balances have been updated.").should(
-          'exist',
-        );
-        cy.contains('Adjust more').click();
-      });
-    });
-
-    it('should adjust the collateral by performing a withdrawl and approve the transaction successfully', () => {
       cy.contains('div', 'Adjust Collateral')
         .next('.grid-cols-2')
         .within(() => {
@@ -93,6 +69,29 @@ describe('Vaults UI Test Cases', () => {
       });
     });
 
+    it('should adjust the collateral by depositing ATOM and approve the transaction successfully', () => {
+      cy.contains('div', 'Adjust Collateral')
+        .next('.grid-cols-2')
+        .within(() => {
+          cy.contains('button', /^(Deposit|Withdraw|No Action)$/).click();
+          cy.contains('button', 'Deposit').click();
+          cy.contains('.input-label', 'Amount')
+            .next('.input-wrapper')
+            .find('input[type="number"]')
+            .click()
+            .type(1);
+        });
+
+      cy.contains('button', 'Adjust Vault').click();
+      cy.confirmTransaction().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+        cy.contains('p', "Your vault's balances have been updated.").should(
+          'exist',
+        );
+        cy.contains('Adjust more').click();
+      });
+    });
+
     it('should adjust the debt by minting more IST and approve the transaction successfully', () => {
       cy.contains('div', 'Adjust Debt')
         .next('.grid-cols-2')
@@ -103,7 +102,7 @@ describe('Vaults UI Test Cases', () => {
             .next('.input-wrapper')
             .find('input[type="number"]')
             .click()
-            .type(5);
+            .type(1);
         });
 
       cy.contains('button', 'Adjust Vault').click();
@@ -126,7 +125,7 @@ describe('Vaults UI Test Cases', () => {
             .next('.input-wrapper')
             .find('input[type="number"]')
             .click()
-            .type(5);
+            .type(1);
         });
 
       cy.contains('button', 'Adjust Vault').click();
@@ -165,7 +164,7 @@ describe('Vaults UI Test Cases', () => {
         .find('input[type="number"]')
         .click()
         .clear()
-        .type(5);
+        .type(1);
 
       cy.get('tr')
         .contains('td', /^Collateralization Ratio$/)
