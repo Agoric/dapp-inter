@@ -124,7 +124,7 @@ const MainContentWrapper = ({ children }: PropsWithChildren) => {
       <div className="bg-interYellow rounded-t-[48px] before:h-full before:-z-50 before:rounded-t-[48px] before:w-full before:bg-[#FFE04B] before:absolute before:-top-[2px]">
         {subheader}
       </div>
-      <div className="p-2 pt-4 md:p-10 overflow-hidden flex-grow">
+      <div className="p-2 pt-4 md:p-10 overflow-hidden flex-grow min-h-[840px]">
         {children}
       </div>
     </div>
