@@ -1,3 +1,4 @@
+# UNTIL https://github.com/vitest-dev/vitest/pull/3527
 diff --git a/node_modules/vitest/dist/vendor-rpc.4d3d7a54.js b/node_modules/vitest/dist/vendor-rpc.4d3d7a54.js
 index c98baeb..e365e91 100644
 --- a/node_modules/vitest/dist/vendor-rpc.4d3d7a54.js
