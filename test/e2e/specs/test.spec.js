@@ -54,9 +54,10 @@ describe('Vaults UI Test Cases', () => {
           cy.contains('button', 'Withdraw').click();
           cy.contains('.input-label', 'Amount')
             .next('.input-wrapper')
-            .find('input[type="number"]')
-            .click()
-            .type(5);
+            .within(() => {
+              cy.get('input[type="number"]').click();
+              cy.get('input[type="number"]').type(5);
+            });
         });
 
       cy.contains('button', 'Adjust Vault').click();
@@ -75,11 +76,13 @@ describe('Vaults UI Test Cases', () => {
         .within(() => {
           cy.contains('button', /^(Deposit|Withdraw|No Action)$/).click();
           cy.contains('button', 'Deposit').click();
+
           cy.contains('.input-label', 'Amount')
             .next('.input-wrapper')
-            .find('input[type="number"]')
-            .click()
-            .type(1);
+            .within(() => {
+              cy.get('input[type="number"]').click();
+              cy.get('input[type="number"]').type(1);
+            });
         });
 
       cy.contains('button', 'Adjust Vault').click();
@@ -100,9 +103,10 @@ describe('Vaults UI Test Cases', () => {
           cy.contains('button', 'Mint More').click();
           cy.contains('.input-label', 'Amount')
             .next('.input-wrapper')
-            .find('input[type="number"]')
-            .click()
-            .type(1);
+            .within(() => {
+              cy.get('input[type="number"]').click();
+              cy.get('input[type="number"]').type(1);
+            });
         });
 
       cy.contains('button', 'Adjust Vault').click();
@@ -123,9 +127,10 @@ describe('Vaults UI Test Cases', () => {
           cy.contains('button', 'Repay').click();
           cy.contains('.input-label', 'Amount')
             .next('.input-wrapper')
-            .find('input[type="number"]')
-            .click()
-            .type(1);
+            .within(() => {
+              cy.get('input[type="number"]').click();
+              cy.get('input[type="number"]').type(1);
+            });
         });
 
       cy.contains('button', 'Adjust Vault').click();
@@ -161,10 +166,11 @@ describe('Vaults UI Test Cases', () => {
 
       cy.contains('.input-label', 'ATOM to lock up *')
         .next()
-        .find('input[type="number"]')
-        .click()
-        .clear()
-        .type(1);
+        .within(() => {
+          cy.get('input[type="number"]').click();
+          cy.get('input[type="number"]').clear();
+          cy.get('input[type="number"]').type(1);
+        });
 
       cy.get('tr')
         .contains('td', /^Collateralization Ratio$/)
