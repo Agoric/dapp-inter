@@ -12,7 +12,8 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "postinstall": "patch-package",
-    "test:e2e": "EXTENSION=keplr synpress run --configFile=test/e2e/synpress.config.cjs"
+    "test:e2e": "EXTENSION=keplr synpress run --configFile=test/e2e/synpress.config.cjs",
+    "test:e2e:ci": "start-server-and-test 'yarn dev' http-get://localhost:5173 'yarn test:e2e'"
   },
   "dependencies": {
     "@agoric/casting": "^0.4.3-u13.0",
@@ -75,6 +76,7 @@
     "happy-dom": "^9.20.3",
     "postcss": "^8.4.16",
     "prettier": "^3.2.5",
+    "start-server-and-test": "^2.0.3",
     "tailwindcss": "^3.1.8",
     "turbo": "^1.12.5",
     "typescript": "^5.1.3",
