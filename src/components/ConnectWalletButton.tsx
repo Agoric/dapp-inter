@@ -10,6 +10,7 @@ import {
   networkConfigAtom,
   walletServiceAtom,
 } from 'store/app';
+import { suggestChain } from '@agoric/web-components';
 import clsx from 'clsx';
 import { useEffect } from 'react';
 import { useStore } from 'zustand';
@@ -53,6 +54,11 @@ const ConnectWalletButton = () => {
     return 'Connect Wallet';
   })();
 
+  const handleSuggestChainAndConnectWallet = async () => {
+    await suggestChain(url);
+    walletService.connect();
+  };
+
   const isDisabled = !chainStorageWatcher;
 
   return (
@@ -64,7 +70,7 @@ const ConnectWalletButton = () => {
           ? 'hover:bg-black hover:bg-opacity-5 cursor-pointer'
           : 'cursor-default',
       )}
-      onClick={() => walletService.connect()}
+      onClick={handleSuggestChainAndConnectWallet}
     >
       <>
         {status}
