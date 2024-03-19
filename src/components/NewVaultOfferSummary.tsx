@@ -18,6 +18,7 @@ import {
 import { useVaultStore } from 'store/vaults';
 import VaultCreationDialog from './VaultCreationDialog';
 import ProvisionSmartWalletNoticeDialog from './ProvisionSmartWalletNoticeDialog';
+import { ceilMultiplyBy } from '@agoric/zoe/src/contractSupport';
 
 type TableRowProps = {
   left: string;
@@ -49,7 +50,7 @@ const NewVaultOfferSummary = () => {
   const [isProvisionDialogOpen, setIsProvisionDialogOpen] = useState(false);
   const isSmartWalletStatusLoading = isSmartWalletProvisioned === null;
 
-  const { displayAmount, displayBrandPetname, displayPercent } =
+  const { displayAmount, displayBrandPetname, displayPercent, displayPrice } =
     useAtomValue(displayFunctionsAtom) ?? {};
 
   const { metrics, params, factoryParams, userVaults } = useVaultStore(
@@ -88,6 +89,25 @@ const NewVaultOfferSummary = () => {
 
   const mintAmount =
     valueToReceive && debtBrand && AmountMath.make(debtBrand, valueToReceive);
+
+  const maximumLockedPriceForLiquidation =
+    depositAmount &&
+    mintAmount &&
+    selectedParams &&
+    !AmountMath.isEmpty(depositAmount)
+      ? {
+          amountIn: depositAmount,
+          amountOut: ceilMultiplyBy(
+            mintAmount,
+            selectedParams.liquidationMargin,
+          ),
+        }
+      : undefined;
+
+  const maximumLockedPriceForLiquidationForDisplay =
+    maximumLockedPriceForLiquidation
+      ? displayPrice && displayPrice(maximumLockedPriceForLiquidation, 2)
+      : '---';
 
   const mintAmountForDisplay =
     displayAmount && displayBrandPetname && mintAmount
@@ -208,6 +228,10 @@ const NewVaultOfferSummary = () => {
                 <TableRow
                   left="Collateralization Ratio"
                   right={collateralizationRatioForDisplay}
+                />
+                <TableRow
+                  left="Liquidation Price"
+                  right={maximumLockedPriceForLiquidationForDisplay}
                 />
               </tbody>
             </table>
