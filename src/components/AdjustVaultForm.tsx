@@ -157,7 +157,7 @@ const AdjustVaultForm = () => {
                   vaultToAdjust?.params.mintFee,
                   2,
                 )}%
-          will be charged upon vault creation.`}
+                will be charged on the newly minted IST amount and added to your overall IST debt.`}
             </p>
           </div>
           <div className="col-span-2 lg:col-span-1">
