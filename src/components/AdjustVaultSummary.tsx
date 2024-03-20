@@ -248,6 +248,10 @@ const AdjustVaultSummary = () => {
                   left="Stability Fee"
                   right={`${displayPercent(params.stabilityFee, 2)}%`}
                 />
+                <TableRow
+                  left="Minting Fee"
+                  right={`${displayPercent(params.mintFee, 2)}%`}
+                />
               </tbody>
             </table>
           </div>
