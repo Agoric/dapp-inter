@@ -244,10 +244,9 @@ const NewVaultOfferSummary = () => {
                   right={debtBalanceForDisplay}
                   info={debtBalanceInfo}
                 />
-                <TableRow left="Stability Fee" right={stabilityFeeForDisplay} />
                 <TableRow
-                  left="Minimum Collateralization Ratio"
-                  right={minCollateralizationForDisplay}
+                  left="Collateralization Ratio"
+                  right={collateralizationRatioForDisplay}
                 />
               </tbody>
             </table>
@@ -256,15 +255,16 @@ const NewVaultOfferSummary = () => {
           <div className="w-full p-2">
             <table className="w-full">
               <tbody>
-                <TableRow left="Minting Fee" right={creationFeeForDisplay} />
+                <TableRow
+                  left="Minimum Collateralization Ratio"
+                  right={minCollateralizationForDisplay}
+                />
                 <TableRow
                   left="Liquidation Ratio"
                   right={liquidationRatioForDisplay}
                 />
-                <TableRow
-                  left="Collateralization Ratio"
-                  right={collateralizationRatioForDisplay}
-                />
+                <TableRow left="Stability Fee" right={stabilityFeeForDisplay} />
+                <TableRow left="Minting Fee" right={creationFeeForDisplay} />
               </tbody>
             </table>
           </div>
