@@ -1,7 +1,7 @@
 import { AmountMath } from '@agoric/ertp';
 import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
-import { useMemo, useState } from 'react';
+import { Fragment, ReactNode, useMemo, useState } from 'react';
 import { makeOpenVaultOffer } from 'service/vaults';
 import {
   chainConnectionAtom,
@@ -18,17 +18,25 @@ import {
 import { useVaultStore } from 'store/vaults';
 import VaultCreationDialog from './VaultCreationDialog';
 import ProvisionSmartWalletNoticeDialog from './ProvisionSmartWalletNoticeDialog';
+import { debtAfterChange } from 'utils/vaultMath';
+import { DebtAction } from 'store/adjustVault';
+import { HiOutlineInformationCircle } from 'react-icons/hi';
+import { Popover, Transition } from '@headlessui/react';
 
 type TableRowProps = {
   left: string;
   right: string;
+  info?: ReactNode;
 };
 
-const TableRow = ({ left, right }: TableRowProps) => {
+const TableRow = ({ left, right, info }: TableRowProps) => {
   return (
     <tr className="text-[13px] leading-[21px]">
       <td className="text-secondary">{left}</td>
-      <td className="text-right text-alternative font-black">{right}</td>
+      <td className="text-right text-alternative font-black relative">
+        {right}
+        {info}
+      </td>
     </tr>
   );
 };
@@ -121,6 +129,23 @@ const NewVaultOfferSummary = () => {
       ? `${displayPercent(selectedParams.inferredMinimumCollateralization, 0)}%`
       : '--';
 
+  const debtBalance =
+    selectedParams &&
+    mintAmount &&
+    debtAfterChange(
+      DebtAction.Mint,
+      selectedParams.mintFee,
+      AmountMath.makeEmpty(debtBrand),
+      mintAmount,
+    );
+
+  const debtBalanceForDisplay =
+    displayAmount && displayBrandPetname && debtBalance
+      ? `${displayAmount(debtBalance, 2, 'locale')} ${displayBrandPetname(
+          debtBrand,
+        )}`
+      : '--';
+
   const hasErrors =
     collateralizationRatioError || toLockError || toReceiveError;
 
@@ -173,6 +198,32 @@ const NewVaultOfferSummary = () => {
     return 'Create Vault';
   }, [chainConnection, vaultLimitReached]);
 
+  const debtBalanceInfo = debtBalance && (
+    <Popover className="inline absolute -right-5 top-[3px]">
+      <Popover.Button className="text-base">
+        <HiOutlineInformationCircle />
+      </Popover.Button>
+
+      <Transition
+        as={Fragment}
+        enter="transition ease-out duration-100"
+        enterFrom="opacity-0 translate-y-1"
+        enterTo="opacity-100 translate-y-0"
+        leave="transition ease-in duration-150"
+        leaveFrom="opacity-100 translate-y-0"
+        leaveTo="opacity-0 translate-y-1"
+      >
+        <Popover.Panel className="absolute text-center z-10 w-44 -left-40">
+          <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
+            <div className="relative bg-slate-700 text-white font-normal p-2">
+              Minted IST + Minting Fee
+            </div>
+          </div>
+        </Popover.Panel>
+      </Transition>
+    </Popover>
+  );
+
   return (
     <>
       <div className="pt-[28px] pb-3 bg-white rounded-10 shadow-card">
@@ -188,10 +239,14 @@ const NewVaultOfferSummary = () => {
               <tbody>
                 <TableRow left="Depositing" right={depositAmountForDisplay} />
                 <TableRow left="Minting" right={mintAmountForDisplay} />
-                <TableRow left="Stability Fee" right={stabilityFeeForDisplay} />
                 <TableRow
-                  left="Minimum Collateralization Ratio"
-                  right={minCollateralizationForDisplay}
+                  left="Your Debt Balance"
+                  right={debtBalanceForDisplay}
+                  info={debtBalanceInfo}
+                />
+                <TableRow
+                  left="Collateralization Ratio"
+                  right={collateralizationRatioForDisplay}
                 />
               </tbody>
             </table>
@@ -200,15 +255,16 @@ const NewVaultOfferSummary = () => {
           <div className="w-full p-2">
             <table className="w-full">
               <tbody>
-                <TableRow left="Minting Fee" right={creationFeeForDisplay} />
+                <TableRow
+                  left="Minimum Collateralization Ratio"
+                  right={minCollateralizationForDisplay}
+                />
                 <TableRow
                   left="Liquidation Ratio"
                   right={liquidationRatioForDisplay}
                 />
-                <TableRow
-                  left="Collateralization Ratio"
-                  right={collateralizationRatioForDisplay}
-                />
+                <TableRow left="Stability Fee" right={stabilityFeeForDisplay} />
+                <TableRow left="Minting Fee" right={creationFeeForDisplay} />
               </tbody>
             </table>
           </div>

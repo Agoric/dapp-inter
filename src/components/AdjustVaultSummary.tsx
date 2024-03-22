@@ -2,6 +2,7 @@ import clsx from 'clsx';
 import { useAtomValue } from 'jotai';
 import { displayFunctionsAtom } from 'store/app';
 import {
+  DebtAction,
   adjustVaultErrorsAtom,
   collateralActionAtom,
   collateralInputAmountAtom,
@@ -13,7 +14,9 @@ import {
 import { AmountMath } from '@agoric/ertp';
 import { makeAdjustVaultOffer } from 'service/vaults';
 import VaultAdjustmentDialog from './VaultAdjustmentDialog';
-import { useMemo, useState } from 'react';
+import { Fragment, ReactNode, useMemo, useState } from 'react';
+import { Popover, Transition } from '@headlessui/react';
+import { HiOutlineInformationCircle } from 'react-icons/hi';
 
 type TableRowProps = {
   left: string;
@@ -33,15 +36,24 @@ type TableRowWithArrowProps = {
   label: string;
   left: string;
   right: string;
+  info?: ReactNode;
 };
 
-const TableRowWithArrow = ({ label, left, right }: TableRowWithArrowProps) => {
+const TableRowWithArrow = ({
+  label,
+  left,
+  right,
+  info,
+}: TableRowWithArrowProps) => {
   return (
     <tr className="text-[13px] leading-[21px]">
       <td className="text-secondary text-left">{label}</td>
       <td className="font-black text-alternative px-2">{left}</td>
       <td className="font-black text-alternative px-2">&#8594;</td>
-      <td className="text-right text-alternative font-black">{right}</td>
+      <td className="text-right text-alternative font-black relative">
+        {right}
+        {info}
+      </td>
     </tr>
   );
 };
@@ -142,6 +154,33 @@ const AdjustVaultSummary = () => {
     });
   };
 
+  const debtBalanceInfo = debtAction === DebtAction.Mint &&
+    !AmountMath.isEqual(newDebt, totalDebt) && (
+      <Popover className="inline absolute -right-5 top-[3px]">
+        <Popover.Button className="text-base">
+          <HiOutlineInformationCircle />
+        </Popover.Button>
+
+        <Transition
+          as={Fragment}
+          enter="transition ease-out duration-100"
+          enterFrom="opacity-0 translate-y-1"
+          enterTo="opacity-100 translate-y-0"
+          leave="transition ease-in duration-150"
+          leaveFrom="opacity-100 translate-y-0"
+          leaveTo="opacity-0 translate-y-1"
+        >
+          <Popover.Panel className="absolute text-center z-10 w-[264px] -left-[250px]">
+            <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black/5">
+              <div className="relative bg-slate-700 text-white font-normal p-2">
+                Existing Debt + Mint Amount + Minting Fee
+              </div>
+            </div>
+          </Popover.Panel>
+        </Transition>
+      </Popover>
+    );
+
   return (
     <>
       <div className="w-full pt-[28px] pb-3 bg-white rounded-10 shadow-card">
@@ -165,13 +204,14 @@ const AdjustVaultSummary = () => {
                   right={newLockedForDisplay}
                 />
                 <TableRowWithArrow
-                  label="Debt"
+                  label="Your Debt Balance"
                   left={`${displayAmount(
                     totalDebt,
                     2,
                     'locale',
                   )} ${displayBrandPetname(totalDebt.brand)}`}
                   right={newDebtForDisplay}
+                  info={debtBalanceInfo}
                 />
                 <TableRowWithArrow
                   label="Collateralization Ratio"
@@ -207,6 +247,10 @@ const AdjustVaultSummary = () => {
                 <TableRow
                   left="Stability Fee"
                   right={`${displayPercent(params.stabilityFee, 2)}%`}
+                />
+                <TableRow
+                  left="Minting Fee"
+                  right={`${displayPercent(params.mintFee, 2)}%`}
                 />
               </tbody>
             </table>
