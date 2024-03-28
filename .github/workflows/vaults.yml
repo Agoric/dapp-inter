@@ -5,6 +5,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    - cron: '0 0 * * *'
 
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label ||
@@ -17,5 +19,5 @@ jobs:
     with:
       docker_compose_command: |
         docker-compose -f test/e2e/docker-compose-vaults.yml \
-        --profile synpress up --build \
+        --profile $SYNPRESS_PROFILE up --build \
         --exit-code-from synpress
