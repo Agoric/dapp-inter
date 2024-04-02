@@ -13,3 +13,15 @@ export const accountAddresses = {
 
 export const LIQUIDATING_TIMEOUT = 20 * 60 * 1000;
 export const LIQUIDATED_TIMEOUT = 10 * 60 * 1000;
+export const MINUTE_MS = 60000;
+
+export const phrasesList = {
+  emerynet: {
+    interNetwork: 'Agoric Emerynet',
+    isLocal: false,
+  },
+  local: {
+    interNetwork: 'Local Network',
+    isLocal: true,
+  },
+};

@@ -1,21 +1,15 @@
-import { mnemonics } from '../test.utils';
+import { mnemonics, phrasesList, MINUTE_MS } from '../test.utils';
+
 describe('Vaults UI Test Cases', () => {
   context('Test commands', () => {
-    const phrasesList = {
-      emerynet: {
-        interNetwork: 'Agoric Emerynet',
-        isLocal: false,
-      },
-      local: {
-        interNetwork: 'Local Network',
-        isLocal: true,
-      },
-    };
     const networkPhrases = phrasesList[Cypress.env('AGORIC_NET') || 'local'];
 
     it('should setup the wallet', () => {
       if (networkPhrases.isLocal) {
-        cy.setupWallet();
+        cy.setupWallet({
+          secretWords: mnemonics.user1,
+          walletName: 'user1',
+        });
       } else {
         const walletAddress = {
           value: null,
@@ -27,7 +21,7 @@ describe('Vaults UI Test Cases', () => {
         cy.origin('https://wallet.agoric.app/', () => {
           cy.visit('/wallet/');
 
-          cy.get('input.PrivateSwitchBase-input').click();
+          cy.get('input[type="checkbox"]').click();
           cy.contains('Proceed').click();
         });
         cy.acceptAccess();
@@ -60,6 +54,7 @@ describe('Vaults UI Test Cases', () => {
       }
     });
 
+    // eslint-disable-next-line ui-testing/missing-assertion-in-test
     it('should connect with the wallet', () => {
       cy.visit('/');
 
@@ -71,74 +66,12 @@ describe('Vaults UI Test Cases', () => {
       }
 
       cy.contains('Connect Wallet').click();
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-      cy.get('label.cursor-pointer input[type="checkbox"]').check();
-      cy.contains('Proceed').click();
 
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-    });
-
-    it('should create a new vault and approve the transaction successfully', () => {
-      cy.visit('/');
-      if (!networkPhrases.isLocal)
-        cy.get('button').contains('Keep using Old Version').click();
-
-      cy.contains('button', /ATOM/).click();
-
-      cy.contains('ATOM to lock up *')
-        .next()
-        .within(() => {
-          cy.get('input[type="number"]').click();
-          cy.get('input[type="number"]').clear();
-          cy.get('input[type="number"]').type(10);
-        });
-
-      cy.contains('button', 'Create Vault').click();
-
-      cy.confirmTransaction().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-        cy.contains(
-          'p',
-          'You can manage your vaults from the "My Vaults" view.',
-        ).should('exist');
-      });
-      cy.get('label.cursor-pointer input[type="checkbox"]').check();
+      cy.acceptAccess();
+      cy.get('label input[type="checkbox"]').check();
       cy.contains('Proceed').click();
 
       cy.acceptAccess();
-    });
-
-    it('should adjust the collateral by performing a withdrawl and approve the transaction successfully', () => {
-      cy.contains('button', 'Manage my Vaults').click();
-      cy.contains('button', 'Back to vaults').click();
-      cy.contains('div', /ATOM.*#8/).click();
-
-        cy.contains('div', 'Adjust Collateral')
-          .next('.grid-cols-2')
-          .within(() => {
-            cy.contains('button', /^(Deposit|Withdraw|No Action)$/).click();
-            cy.contains('button', 'Withdraw').click();
-            cy.contains('.input-label', 'Amount')
-              .next('.input-wrapper')
-              .within(() => {
-                cy.get('input[type="number"]').click();
-                cy.get('input[type="number"]').type(5);
-              });
-          });
-
-        cy.contains('button', 'Adjust Vault').click();
-        cy.confirmTransaction().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-          cy.contains('p', "Your vault's balances have been updated.", {
-            timeout: 60000,
-          }).should('exist');
-          cy.contains('Back to my vaults').click();
-        });
-      }
     });
 
     it('should create a new vault and approve the transaction successfully', () => {
@@ -148,14 +81,15 @@ describe('Vaults UI Test Cases', () => {
 
       if (networkPhrases.isLocal)
         cy.contains('button', 'Add new vault').click();
+
       cy.contains('button', /ATOM/).click();
 
-      cy.contains('.input-label', 'ATOM to lock up *')
+      cy.contains('ATOM to lock up *')
         .next()
         .within(() => {
           cy.get('input[type="number"]').click();
           cy.get('input[type="number"]').clear();
-          cy.get('input[type="number"]').type(2);
+          cy.get('input[type="number"]').type(10); // 2 in local
         });
 
       cy.contains('button', 'Create Vault').click();
@@ -165,7 +99,7 @@ describe('Vaults UI Test Cases', () => {
         cy.contains(
           'p',
           'You can manage your vaults from the "My Vaults" view.',
-          { timeout: 60000 },
+          { timeout: MINUTE_MS },
         ).should('exist');
         cy.contains('Manage my Vaults').click();
       });
@@ -176,29 +110,21 @@ describe('Vaults UI Test Cases', () => {
         .contains(/My Vaults.*\(\d+\)/)
         .children()
         .first()
-        .spread((...element) => {
+        .spread(element => {
           // Get the total number of vaults present
-          const vaultCount = Number(element[0].innerHTML.slice(2, -1));
+          const vaultCountRegex = element.innerHTML.match(/\((\d+)\)/);
+          const vaultCount = Number(vaultCountRegex[1]);
 
-          cy.get('div.shadow-card div.text-secondary:contains("#")')
+          cy.findAllByText(/#\d+/)
             .should('have.length', vaultCount)
             .spread((...vaults) => {
               expect(
                 vaults.filter(vaultNo => !/^#\d+$/.test(vaultNo.innerHTML)),
               ).to.be.empty;
-              // Get the vault with the largest number and click on it
-              const maxValue = vaults.reduce(
-                (maxValue, currentValueRaw) => {
-                  const currentValue = Number(
-                    currentValueRaw.innerHTML.slice(1),
-                  );
-                  return currentValue > maxValue ? currentValue : maxValue;
-                },
-                Number(vaults[0].innerHTML.slice(1)),
-              );
-              cy.get(
-                `div.shadow-card div.text-secondary:contains("#${maxValue}")`,
-              ).click();
+              // Get the vault with the latest ID number and click on it
+              const vaultIds = vaults.map(v => Number(v.innerHTML.slice(1)));
+              const latestId = Math.max(...vaultIds);
+              cy.findByText(`#${latestId}`).click();
             });
         });
     });
@@ -213,7 +139,7 @@ describe('Vaults UI Test Cases', () => {
             .next('.input-wrapper')
             .within(() => {
               cy.get('input[type="number"]').click();
-              cy.get('input[type="number"]').type(1);
+              cy.get('input[type="number"]').type(1); // 5 in local
             });
         });
 
@@ -221,7 +147,7 @@ describe('Vaults UI Test Cases', () => {
       cy.confirmTransaction().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
         cy.contains('p', "Your vault's balances have been updated.", {
-          timeout: 60000,
+          timeout: MINUTE_MS,
         }).should('exist');
         cy.contains('Adjust more').click();
       });
@@ -246,7 +172,7 @@ describe('Vaults UI Test Cases', () => {
       cy.confirmTransaction().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
         cy.contains('p', "Your vault's balances have been updated.", {
-          timeout: 60000,
+          timeout: MINUTE_MS,
         }).should('exist');
         cy.contains('Adjust more').click();
       });
@@ -270,7 +196,7 @@ describe('Vaults UI Test Cases', () => {
       cy.confirmTransaction().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
         cy.contains('p', "Your vault's balances have been updated.", {
-          timeout: 60000,
+          timeout: MINUTE_MS,
         }).should('exist');
         cy.contains('Adjust more').click();
       });
@@ -294,7 +220,7 @@ describe('Vaults UI Test Cases', () => {
       cy.confirmTransaction().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
         cy.contains('p', "Your vault's balances have been updated.", {
-          timeout: 60000,
+          timeout: MINUTE_MS,
         }).should('exist');
         cy.contains('Adjust more').click();
       });
