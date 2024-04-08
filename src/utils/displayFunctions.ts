@@ -26,6 +26,8 @@ const getLogoForBrandPetname = (brandPetname: string) => {
       return './stosmo.svg';
     case 'stTIA':
       return './sttia.svg';
+    case 'stkATOM':
+      return './stkatom.svg';
   }
 };
 

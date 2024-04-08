@@ -30,6 +30,9 @@ const chainIdForCollateralPetname = (petname?: string) => {
       return 'cosmoshub-4';
     case 'stTIA':
       return 'stride-1';
+    case 'stkATOM':
+      // source: https://github.com/cosmos/chain-registry/blob/5a2352d22de715e0115fc64887944993bea8e123/persistence/chain.json#L4
+      return 'core-1';
     case 'IST':
       return agoricChainId;
     default:
@@ -47,6 +50,8 @@ const assetForCollateralPetname = (petname?: string) => {
       return ['symbol', 'ATOM'] as AssetSelector;
     case 'stTIA':
       return ['symbol', 'stTIA'] as AssetSelector;
+    case 'stkATOM':
+      return ['symbol', 'stkATOM'] as AssetSelector;
     case 'IST':
       return ['symbol', 'IST'] as AssetSelector;
     default:
