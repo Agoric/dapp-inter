@@ -2,6 +2,20 @@
 describe('Vaults UI Test Cases', () => {
   context('Test commands', () => {
     let collateralizationRatio;
+
+    it('should successfully set up wallet', () => {
+      cy.setupWallet().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
+
+    it('should visit https://app.inter.trade and check if it is functional', () => {
+      cy.visit('https://app.inter.trade');
+      cy.url().then(initialUrl => {
+        cy.visit(initialUrl);
+        cy.url().should('not.eq', initialUrl);
+      });
+    });
     it(`should setup Keplr account and connect with Agoric Chain`, () => {
       cy.origin('https://wallet.agoric.app/', () => {
         cy.visit('/');
