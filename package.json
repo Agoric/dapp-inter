@@ -12,8 +12,7 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "postinstall": "patch-package",
-    "test:e2e": "SKIP_EXTENSION_SETUP=true EXTENSION=keplr synpress run --configFile=test/e2e/synpress.config.cjs",
-    "test:e2e:ci": "start-server-and-test 'yarn dev' http-get://localhost:5173 'yarn test:e2e'"
+    "test:e2e": "SKIP_EXTENSION_SETUP=true EXTENSION=keplr synpress run --configFile=test/e2e/synpress.config.cjs"
   },
   "dependencies": {
     "@agoric/casting": "^0.4.3-u13.0",
