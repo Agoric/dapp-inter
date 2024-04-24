@@ -1,15 +1,12 @@
-name: E2E tests
+name: Reusable E2E Workflow
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-concurrency:
-  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label ||
-    github.head_ref || github.ref }}'
-  cancel-in-progress: true
+  workflow_call:
+    inputs:
+      docker_compose_command:
+        description: 'Docker Compose command to run E2E tests'
+        required: true
+        type: string
 
 jobs:
   e2e:
@@ -32,9 +29,9 @@ jobs:
           key: ${{ runner.os }}-buildx-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-buildx-
+
       - name: Run e2e tests
-        run: |
-          docker-compose -f test/e2e/docker-compose-vaults.yml --profile synpress up --build --exit-code-from synpress
+        run: ${{ inputs.docker_compose_command }}
         env:
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
@@ -45,7 +42,6 @@ jobs:
           ANVIL_FORK_URL: ${{ secrets.ANVIL_FORK_URL }}
           GH_PAT: ${{ secrets.GH_PAT }}
           GH_USERNAME: ${{ secrets.GH_USERNAME }}
-          # cypress dashboard
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CYPRESS_PROJECT_ID: ${{ secrets.CYPRESS_PROJECT_ID }}
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
