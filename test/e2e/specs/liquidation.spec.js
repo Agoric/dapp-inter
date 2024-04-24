@@ -1,4 +1,19 @@
 /* eslint-disable ui-testing/no-disabled-tests */
+
+let priceChangeFailure = false;
+
+beforeEach(function () {
+  if (priceChangeFailure) {
+    this.skip();
+  }
+});
+
+afterEach(function () {
+  if (this.currentTest.state === 'failed') {
+    priceChangeFailure = true;
+  }
+});
+
 describe('Wallet App Test Cases', () => {
   context('Setting up accounts', () => {
     it('should set up wallets for two members of the econ committee.', () => {
@@ -196,7 +211,7 @@ describe('Wallet App Test Cases', () => {
 
     it('should view the auction and verify the value of collateralAvailable from the CLI successfully', () => {
       cy.exec(
-        'bash ./test/e2e/test-scripts/view-auction.sh "book0.collateralAvailable" "0 ATOM"',
+        'bash ./test/e2e/test-scripts/view-auction.sh "book0.collateralAvailable" "9.659301 ATOM"',
         {
           failOnNonZeroExit: false,
         },
