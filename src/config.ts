@@ -38,3 +38,8 @@ export const disclaimerHref = 'https://docs.inter.trade/disclaimer';
 export const psmHref = 'https://psm.inter.trade/';
 
 export const analyticsHref = 'https://info.inter.trade/';
+
+export const mnemonics = {
+  user1:
+    'tackle hen gap lady bike explain erode midnight marriage wide upset culture model select dial trial swim wood step scan intact what card symptom',
+};
