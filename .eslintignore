@@ -3,5 +3,4 @@ coverage
 dist
 patches
 yarn.lock
-test
 

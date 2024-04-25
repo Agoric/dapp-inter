@@ -1,5 +1,4 @@
-/* eslint-disable ui-testing/no-disabled-tests */
-import { mnemonics } from '../../test.utils';
+import { mnemonics } from '../test.utils';
 describe('Vaults UI Test Cases', () => {
   context('Test commands', () => {
     it('should set up wallet', () => {

@@ -1,5 +1,4 @@
-/* eslint-disable ui-testing/no-disabled-tests */
-import { mnemonics, accountAddresses } from '../../test.utils';
+import { mnemonics, accountAddresses } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
   context('Setting up accounts', () => {
@@ -8,14 +7,20 @@ describe('Wallet App Test Cases', () => {
       cy.setupWallet({
         secretWords: mnemonics.gov1,
         walletName: 'gov1',
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
       });
       cy.setupWallet({
         secretWords: mnemonics.gov2,
         walletName: 'gov2',
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
       });
       cy.setupWallet({
         secretWords: mnemonics.user1,
         walletName: 'user1',
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
       });
     });
   });
@@ -54,6 +59,7 @@ describe('Wallet App Test Cases', () => {
       });
       cy.setOraclePrice(12.34);
     });
+    /* eslint-disable ui-testing/missing-assertion-in-test */
     it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
       cy.addKeys({
         keyName: 'user1',
