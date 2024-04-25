@@ -46,7 +46,7 @@
     "zustand": "^4.1.5"
   },
   "devDependencies": {
-    "@agoric/synpress": "^3.7.2-beta.12",
+    "@agoric/synpress": "^3.8.1",
     "@cosmjs/encoding": "^0.32.2",
     "@keplr-wallet/types": "^0.12.55",
     "@leapwallet/elements": "^0.12.1",
@@ -84,8 +84,8 @@
     "vitest": "^0.32.0"
   },
   "resolutions": {
-    "**/@agoric/xsnap": "0.14.3-dev-9f085d3.0",
-    "**/@agoric/time": "0.3.3-dev-97cb715.0",
+    "**/@agoric/xsnap": "0.14.3-u14.0",
+    "**/@agoric/time": "0.3.3-u14.0",
     "**/@agoric/vats": "0.15.2-u15.0"
   }
 }

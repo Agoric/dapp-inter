@@ -34,7 +34,6 @@ services:
     networks:
       - x13
 
-
   video:
     extends:
       file: docker-compose-base.yml
