@@ -84,4 +84,45 @@ describe('Wallet App Test Cases', () => {
       cy.contains('105.52 IST').should('exist');
     });
   });
+
+  context('Place bids and make all vaults enter liquidation', () => {
+    it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
+      cy.createVault({ wantMinted: 400, giveCollateral: 80, userType: 'gov1' });
+    });
+    it('should place bids from the CLI successfully', () => {
+      cy.switchWallet('gov1');
+      cy.addNewTokensFound();
+      cy.getTokenAmount('IST').then(initialTokenValue => {
+        cy.placeBidByPrice({
+          fromAddress: accountAddresses.gov1,
+          giveAmount: '90IST',
+          price: 9,
+        });
+
+        cy.placeBidByDiscount({
+          fromAddress: accountAddresses.gov1,
+          giveAmount: '80IST',
+          discount: 10,
+        });
+
+        cy.placeBidByDiscount({
+          fromAddress: accountAddresses.gov1,
+          giveAmount: '150IST',
+          discount: 15,
+        });
+
+        cy.getTokenAmount('IST').then(tokenValue => {
+          expect(tokenValue).to.lessThan(initialTokenValue);
+        });
+      });
+    });
+
+    it('should verify vaults that are at a risk of being liquidated', () => {
+      cy.setOraclePrice(9.99);
+      cy.switchWallet('user1');
+      cy.contains(
+        /Please increase your collateral or repay your outstanding IST debt./,
+      );
+    });
+  });
 });
