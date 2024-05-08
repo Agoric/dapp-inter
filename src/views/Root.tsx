@@ -60,13 +60,18 @@ const Root = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <div className="flex max-w-7xl justify-between flex-wrap-reverse gap-x-2">
-        <div className="flex flex-row space-x-10">
-          <img
-            src="./inter-protocol-logo.svg"
-            alt="Inter Protocol Logo"
-            height="48"
-            width="174"
-          />
+        <div className="flex flex-row space-x-10 items-center flex-wrap">
+          <a
+            href="https://inter.trade"
+            aria-label="link to inter protocol homepage"
+          >
+            <img
+              src="./inter-protocol-logo.svg"
+              alt="Inter Protocol Logo"
+              height="48"
+              width="174"
+            />
+          </a>
           <nav>
             <ul className="h-24 flex flex-row space-x-12">
               <NavItem label="Vaults" href="/vaults" />
