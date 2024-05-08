@@ -177,7 +177,7 @@ const ConfigureNewVault = () => {
           }}
           value={collateralizationRatio}
           disabled={true}
-          label="Collateralization percent"
+          label="Collateralization Ratio"
           error={collateralizationRatioError}
         />
         <AmountInput
