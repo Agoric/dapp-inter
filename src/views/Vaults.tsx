@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useAtomValue } from 'jotai';
+import { useAtomValue, useSetAtom } from 'jotai';
 import { appAtom, chainStorageWatcherAtom } from 'store/app';
 import { FunctionComponent, useEffect } from 'react';
 import { watchVaultFactory } from 'service/vaults';
@@ -23,14 +23,28 @@ type PathDescriptionProps = { mode: ViewMode; adjustVaultKey: VaultKey | null };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ViewSlider = ReactViewSlider as unknown as FunctionComponent<any>;
 
+const VaultsBreadcrumb = () => {
+  const setMode = useSetAtom(viewModeAtom);
+
+  return (
+    <span className="text-secondary">
+      <button
+        onClick={() => setMode(ViewMode.Manage)}
+        aria-label="Go back to vaults"
+      >
+        Vaults&nbsp;&nbsp;/
+      </button>
+      &nbsp;&nbsp;
+    </span>
+  );
+};
+
 const PathDescription = ({ mode, adjustVaultKey }: PathDescriptionProps) => {
   if (mode === ViewMode.Edit) {
     if (adjustVaultKey) {
       return (
         <span>
-          <span className="text-secondary">
-            Vaults&nbsp;&nbsp;/&nbsp;&nbsp;
-          </span>
+          <VaultsBreadcrumb />
           Adjusting Vault
         </span>
       );
@@ -38,7 +52,7 @@ const PathDescription = ({ mode, adjustVaultKey }: PathDescriptionProps) => {
 
     return (
       <span>
-        <span className="text-secondary">Vaults&nbsp;&nbsp;/&nbsp;&nbsp;</span>
+        <VaultsBreadcrumb />
         Creating Vault
       </span>
     );
