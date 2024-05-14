@@ -18,6 +18,10 @@ import {
 } from 'utils/hooks';
 import { maxIstToMintFromVault } from 'utils/vaultMath';
 import LeapLiquidityModal, { Direction } from './leap-elements/LiquidityModal';
+import { useMemo } from 'react';
+
+const maxIstWarning =
+  'Warning: This will create a vault with the lowest possible collateralization ratio which greatly increases your risk of liquidation if there are downward price movements.';
 
 const ConfigureNewVault = () => {
   const { collateralizationRatioError, toLockError, toReceiveError } =
@@ -90,6 +94,29 @@ const ConfigureNewVault = () => {
       amountOut: lockedPrice.numerator,
     })}`;
 
+  const maxIst = useMemo(() => {
+    if (!(selectedParams && selectedMetrics && collateralPrice)) {
+      return undefined;
+    }
+    return maxIstToMintFromVault(
+      selectedParams.debtLimit,
+      selectedMetrics.totalDebt,
+      AmountMath.makeEmpty(selectedParams.debtLimit.brand),
+      selectedParams.mintFee,
+      AmountMath.make(collateralBrand, valueToLock),
+      collateralPrice,
+      selectedParams.inferredMinimumCollateralization,
+      lockedPrice,
+    );
+  }, [
+    collateralBrand,
+    collateralPrice,
+    lockedPrice,
+    selectedMetrics,
+    selectedParams,
+    valueToLock,
+  ]);
+
   const timeUntilAuction = useAuctionTimer(schedule);
 
   const purse = usePurseForBrand(collateralBrand);
@@ -103,25 +130,14 @@ const ConfigureNewVault = () => {
   };
 
   const onMaxDebtClicked = () => {
-    if (
-      !(selectedParams && selectedMetrics && collateralBrand && collateralPrice)
-    ) {
+    if (!maxIst) {
       return;
     }
 
-    setValueToReceive(
-      maxIstToMintFromVault(
-        selectedParams.debtLimit,
-        selectedMetrics.totalDebt,
-        AmountMath.makeEmpty(selectedParams.debtLimit.brand),
-        selectedParams.mintFee,
-        AmountMath.make(collateralBrand, valueToLock),
-        collateralPrice,
-        selectedParams.inferredMinimumCollateralization,
-        lockedPrice,
-      ),
-    );
+    setValueToReceive(maxIst);
   };
+
+  const istInputWarning = valueToReceive === maxIst ? maxIstWarning : undefined;
 
   return (
     <div className="mt-8 px-12 py-8 bg-white rounded-20 shadow-card">
@@ -161,7 +177,7 @@ const ConfigureNewVault = () => {
           }}
           value={collateralizationRatio}
           disabled={true}
-          label="Collateralization percent"
+          label="Collateralization Ratio"
           error={collateralizationRatioError}
         />
         <AmountInput
@@ -172,7 +188,7 @@ const ConfigureNewVault = () => {
           label="IST to receive *"
           actionLabel="Max"
           onAction={onMaxDebtClicked}
-          error={toReceiveError}
+          error={toReceiveError || istInputWarning}
         />
       </div>
       <p className="mt-12 italic font-serif text-alternative text-sm leading-[22px]">

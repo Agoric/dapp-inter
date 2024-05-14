@@ -1,5 +1,5 @@
-import createStore from 'zustand/vanilla';
-import create from 'zustand';
+import { createStore } from 'zustand/vanilla';
+import { create } from 'zustand';
 import type { Brand, Amount } from '@agoric/ertp/src/types';
 import { atom } from 'jotai';
 import { getPriceDescription } from '@agoric/zoe/src/contractSupport';
