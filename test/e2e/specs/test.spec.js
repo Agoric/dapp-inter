@@ -89,7 +89,7 @@ describe('Vaults UI Test Cases', () => {
         .within(() => {
           cy.get('input[type="number"]').click();
           cy.get('input[type="number"]').clear();
-          cy.get('input[type="number"]').type(10); // 2 in local
+          cy.get('input[type="number"]').type(10);
         });
 
       cy.contains('button', 'Create Vault').click();
@@ -139,7 +139,7 @@ describe('Vaults UI Test Cases', () => {
             .next('.input-wrapper')
             .within(() => {
               cy.get('input[type="number"]').click();
-              cy.get('input[type="number"]').type(1); // 5 in local
+              cy.get('input[type="number"]').type(1);
             });
         });
 
