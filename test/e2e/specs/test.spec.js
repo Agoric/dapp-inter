@@ -79,9 +79,6 @@ describe('Vaults UI Test Cases', () => {
       if (!networkPhrases.isLocal)
         cy.get('button').contains('Keep using Old Version').click();
 
-      if (networkPhrases.isLocal)
-        cy.contains('button', 'Add new vault').click();
-
       cy.contains('button', /ATOM/).click();
 
       cy.contains('ATOM to lock up *')
