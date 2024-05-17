@@ -5,7 +5,7 @@ ENV PATH="/usr/src/agoric-sdk/packages/agoric-cli/bin:${PATH}"
 
 # Install necessary dependencies
 RUN apt-get update \
-    && apt-get install -y wget gnupg ca-certificates jq expect xvfb
+    && apt-get install -y wget gnupg ca-certificates jq xvfb
 
 # Install Chrome
 RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \

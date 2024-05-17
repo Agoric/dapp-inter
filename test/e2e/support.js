@@ -3,22 +3,7 @@ import { accountAddresses } from './test.utils';
 
 Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
-  const command = `
-    expect -c "
-      spawn agd keys add ${keyName} --recover --keyring-backend=test
-      expect {
-          \\"override\\" {
-              send \\"y\\r\\"
-              exp_continue
-          }
-          \\"Enter your bip39 mnemonic\\" {
-              send \\"${mnemonic}\\r\\"
-              exp_continue
-          }
-      }
-      expect eof
-    "
-  `;
+  const command = `echo ${mnemonic} | agd keys add ${keyName} --recover --keyring-backend=test`;
 
   cy.exec(command).then(({ stdout }) => {
     expect(stdout).to.contain(expectedAddress);
