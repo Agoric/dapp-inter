@@ -1,4 +1,9 @@
-import { mnemonics, accountAddresses } from '../test.utils';
+import {
+  mnemonics,
+  accountAddresses,
+  LIQUIDATING_TIMEOUT,
+  LIQUIDATED_TIMEOUT,
+} from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
   context('Setting up accounts', () => {
@@ -123,6 +128,56 @@ describe('Wallet App Test Cases', () => {
       cy.contains(
         /Please increase your collateral or repay your outstanding IST debt./,
       );
+    });
+
+    it('should wait and verify vaults are being liquidated', () => {
+      cy.contains(/3 vaults are liquidating./, {
+        timeout: LIQUIDATING_TIMEOUT,
+      });
+    });
+
+    it('should verify the value of startPrice from the CLI successfully', () => {
+      const propertyName = 'book0.startPrice';
+      const expectedValue = '9.99 IST/ATOM';
+
+      cy.verifyAuctionData(propertyName, expectedValue);
+    });
+
+    it('should verify the value of startProceedsGoal from the CLI successfully', () => {
+      const propertyName = 'book0.startProceedsGoal';
+      const expectedValue = '309.54 IST';
+
+      cy.verifyAuctionData(propertyName, expectedValue);
+    });
+
+    it('should verify the value of startCollateral from the CLI successfully', () => {
+      const propertyName = 'book0.startCollateral';
+      const expectedValue = '45 ATOM';
+
+      cy.verifyAuctionData(propertyName, expectedValue);
+    });
+
+    it('should verify the value of collateralAvailable from the CLI successfully', () => {
+      const propertyName = 'book0.collateralAvailable';
+      const expectedValue = '45 ATOM';
+
+      cy.verifyAuctionData(propertyName, expectedValue);
+    });
+
+    // Tests ran fine locally but failed in CI. Updating a3p container replicated failure locally. Tests pass with older container version.
+    // UNTIL: a3p container compatibility is resolved.
+    it.skip('should wait and verify vaults are liquidated', () => {
+      cy.contains(/Collateral left to claim/, { timeout: LIQUIDATED_TIMEOUT });
+      cy.contains(/3.42 ATOM/);
+      cy.contains(/3.07 ATOM/);
+      cy.contains(/2.84 ATOM/);
+    });
+
+    it.skip('should verify the value of collateralAvailable from the CLI successfully', () => {
+      const propertyName = 'book0.collateralAvailable';
+      const expectedValue = '9.659301 ATOM';
+
+      cy.verifyAuctionData(propertyName, expectedValue);
     });
   });
 });
