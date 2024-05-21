@@ -10,3 +10,6 @@ export const accountAddresses = {
   gov1: 'agoric1ee9hr0jyrxhy999y755mp862ljgycmwyp4pl7q',
   gov2: 'agoric1wrfh296eu2z34p6pah7q04jjuyj3mxu9v98277',
 };
+
+export const LIQUIDATING_TIMEOUT = 20 * 60 * 1000;
+export const LIQUIDATED_TIMEOUT = 10 * 60 * 1000;
