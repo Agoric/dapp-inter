@@ -56,3 +56,20 @@ Cypress.Commands.add('placeBidByDiscount', params => {
     expect(stdout).to.contain('Your bid has been accepted');
   });
 });
+
+Cypress.Commands.add('verifyAuctionData', (propertyName, expectedValue) => {
+  return cy
+    .exec(`agops inter auction status`, {
+      failOnNonZeroExit: false,
+    })
+    .then(({ stdout }) => {
+      const output = JSON.parse(stdout);
+      const propertyValue = Cypress._.get(output, propertyName);
+
+      if (!propertyValue) {
+        throw new Error(`Error: ${propertyName} property is missing or empty`);
+      }
+
+      expect(propertyValue).to.equal(expectedValue);
+    });
+});
