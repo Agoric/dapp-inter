@@ -98,22 +98,16 @@ describe('Wallet App Test Cases', () => {
       cy.switchWallet('gov1');
       cy.addNewTokensFound();
       cy.getTokenAmount('IST').then(initialTokenValue => {
-        cy.placeBidByPrice({
+        cy.placeBidByDiscount({
           fromAddress: accountAddresses.gov1,
-          giveAmount: '90IST',
-          price: 9,
+          giveAmount: '75IST',
+          discount: 22,
         });
 
         cy.placeBidByDiscount({
           fromAddress: accountAddresses.gov1,
-          giveAmount: '80IST',
-          discount: 10,
-        });
-
-        cy.placeBidByDiscount({
-          fromAddress: accountAddresses.gov1,
-          giveAmount: '150IST',
-          discount: 15,
+          giveAmount: '25IST',
+          discount: 30,
         });
 
         cy.getTokenAmount('IST').then(tokenValue => {
