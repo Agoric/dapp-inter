@@ -1,11 +1,13 @@
 import '@agoric/synpress/support/index';
-import { accountAddresses } from './test.utils';
+import { accountAddresses, AGORIC_NET } from './test.utils';
 
 Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
   const command = `echo ${mnemonic} | agd keys add ${keyName} --recover --keyring-backend=test`;
 
-  cy.exec(command).then(({ stdout }) => {
+  cy.exec(command, {
+    env: { AGORIC_NET },
+  }).then(({ stdout }) => {
     expect(stdout).to.contain(expectedAddress);
   });
 });
@@ -13,6 +15,7 @@ Cypress.Commands.add('addKeys', params => {
 Cypress.Commands.add('setOraclePrice', price => {
   cy.exec(
     `agops oracle setPrice --keys gov1,gov2 --pair ATOM.USD --price ${price} --keyring-backend=test`,
+    { env: { AGORIC_NET } },
   ).then(({ stdout }) => {
     expect(stdout).to.not.contain('Error');
     expect(stdout).to.not.contain('error');
@@ -27,12 +30,12 @@ Cypress.Commands.add('createVault', params => {
 
   const createVaultCommand = `agops vaults open --wantMinted "${wantMinted}" --giveCollateral "${giveCollateral}" > /tmp/want-ist.json`;
 
-  cy.exec(createVaultCommand).then(({ stdout }) => {
+  cy.exec(createVaultCommand, { env: { AGORIC_NET } }).then(({ stdout }) => {
     expect(stdout).not.to.contain('Error');
 
     const broadcastCommand = `agops perf satisfaction --executeOffer /tmp/want-ist.json --from "${accountAddress}" --keyring-backend=test`;
 
-    cy.exec(broadcastCommand).then(({ stdout }) => {
+    cy.exec(broadcastCommand, { env: { AGORIC_NET } }).then(({ stdout }) => {
       expect(stdout).not.to.contain('Error');
     });
   });
@@ -42,7 +45,7 @@ Cypress.Commands.add('placeBidByPrice', params => {
   const { fromAddress, giveAmount, price } = params;
   const command = `agops inter bid by-price --from ${fromAddress} --give ${giveAmount} --price ${price} --keyring-backend=test`;
 
-  cy.exec(command).then(({ stdout }) => {
+  cy.exec(command, { env: { AGORIC_NET } }).then(({ stdout }) => {
     expect(stdout).to.contain('Your bid has been accepted');
   });
 });
@@ -52,7 +55,7 @@ Cypress.Commands.add('placeBidByDiscount', params => {
 
   const command = `agops inter bid by-discount --from ${fromAddress} --give ${giveAmount} --discount ${discount} --keyring-backend=test`;
 
-  cy.exec(command).then(({ stdout }) => {
+  cy.exec(command, { env: { AGORIC_NET } }).then(({ stdout }) => {
     expect(stdout).to.contain('Your bid has been accepted');
   });
 });
@@ -61,6 +64,7 @@ Cypress.Commands.add('verifyAuctionData', (propertyName, expectedValue) => {
   return cy
     .exec(`agops inter auction status`, {
       failOnNonZeroExit: false,
+      env: { AGORIC_NET },
     })
     .then(({ stdout }) => {
       const output = JSON.parse(stdout);
