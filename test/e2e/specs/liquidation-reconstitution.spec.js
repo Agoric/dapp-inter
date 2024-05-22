@@ -5,6 +5,7 @@ import {
   LIQUIDATING_TIMEOUT,
   LIQUIDATED_TIMEOUT,
   econGovURL,
+  MINUTE_MS,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -130,7 +131,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait for proposal to pass', () => {
-      cy.wait(60000 - Date.now() + startTime);
+      cy.wait(MINUTE_MS - Date.now() + startTime);
       cy.visit(econGovURL);
 
       cy.get('button').contains('History').click();
@@ -228,7 +229,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait for proposal to pass', () => {
-      cy.wait(60000 - Date.now() + startTime);
+      cy.wait(MINUTE_MS - Date.now() + startTime);
       cy.visit(econGovURL);
 
       cy.get('button').contains('History').click();
