@@ -12,6 +12,9 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
 
+    env:
+      IS_EMERYNET_TEST: ${{ github.event_name == 'schedule' || inputs.network == 'emerynet' }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -33,6 +36,10 @@ jobs:
       - name: Run e2e tests
         run: ${{ inputs.docker_compose_command }}
         env:
+          # conditionals based on github event
+          SYNPRESS_PROFILE: ${{ env.IS_EMERYNET_TEST == 'true' && 'daily-tests' || 'synpress' }}
+          CYPRESS_AGORIC_NET: ${{ env.IS_EMERYNET_TEST == 'true' && 'emerynet' || 'local' }}
+          # for docker-compose.yml
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
           DOCKER_DEFAULT_PLATFORM: linux/amd64
