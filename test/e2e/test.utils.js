@@ -25,3 +25,5 @@ export const phrasesList = {
     isLocal: true,
   },
 };
+
+export const econGovURL = 'https://econ-gov.inter.trade/?agoricNet=local';

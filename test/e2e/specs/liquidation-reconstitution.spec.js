@@ -1,11 +1,14 @@
+/* eslint-disable ui-testing/no-css-page-layout-selector */
 import {
   mnemonics,
   accountAddresses,
   LIQUIDATING_TIMEOUT,
   LIQUIDATED_TIMEOUT,
+  econGovURL,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
+  let startTime;
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
     it('should set up wallets', () => {
@@ -32,11 +35,13 @@ describe('Wallet App Test Cases', () => {
 
   context('Adjusting manager params from econ-gov', () => {
     it('should connect with chain and wallet', () => {
-      cy.visit('https://econ-gov.inter.trade/?agoricNet=local');
-      cy.acceptAccess();
+      cy.visit(econGovURL);
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
     });
     it('should allow gov2 to create a proposal', () => {
-      cy.visit('https://econ-gov.inter.trade/?agoricNet=local');
+      cy.visit(econGovURL);
       cy.acceptAccess();
 
       cy.get('button').contains('Vaults').click();
@@ -47,42 +52,48 @@ describe('Wallet App Test Cases', () => {
         .contains('LiquidationMargin')
         .parent()
         .within(() => {
-          cy.get('input').clear().type('150');
+          cy.get('input').clear();
+          cy.get('input').type('150');
         });
 
       cy.get('label')
         .contains('LiquidationPadding')
         .parent()
         .within(() => {
-          cy.get('input').clear().type('25');
+          cy.get('input').clear();
+          cy.get('input').type('25');
         });
 
       cy.get('label')
         .contains('LiquidationPenalty')
         .parent()
         .within(() => {
-          cy.get('input').clear().type('1');
+          cy.get('input').clear();
+          cy.get('input').type('1');
         });
 
       cy.get('label')
         .contains('StabilityFee')
         .parent()
         .within(() => {
-          cy.get('input').clear().type('1');
+          cy.get('input').clear();
+          cy.get('input').type('1');
         });
 
       cy.get('label')
         .contains('MintFee')
         .parent()
         .within(() => {
-          cy.get('input').clear().type('0.5');
+          cy.get('input').clear();
+          cy.get('input').type('0.5');
         });
 
       cy.get('label')
         .contains('Minutes until close of vote')
         .parent()
         .within(() => {
-          cy.get('input').clear().type(1);
+          cy.get('input').clear();
+          cy.get('input').type(1);
         });
       cy.get('[value="Propose Parameter Change"]').click();
 
@@ -96,7 +107,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov2 to vote on the proposal', () => {
-      cy.visit('https://econ-gov.inter.trade/?agoricNet=local');
+      cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
       cy.get('p').contains('YES').click();
@@ -108,7 +119,7 @@ describe('Wallet App Test Cases', () => {
 
     it('should allow gov1 to vote on the proposal', () => {
       cy.switchWallet('gov1');
-      cy.visit('https://econ-gov.inter.trade/?agoricNet=local');
+      cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
       cy.get('p').contains('YES').click();
@@ -120,7 +131,7 @@ describe('Wallet App Test Cases', () => {
 
     it('should wait for proposal to pass', () => {
       cy.wait(60000 - Date.now() + startTime);
-      cy.visit('https://econ-gov.inter.trade/?agoricNet=local');
+      cy.visit(econGovURL);
 
       cy.get('button').contains('History').click();
 
@@ -137,7 +148,7 @@ describe('Wallet App Test Cases', () => {
 
   context('Adjusting auction params from econ-gov', () => {
     it('should allow gov1 to create a proposal', () => {
-      cy.visit('https://econ-gov.inter.trade/?agoricNet=local');
+      cy.visit(econGovURL);
 
       cy.get('button').contains('Vaults').click();
       cy.get('button').contains('Change Manager Params').click();
@@ -147,35 +158,40 @@ describe('Wallet App Test Cases', () => {
         .contains('StartingRate')
         .parent()
         .within(() => {
-          cy.get('input').clear().type('10500');
+          cy.get('input').clear();
+          cy.get('input').type('10500');
         });
 
       cy.get('label')
         .contains('LowestRate')
         .parent()
         .within(() => {
-          cy.get('input').clear().type('6500');
+          cy.get('input').clear();
+          cy.get('input').type('6500');
         });
 
       cy.get('label')
         .contains('DiscountStep')
         .parent()
         .within(() => {
-          cy.get('input').clear().type('500');
+          cy.get('input').clear();
+          cy.get('input').type('500');
         });
 
       cy.get('label')
         .contains('AuctionStartDelay')
         .parent()
         .within(() => {
-          cy.get('input').clear().type('2');
+          cy.get('input').clear();
+          cy.get('input').type('2');
         });
 
       cy.get('label')
         .contains('Minutes until close of vote')
         .parent()
         .within(() => {
-          cy.get('input').clear().type(1);
+          cy.get('input').clear();
+          cy.get('input').type(1);
         });
       cy.get('[value="Propose Parameter Change"]').click();
 
@@ -189,7 +205,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov1 to vote on the proposal', () => {
-      cy.visit('https://econ-gov.inter.trade/?agoricNet=local');
+      cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
       cy.get('p').contains('YES').click();
@@ -201,7 +217,7 @@ describe('Wallet App Test Cases', () => {
 
     it('should allow gov2 to vote on the proposal', () => {
       cy.switchWallet('gov2');
-      cy.visit('https://econ-gov.inter.trade/?agoricNet=local');
+      cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
       cy.get('p').contains('YES').click();
@@ -213,7 +229,7 @@ describe('Wallet App Test Cases', () => {
 
     it('should wait for proposal to pass', () => {
       cy.wait(60000 - Date.now() + startTime);
-      cy.visit('https://econ-gov.inter.trade/?agoricNet=local');
+      cy.visit(econGovURL);
 
       cy.get('button').contains('History').click();
 
@@ -225,18 +241,15 @@ describe('Wallet App Test Cases', () => {
         .within(() => {
           cy.get('span').contains('Change Accepted').should('be.visible');
         });
+
+      cy.switchWallet('user1');
     });
   });
 
   context('Creating vaults and changing ATOM price', () => {
     it('should connect with the wallet', () => {
-      cy.switchWallet('user1');
       cy.visit('/');
-
       cy.contains('Connect Wallet').click();
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
 
       cy.contains(
         'By clicking here you are indicating that you have read and agree to our',
@@ -249,7 +262,12 @@ describe('Wallet App Test Cases', () => {
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
     });
+
     it('should set ATOM price to 12.34', () => {
       cy.addKeys({
         keyName: 'gov1',
