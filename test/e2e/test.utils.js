@@ -27,4 +27,8 @@ export const phrasesList = {
   },
 };
 
+export const networks = {
+  EMERYNET: 'emerynet',
+  LOCAL: 'local',
+};
 export const econGovURL = 'https://econ-gov.inter.trade/?agoricNet=local';

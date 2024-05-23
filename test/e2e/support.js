@@ -78,13 +78,8 @@ Cypress.Commands.add('verifyAuctionData', (propertyName, expectedValue) => {
     });
 });
 
-Cypress.Commands.add(
-  'conditionalIt',
-  (condition, description, testFunction) => {
-    if (condition) {
-      it(description, testFunction);
-    } else {
-      it.skip(description, testFunction);
-    }
-  },
-);
+Cypress.Commands.add('skipWhen', function (expression) {
+  if (expression) {
+    this.skip();
+  }
+});

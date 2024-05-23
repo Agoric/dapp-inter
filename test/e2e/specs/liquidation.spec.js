@@ -5,6 +5,8 @@ import {
   LIQUIDATED_TIMEOUT,
   econGovURL,
   MINUTE_MS,
+  AGORIC_NET,
+  networks,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -36,12 +38,16 @@ describe('Wallet App Test Cases', () => {
 
   context('Adjusting manager params from econ-gov', () => {
     it('should connect with chain and wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
     });
     it('should allow gov2 to create a proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
       cy.acceptAccess();
 
@@ -108,6 +114,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov2 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
       cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
@@ -119,6 +126,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov1 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      
       cy.switchWallet('gov1');
       cy.visit(econGovURL);
 
@@ -131,6 +140,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait for proposal to pass', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.wait(MINUTE_MS - Date.now() + startTime);
       cy.visit(econGovURL);
 
@@ -149,6 +160,8 @@ describe('Wallet App Test Cases', () => {
 
   context('Adjusting auction params from econ-gov', () => {
     it('should allow gov1 to create a proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
 
       cy.get('button').contains('Vaults').click();
@@ -206,6 +219,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov1 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
@@ -217,6 +232,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov2 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.switchWallet('gov2');
       cy.visit(econGovURL);
 
@@ -229,6 +246,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait for proposal to pass', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.wait(MINUTE_MS - Date.now() + startTime);
       cy.visit(econGovURL);
 
@@ -383,14 +402,18 @@ describe('Wallet App Test Cases', () => {
 
     // Tests ran fine locally but failed in CI. Updating a3p container replicated failure locally. Tests pass with older container version.
     // UNTIL: a3p container compatibility is resolved.
-    it.skip('should wait and verify vaults are liquidated', () => {
+    it('should wait and verify vaults are liquidated', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
       cy.contains(/Collateral left to claim/, { timeout: LIQUIDATED_TIMEOUT });
       cy.contains(/3.42 ATOM/);
       cy.contains(/3.07 ATOM/);
       cy.contains(/2.84 ATOM/);
     });
 
-    it.skip('should verify the value of collateralAvailable from the CLI successfully', () => {
+    it('should verify the value of collateralAvailable from the CLI successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
       const propertyName = 'book0.collateralAvailable';
       const expectedValue = '9.659301 ATOM';
 

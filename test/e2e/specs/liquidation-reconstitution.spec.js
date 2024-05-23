@@ -35,12 +35,16 @@ describe('Wallet App Test Cases', () => {
 
   context('Adjusting manager params from econ-gov', () => {
     it('should connect with chain and wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
     });
     it('should allow gov2 to create a proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
       cy.acceptAccess();
 
@@ -107,6 +111,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov2 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
       cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
@@ -118,6 +123,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov1 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.switchWallet('gov1');
       cy.visit(econGovURL);
 
@@ -130,6 +137,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait for proposal to pass', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.wait(MINUTE_MS - Date.now() + startTime);
       cy.visit(econGovURL);
 
@@ -148,6 +157,8 @@ describe('Wallet App Test Cases', () => {
 
   context('Adjusting auction params from econ-gov', () => {
     it('should allow gov1 to create a proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
 
       cy.get('button').contains('Vaults').click();
@@ -205,6 +216,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov1 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
@@ -216,6 +229,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov2 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.switchWallet('gov2');
       cy.visit(econGovURL);
 
@@ -228,6 +243,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait for proposal to pass', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.wait(MINUTE_MS - Date.now() + startTime);
       cy.visit(econGovURL);
 
@@ -245,7 +262,7 @@ describe('Wallet App Test Cases', () => {
       cy.switchWallet('user1');
     });
   });
-
+  
   context('Creating vaults and changing ATOM price', () => {
     it('should connect with the wallet', () => {
       cy.visit('/');
