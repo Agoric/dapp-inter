@@ -3,9 +3,14 @@ import { mnemonics, phrasesList, MINUTE_MS } from '../test.utils';
 describe('Vaults UI Test Cases', () => {
   context('Test commands', () => {
     const networkPhrases = phrasesList[Cypress.env('AGORIC_NET') || 'local'];
+    const customWalletPhrase = Cypress.env('MNEMONIC_PHRASE');
 
     it('should setup the wallet', () => {
-      if (networkPhrases.isLocal) {
+      if (customWalletPhrase) {
+        cy.setupWallet({
+          secretWords: customWalletPhrase,
+        });
+      } else if (networkPhrases.isLocal) {
         cy.setupWallet({
           secretWords: mnemonics.user1,
           walletName: 'user1',
@@ -75,10 +80,6 @@ describe('Vaults UI Test Cases', () => {
     });
 
     it('should create a new vault and approve the transaction successfully', () => {
-      cy.visit('/');
-      if (!networkPhrases.isLocal)
-        cy.get('button').contains('Keep using Old Version').click();
-
       cy.contains('button', /ATOM/).click();
 
       cy.contains('ATOM to lock up *')
