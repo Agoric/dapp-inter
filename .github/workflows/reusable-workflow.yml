@@ -7,13 +7,17 @@ on:
         description: 'Docker Compose command to run E2E tests'
         required: true
         type: string
+      is_emerynet_test:
+        required: false
+        default: false
+        type: boolean
+      mnemonic_phrase:
+        required: false
+        type: string
 
 jobs:
   e2e:
     runs-on: ubuntu-latest
-
-    env:
-      IS_EMERYNET_TEST: ${{ github.event_name == 'schedule' || inputs.network == 'emerynet' }}
 
     steps:
       - name: Checkout
@@ -37,8 +41,8 @@ jobs:
         run: ${{ inputs.docker_compose_command }}
         env:
           # conditionals based on github event
-          SYNPRESS_PROFILE: ${{ env.IS_EMERYNET_TEST == 'true' && 'daily-tests' || 'synpress' }}
-          CYPRESS_AGORIC_NET: ${{ env.IS_EMERYNET_TEST == 'true' && 'emerynet' || 'local' }}
+          SYNPRESS_PROFILE: ${{ inputs.is_emerynet_test && 'daily-tests' || 'synpress' }}
+          CYPRESS_AGORIC_NET: ${{ inputs.is_emerynet_test && 'emerynet' || 'local' }}
           # for docker-compose.yml
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
@@ -54,6 +58,7 @@ jobs:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
+          CYPRESS_MNEMONIC_PHRASE: ${{ inputs.mnemonic_phrase }}
 
       - name: Archive e2e artifacts
         uses: actions/upload-artifact@v3

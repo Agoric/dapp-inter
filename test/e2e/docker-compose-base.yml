@@ -38,6 +38,7 @@ services:
       # Variables for dapp-psm
       - CYPRESS_AGORIC_NET=${CYPRESS_AGORIC_NET}
       - SECRET_WORDS="orbit bench unit task food shock brand bracket domain regular warfare company announce wheel grape trust sphere boy doctor half guard ritual three ecology"
+      - CYPRESS_MNEMONIC_PHRASE=${CYPRESS_MNEMONIC_PHRASE}
     entrypoint: []
     working_dir: /app
     volumes:
