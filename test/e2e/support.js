@@ -77,3 +77,14 @@ Cypress.Commands.add('verifyAuctionData', (propertyName, expectedValue) => {
       expect(propertyValue).to.equal(expectedValue);
     });
 });
+
+Cypress.Commands.add(
+  'conditionalIt',
+  (condition, description, testFunction) => {
+    if (condition) {
+      it(description, testFunction);
+    } else {
+      it.skip(description, testFunction);
+    }
+  },
+);
