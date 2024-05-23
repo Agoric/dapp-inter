@@ -660,10 +660,10 @@
   resolved "https://registry.yarnpkg.com/@agoric/swingset-xsnap-supervisor/-/swingset-xsnap-supervisor-0.10.3-u14.0.tgz#14dd5c471544f6703940b4b7c77ec37cb8056f93"
   integrity sha512-vrZwHUphBxceQ7gTDoDIDHGcbXSm7gJpoabzmQQ++dRAktspjK7AccIZnMCBM52KZioJgRLsHwwSh/mXUdHZ7g==
 
-"@agoric/synpress@^3.8.1":
-  version "3.8.1"
-  resolved "https://registry.yarnpkg.com/@agoric/synpress/-/synpress-3.8.1.tgz#0c71e16a5ce81b77f8b20588946d55c312acc34d"
-  integrity sha512-vD8TeKOWup/yrPO7LBiYwvKSy6LAjGJaMiCU52yfp/zqKFBWopfwCdUSpvzTnhBEZAz3VUxsrgzgfil5wCiRNQ==
+"@agoric/synpress@^3.8.3-beta.0":
+  version "3.8.3-beta.0"
+  resolved "https://registry.yarnpkg.com/@agoric/synpress/-/synpress-3.8.3-beta.0.tgz#75373a61726152ede76d8947579cbc2bddef1e72"
+  integrity sha512-G5bE6/m/rbSiubHysBbJVsJHtmkR7agN3UGAlRA5qObEoKMSGhpxYyT2iRH3erybSEq9MfCxgtOx2Lu8lTwqvA==
   dependencies:
     "@cypress/code-coverage" "^3.11.0"
     "@cypress/webpack-dev-server" "^3.5.2"

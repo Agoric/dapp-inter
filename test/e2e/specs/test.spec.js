@@ -59,7 +59,6 @@ describe('Vaults UI Test Cases', () => {
       }
     });
 
-    // eslint-disable-next-line ui-testing/missing-assertion-in-test
     it('should connect with the wallet', () => {
       cy.visit('/');
 

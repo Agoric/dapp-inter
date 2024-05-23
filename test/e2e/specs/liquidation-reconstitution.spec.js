@@ -1,4 +1,3 @@
-/* eslint-disable ui-testing/no-css-page-layout-selector */
 import {
   mnemonics,
   accountAddresses,
@@ -282,7 +281,7 @@ describe('Wallet App Test Cases', () => {
       });
       cy.setOraclePrice(12.34);
     });
-    /* eslint-disable ui-testing/missing-assertion-in-test */
+
     it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
       cy.addKeys({
         keyName: 'user1',
