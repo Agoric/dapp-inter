@@ -1,5 +1,5 @@
 import '@agoric/synpress/support/index';
-import { accountAddresses, AGORIC_NET } from './test.utils';
+import { accountAddresses, AGORIC_NET, networks } from './test.utils';
 
 Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
@@ -81,5 +81,54 @@ Cypress.Commands.add('verifyAuctionData', (propertyName, expectedValue) => {
 Cypress.Commands.add('skipWhen', function (expression) {
   if (expression) {
     this.skip();
+  }
+});
+
+const connectWalletLocalChain = () => {
+  cy.contains('Connect Wallet').click();
+
+  cy.contains(
+    'By clicking here you are indicating that you have read and agree to our',
+  )
+    .closest('label')
+    .find('input[type="checkbox"]')
+    .click();
+  cy.contains('Proceed').click();
+
+  cy.acceptAccess().then(taskCompleted => {
+    expect(taskCompleted).to.be.true;
+  });
+
+  cy.acceptAccess().then(taskCompleted => {
+    expect(taskCompleted).to.be.true;
+  });
+};
+
+const connectWalletEmerynet = () => {
+  cy.contains('button', 'Dismiss').click();
+  cy.get('button').contains('Local Network').click();
+  cy.get('button').contains('Agoric Emerynet').click();
+  cy.get('button').contains('Keep using Old Version').click();
+
+  cy.contains('Connect Wallet').click();
+
+  cy.acceptAccess().then(taskCompleted => {
+    expect(taskCompleted).to.be.true;
+  });
+
+  cy.get('label input[type="checkbox"]').check();
+  cy.contains('Proceed').click();
+
+  cy.acceptAccess().then(taskCompleted => {
+    expect(taskCompleted).to.be.true;
+  });
+};
+
+Cypress.Commands.add('connectWithWallet', () => {
+  cy.visit('/');
+  if (AGORIC_NET === networks.LOCAL) {
+    connectWalletLocalChain();
+  } else {
+    connectWalletEmerynet();
   }
 });

@@ -296,24 +296,7 @@ describe('Wallet App Test Cases', () => {
 
   context('Creating vaults and changing ATOM price', () => {
     it('should connect with the wallet', () => {
-      cy.visit('/');
-      cy.contains('Connect Wallet').click();
-
-      cy.contains(
-        'By clicking here you are indicating that you have read and agree to our',
-      )
-        .closest('label')
-        .find('input[type="checkbox"]')
-        .click();
-      cy.contains('Proceed').click();
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
+      cy.connectWithWallet();
     });
 
     it('should set ATOM price to 12.34', () => {
