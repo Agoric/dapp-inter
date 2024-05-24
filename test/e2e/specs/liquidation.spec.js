@@ -15,6 +15,8 @@ import {
   bidderAddress,
   bidderMnemonic,
   bidderWalletName,
+  DEFAULT_TIMEOUT,
+  DEFAULT_TASK_TIMEOUT,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -296,9 +298,16 @@ describe('Wallet App Test Cases', () => {
   });
 
   context('Creating vaults and changing ATOM price', () => {
-    it('should connect with the wallet', () => {
-      cy.connectWithWallet();
-    });
+    it(
+      'should connect with the wallet',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.connectWithWallet();
+      },
+    );
     it('should set ATOM price to 12.34', () => {
       cy.addKeys({
         keyName: 'gov1',
@@ -330,12 +339,19 @@ describe('Wallet App Test Cases', () => {
       cy.createVault({ wantMinted: 105, giveCollateral: 15 });
     });
 
-    it('should check for the existence of vaults on the UI', () => {
-      cy.contains('button', 'Back to vaults').click();
-      cy.contains('100.50 IST').should('exist');
-      cy.contains('103.51 IST').should('exist');
-      cy.contains('105.52 IST').should('exist');
-    });
+    it(
+      'should check for the existence of vaults on the UI',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.contains('button', 'Back to vaults').click();
+        cy.contains('100.50 IST').should('exist');
+        cy.contains('103.51 IST').should('exist');
+        cy.contains('105.52 IST').should('exist');
+      },
+    );
   });
 
   context('Place bids and make all vaults enter liquidation', () => {
@@ -343,33 +359,40 @@ describe('Wallet App Test Cases', () => {
       cy.skipWhen(AGORIC_NET === networks.EMERYNET);
       cy.createVault({ wantMinted: 400, giveCollateral: 80, userType: 'gov1' });
     });
-    it('should place bids from the CLI successfully', () => {
-      cy.switchWallet(bidderWalletName);
-      cy.addNewTokensFound();
-      cy.getTokenAmount('IST').then(initialTokenValue => {
-        cy.placeBidByPrice({
-          fromAddress: bidderAddress,
-          giveAmount: '90IST',
-          price: 9,
-        });
+    it(
+      'should place bids from the CLI successfully',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.switchWallet(bidderWalletName);
+        cy.addNewTokensFound();
+        cy.getTokenAmount('IST').then(initialTokenValue => {
+          cy.placeBidByPrice({
+            fromAddress: bidderAddress,
+            giveAmount: '90IST',
+            price: 9,
+          });
 
-        cy.placeBidByDiscount({
-          fromAddress: bidderAddress,
-          giveAmount: '80IST',
-          discount: 10,
-        });
+          cy.placeBidByDiscount({
+            fromAddress: bidderAddress,
+            giveAmount: '80IST',
+            discount: 10,
+          });
 
-        cy.placeBidByDiscount({
-          fromAddress: bidderAddress,
-          giveAmount: '150IST',
-          discount: 15,
-        });
+          cy.placeBidByDiscount({
+            fromAddress: bidderAddress,
+            giveAmount: '150IST',
+            discount: 15,
+          });
 
-        cy.getTokenAmount('IST').then(tokenValue => {
-          expect(tokenValue).to.lessThan(initialTokenValue);
+          cy.getTokenAmount('IST').then(tokenValue => {
+            expect(tokenValue).to.lessThan(initialTokenValue);
+          });
         });
-      });
-    });
+      },
+    );
 
     it('should verify vaults that are at a risk of being liquidated', () => {
       cy.setOraclePrice(9.99);

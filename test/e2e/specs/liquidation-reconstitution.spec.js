@@ -15,6 +15,8 @@ import {
   bidderAddress,
   bidderMnemonic,
   bidderWalletName,
+  DEFAULT_TIMEOUT,
+  DEFAULT_TASK_TIMEOUT,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -295,9 +297,16 @@ describe('Wallet App Test Cases', () => {
   });
 
   context('Creating vaults and changing ATOM price', () => {
-    it('should connect with the wallet', () => {
-      cy.connectWithWallet();
-    });
+    it(
+      'should connect with the wallet',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.connectWithWallet();
+      },
+    );
 
     it('should set ATOM price to 12.34', () => {
       cy.addKeys({
@@ -330,101 +339,121 @@ describe('Wallet App Test Cases', () => {
       cy.createVault({ wantMinted: 105, giveCollateral: 15 });
     });
 
-    it('should check for the existence of vaults on the UI', () => {
-      cy.contains('button', 'Back to vaults').click();
-      cy.contains('100.50 IST').should('exist');
-      cy.contains('103.51 IST').should('exist');
-      cy.contains('105.52 IST').should('exist');
-    });
+    it(
+      'should check for the existence of vaults on the UI',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.contains('button', 'Back to vaults').click();
+        cy.contains('100.50 IST').should('exist');
+        cy.contains('103.51 IST').should('exist');
+        cy.contains('105.52 IST').should('exist');
+      },
+    );
   });
 
-  context('Place bids and make all vaults enter liquidation', () => {
-    it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
-      cy.createVault({ wantMinted: 400, giveCollateral: 80, userType: 'gov1' });
-    });
-    it('should place bids from the CLI successfully', () => {
-      cy.switchWallet(bidderWalletName);
-      cy.addNewTokensFound();
-      cy.getTokenAmount('IST').then(initialTokenValue => {
-        cy.placeBidByDiscount({
-          fromAddress: bidderAddress,
-          giveAmount: '75IST',
-          discount: 22,
-        });
-
-        cy.placeBidByDiscount({
-          fromAddress: bidderAddress,
-          giveAmount: '25IST',
-          discount: 30,
-        });
-
-        cy.getTokenAmount('IST').then(tokenValue => {
-          expect(tokenValue).to.lessThan(initialTokenValue);
+  context(
+    'Place bids and make all vaults enter liquidation',
+    {
+      defaultCommandTimeout: DEFAULT_TIMEOUT,
+      taskTimeout: DEFAULT_TASK_TIMEOUT,
+    },
+    () => {
+      it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
+        cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+        cy.createVault({
+          wantMinted: 400,
+          giveCollateral: 80,
+          userType: 'gov1',
         });
       });
-    });
+      it('should place bids from the CLI successfully', () => {
+        cy.switchWallet(bidderWalletName);
+        cy.addNewTokensFound();
+        cy.getTokenAmount('IST').then(initialTokenValue => {
+          cy.placeBidByDiscount({
+            fromAddress: bidderAddress,
+            giveAmount: '75IST',
+            discount: 22,
+          });
 
-    it('should verify vaults that are at a risk of being liquidated', () => {
-      cy.setOraclePrice(9.99);
-      cy.switchWallet('user1');
-      cy.contains(
-        /Please increase your collateral or repay your outstanding IST debt./,
-      );
-    });
+          cy.placeBidByDiscount({
+            fromAddress: bidderAddress,
+            giveAmount: '25IST',
+            discount: 30,
+          });
 
-    it('should wait and verify vaults are being liquidated', () => {
-      cy.contains(/3 vaults are liquidating./, {
-        timeout: LIQUIDATING_TIMEOUT,
+          cy.getTokenAmount('IST').then(tokenValue => {
+            expect(tokenValue).to.lessThan(initialTokenValue);
+          });
+        });
       });
-    });
 
-    it('should verify the value of startPrice from the CLI successfully', () => {
-      const propertyName = 'book0.startPrice';
-      const expectedValue = '9.99 IST/ATOM';
+      it('should verify vaults that are at a risk of being liquidated', () => {
+        cy.setOraclePrice(9.99);
+        cy.switchWallet('user1');
+        cy.contains(
+          /Please increase your collateral or repay your outstanding IST debt./,
+        );
+      });
 
-      cy.verifyAuctionData(propertyName, expectedValue);
-    });
+      it('should wait and verify vaults are being liquidated', () => {
+        cy.contains(/3 vaults are liquidating./, {
+          timeout: LIQUIDATING_TIMEOUT,
+        });
+      });
 
-    it('should verify the value of startProceedsGoal from the CLI successfully', () => {
-      const propertyName = 'book0.startProceedsGoal';
-      const expectedValue = '309.54 IST';
+      it('should verify the value of startPrice from the CLI successfully', () => {
+        const propertyName = 'book0.startPrice';
+        const expectedValue = '9.99 IST/ATOM';
 
-      cy.verifyAuctionData(propertyName, expectedValue);
-    });
+        cy.verifyAuctionData(propertyName, expectedValue);
+      });
 
-    it('should verify the value of startCollateral from the CLI successfully', () => {
-      const propertyName = 'book0.startCollateral';
-      const expectedValue = '45 ATOM';
+      it('should verify the value of startProceedsGoal from the CLI successfully', () => {
+        const propertyName = 'book0.startProceedsGoal';
+        const expectedValue = '309.54 IST';
 
-      cy.verifyAuctionData(propertyName, expectedValue);
-    });
+        cy.verifyAuctionData(propertyName, expectedValue);
+      });
 
-    it('should verify the value of collateralAvailable from the CLI successfully', () => {
-      const propertyName = 'book0.collateralAvailable';
-      const expectedValue = '45 ATOM';
+      it('should verify the value of startCollateral from the CLI successfully', () => {
+        const propertyName = 'book0.startCollateral';
+        const expectedValue = '45 ATOM';
 
-      cy.verifyAuctionData(propertyName, expectedValue);
-    });
+        cy.verifyAuctionData(propertyName, expectedValue);
+      });
 
-    // Tests ran fine locally but failed in CI. Updating a3p container replicated failure locally. Tests pass with older container version.
-    // UNTIL: a3p container compatibility is resolved.
-    it('should wait and verify vaults are liquidated', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      it('should verify the value of collateralAvailable from the CLI successfully', () => {
+        const propertyName = 'book0.collateralAvailable';
+        const expectedValue = '45 ATOM';
 
-      cy.contains(/Collateral left to claim/, { timeout: LIQUIDATED_TIMEOUT });
-      cy.contains(/3.42 ATOM/);
-      cy.contains(/3.07 ATOM/);
-      cy.contains(/2.84 ATOM/);
-    });
+        cy.verifyAuctionData(propertyName, expectedValue);
+      });
 
-    it('should verify the value of collateralAvailable from the CLI successfully', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      // Tests ran fine locally but failed in CI. Updating a3p container replicated failure locally. Tests pass with older container version.
+      // UNTIL: a3p container compatibility is resolved.
+      it('should wait and verify vaults are liquidated', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-      const propertyName = 'book0.collateralAvailable';
-      const expectedValue = '9.659301 ATOM';
+        cy.contains(/Collateral left to claim/, {
+          timeout: LIQUIDATED_TIMEOUT,
+        });
+        cy.contains(/3.42 ATOM/);
+        cy.contains(/3.07 ATOM/);
+        cy.contains(/2.84 ATOM/);
+      });
 
-      cy.verifyAuctionData(propertyName, expectedValue);
-    });
-  });
+      it('should verify the value of collateralAvailable from the CLI successfully', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+        const propertyName = 'book0.collateralAvailable';
+        const expectedValue = '9.659301 ATOM';
+
+        cy.verifyAuctionData(propertyName, expectedValue);
+      });
+    },
+  );
 });

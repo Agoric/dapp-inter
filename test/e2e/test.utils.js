@@ -34,6 +34,11 @@ export const econGovURL = 'https://econ-gov.inter.trade/?agoricNet=local';
 
 export const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
 
+export const DEFAULT_TIMEOUT =
+  AGORIC_NET === networks.LOCAL ? 1 * 60 * 1000 : 3 * 60 * 1000;
+export const DEFAULT_TASK_TIMEOUT =
+  AGORIC_NET === networks.LOCAL ? 1 * 60 * 1000 : 3 * 60 * 1000;
+
 export const user1Mnemonic =
   AGORIC_NET === networks.LOCAL
     ? mnemonics.user1
