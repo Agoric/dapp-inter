@@ -1,10 +1,22 @@
 import {
   mnemonics,
-  accountAddresses,
   LIQUIDATING_TIMEOUT,
   LIQUIDATED_TIMEOUT,
   econGovURL,
   MINUTE_MS,
+  AGORIC_NET,
+  networks,
+  gov1Mnemonic,
+  gov1Address,
+  gov2Mnemonic,
+  gov2Address,
+  user1Address,
+  user1Mnemonic,
+  bidderAddress,
+  bidderMnemonic,
+  bidderWalletName,
+  DEFAULT_TIMEOUT,
+  DEFAULT_TASK_TIMEOUT,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -12,19 +24,40 @@ describe('Wallet App Test Cases', () => {
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
-    it('should set up wallets', () => {
+    it('should set up bidder wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
       cy.setupWallet({
-        secretWords: mnemonics.user1,
+        secretWords: bidderMnemonic,
+        walletName: bidderWalletName,
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
+
+    it('should set up user1 wallet', () => {
+      cy.setupWallet({
+        secretWords: user1Mnemonic,
         walletName: 'user1',
       }).then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
+    });
+
+    it('should set up gov1 wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.setupWallet({
         secretWords: mnemonics.gov1,
         walletName: 'gov1',
       }).then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
+    });
+
+    it('should set up gov2 wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.setupWallet({
         secretWords: mnemonics.gov2,
         walletName: 'gov2',
@@ -36,12 +69,16 @@ describe('Wallet App Test Cases', () => {
 
   context('Adjusting manager params from econ-gov', () => {
     it('should connect with chain and wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
     });
     it('should allow gov2 to create a proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
       cy.acceptAccess();
 
@@ -108,6 +145,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov2 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
       cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
@@ -119,6 +157,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov1 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.switchWallet('gov1');
       cy.visit(econGovURL);
 
@@ -131,6 +171,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait for proposal to pass', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.wait(MINUTE_MS - Date.now() + startTime);
       cy.visit(econGovURL);
 
@@ -149,6 +191,8 @@ describe('Wallet App Test Cases', () => {
 
   context('Adjusting auction params from econ-gov', () => {
     it('should allow gov1 to create a proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
 
       cy.get('button').contains('Vaults').click();
@@ -206,6 +250,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov1 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
@@ -217,6 +263,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov2 to vote on the proposal', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.switchWallet('gov2');
       cy.visit(econGovURL);
 
@@ -229,6 +277,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait for proposal to pass', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.wait(MINUTE_MS - Date.now() + startTime);
       cy.visit(econGovURL);
 
@@ -248,36 +298,26 @@ describe('Wallet App Test Cases', () => {
   });
 
   context('Creating vaults and changing ATOM price', () => {
-    it('should connect with the wallet', () => {
-      cy.visit('/');
-      cy.contains('Connect Wallet').click();
-
-      cy.contains(
-        'By clicking here you are indicating that you have read and agree to our',
-      )
-        .closest('label')
-        .find('input[type="checkbox"]')
-        .click();
-      cy.contains('Proceed').click();
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-    });
+    it(
+      'should connect with the wallet',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.connectWithWallet();
+      },
+    );
     it('should set ATOM price to 12.34', () => {
       cy.addKeys({
         keyName: 'gov1',
-        mnemonic: mnemonics.gov1,
-        expectedAddress: accountAddresses.gov1,
+        mnemonic: gov1Mnemonic,
+        expectedAddress: gov1Address,
       });
       cy.addKeys({
         keyName: 'gov2',
-        mnemonic: mnemonics.gov2,
-        expectedAddress: accountAddresses.gov2,
+        mnemonic: gov2Mnemonic,
+        expectedAddress: gov2Address,
       });
       cy.setOraclePrice(12.34);
     });
@@ -285,8 +325,8 @@ describe('Wallet App Test Cases', () => {
     it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
       cy.addKeys({
         keyName: 'user1',
-        mnemonic: mnemonics.user1,
-        expectedAddress: accountAddresses.user1,
+        mnemonic: user1Mnemonic,
+        expectedAddress: user1Address,
       });
       cy.createVault({ wantMinted: 100, giveCollateral: 15 });
     });
@@ -299,45 +339,60 @@ describe('Wallet App Test Cases', () => {
       cy.createVault({ wantMinted: 105, giveCollateral: 15 });
     });
 
-    it('should check for the existence of vaults on the UI', () => {
-      cy.contains('button', 'Back to vaults').click();
-      cy.contains('100.50 IST').should('exist');
-      cy.contains('103.51 IST').should('exist');
-      cy.contains('105.52 IST').should('exist');
-    });
+    it(
+      'should check for the existence of vaults on the UI',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.contains('button', 'Back to vaults').click();
+        cy.contains('100.50 IST').should('exist');
+        cy.contains('103.51 IST').should('exist');
+        cy.contains('105.52 IST').should('exist');
+      },
+    );
   });
 
   context('Place bids and make all vaults enter liquidation', () => {
     it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
       cy.createVault({ wantMinted: 400, giveCollateral: 80, userType: 'gov1' });
     });
-    it('should place bids from the CLI successfully', () => {
-      cy.switchWallet('gov1');
-      cy.addNewTokensFound();
-      cy.getTokenAmount('IST').then(initialTokenValue => {
-        cy.placeBidByPrice({
-          fromAddress: accountAddresses.gov1,
-          giveAmount: '90IST',
-          price: 9,
-        });
+    it(
+      'should place bids from the CLI successfully',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.switchWallet(bidderWalletName);
+        cy.addNewTokensFound();
+        cy.getTokenAmount('IST').then(initialTokenValue => {
+          cy.placeBidByPrice({
+            fromAddress: bidderAddress,
+            giveAmount: '90IST',
+            price: 9,
+          });
 
-        cy.placeBidByDiscount({
-          fromAddress: accountAddresses.gov1,
-          giveAmount: '80IST',
-          discount: 10,
-        });
+          cy.placeBidByDiscount({
+            fromAddress: bidderAddress,
+            giveAmount: '80IST',
+            discount: 10,
+          });
 
-        cy.placeBidByDiscount({
-          fromAddress: accountAddresses.gov1,
-          giveAmount: '150IST',
-          discount: 15,
-        });
+          cy.placeBidByDiscount({
+            fromAddress: bidderAddress,
+            giveAmount: '150IST',
+            discount: 15,
+          });
 
-        cy.getTokenAmount('IST').then(tokenValue => {
-          expect(tokenValue).to.lessThan(initialTokenValue);
+          cy.getTokenAmount('IST').then(tokenValue => {
+            expect(tokenValue).to.lessThan(initialTokenValue);
+          });
         });
-      });
-    });
+      },
+    );
 
     it('should verify vaults that are at a risk of being liquidated', () => {
       cy.setOraclePrice(9.99);
@@ -383,14 +438,18 @@ describe('Wallet App Test Cases', () => {
 
     // Tests ran fine locally but failed in CI. Updating a3p container replicated failure locally. Tests pass with older container version.
     // UNTIL: a3p container compatibility is resolved.
-    it.skip('should wait and verify vaults are liquidated', () => {
+    it('should wait and verify vaults are liquidated', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
       cy.contains(/Collateral left to claim/, { timeout: LIQUIDATED_TIMEOUT });
       cy.contains(/3.42 ATOM/);
       cy.contains(/3.07 ATOM/);
       cy.contains(/2.84 ATOM/);
     });
 
-    it.skip('should verify the value of collateralAvailable from the CLI successfully', () => {
+    it('should verify the value of collateralAvailable from the CLI successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
       const propertyName = 'book0.collateralAvailable';
       const expectedValue = '9.659301 ATOM';
 

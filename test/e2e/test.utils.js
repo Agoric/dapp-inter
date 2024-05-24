@@ -14,7 +14,6 @@ export const accountAddresses = {
 export const LIQUIDATING_TIMEOUT = 20 * 60 * 1000;
 export const LIQUIDATED_TIMEOUT = 10 * 60 * 1000;
 export const MINUTE_MS = 60000;
-export const AGORIC_NET = 'local';
 
 export const phrasesList = {
   emerynet: {
@@ -27,4 +26,53 @@ export const phrasesList = {
   },
 };
 
+export const networks = {
+  EMERYNET: 'emerynet',
+  LOCAL: 'local',
+};
 export const econGovURL = 'https://econ-gov.inter.trade/?agoricNet=local';
+
+export const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
+
+export const DEFAULT_TIMEOUT =
+  AGORIC_NET === networks.LOCAL ? 1 * 60 * 1000 : 3 * 60 * 1000;
+export const DEFAULT_TASK_TIMEOUT =
+  AGORIC_NET === networks.LOCAL ? 1 * 60 * 1000 : 3 * 60 * 1000;
+
+export const user1Mnemonic =
+  AGORIC_NET === networks.LOCAL
+    ? mnemonics.user1
+    : Cypress.env('CYPRESS_USER1_MNEMONIC');
+export const user1Address =
+  AGORIC_NET === networks.LOCAL
+    ? accountAddresses.user1
+    : Cypress.env('CYPRESS_USER1_ADDRESS');
+
+export const bidderMnemonic =
+  AGORIC_NET === networks.LOCAL
+    ? mnemonics.gov1
+    : Cypress.env('CYPRESS_BIDDER_MNEMONIC');
+export const bidderAddress =
+  AGORIC_NET === networks.LOCAL
+    ? accountAddresses.gov1
+    : Cypress.env('CYPRESS_BIDDER_ADDRESS');
+export const bidderWalletName =
+  AGORIC_NET === networks.LOCAL ? 'gov1' : 'bidder';
+
+export const gov1Mnemonic =
+  AGORIC_NET === networks.LOCAL
+    ? mnemonics.gov1
+    : Cypress.env('CYPRESS_GOV1_MNEMONIC');
+export const gov1Address =
+  AGORIC_NET === networks.LOCAL
+    ? accountAddresses.gov1
+    : Cypress.env('CYPRESS_GOV1_ADDRESS');
+
+export const gov2Mnemonic =
+  AGORIC_NET === networks.LOCAL
+    ? mnemonics.gov2
+    : Cypress.env('CYPRESS_GOV2_MNEMONIC');
+export const gov2Address =
+  AGORIC_NET === networks.LOCAL
+    ? accountAddresses.gov2
+    : Cypress.env('CYPRESS_GOV2_ADDRESS');
