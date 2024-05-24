@@ -19,9 +19,19 @@ import {
 
 describe('Wallet App Test Cases', () => {
   let startTime;
-  
+
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
+    it('should set up bidder wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+      cy.setupWallet({
+        secretWords: bidderMnemonic,
+        walletName: bidderWalletName,
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
     it('should set up user1 wallet', () => {
       cy.setupWallet({
         secretWords: user1Mnemonic,
@@ -48,17 +58,6 @@ describe('Wallet App Test Cases', () => {
       cy.setupWallet({
         secretWords: mnemonics.gov2,
         walletName: 'gov2',
-      }).then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-    });
-
-    it('should set up bidder wallet', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
-
-      cy.setupWallet({
-        secretWords: bidderMnemonic,
-        walletName: bidderWalletName,
       }).then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
