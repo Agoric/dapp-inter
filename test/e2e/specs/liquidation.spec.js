@@ -1,12 +1,20 @@
 import {
   mnemonics,
-  accountAddresses,
   LIQUIDATING_TIMEOUT,
   LIQUIDATED_TIMEOUT,
   econGovURL,
   MINUTE_MS,
   AGORIC_NET,
   networks,
+  gov1Mnemonic,
+  gov1Address,
+  gov2Mnemonic,
+  gov2Address,
+  user1Address,
+  user1Mnemonic,
+  bidderAddress,
+  bidderMnemonic,
+  bidderWalletName,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -16,7 +24,7 @@ describe('Wallet App Test Cases', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
     it('should set up user1 wallet', () => {
       cy.setupWallet({
-        secretWords: mnemonics.user1,
+        secretWords: user1Mnemonic,
         walletName: 'user1',
       }).then(taskCompleted => {
         expect(taskCompleted).to.be.true;
@@ -40,6 +48,17 @@ describe('Wallet App Test Cases', () => {
       cy.setupWallet({
         secretWords: mnemonics.gov2,
         walletName: 'gov2',
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
+
+    it('should set up bidder wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+      cy.setupWallet({
+        secretWords: bidderMnemonic,
+        walletName: bidderWalletName,
       }).then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
@@ -300,13 +319,13 @@ describe('Wallet App Test Cases', () => {
     it('should set ATOM price to 12.34', () => {
       cy.addKeys({
         keyName: 'gov1',
-        mnemonic: mnemonics.gov1,
-        expectedAddress: accountAddresses.gov1,
+        mnemonic: gov1Mnemonic,
+        expectedAddress: gov1Address,
       });
       cy.addKeys({
         keyName: 'gov2',
-        mnemonic: mnemonics.gov2,
-        expectedAddress: accountAddresses.gov2,
+        mnemonic: gov2Mnemonic,
+        expectedAddress: gov2Address,
       });
       cy.setOraclePrice(12.34);
     });
@@ -314,8 +333,8 @@ describe('Wallet App Test Cases', () => {
     it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
       cy.addKeys({
         keyName: 'user1',
-        mnemonic: mnemonics.user1,
-        expectedAddress: accountAddresses.user1,
+        mnemonic: user1Mnemonic,
+        expectedAddress: user1Address,
       });
       cy.createVault({ wantMinted: 100, giveCollateral: 15 });
     });
@@ -342,23 +361,23 @@ describe('Wallet App Test Cases', () => {
       cy.createVault({ wantMinted: 400, giveCollateral: 80, userType: 'gov1' });
     });
     it('should place bids from the CLI successfully', () => {
-      cy.switchWallet('gov1');
+      cy.switchWallet(bidderWalletName);
       cy.addNewTokensFound();
       cy.getTokenAmount('IST').then(initialTokenValue => {
         cy.placeBidByPrice({
-          fromAddress: accountAddresses.gov1,
+          fromAddress: bidderAddress,
           giveAmount: '90IST',
           price: 9,
         });
 
         cy.placeBidByDiscount({
-          fromAddress: accountAddresses.gov1,
+          fromAddress: bidderAddress,
           giveAmount: '80IST',
           discount: 10,
         });
 
         cy.placeBidByDiscount({
-          fromAddress: accountAddresses.gov1,
+          fromAddress: bidderAddress,
           giveAmount: '150IST',
           discount: 15,
         });

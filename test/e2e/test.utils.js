@@ -14,7 +14,6 @@ export const accountAddresses = {
 export const LIQUIDATING_TIMEOUT = 20 * 60 * 1000;
 export const LIQUIDATED_TIMEOUT = 10 * 60 * 1000;
 export const MINUTE_MS = 60000;
-export const AGORIC_NET = 'local';
 
 export const phrasesList = {
   emerynet: {
@@ -32,3 +31,25 @@ export const networks = {
   LOCAL: 'local',
 };
 export const econGovURL = 'https://econ-gov.inter.trade/?agoricNet=local';
+
+export const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
+
+export const user1Mnemonic =
+  AGORIC_NET === networks.LOCAL ? mnemonics.user1 : '';
+export const user1Address =
+  AGORIC_NET === networks.LOCAL ? accountAddresses.user1 : '';
+
+export const bidderMnemonic =
+  AGORIC_NET === networks.LOCAL ? mnemonics.gov1 : '';
+export const bidderAddress =
+  AGORIC_NET === networks.LOCAL ? accountAddresses.gov1 : '';
+export const bidderWalletName =
+  AGORIC_NET === networks.LOCAL ? 'gov1' : 'bidder';
+
+export const gov1Mnemonic = AGORIC_NET === networks.LOCAL ? mnemonics.gov1 : '';
+export const gov1Address =
+  AGORIC_NET === networks.LOCAL ? accountAddresses.gov1 : '';
+
+export const gov2Mnemonic = AGORIC_NET === networks.LOCAL ? mnemonics.gov2 : '';
+export const gov2Address =
+  AGORIC_NET === networks.LOCAL ? accountAddresses.gov2 : '';
