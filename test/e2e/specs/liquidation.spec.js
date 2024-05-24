@@ -14,19 +14,29 @@ describe('Wallet App Test Cases', () => {
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
-    it('should set up wallets', () => {
+    it('should set up user1 wallet', () => {
       cy.setupWallet({
         secretWords: mnemonics.user1,
         walletName: 'user1',
       }).then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
+    });
+
+    it('should set up gov1 wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.setupWallet({
         secretWords: mnemonics.gov1,
         walletName: 'gov1',
       }).then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
+    });
+
+    it('should set up gov2 wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+
       cy.setupWallet({
         secretWords: mnemonics.gov2,
         walletName: 'gov2',
@@ -127,7 +137,7 @@ describe('Wallet App Test Cases', () => {
 
     it('should allow gov1 to vote on the proposal', () => {
       cy.skipWhen(AGORIC_NET === networks.EMERYNET);
-      
+
       cy.switchWallet('gov1');
       cy.visit(econGovURL);
 
@@ -328,6 +338,7 @@ describe('Wallet App Test Cases', () => {
 
   context('Place bids and make all vaults enter liquidation', () => {
     it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
+      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
       cy.createVault({ wantMinted: 400, giveCollateral: 80, userType: 'gov1' });
     });
     it('should place bids from the CLI successfully', () => {
