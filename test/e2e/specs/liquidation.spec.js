@@ -4,23 +4,25 @@ import {
   LIQUIDATED_TIMEOUT,
   econGovURL,
   MINUTE_MS,
-  AGORIC_NET,
   networks,
-  gov1Mnemonic,
-  gov1Address,
-  gov2Mnemonic,
-  gov2Address,
-  user1Address,
-  user1Mnemonic,
-  bidderAddress,
-  bidderMnemonic,
-  bidderWalletName,
-  DEFAULT_TIMEOUT,
-  DEFAULT_TASK_TIMEOUT,
+  configMap,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
   let startTime;
+  const AGORIC_NET = Cypress.env('AGORIC_NET');
+  const currentConfig = configMap[AGORIC_NET];
+  const DEFAULT_TIMEOUT = currentConfig.DEFAULT_TIMEOUT;
+  const DEFAULT_TASK_TIMEOUT = currentConfig.DEFAULT_TASK_TIMEOUT;
+  const user1Mnemonic = currentConfig.user1Mnemonic;
+  const user1Address = currentConfig.user1Address;
+  const bidderMnemonic = currentConfig.bidderMnemonic;
+  const bidderAddress = currentConfig.bidderAddress;
+  const bidderWalletName = currentConfig.bidderWalletName;
+  const gov1Mnemonic = currentConfig.gov1Mnemonic;
+  const gov1Address = currentConfig.gov1Address;
+  const gov2Mnemonic = currentConfig.gov2Mnemonic;
+  const gov2Address = currentConfig.gov2Address;
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154

@@ -32,47 +32,31 @@ export const networks = {
 };
 export const econGovURL = 'https://econ-gov.inter.trade/?agoricNet=local';
 
-export const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
-
-export const DEFAULT_TIMEOUT =
-  AGORIC_NET === networks.LOCAL ? 1 * 60 * 1000 : 3 * 60 * 1000;
-export const DEFAULT_TASK_TIMEOUT =
-  AGORIC_NET === networks.LOCAL ? 1 * 60 * 1000 : 3 * 60 * 1000;
-
-export const user1Mnemonic =
-  AGORIC_NET === networks.LOCAL
-    ? mnemonics.user1
-    : Cypress.env('CYPRESS_USER1_MNEMONIC');
-export const user1Address =
-  AGORIC_NET === networks.LOCAL
-    ? accountAddresses.user1
-    : Cypress.env('CYPRESS_USER1_ADDRESS');
-
-export const bidderMnemonic =
-  AGORIC_NET === networks.LOCAL
-    ? mnemonics.gov1
-    : Cypress.env('CYPRESS_BIDDER_MNEMONIC');
-export const bidderAddress =
-  AGORIC_NET === networks.LOCAL
-    ? accountAddresses.gov1
-    : Cypress.env('CYPRESS_BIDDER_ADDRESS');
-export const bidderWalletName =
-  AGORIC_NET === networks.LOCAL ? 'gov1' : 'bidder';
-
-export const gov1Mnemonic =
-  AGORIC_NET === networks.LOCAL
-    ? mnemonics.gov1
-    : Cypress.env('CYPRESS_GOV1_MNEMONIC');
-export const gov1Address =
-  AGORIC_NET === networks.LOCAL
-    ? accountAddresses.gov1
-    : Cypress.env('CYPRESS_GOV1_ADDRESS');
-
-export const gov2Mnemonic =
-  AGORIC_NET === networks.LOCAL
-    ? mnemonics.gov2
-    : Cypress.env('CYPRESS_GOV2_MNEMONIC');
-export const gov2Address =
-  AGORIC_NET === networks.LOCAL
-    ? accountAddresses.gov2
-    : Cypress.env('CYPRESS_GOV2_ADDRESS');
+export const configMap = {
+  emerynet: {
+    DEFAULT_TIMEOUT: 3 * 60 * 1000,
+    DEFAULT_TASK_TIMEOUT: 3 * 60 * 1000,
+    user1Mnemonic: Cypress.env('USER1_MNEMONIC'),
+    user1Address: Cypress.env('USER1_ADDRESS'),
+    bidderMnemonic: Cypress.env('BIDDER_MNEMONIC'),
+    bidderAddress: Cypress.env('BIDDER_ADDRESS'),
+    bidderWalletName: 'bidder',
+    gov1Mnemonic: Cypress.env('GOV1_MNEMONIC'),
+    gov1Address: Cypress.env('GOV1_ADDRESS'),
+    gov2Mnemonic: Cypress.env('GOV2_MNEMONIC'),
+    gov2Address: Cypress.env('GOV2_ADDRESS'),
+  },
+  local: {
+    DEFAULT_TIMEOUT: 1 * 60 * 1000,
+    DEFAULT_TASK_TIMEOUT: 1 * 60 * 1000,
+    user1Mnemonic: mnemonics.user1,
+    user1Address: accountAddresses.user1,
+    bidderMnemonic: mnemonics.gov1,
+    bidderAddress: accountAddresses.gov1,
+    bidderWalletName: 'gov1',
+    gov1Mnemonic: mnemonics.gov1,
+    gov1Address: accountAddresses.gov1,
+    gov2Mnemonic: mnemonics.gov2,
+    gov2Address: accountAddresses.gov2,
+  },
+};
