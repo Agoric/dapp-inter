@@ -35,21 +35,39 @@ export const econGovURL = 'https://econ-gov.inter.trade/?agoricNet=local';
 export const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
 
 export const user1Mnemonic =
-  AGORIC_NET === networks.LOCAL ? mnemonics.user1 : '';
+  AGORIC_NET === networks.LOCAL
+    ? mnemonics.user1
+    : Cypress.env('CYPRESS_USER1_MNEMONIC');
 export const user1Address =
-  AGORIC_NET === networks.LOCAL ? accountAddresses.user1 : '';
+  AGORIC_NET === networks.LOCAL
+    ? accountAddresses.user1
+    : Cypress.env('CYPRESS_USER1_ADDRESS');
 
 export const bidderMnemonic =
-  AGORIC_NET === networks.LOCAL ? mnemonics.gov1 : '';
+  AGORIC_NET === networks.LOCAL
+    ? mnemonics.gov1
+    : Cypress.env('CYPRESS_BIDDER_MNEMONIC');
 export const bidderAddress =
-  AGORIC_NET === networks.LOCAL ? accountAddresses.gov1 : '';
+  AGORIC_NET === networks.LOCAL
+    ? accountAddresses.gov1
+    : Cypress.env('CYPRESS_BIDDER_ADDRESS');
 export const bidderWalletName =
   AGORIC_NET === networks.LOCAL ? 'gov1' : 'bidder';
 
-export const gov1Mnemonic = AGORIC_NET === networks.LOCAL ? mnemonics.gov1 : '';
+export const gov1Mnemonic =
+  AGORIC_NET === networks.LOCAL
+    ? mnemonics.gov1
+    : Cypress.env('CYPRESS_GOV1_MNEMONIC');
 export const gov1Address =
-  AGORIC_NET === networks.LOCAL ? accountAddresses.gov1 : '';
+  AGORIC_NET === networks.LOCAL
+    ? accountAddresses.gov1
+    : Cypress.env('CYPRESS_GOV1_ADDRESS');
 
-export const gov2Mnemonic = AGORIC_NET === networks.LOCAL ? mnemonics.gov2 : '';
+export const gov2Mnemonic =
+  AGORIC_NET === networks.LOCAL
+    ? mnemonics.gov2
+    : Cypress.env('CYPRESS_GOV2_MNEMONIC');
 export const gov2Address =
-  AGORIC_NET === networks.LOCAL ? accountAddresses.gov2 : '';
+  AGORIC_NET === networks.LOCAL
+    ? accountAddresses.gov2
+    : Cypress.env('CYPRESS_GOV2_ADDRESS');
