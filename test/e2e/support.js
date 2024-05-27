@@ -27,7 +27,7 @@ Cypress.Commands.add('setOraclePrice', price => {
 });
 
 Cypress.Commands.add('createVault', params => {
-  const { wantMinted, giveCollateral, userKey = 'user1' } = params;
+  const { wantMinted, giveCollateral, userKey } = params;
 
   const createVaultCommand = `agops vaults open --wantMinted "${wantMinted}" --giveCollateral "${giveCollateral}" > /tmp/want-ist.json`;
 

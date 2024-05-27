@@ -340,15 +340,15 @@ describe('Wallet App Test Cases', () => {
       cy.setOraclePrice(12.34);
     });
     it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 100, giveCollateral: 15 });
+      cy.createVault({ wantMinted: 100, giveCollateral: 15, userKey: 'user1' });
     });
 
     it('should create a vault minting 103 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 103, giveCollateral: 15 });
+      cy.createVault({ wantMinted: 103, giveCollateral: 15, userKey: 'user1' });
     });
 
     it('should create a vault minting 105 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 105, giveCollateral: 15 });
+      cy.createVault({ wantMinted: 105, giveCollateral: 15, userKey: 'user1' });
     });
 
     it(
@@ -379,7 +379,7 @@ describe('Wallet App Test Cases', () => {
         cy.createVault({
           wantMinted: 400,
           giveCollateral: 80,
-          userType: 'gov1',
+          userKey: 'gov1',
         });
       });
       it('should place bids from the CLI successfully', () => {
@@ -450,6 +450,7 @@ describe('Wallet App Test Cases', () => {
       // UNTIL: a3p container compatibility is resolved.
 
       it('should verify 2 vaults are reconstituted', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
         cy.contains(
           /Please increase your collateral or repay your outstanding IST debt./,
           { timeout: LIQUIDATING_TIMEOUT },
@@ -482,6 +483,7 @@ describe('Wallet App Test Cases', () => {
       });
 
       it('should close the 100 debt vault and approve the transaction successfully', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
         const regexVault100 = new RegExp('100(\\.\\d+)?');
         cy.contains(regexVault100, { timeout: LIQUIDATING_TIMEOUT }).click();
         cy.contains('Close Out Vault').click();
@@ -496,6 +498,7 @@ describe('Wallet App Test Cases', () => {
       });
 
       it('should close the 103 debt vault and approve the transaction successfully', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
         const regexVault103 = new RegExp('103(\\.\\d+)?');
         cy.contains(regexVault103, { timeout: LIQUIDATING_TIMEOUT }).click();
         cy.contains('Close Out Vault').click();

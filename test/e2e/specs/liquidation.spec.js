@@ -342,15 +342,15 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 100, giveCollateral: 15 });
+      cy.createVault({ wantMinted: 100, giveCollateral: 15, userKey: 'user1' });
     });
 
     it('should create a vault minting 103 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 103, giveCollateral: 15 });
+      cy.createVault({ wantMinted: 103, giveCollateral: 15, userKey: 'user1' });
     });
 
     it('should create a vault minting 105 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 105, giveCollateral: 15 });
+      cy.createVault({ wantMinted: 105, giveCollateral: 15, userKey: 'user1' });
     });
 
     it(
@@ -372,7 +372,7 @@ describe('Wallet App Test Cases', () => {
   context('Place bids and make all vaults enter liquidation', () => {
     it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
       cy.skipWhen(AGORIC_NET === networks.EMERYNET);
-      cy.createVault({ wantMinted: 400, giveCollateral: 80, userType: 'gov1' });
+      cy.createVault({ wantMinted: 400, giveCollateral: 80, userKey: 'gov1' });
     });
 
     it(
