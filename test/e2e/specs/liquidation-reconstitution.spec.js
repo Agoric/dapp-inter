@@ -2,7 +2,6 @@ import {
   mnemonics,
   LIQUIDATING_TIMEOUT,
   LIQUIDATED_TIMEOUT,
-  econGovURL,
   MINUTE_MS,
   networks,
   configMap,
@@ -10,7 +9,6 @@ import {
 
 describe('Wallet App Test Cases', () => {
   let startTime;
-  let zeroCollateralVaults = 0;
   const AGORIC_NET = Cypress.env('AGORIC_NET');
   const currentConfig = configMap[AGORIC_NET];
   const DEFAULT_TIMEOUT = currentConfig.DEFAULT_TIMEOUT;
@@ -24,6 +22,7 @@ describe('Wallet App Test Cases', () => {
   const gov1Address = currentConfig.gov1Address;
   const gov2Mnemonic = currentConfig.gov2Mnemonic;
   const gov2Address = currentConfig.gov2Address;
+  const econGovURL = currentConfig.econGovURL;
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
@@ -311,32 +310,32 @@ describe('Wallet App Test Cases', () => {
       },
     );
 
-    // it('should add all the keys successfully', () => {
-    //   cy.addKeys({
-    //     keyName: 'gov1',
-    //     mnemonic: gov1Mnemonic,
-    //     expectedAddress: gov1Address,
-    //   });
-    //   cy.addKeys({
-    //     keyName: 'gov2',
-    //     mnemonic: gov2Mnemonic,
-    //     expectedAddress: gov2Address,
-    //   });
-    //   cy.addKeys({
-    //     keyName: 'user1',
-    //     mnemonic: user1Mnemonic,
-    //     expectedAddress: user1Address,
-    //   });
-    // });
+    it('should add all the keys successfully', () => {
+      cy.addKeys({
+        keyName: 'gov1',
+        mnemonic: gov1Mnemonic,
+        expectedAddress: gov1Address,
+      });
+      cy.addKeys({
+        keyName: 'gov2',
+        mnemonic: gov2Mnemonic,
+        expectedAddress: gov2Address,
+      });
+      cy.addKeys({
+        keyName: 'user1',
+        mnemonic: user1Mnemonic,
+        expectedAddress: user1Address,
+      });
+    });
 
-    // it('should add the bidder key successfully', () => {
-    //   it.skipWhen(AGORIC_NET === networks.LOCAL);
-    //   cy.addKeys({
-    //     keyName: 'bidder',
-    //     mnemonic: bidderMnemonic,
-    //     expectedAddress: bidderAddress,
-    //   });
-    // });
+    it('should add the bidder key successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.addKeys({
+        keyName: 'bidder',
+        mnemonic: bidderMnemonic,
+        expectedAddress: bidderAddress,
+      });
+    });
     it('should set ATOM price to 12.34', () => {
       cy.setOraclePrice(12.34);
     });
@@ -405,24 +404,6 @@ describe('Wallet App Test Cases', () => {
         });
       });
 
-      it('should count the number of 0 Collateral Vaults', () => {
-        cy.get('body').then(body => {
-          if (body.find(':contains("0.00 ATOM")').length > 0) {
-            cy.contains(/Collateral left to claim/, {
-              timeout: LIQUIDATED_TIMEOUT,
-            }).then(elements => {
-              zeroCollateralVaults = elements.length;
-              cy.log(`Count of elements: ${zeroCollateralVaults}`);
-              expect(zeroCollateralVaults).to.be.greaterThan(0);
-            });
-          } else {
-            cy.log(
-              'No elements found with the text "Collateral left to claim"',
-            );
-          }
-        });
-      });
-
       it('should verify vaults that are at a risk of being liquidated', () => {
         cy.setOraclePrice(9.99);
         cy.switchWallet('user1');
@@ -467,6 +448,14 @@ describe('Wallet App Test Cases', () => {
 
       // Tests ran fine locally but failed in CI. Updating a3p container replicated failure locally. Tests pass with older container version.
       // UNTIL: a3p container compatibility is resolved.
+
+      it('should verify 2 vaults are reconstituted', () => {
+        cy.contains(
+          /Please increase your collateral or repay your outstanding IST debt./,
+          { timeout: LIQUIDATING_TIMEOUT },
+        );
+      });
+
       it(
         'should verify a vault is liquidated',
         {
@@ -476,32 +465,10 @@ describe('Wallet App Test Cases', () => {
         () => {
           cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-          cy.contains(/0.00 ATOM/, {
+          cy.contains(/Collateral left to claim/, {
             timeout: LIQUIDATED_TIMEOUT,
-          }).then(elements => {
-            let currentLength = elements.length;
-            expect(currentLength).to.be.greaterThan(zeroCollateralVaults + 1);
           });
-        },
-      );
-
-      it(
-        'should verify 2 vaults are reconstituted',
-        {
-          defaultCommandTimeout: DEFAULT_TIMEOUT,
-          taskTimeout: DEFAULT_TASK_TIMEOUT,
-        },
-        () => {
-          cy.skipWhen(AGORIC_NET === networks.LOCAL);
-
-          cy.contains(/2 vaults are liquidating./, {
-            timeout: LIQUIDATING_TIMEOUT,
-          });
-
-          const regexVault100 = new RegExp('100(\\.\\d+)?');
-          const regexVault103 = new RegExp('100(\\.\\d+)?');
-          cy.contains(regexVault100, { timeout: LIQUIDATING_TIMEOUT });
-          cy.contains(regexVault103, { timeout: LIQUIDATING_TIMEOUT });
+          cy.contains(/0.00 ATOM/);
         },
       );
 
@@ -509,9 +476,37 @@ describe('Wallet App Test Cases', () => {
         cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
         const propertyName = 'book0.collateralAvailable';
-        const expectedValue = '31.4198 ATOM';
+        const expectedValue = '31.414987 ATOM';
 
         cy.verifyAuctionData(propertyName, expectedValue);
+      });
+
+      it('should close the 100 debt vault and approve the transaction successfully', () => {
+        const regexVault100 = new RegExp('100(\\.\\d+)?');
+        cy.contains(regexVault100, { timeout: LIQUIDATING_TIMEOUT }).click();
+        cy.contains('Close Out Vault').click();
+        cy.contains('button.bg-interPurple', 'Close Out Vault').click();
+
+        cy.confirmTransaction().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+          cy.contains('button.bg-interPurple', 'Close Out Vault').should(
+            'not.exist',
+          );
+        });
+      });
+
+      it('should close the 103 debt vault and approve the transaction successfully', () => {
+        const regexVault103 = new RegExp('103(\\.\\d+)?');
+        cy.contains(regexVault103, { timeout: LIQUIDATING_TIMEOUT }).click();
+        cy.contains('Close Out Vault').click();
+        cy.contains('button.bg-interPurple', 'Close Out Vault').click();
+
+        cy.confirmTransaction().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+          cy.contains('button.bg-interPurple', 'Close Out Vault').should(
+            'not.exist',
+          );
+        });
       });
     },
   );

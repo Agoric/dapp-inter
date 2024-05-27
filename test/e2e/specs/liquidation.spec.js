@@ -2,7 +2,6 @@ import {
   mnemonics,
   LIQUIDATING_TIMEOUT,
   LIQUIDATED_TIMEOUT,
-  econGovURL,
   MINUTE_MS,
   networks,
   configMap,
@@ -23,6 +22,7 @@ describe('Wallet App Test Cases', () => {
   const gov1Address = currentConfig.gov1Address;
   const gov2Mnemonic = currentConfig.gov2Mnemonic;
   const gov2Address = currentConfig.gov2Address;
+  const econGovURL = currentConfig.econGovURL;
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
@@ -330,7 +330,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should add the bidder key successfully', () => {
-      it.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.addKeys({
         keyName: 'bidder',
         mnemonic: bidderMnemonic,

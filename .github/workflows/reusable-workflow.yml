@@ -59,15 +59,6 @@ jobs:
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           CYPRESS_MNEMONIC_PHRASE: ${{ inputs.mnemonic_phrase }}
-          # Liquidation Secrets
-          CYPRESS_GOV1_MNEMONIC: ${{ secrets.CYPRESS_GOV1_MNEMONIC }}
-          CYPRESS_GOV1_ADDRESS: ${{ secrets.CYPRESS_GOV1_ADDRESS }}
-          CYPRESS_GOV2_MNEMONIC: ${{ secrets.CYPRESS_GOV2_MNEMONIC }}
-          CYPRESS_GOV2_ADDRESS: ${{ secrets.CYPRESS_GOV2_ADDRESS }}
-          CYPRESS_USER1_MNEMONIC: ${{ secrets.CYPRESS_USER1_MNEMONIC }}
-          CYPRESS_USER1_ADDRESS: ${{ secrets.CYPRESS_USER1_ADDRESS }}
-          CYPRESS_BIDDER_MNEMONIC: ${{ secrets.CYPRESS_BIDDER_MNEMONIC }}
-          CYPRESS_BIDDER_ADDRESS: ${{ secrets.CYPRESS_BIDDER_ADDRESS }}
 
       - name: Archive e2e artifacts
         uses: actions/upload-artifact@v3
