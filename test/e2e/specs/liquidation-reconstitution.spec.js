@@ -10,6 +10,7 @@ import {
 
 describe('Wallet App Test Cases', () => {
   let startTime;
+  let zeroCollateralVaults = 0;
   const AGORIC_NET = Cypress.env('AGORIC_NET');
   const currentConfig = configMap[AGORIC_NET];
   const DEFAULT_TIMEOUT = currentConfig.DEFAULT_TIMEOUT;
@@ -404,6 +405,24 @@ describe('Wallet App Test Cases', () => {
         });
       });
 
+      it('should count the number of 0 Collateral Vaults', () => {
+        cy.get('body').then(body => {
+          if (body.find(':contains("0.00 ATOM")').length > 0) {
+            cy.contains(/Collateral left to claim/, {
+              timeout: LIQUIDATED_TIMEOUT,
+            }).then(elements => {
+              zeroCollateralVaults = elements.length;
+              cy.log(`Count of elements: ${zeroCollateralVaults}`);
+              expect(zeroCollateralVaults).to.be.greaterThan(0);
+            });
+          } else {
+            cy.log(
+              'No elements found with the text "Collateral left to claim"',
+            );
+          }
+        });
+      });
+
       it('should verify vaults that are at a risk of being liquidated', () => {
         cy.setOraclePrice(9.99);
         cy.switchWallet('user1');
@@ -457,8 +476,11 @@ describe('Wallet App Test Cases', () => {
         () => {
           cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-          cy.contains(/Collateral left to claim/, {
+          cy.contains(/0.00 ATOM/, {
             timeout: LIQUIDATED_TIMEOUT,
+          }).then(elements => {
+            let currentLength = elements.length;
+            expect(currentLength).to.be.greaterThan(zeroCollateralVaults + 1);
           });
         },
       );

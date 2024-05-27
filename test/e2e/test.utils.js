@@ -31,7 +31,6 @@ export const networks = {
   EMERYNET: 'emerynet',
   LOCAL: 'local',
 };
-export const econGovURL = 'https://econ-gov.inter.trade/?agoricNet=local';
 
 export const configMap = {
   emerynet: {
@@ -44,10 +43,11 @@ export const configMap = {
     bidderWalletName: 'bidder',
     gov1Mnemonic: Cypress.env('GOV1_MNEMONIC'),
     gov1Address: Cypress.env('GOV1_ADDRESS'),
-    gov1WalletName: 'emerynetGov11',
+    gov1WalletName: 'emerynetGov1',
     gov2Mnemonic: Cypress.env('GOV2_MNEMONIC'),
     gov2Address: Cypress.env('GOV2_ADDRESS'),
-    gov2WalletName: 'emerynetGov22',
+    gov2WalletName: 'emerynetGov2',
+    econGovURL: 'https://econ-gov.inter.trade/?agoricNet=emerynet',
   },
   local: {
     DEFAULT_TIMEOUT: 1 * 60 * 1000,
@@ -63,5 +63,6 @@ export const configMap = {
     gov2Mnemonic: mnemonics.gov2,
     gov2Address: accountAddresses.gov2,
     gov2WalletName: 'gov2',
+    econGovURL: 'https://econ-gov.inter.trade/?agoricNet=local',
   },
 };
