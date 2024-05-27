@@ -361,6 +361,7 @@ describe('Wallet App Test Cases', () => {
       },
       () => {
         cy.contains('button', 'Back to vaults').click();
+        cy.scrollTo('bottom', { ensureScrollable: false });
         cy.contains('100.50 IST').should('exist');
         cy.contains('103.51 IST').should('exist');
         cy.contains('105.52 IST').should('exist');
@@ -453,32 +454,54 @@ describe('Wallet App Test Cases', () => {
 
     // Tests ran fine locally but failed in CI. Updating a3p container replicated failure locally. Tests pass with older container version.
     // UNTIL: a3p container compatibility is resolved.
-    it('should wait and verify vaults are liquidated', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+    it(
+      'should wait and verify vaults are liquidated',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-      cy.contains(/Collateral left to claim/, { timeout: LIQUIDATED_TIMEOUT });
-      cy.contains(/\d+\.\d{1,2} ATOM/);
-      cy.contains(/\d+\.\d{1,2} ATOM/);
-      cy.contains(/\d+\.\d{1,2} ATOM/);
-    });
+        cy.contains(/Collateral left to claim/, {
+          timeout: LIQUIDATED_TIMEOUT,
+        });
+        cy.contains(/3.42 ATOM/);
+        cy.contains(/3.07 ATOM/);
+        cy.contains(/2.84 ATOM/);
+      },
+    );
 
     it('should verify the value of collateralAvailable from the CLI successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
       const propertyName = 'book0.collateralAvailable';
-      const expectedValue = '9.659301 ATOM';
+      const expectedValue = '9.659302 ATOM';
 
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
-    it('should claim collateral from the vaults successfully', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
-      cy.contains('span', 'Click to claim collateral').click().first();
-      cy.contains('button', 'Close Out Vault').click();
+    it(
+      'should claim collateral from all vaults successfully',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-    });
+        cy.get('span:contains("Click to claim collateral")').then(elements => {
+          expect(elements.length).to.be.at.least(3);
+          elements.slice(0, 3).each((index, element) => {
+            cy.wrap(element).click();
+            cy.contains('button', 'Close Out Vault').click();
+            cy.acceptAccess().then(taskCompleted => {
+              expect(taskCompleted).to.be.true;
+              cy.contains('button', 'Close Out Vault').should('not.exist');
+            });
+          });
+        });
+      },
+    );
   });
 });
