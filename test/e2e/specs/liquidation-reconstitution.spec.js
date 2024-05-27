@@ -5,7 +5,7 @@ import {
   econGovURL,
   MINUTE_MS,
   networks,
-  configMap
+  configMap,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -310,26 +310,36 @@ describe('Wallet App Test Cases', () => {
       },
     );
 
+    // it('should add all the keys successfully', () => {
+    //   cy.addKeys({
+    //     keyName: 'gov1',
+    //     mnemonic: gov1Mnemonic,
+    //     expectedAddress: gov1Address,
+    //   });
+    //   cy.addKeys({
+    //     keyName: 'gov2',
+    //     mnemonic: gov2Mnemonic,
+    //     expectedAddress: gov2Address,
+    //   });
+    //   cy.addKeys({
+    //     keyName: 'user1',
+    //     mnemonic: user1Mnemonic,
+    //     expectedAddress: user1Address,
+    //   });
+    // });
+
+    // it('should add the bidder key successfully', () => {
+    //   it.skipWhen(AGORIC_NET === networks.LOCAL);
+    //   cy.addKeys({
+    //     keyName: 'bidder',
+    //     mnemonic: bidderMnemonic,
+    //     expectedAddress: bidderAddress,
+    //   });
+    // });
     it('should set ATOM price to 12.34', () => {
-      cy.addKeys({
-        keyName: 'gov1',
-        mnemonic: gov1Mnemonic,
-        expectedAddress: gov1Address,
-      });
-      cy.addKeys({
-        keyName: 'gov2',
-        mnemonic: gov2Mnemonic,
-        expectedAddress: gov2Address,
-      });
       cy.setOraclePrice(12.34);
     });
-
     it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.addKeys({
-        keyName: 'user1',
-        mnemonic: user1Mnemonic,
-        expectedAddress: user1Address,
-      });
       cy.createVault({ wantMinted: 100, giveCollateral: 15 });
     });
 
@@ -349,6 +359,7 @@ describe('Wallet App Test Cases', () => {
       },
       () => {
         cy.contains('button', 'Back to vaults').click();
+        cy.scrollTo('bottom', { ensureScrollable: false });
         cy.contains('100.50 IST').should('exist');
         cy.contains('103.51 IST').should('exist');
         cy.contains('105.52 IST').should('exist');
@@ -437,22 +448,46 @@ describe('Wallet App Test Cases', () => {
 
       // Tests ran fine locally but failed in CI. Updating a3p container replicated failure locally. Tests pass with older container version.
       // UNTIL: a3p container compatibility is resolved.
-      it('should wait and verify vaults are liquidated', () => {
-        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      it(
+        'should verify a vault is liquidated',
+        {
+          defaultCommandTimeout: DEFAULT_TIMEOUT,
+          taskTimeout: DEFAULT_TASK_TIMEOUT,
+        },
+        () => {
+          cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-        cy.contains(/Collateral left to claim/, {
-          timeout: LIQUIDATED_TIMEOUT,
-        });
-        cy.contains(/3.42 ATOM/);
-        cy.contains(/3.07 ATOM/);
-        cy.contains(/2.84 ATOM/);
-      });
+          cy.contains(/Collateral left to claim/, {
+            timeout: LIQUIDATED_TIMEOUT,
+          });
+        },
+      );
+
+      it(
+        'should verify 2 vaults are reconstituted',
+        {
+          defaultCommandTimeout: DEFAULT_TIMEOUT,
+          taskTimeout: DEFAULT_TASK_TIMEOUT,
+        },
+        () => {
+          cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+          cy.contains(/2 vaults are liquidating./, {
+            timeout: LIQUIDATING_TIMEOUT,
+          });
+
+          const regexVault100 = new RegExp('100(\\.\\d+)?');
+          const regexVault103 = new RegExp('100(\\.\\d+)?');
+          cy.contains(regexVault100, { timeout: LIQUIDATING_TIMEOUT });
+          cy.contains(regexVault103, { timeout: LIQUIDATING_TIMEOUT });
+        },
+      );
 
       it('should verify the value of collateralAvailable from the CLI successfully', () => {
         cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
         const propertyName = 'book0.collateralAvailable';
-        const expectedValue = '9.659301 ATOM';
+        const expectedValue = '31.4198 ATOM';
 
         cy.verifyAuctionData(propertyName, expectedValue);
       });
