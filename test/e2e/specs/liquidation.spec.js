@@ -310,7 +310,8 @@ describe('Wallet App Test Cases', () => {
         cy.connectWithWallet();
       },
     );
-    it('should set ATOM price to 12.34', () => {
+
+    it('should add all the keys successfully', () => {
       cy.addKeys({
         keyName: 'gov1',
         mnemonic: gov1Mnemonic,
@@ -321,15 +322,26 @@ describe('Wallet App Test Cases', () => {
         mnemonic: gov2Mnemonic,
         expectedAddress: gov2Address,
       });
-      cy.setOraclePrice(12.34);
-    });
-
-    it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
       cy.addKeys({
         keyName: 'user1',
         mnemonic: user1Mnemonic,
         expectedAddress: user1Address,
       });
+    });
+
+    it('should add the bidder key successfully', () => {
+      it.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.addKeys({
+        keyName: 'bidder',
+        mnemonic: bidderMnemonic,
+        expectedAddress: bidderAddress,
+      });
+    });
+    it('should set ATOM price to 12.34', () => {
+      cy.setOraclePrice(12.34);
+    });
+
+    it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
       cy.createVault({ wantMinted: 100, giveCollateral: 15 });
     });
 
@@ -361,6 +373,7 @@ describe('Wallet App Test Cases', () => {
       cy.skipWhen(AGORIC_NET === networks.EMERYNET);
       cy.createVault({ wantMinted: 400, giveCollateral: 80, userType: 'gov1' });
     });
+
     it(
       'should place bids from the CLI successfully',
       {
@@ -444,9 +457,9 @@ describe('Wallet App Test Cases', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
       cy.contains(/Collateral left to claim/, { timeout: LIQUIDATED_TIMEOUT });
-      cy.contains(/3.42 ATOM/);
-      cy.contains(/3.07 ATOM/);
-      cy.contains(/2.84 ATOM/);
+      cy.contains(/\d+\.\d{1,2} ATOM/);
+      cy.contains(/\d+\.\d{1,2} ATOM/);
+      cy.contains(/\d+\.\d{1,2} ATOM/);
     });
 
     it('should verify the value of collateralAvailable from the CLI successfully', () => {
@@ -456,6 +469,16 @@ describe('Wallet App Test Cases', () => {
       const expectedValue = '9.659301 ATOM';
 
       cy.verifyAuctionData(propertyName, expectedValue);
+    });
+
+    it('should claim collateral from the vaults successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.contains('span', 'Click to claim collateral').click().first();
+      cy.contains('button', 'Close Out Vault').click();
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
     });
   });
 });

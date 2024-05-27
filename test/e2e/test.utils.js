@@ -11,6 +11,7 @@ export const accountAddresses = {
   gov2: 'agoric1wrfh296eu2z34p6pah7q04jjuyj3mxu9v98277',
 };
 
+export const COMMAND_TIMEOUT = 4 * 60 * 1000;
 export const LIQUIDATING_TIMEOUT = 20 * 60 * 1000;
 export const LIQUIDATED_TIMEOUT = 10 * 60 * 1000;
 export const MINUTE_MS = 60000;
@@ -43,8 +44,10 @@ export const configMap = {
     bidderWalletName: 'bidder',
     gov1Mnemonic: Cypress.env('GOV1_MNEMONIC'),
     gov1Address: Cypress.env('GOV1_ADDRESS'),
+    gov1WalletName: 'emerynetGov11',
     gov2Mnemonic: Cypress.env('GOV2_MNEMONIC'),
     gov2Address: Cypress.env('GOV2_ADDRESS'),
+    gov2WalletName: 'emerynetGov22',
   },
   local: {
     DEFAULT_TIMEOUT: 1 * 60 * 1000,
@@ -56,7 +59,9 @@ export const configMap = {
     bidderWalletName: 'gov1',
     gov1Mnemonic: mnemonics.gov1,
     gov1Address: accountAddresses.gov1,
+    gov1WalletName: 'gov1',
     gov2Mnemonic: mnemonics.gov2,
     gov2Address: accountAddresses.gov2,
+    gov2WalletName: 'gov2',
   },
 };
