@@ -3,3 +3,5 @@ node_modules
 yarn.lock
 coverage
 patches
+# Ignore generated credentials from google-github-actions/auth
+gha-creds-*.json
