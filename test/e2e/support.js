@@ -1,21 +1,26 @@
 import '@agoric/synpress/support/index';
-import { accountAddresses, AGORIC_NET, networks } from './test.utils';
+import { networks, COMMAND_TIMEOUT } from './test.utils';
+
+const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
+const keyRing = AGORIC_NET === networks.LOCAL ? '--keyring-backend=test' : '';
+const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
 
 Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
-  const command = `echo ${mnemonic} | agd keys add ${keyName} --recover --keyring-backend=test`;
+  const command = `echo ${mnemonic} | agd keys add ${keyName} --recover ${keyRing}`;
 
-  cy.exec(command, {
-    env: { AGORIC_NET },
-  }).then(({ stdout }) => {
+  cy.exec(command).then(({ stdout }) => {
     expect(stdout).to.contain(expectedAddress);
   });
 });
 
 Cypress.Commands.add('setOraclePrice', price => {
   cy.exec(
-    `agops oracle setPrice --keys gov1,gov2 --pair ATOM.USD --price ${price} --keyring-backend=test`,
-    { env: { AGORIC_NET } },
+    `${agops} oracle setPrice --keys gov1,gov2 --pair ATOM.USD --price ${price} ${keyRing}`,
+    {
+      env: { AGORIC_NET },
+      timeout: COMMAND_TIMEOUT,
+    },
   ).then(({ stdout }) => {
     expect(stdout).to.not.contain('Error');
     expect(stdout).to.not.contain('error');
@@ -23,19 +28,22 @@ Cypress.Commands.add('setOraclePrice', price => {
 });
 
 Cypress.Commands.add('createVault', params => {
-  const { wantMinted, giveCollateral, userType = 'user1' } = params;
+  const { wantMinted, giveCollateral, userKey } = params;
 
-  const accountAddress =
-    userType === 'user1' ? accountAddresses.user1 : accountAddresses.gov1;
+  const createVaultCommand = `${agops} vaults open --wantMinted "${wantMinted}" --giveCollateral "${giveCollateral}" > /tmp/want-ist.json`;
 
-  const createVaultCommand = `agops vaults open --wantMinted "${wantMinted}" --giveCollateral "${giveCollateral}" > /tmp/want-ist.json`;
-
-  cy.exec(createVaultCommand, { env: { AGORIC_NET } }).then(({ stdout }) => {
+  cy.exec(createVaultCommand, {
+    env: { AGORIC_NET },
+    timeout: COMMAND_TIMEOUT,
+  }).then(({ stdout }) => {
     expect(stdout).not.to.contain('Error');
 
-    const broadcastCommand = `agops perf satisfaction --executeOffer /tmp/want-ist.json --from "${accountAddress}" --keyring-backend=test`;
+    const broadcastCommand = `${agops} perf satisfaction --executeOffer /tmp/want-ist.json --from "${userKey}" ${keyRing}`;
 
-    cy.exec(broadcastCommand, { env: { AGORIC_NET } }).then(({ stdout }) => {
+    cy.exec(broadcastCommand, {
+      env: { AGORIC_NET },
+      timeout: COMMAND_TIMEOUT,
+    }).then(({ stdout }) => {
       expect(stdout).not.to.contain('Error');
     });
   });
@@ -43,9 +51,13 @@ Cypress.Commands.add('createVault', params => {
 
 Cypress.Commands.add('placeBidByPrice', params => {
   const { fromAddress, giveAmount, price } = params;
-  const command = `agops inter bid by-price --from ${fromAddress} --give ${giveAmount} --price ${price} --keyring-backend=test`;
+  const command = `${agops} inter bid by-price --from ${fromAddress} --give ${giveAmount} --price ${price} ${keyRing}`;
 
-  cy.exec(command, { env: { AGORIC_NET } }).then(({ stdout }) => {
+  cy.exec(command, {
+    env: { AGORIC_NET },
+    timeout: COMMAND_TIMEOUT,
+    failOnNonZeroExit: false,
+  }).then(({ stdout }) => {
     expect(stdout).to.contain('Your bid has been accepted');
   });
 });
@@ -53,18 +65,23 @@ Cypress.Commands.add('placeBidByPrice', params => {
 Cypress.Commands.add('placeBidByDiscount', params => {
   const { fromAddress, giveAmount, discount } = params;
 
-  const command = `agops inter bid by-discount --from ${fromAddress} --give ${giveAmount} --discount ${discount} --keyring-backend=test`;
+  const command = `${agops} inter bid by-discount --from ${fromAddress} --give ${giveAmount} --discount ${discount} ${keyRing}`;
 
-  cy.exec(command, { env: { AGORIC_NET } }).then(({ stdout }) => {
+  cy.exec(command, {
+    env: { AGORIC_NET },
+    timeout: COMMAND_TIMEOUT,
+    failOnNonZeroExit: false,
+  }).then(({ stdout }) => {
     expect(stdout).to.contain('Your bid has been accepted');
   });
 });
 
 Cypress.Commands.add('verifyAuctionData', (propertyName, expectedValue) => {
   return cy
-    .exec(`agops inter auction status`, {
-      failOnNonZeroExit: false,
+    .exec(`${agops} inter auction status`, {
       env: { AGORIC_NET },
+      failOnNonZeroExit: false,
+      timeout: COMMAND_TIMEOUT,
     })
     .then(({ stdout }) => {
       const output = JSON.parse(stdout);
