@@ -14,6 +14,22 @@ on:
       mnemonic_phrase:
         required: false
         type: string
+      user1_mnemonic:
+        description: 'The mnemonic phrase for the account to be used for vaults'
+        required: false
+        type: string
+      user1_address:
+        description: 'user1 account address'
+        required: false
+        type: string
+      bidder_mnemonic:
+        description: 'The mnemonic phrase for the account used for bidding'
+        required: false
+        type: string
+      bidder_address:
+        description: 'bidder account address'
+        required: false
+        type: string
 
 jobs:
   e2e:
@@ -59,6 +75,19 @@ jobs:
           COMMIT_INFO_MESSAGE: ${{ github.event.pull_request.title }}
           COMMIT_INFO_SHA: ${{ github.event.pull_request.head.sha }}
           CYPRESS_MNEMONIC_PHRASE: ${{ inputs.mnemonic_phrase }}
+          # Liquidation Secrets
+          CYPRESS_GOV1_MNEMONIC: ${{ secrets.CYPRESS_GOV1_MNEMONIC }}
+          CYPRESS_GOV1_ADDRESS: ${{ secrets.CYPRESS_GOV1_ADDRESS }}
+          CYPRESS_GOV2_MNEMONIC: ${{ secrets.CYPRESS_GOV2_MNEMONIC }}
+          CYPRESS_GOV2_ADDRESS: ${{ secrets.CYPRESS_GOV2_ADDRESS }}
+          CYPRESS_USER1_MNEMONIC: ${{ secrets.CYPRESS_USER1_MNEMONIC }}
+          CYPRESS_USER1_ADDRESS: ${{ secrets.CYPRESS_USER1_ADDRESS }}
+          CYPRESS_BIDDER_MNEMONIC: ${{ secrets.CYPRESS_BIDDER_MNEMONIC }}
+          CYPRESS_BIDDER_ADDRESS: ${{ secrets.CYPRESS_BIDDER_ADDRESS }}
+          CYPRESS_USER1_MNEMONIC_INPUT: ${{ inputs.user1_mnemonic }}
+          CYPRESS_USER1_ADDRESS_INPUT: ${{ inputs.user1_address }}
+          CYPRESS_BIDDER_MNEMONIC_INPUT: ${{ inputs.bidder_mnemonic }}
+          CYPRESS_BIDDER_ADDRESS_INPUT: ${{ inputs.bidder_address }}
 
       - name: Archive e2e artifacts
         uses: actions/upload-artifact@v3

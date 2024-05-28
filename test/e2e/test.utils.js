@@ -36,10 +36,14 @@ export const configMap = {
   emerynet: {
     DEFAULT_TIMEOUT: 3 * 60 * 1000,
     DEFAULT_TASK_TIMEOUT: 3 * 60 * 1000,
-    user1Mnemonic: Cypress.env('USER1_MNEMONIC'),
-    user1Address: Cypress.env('USER1_ADDRESS'),
-    bidderMnemonic: Cypress.env('BIDDER_MNEMONIC'),
-    bidderAddress: Cypress.env('BIDDER_ADDRESS'),
+    user1Mnemonic:
+      Cypress.env('USER1_MNEMONIC_INPUT') || Cypress.env('USER1_MNEMONIC'),
+    user1Address:
+      Cypress.env('USER1_ADDRESS_INPUT') || Cypress.env('USER1_ADDRESS'),
+    bidderMnemonic:
+      Cypress.env('BIDDER_MNEMONIC_INPUT') || Cypress.env('BIDDER_MNEMONIC'),
+    bidderAddress:
+      Cypress.env('BIDDER_ADDRESS_INPUT') || Cypress.env('BIDDER_ADDRESS'),
     bidderWalletName: 'bidder',
     gov1Mnemonic: Cypress.env('GOV1_MNEMONIC'),
     gov1Address: Cypress.env('GOV1_ADDRESS'),
