@@ -3,7 +3,7 @@ import { networks, COMMAND_TIMEOUT } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
 const keyRing = AGORIC_NET === networks.LOCAL ? '--keyring-backend=test' : '';
-const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
+const agops = '/home/rabi/.yarn/bin/agops';
 
 Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
@@ -148,4 +148,20 @@ Cypress.Commands.add('connectWithWallet', () => {
   } else {
     connectWalletEmerynet();
   }
+});
+
+Cypress.Commands.add('fetchAndVerifyVStorageData', params => {
+  const { url, field } = params;
+  cy.request(url).then(response => {
+    expect(response.status).to.eq(200);
+
+    const data = JSON.parse(response.body.value);
+    const nestedData = JSON.parse(data.values[0]);
+    const bodyData = JSON.parse(nestedData.body.slice(1));
+
+    const fieldValue = bodyData[field]?.value;
+    expect(fieldValue).to.exist;
+
+    cy.log(`${field}: ${fieldValue}`);
+  });
 });

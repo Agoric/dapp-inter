@@ -48,6 +48,8 @@ export const configMap = {
     gov2Address: Cypress.env('GOV2_ADDRESS'),
     gov2WalletName: 'emerynetGov2',
     econGovURL: 'https://econ-gov.inter.trade/?agoricNet=emerynet',
+    vStorageURL:
+      'https://emerynet.api.agoric.net/agoric/vstorage/data/published.reserve.metrics',
   },
   local: {
     DEFAULT_TIMEOUT: 1 * 60 * 1000,
@@ -64,5 +66,7 @@ export const configMap = {
     gov2Address: accountAddresses.gov2,
     gov2WalletName: 'gov2',
     econGovURL: 'https://econ-gov.inter.trade/?agoricNet=local',
+    vStorageURL:
+      'http://localhost:1317/agoric/vstorage/data/published.reserve.metrics',
   },
 };
