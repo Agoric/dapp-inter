@@ -503,5 +503,10 @@ describe('Wallet App Test Cases', () => {
         });
       },
     );
+
+    it('should set ATOM price back to 12.34', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.setOraclePrice(12.34);
+    });
   });
 });
