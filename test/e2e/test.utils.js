@@ -11,6 +11,7 @@ export const accountAddresses = {
   gov2: 'agoric1wrfh296eu2z34p6pah7q04jjuyj3mxu9v98277',
 };
 
+export const webWalletURL = 'https://wallet.agoric.app/';
 export const COMMAND_TIMEOUT = 4 * 60 * 1000;
 export const LIQUIDATING_TIMEOUT = 20 * 60 * 1000;
 export const LIQUIDATED_TIMEOUT = 10 * 60 * 1000;
