@@ -5,6 +5,7 @@ import {
   MINUTE_MS,
   networks,
   configMap,
+  webWalletURL,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -503,5 +504,70 @@ describe('Wallet App Test Cases', () => {
         });
       },
     );
+
+    it('should set ATOM price back to 12.34', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.setOraclePrice(12.34);
+    });
+
+    it('should setup the web wallet and cancel the 150IST bid', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+      cy.switchWallet(bidderWalletName);
+
+      cy.visit(webWalletURL);
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.visit(`${webWalletURL}/wallet/`);
+
+      cy.get('input[type="checkbox"]').check();
+      cy.contains('Proceed').click();
+      cy.get('button[aria-label="Settings"]').click();
+
+      cy.contains('div', 'Mainnet').click();
+      cy.contains('li', 'Emerynet').click();
+      cy.contains('button', 'Connect').click();
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.reload();
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.get('span')
+        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+      cy.get('span')
+        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+
+      // Verify completely filled bids
+      cy.contains('90.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
+        'not.exist',
+      );
+      cy.contains('80.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
+        'not.exist',
+      );
+      // Verify 150 IST Bid to exist
+      cy.contains('150.00 IST', { timeout: DEFAULT_TIMEOUT }).should('exist');
+
+      cy.getTokenAmount('IST').then(initialTokenValue => {
+        cy.contains('Exit').click();
+        cy.acceptAccess().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+        });
+        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
+        cy.getTokenAmount('IST').then(tokenValue => {
+          expect(tokenValue).to.greaterThan(initialTokenValue);
+        });
+      });
+    });
   });
 });
