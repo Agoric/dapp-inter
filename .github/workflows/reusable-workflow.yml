@@ -113,12 +113,12 @@ jobs:
 
       - name: Archive e2e artifacts to GCS
         uses: google-github-actions/upload-cloud-storage@v2
-        if: ${{ inputs.is_emerynet_test == 'true' && !cancelled() }}
+        if: ${{ inputs.is_emerynet_test && !cancelled() }}
         with:
           path: 'test/e2e/docker'
           destination: 'github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}'
         continue-on-error: true
 
       - name: Log Path to GCS artifacts
-        if: ${{ inputs.is_emerynet_test == 'true' && !cancelled() }}
+        if: ${{ inputs.is_emerynet_test && !cancelled() }}
         run: echo "https://console.cloud.google.com/storage/browser/github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}/docker/videos"
