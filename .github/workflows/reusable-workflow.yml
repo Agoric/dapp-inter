@@ -45,7 +45,7 @@ jobs:
 
       - name: 'GCP auth'
         uses: 'google-github-actions/auth@v2'
-        if: ${{ inputs.is_emerynet_test == 'true' }}
+        if: ${{ inputs.is_emerynet_test }}
         with:
           project_id: 'simulationlab'
           workload_identity_provider: 'projects/60745596728/locations/global/workloadIdentityPools/github/providers/dapp-inter'
@@ -102,7 +102,7 @@ jobs:
 
       - name: Archive e2e artifacts locally
         uses: actions/upload-artifact@v3
-        if: always()
+        if: ${{ !inputs.is_emerynet_test }}
         with:
           name: e2e-artifacts
           path: |
