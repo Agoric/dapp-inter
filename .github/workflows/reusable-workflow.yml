@@ -35,9 +35,20 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
+
+      - name: 'GCP auth'
+        uses: 'google-github-actions/auth@v2'
+        if: ${{ inputs.is_emerynet_test }}
+        with:
+          project_id: 'simulationlab'
+          workload_identity_provider: 'projects/60745596728/locations/global/workloadIdentityPools/github/providers/dapp-inter'
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -89,9 +100,9 @@ jobs:
           CYPRESS_BIDDER_MNEMONIC_INPUT: ${{ inputs.bidder_mnemonic }}
           CYPRESS_BIDDER_ADDRESS_INPUT: ${{ inputs.bidder_address }}
 
-      - name: Archive e2e artifacts
-        uses: actions/upload-artifact@v3
-        if: always()
+      - name: Upload e2e artifacts as workflow artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ inputs.is_emerynet_test && !cancelled() }}
         with:
           name: e2e-artifacts
           path: |
@@ -99,3 +110,15 @@ jobs:
             test/e2e/docker/videos-ci
             test/e2e/docker/screenshots
         continue-on-error: true
+
+      - name: Upload e2e artifacts to GCP
+        uses: google-github-actions/upload-cloud-storage@v2
+        if: ${{ inputs.is_emerynet_test && !cancelled() }}
+        with:
+          path: 'test/e2e/docker'
+          destination: 'github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}'
+        continue-on-error: true
+
+      - name: Log Path to GCS artifacts
+        if: ${{ inputs.is_emerynet_test && !cancelled() }}
+        run: echo "https://console.cloud.google.com/storage/browser/github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}/docker/videos"
