@@ -74,7 +74,7 @@ const watchPriceFeeds = (prefix: string) => {
               .getState()
               .setPriceError(
                 brand,
-                new Error('Unexpected error, price feed missing'),
+                new Error('Unexpected error, price feed missing.'),
               );
           }
           useVaultStore.getState().setPrice(brand, value);
