@@ -48,3 +48,5 @@ jobs:
       user1_address: ${{ inputs.user1_address }}
       bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
       bidder_address: ${{ inputs.bidder_address }}
+
+    secrets: inherit
