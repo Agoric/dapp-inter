@@ -268,6 +268,10 @@ const NewVaultOfferSummary = () => {
                   left="Collateralization Ratio"
                   right={collateralizationRatioForDisplay}
                 />
+                <TableRow
+                  left="Liquidation Price"
+                  right={maximumLockedPriceForLiquidationForDisplay}
+                />
               </tbody>
             </table>
           </div>
@@ -285,10 +289,6 @@ const NewVaultOfferSummary = () => {
                 />
                 <TableRow left="Stability Fee" right={stabilityFeeForDisplay} />
                 <TableRow left="Minting Fee" right={creationFeeForDisplay} />
-                <TableRow
-                  left="Liquidation Price"
-                  right={maximumLockedPriceForLiquidationForDisplay}
-                />
               </tbody>
             </table>
           </div>
