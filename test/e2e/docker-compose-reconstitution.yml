@@ -13,7 +13,7 @@ services:
       yarn wait-on http://display:8080 &&
       echo -n "======> remote noVNC URL: " &&
       curl -s ngrok:4040/api/tunnels | jq -r .tunnels[0].public_url &&
-      nginx &&
+      if [ "$CYPRESS_AGORIC_NET" == "local" ]; then nginx; fi &&
       npx start-server-and-test "yarn dev" http-get://localhost:5173 "yarn test:e2e --spec test/e2e/specs/liquidation-reconstitution.spec.js"'
     networks:
       - x13
