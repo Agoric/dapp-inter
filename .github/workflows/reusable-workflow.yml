@@ -43,12 +43,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: 'GCP auth'
-        uses: 'google-github-actions/auth@v2'
-        if: ${{ inputs.is_emerynet_test }}
-        with:
-          project_id: 'simulationlab'
-          workload_identity_provider: 'projects/60745596728/locations/global/workloadIdentityPools/github/providers/dapp-inter'
+      # - name: 'GCP auth'
+      #   uses: 'google-github-actions/auth@v2'
+      #   if: ${{ inputs.is_emerynet_test }}
+      #   with:
+      #     project_id: 'simulationlab'
+      #     workload_identity_provider: 'projects/60745596728/locations/global/workloadIdentityPools/github/providers/dapp-inter'
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -111,14 +111,14 @@ jobs:
             test/e2e/docker/screenshots
         continue-on-error: true
 
-      - name: Upload e2e artifacts to GCP
-        uses: google-github-actions/upload-cloud-storage@v2
-        if: ${{ inputs.is_emerynet_test && !cancelled() }}
-        with:
-          path: 'test/e2e/docker'
-          destination: 'github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}'
-        continue-on-error: true
+      # - name: Upload e2e artifacts to GCP
+      #   uses: google-github-actions/upload-cloud-storage@v2
+      #   if: ${{ inputs.is_emerynet_test && !cancelled() }}
+      #   with:
+      #     path: 'test/e2e/docker'
+      #     destination: 'github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}'
+      #   continue-on-error: true
 
-      - name: Log Path to GCS artifacts
-        if: ${{ inputs.is_emerynet_test && !cancelled() }}
-        run: echo "https://console.cloud.google.com/storage/browser/github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}/docker/videos"
+      # - name: Log Path to GCS artifacts
+      #   if: ${{ inputs.is_emerynet_test && !cancelled() }}
+      #   run: echo "https://console.cloud.google.com/storage/browser/github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}/docker/videos"

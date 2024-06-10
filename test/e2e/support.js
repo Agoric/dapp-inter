@@ -9,9 +9,7 @@ Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
   const command = `echo ${mnemonic} | agd keys add ${keyName} --recover ${keyRing}`;
 
-  cy.exec(command, {
-    failOnNonZeroExit: false,
-  }).then(({ stdout }) => {
+  cy.exec(command).then(({ stdout }) => {
     expect(stdout).to.contain(expectedAddress);
   });
 });
