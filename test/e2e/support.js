@@ -7,7 +7,7 @@ const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
 
 Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
-  const command = `echo ${mnemonic} | agd keys add ${keyName} --recover ${keyRing}`;
+  const command = `echo ${mnemonic} | agd keys add ${keyName} --recover --keyring-backend=test`;
 
   cy.exec(command, {
     failOnNonZeroExit: false,
