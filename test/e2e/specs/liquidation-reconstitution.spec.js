@@ -1,11 +1,4 @@
-import {
-  mnemonics,
-  LIQUIDATING_TIMEOUT,
-  LIQUIDATED_TIMEOUT,
-  MINUTE_MS,
-  networks,
-  configMap,
-} from '../test.utils';
+import { mnemonics, MINUTE_MS, networks, configMap } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
   let startTime;
@@ -13,6 +6,8 @@ describe('Wallet App Test Cases', () => {
   const currentConfig = configMap[AGORIC_NET];
   const DEFAULT_TIMEOUT = currentConfig.DEFAULT_TIMEOUT;
   const DEFAULT_TASK_TIMEOUT = currentConfig.DEFAULT_TASK_TIMEOUT;
+  const LIQUIDATING_TIMEOUT = currentConfig.LIQUIDATING_TIMEOUT;
+  const LIQUIDATED_TIMEOUT = currentConfig.LIQUIDATED_TIMEOUT;
   const user1Mnemonic = currentConfig.user1Mnemonic;
   const user1Address = currentConfig.user1Address;
   const bidderMnemonic = currentConfig.bidderMnemonic;

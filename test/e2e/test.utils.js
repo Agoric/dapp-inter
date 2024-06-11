@@ -13,8 +13,6 @@ export const accountAddresses = {
 
 export const webWalletURL = 'https://wallet.agoric.app/';
 export const COMMAND_TIMEOUT = 4 * 60 * 1000;
-export const LIQUIDATING_TIMEOUT = 20 * 60 * 1000;
-export const LIQUIDATED_TIMEOUT = 10 * 60 * 1000;
 export const MINUTE_MS = 60000;
 
 export const phrasesList = {
@@ -37,6 +35,8 @@ export const configMap = {
   emerynet: {
     DEFAULT_TIMEOUT: 3 * 60 * 1000,
     DEFAULT_TASK_TIMEOUT: 3 * 60 * 1000,
+    LIQUIDATING_TIMEOUT: 13 * 60 * 1000,
+    LIQUIDATED_TIMEOUT: 5 * 60 * 1000,
     user1Mnemonic:
       Cypress.env('USER1_MNEMONIC_INPUT') || Cypress.env('USER1_MNEMONIC'),
     user1Address:
@@ -57,6 +57,8 @@ export const configMap = {
   local: {
     DEFAULT_TIMEOUT: 1 * 60 * 1000,
     DEFAULT_TASK_TIMEOUT: 1 * 60 * 1000,
+    LIQUIDATING_TIMEOUT: 20 * 60 * 1000,
+    LIQUIDATED_TIMEOUT: 10 * 60 * 1000,
     user1Mnemonic: mnemonics.user1,
     user1Address: accountAddresses.user1,
     bidderMnemonic: mnemonics.gov1,

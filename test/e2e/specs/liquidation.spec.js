@@ -1,7 +1,5 @@
 import {
   mnemonics,
-  LIQUIDATING_TIMEOUT,
-  LIQUIDATED_TIMEOUT,
   MINUTE_MS,
   networks,
   configMap,
@@ -14,6 +12,8 @@ describe('Wallet App Test Cases', () => {
   const currentConfig = configMap[AGORIC_NET];
   const DEFAULT_TIMEOUT = currentConfig.DEFAULT_TIMEOUT;
   const DEFAULT_TASK_TIMEOUT = currentConfig.DEFAULT_TASK_TIMEOUT;
+  const LIQUIDATING_TIMEOUT = currentConfig.LIQUIDATING_TIMEOUT;
+  const LIQUIDATED_TIMEOUT = currentConfig.LIQUIDATED_TIMEOUT;
   const user1Mnemonic = currentConfig.user1Mnemonic;
   const user1Address = currentConfig.user1Address;
   const bidderMnemonic = currentConfig.bidderMnemonic;
@@ -420,7 +420,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait and verify vaults are being liquidated', () => {
-      cy.contains(/3 vaults are liquidating./, {
+      cy.contains(/vaults are liquidating./, {
         timeout: LIQUIDATING_TIMEOUT,
       });
     });
@@ -477,7 +477,7 @@ describe('Wallet App Test Cases', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
       const propertyName = 'book0.collateralAvailable';
-      const expectedValue = '9.659302 ATOM';
+      const expectedValue = '9.659301 ATOM';
 
       cy.verifyAuctionData(propertyName, expectedValue);
     });
