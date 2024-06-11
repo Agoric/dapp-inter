@@ -428,28 +428,28 @@ describe('Wallet App Test Cases', () => {
     it('should verify the value of startPrice from the CLI successfully', () => {
       const propertyName = 'book0.startPrice';
       const expectedValue = '9.99 IST/ATOM';
-      cy.wait(3000);
+      cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
     it('should verify the value of startProceedsGoal from the CLI successfully', () => {
       const propertyName = 'book0.startProceedsGoal';
       const expectedValue = '309.54 IST';
-      cy.wait(3000);
+      cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
     it('should verify the value of startCollateral from the CLI successfully', () => {
       const propertyName = 'book0.startCollateral';
       const expectedValue = '45 ATOM';
-      cy.wait(3000);
+      cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
     it('should verify the value of collateralAvailable from the CLI successfully', () => {
       const propertyName = 'book0.collateralAvailable';
       const expectedValue = '45 ATOM';
-      cy.wait(3000);
+      cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
@@ -478,7 +478,7 @@ describe('Wallet App Test Cases', () => {
 
       const propertyName = 'book0.collateralAvailable';
       const expectedValue = '9.659301 ATOM';
-      cy.wait(3000);
+      cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
 
       cy.verifyAuctionData(propertyName, expectedValue);
     });
@@ -492,7 +492,7 @@ describe('Wallet App Test Cases', () => {
       () => {
         cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-        cy.get('Click to claim collateral').click();
+        cy.contains('Click to claim collateral').click();
         cy.contains('button', 'Close Out Vault').click();
         cy.acceptAccess().then(taskCompleted => {
           expect(taskCompleted).to.be.true;
@@ -510,7 +510,7 @@ describe('Wallet App Test Cases', () => {
       () => {
         cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-        cy.get('Click to claim collateral').click();
+        cy.contains('Click to claim collateral').click();
         cy.contains('button', 'Close Out Vault').click();
         cy.acceptAccess().then(taskCompleted => {
           expect(taskCompleted).to.be.true;
@@ -528,7 +528,7 @@ describe('Wallet App Test Cases', () => {
       () => {
         cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-        cy.get('Click to claim collateral').click();
+        cy.contains('Click to claim collateral').click();
         cy.contains('button', 'Close Out Vault').click();
         cy.acceptAccess().then(taskCompleted => {
           expect(taskCompleted).to.be.true;
@@ -545,6 +545,7 @@ describe('Wallet App Test Cases', () => {
     it('should setup the web wallet and cancel the 150IST bid', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
+      cy.switchWallet(bidderWalletName);
       cy.visit(webWalletURL);
 
       cy.acceptAccess().then(taskCompleted => {

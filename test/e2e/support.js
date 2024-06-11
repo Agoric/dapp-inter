@@ -4,12 +4,11 @@ import { networks, configMap } from './test.utils';
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
 const COMMAND_TIMEOUT = configMap[AGORIC_NET].COMMAND_TIMEOUT;
 
-const agops =
-  '/home/rabi/Desktop/Agoric/agoric-sdk/packages/agoric-cli/bin/agops';
+const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
 
 Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
-  const command = `echo ${mnemonic} | agd keys add ${keyName} --recover `;
+  const command = `echo ${mnemonic} | agd keys add ${keyName} --recover --keyring-backend=test`;
 
   cy.exec(command, {
     failOnNonZeroExit: false,
@@ -20,7 +19,7 @@ Cypress.Commands.add('addKeys', params => {
 
 Cypress.Commands.add('setOraclePrice', price => {
   cy.exec(
-    `${agops} oracle setPrice --keys gov1,gov2 --pair ATOM.USD --price ${price} `,
+    `${agops} oracle setPrice --keys gov1,gov2 --pair ATOM.USD --price ${price} --keyring-backend=test`,
     {
       env: { AGORIC_NET },
       timeout: COMMAND_TIMEOUT,
@@ -42,7 +41,7 @@ Cypress.Commands.add('createVault', params => {
   }).then(({ stdout }) => {
     expect(stdout).not.to.contain('Error');
 
-    const broadcastCommand = `${agops} perf satisfaction --executeOffer /tmp/want-ist.json --from "${userKey}" `;
+    const broadcastCommand = `${agops} perf satisfaction --executeOffer /tmp/want-ist.json --from "${userKey}" --keyring-backend=test`;
 
     cy.exec(broadcastCommand, {
       env: { AGORIC_NET },
@@ -55,7 +54,7 @@ Cypress.Commands.add('createVault', params => {
 
 Cypress.Commands.add('placeBidByPrice', params => {
   const { fromAddress, giveAmount, price } = params;
-  const command = `${agops} inter bid by-price --from ${fromAddress} --give ${giveAmount} --price ${price} `;
+  const command = `${agops} inter bid by-price --from ${fromAddress} --give ${giveAmount} --price ${price} --keyring-backend=test`;
 
   cy.exec(command, {
     env: { AGORIC_NET },
@@ -69,7 +68,7 @@ Cypress.Commands.add('placeBidByPrice', params => {
 Cypress.Commands.add('placeBidByDiscount', params => {
   const { fromAddress, giveAmount, discount } = params;
 
-  const command = `${agops} inter bid by-discount --from ${fromAddress} --give ${giveAmount} --discount ${discount} `;
+  const command = `${agops} inter bid by-discount --from ${fromAddress} --give ${giveAmount} --discount ${discount} --keyring-backend=test`;
 
   cy.exec(command, {
     env: { AGORIC_NET },
