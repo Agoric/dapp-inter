@@ -1,5 +1,11 @@
 import '@agoric/synpress/support/index';
-import { networks, configMap } from './test.utils';
+import {
+  networks,
+  configMap,
+  FACUET_HEADERS,
+  FACUET_URL,
+  MINUTE_MS,
+} from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
 const COMMAND_TIMEOUT = configMap[AGORIC_NET].COMMAND_TIMEOUT;
@@ -151,4 +157,21 @@ Cypress.Commands.add('connectWithWallet', () => {
   } else {
     connectWalletEmerynet();
   }
+});
+
+Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
+  cy.request({
+    method: 'POST',
+    url: FACUET_URL,
+    body: {
+      address: walletAddress,
+      command,
+      clientType: 'SMART_WALLET',
+    },
+    headers: FACUET_HEADERS,
+    timeout: 4 * MINUTE_MS,
+    retryOnStatusCodeFailure: true,
+  }).then(resp => {
+    expect(resp.body).to.eq('success');
+  });
 });

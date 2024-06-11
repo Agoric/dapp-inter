@@ -24,44 +24,9 @@ describe('Vaults UI Test Cases', () => {
 
         cy.getWalletAddress('Agoric').then(address => {
           // provision BLD
-          cy.request({
-            method: 'POST',
-            url: 'https://emerynet.faucet.agoric.net/go',
-            body: {
-              address,
-              command: 'delegate',
-              clientType: 'SMART_WALLET',
-            },
-            headers: {
-              Accept:
-                'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            timeout: 4 * MINUTE_MS,
-            retryOnStatusCodeFailure: true,
-          }).then(resp => {
-            expect(resp.body).to.eq('success');
-          });
-
+          cy.provisionFromFaucet(address, 'delegate');
           // provision IST
-          cy.request({
-            method: 'POST',
-            url: 'https://emerynet.faucet.agoric.net/go',
-            body: {
-              address,
-              command: 'client',
-              clientType: 'SMART_WALLET',
-            },
-            headers: {
-              Accept:
-                'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            timeout: 4 * MINUTE_MS,
-            retryOnStatusCodeFailure: true,
-          }).then(resp => {
-            expect(resp.body).to.eq('success');
-          });
+          cy.provisionFromFaucet(address, 'client');
         });
       }
     });
