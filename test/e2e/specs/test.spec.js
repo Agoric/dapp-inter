@@ -16,46 +16,18 @@ describe('Vaults UI Test Cases', () => {
           walletName: 'user1',
         });
       } else {
-        const walletAddress = {
-          value: null,
-        };
         cy.setupWallet({
           createNewWallet: true,
           walletName: 'my created wallet',
+          selectedChains: ['Agoric'],
         });
-        cy.origin('https://wallet.agoric.app/', () => {
-          cy.visit('/wallet/');
 
-          cy.get('input[type="checkbox"]').click();
-          cy.contains('Proceed').click();
+        cy.getWalletAddress('Agoric').then(address => {
+          // provision BLD
+          cy.provisionFromFaucet(address, 'delegate');
+          // provision IST
+          cy.provisionFromFaucet(address, 'client');
         });
-        cy.acceptAccess();
-
-        cy.origin('https://wallet.agoric.app/', () => {
-          cy.visit('/wallet/');
-
-          cy.contains(/agoric.{39}/).spread(element => {
-            return element.innerHTML.match(/agoric.{39}/)[0];
-          });
-        }).then(address => {
-          walletAddress.value = address;
-        });
-        cy.origin(
-          'https://emerynet.faucet.agoric.net',
-          { args: { walletAddress } },
-          ({ walletAddress }) => {
-            cy.visit('/');
-            cy.get('[id="address"]').first().type(walletAddress.value);
-            cy.get('[type="submit"]').first().click();
-            cy.get('body').contains('success').should('exist');
-
-            cy.visit('/');
-            cy.get('[id="address"]').first().type(walletAddress.value);
-            cy.get('[type="radio"][value="client"]').click();
-            cy.get('[type="submit"]').first().click();
-            cy.get('body').contains('success').should('exist');
-          },
-        );
       }
     });
 
