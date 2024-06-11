@@ -1,7 +1,9 @@
 import '@agoric/synpress/support/index';
-import { networks, COMMAND_TIMEOUT } from './test.utils';
+import { networks, configMap } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
+const COMMAND_TIMEOUT = configMap[AGORIC_NET].COMMAND_TIMEOUT;
+
 const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
 
 Cypress.Commands.add('addKeys', params => {
