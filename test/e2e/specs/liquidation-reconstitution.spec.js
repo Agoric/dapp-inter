@@ -417,7 +417,6 @@ describe('Wallet App Test Cases', () => {
         const propertyName = 'book0.startPrice';
         const expectedValue = '9.99 IST/ATOM';
 
-        cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.verifyAuctionData(propertyName, expectedValue);
       });
 
@@ -425,7 +424,6 @@ describe('Wallet App Test Cases', () => {
         const propertyName = 'book0.startProceedsGoal';
         const expectedValue = '309.54 IST';
 
-        cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.verifyAuctionData(propertyName, expectedValue);
       });
 
@@ -433,7 +431,6 @@ describe('Wallet App Test Cases', () => {
         const propertyName = 'book0.startCollateral';
         const expectedValue = '45 ATOM';
 
-        cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.verifyAuctionData(propertyName, expectedValue);
       });
 
@@ -441,7 +438,6 @@ describe('Wallet App Test Cases', () => {
         const propertyName = 'book0.collateralAvailable';
         const expectedValue = '45 ATOM';
 
-        cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.verifyAuctionData(propertyName, expectedValue);
       });
 
@@ -478,7 +474,7 @@ describe('Wallet App Test Cases', () => {
         const propertyName = 'book0.collateralAvailable';
         const expectedValue = '31.414987 ATOM';
 
-        cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
+        cy.wait(ONE_MINUTE_WAIT); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.verifyAuctionData(propertyName, expectedValue);
       });
 
