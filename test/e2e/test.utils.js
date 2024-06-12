@@ -12,7 +12,7 @@ export const accountAddresses = {
 };
 
 export const webWalletURL = 'https://wallet.agoric.app/';
-export const MINUTE_MS = 60000;
+export const MINUTE_MS = 1 * 60 * 1000;
 
 export const phrasesList = {
   emerynet: {

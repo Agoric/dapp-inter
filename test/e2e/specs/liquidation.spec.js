@@ -428,28 +428,24 @@ describe('Wallet App Test Cases', () => {
     it('should verify the value of startPrice from the CLI successfully', () => {
       const propertyName = 'book0.startPrice';
       const expectedValue = '9.99 IST/ATOM';
-      cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
     it('should verify the value of startProceedsGoal from the CLI successfully', () => {
       const propertyName = 'book0.startProceedsGoal';
       const expectedValue = '309.54 IST';
-      cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
     it('should verify the value of startCollateral from the CLI successfully', () => {
       const propertyName = 'book0.startCollateral';
       const expectedValue = '45 ATOM';
-      cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
     it('should verify the value of collateralAvailable from the CLI successfully', () => {
       const propertyName = 'book0.collateralAvailable';
       const expectedValue = '45 ATOM';
-      cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
@@ -478,74 +474,66 @@ describe('Wallet App Test Cases', () => {
 
       const propertyName = 'book0.collateralAvailable';
       const expectedValue = '9.659301 ATOM';
-      cy.wait(3000); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(2 * MINUTE_MS);
+      cy.verifyAuctionData(propertyName, expectedValue); // eslint-disable-line cypress/no-unnecessary-waiting
+    });
+  });
 
-      cy.verifyAuctionData(propertyName, expectedValue);
+  context('Close the vaults and cancel bids', () => {
+    it('should claim collateral from the first vault successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+      cy.contains(/3.42 ATOM/, { timeout: MINUTE_MS }).click();
+      cy.contains('button', 'Close Out Vault').click();
+      cy.wait(MINUTE_MS);
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+        cy.contains('button', 'Close Out Vault', {
+          timeout: DEFAULT_TIMEOUT,
+        }).should('not.exist');
+      });
     });
 
-    it(
-      'should claim collateral from the first vault successfully',
-      {
-        defaultCommandTimeout: DEFAULT_TIMEOUT,
-        taskTimeout: DEFAULT_TASK_TIMEOUT,
-      },
-      () => {
-        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+    it('should claim collateral from the second vault successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-        cy.contains('Click to claim collateral').click();
-        cy.contains('button', 'Close Out Vault').click();
-        cy.acceptAccess().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-          cy.contains('button', 'Close Out Vault').should('not.exist');
-        });
-      },
-    );
+      cy.contains(/3.07 ATOM/, { timeout: MINUTE_MS }).click();
+      cy.contains('button', 'Close Out Vault').click();
+      cy.wait(MINUTE_MS);
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+        cy.contains('button', 'Close Out Vault', {
+          timeout: DEFAULT_TIMEOUT,
+        }).should('not.exist');
+      });
+    });
 
-    it(
-      'should claim collateral from the second vault successfully',
-      {
-        defaultCommandTimeout: DEFAULT_TIMEOUT,
-        taskTimeout: DEFAULT_TASK_TIMEOUT,
-      },
-      () => {
-        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+    it('should claim collateral from the third vault successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-        cy.contains('Click to claim collateral').click();
-        cy.contains('button', 'Close Out Vault').click();
-        cy.acceptAccess().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-          cy.contains('button', 'Close Out Vault').should('not.exist');
-        });
-      },
-    );
-
-    it(
-      'should claim collateral from the third vault successfully',
-      {
-        defaultCommandTimeout: DEFAULT_TIMEOUT,
-        taskTimeout: DEFAULT_TASK_TIMEOUT,
-      },
-      () => {
-        cy.skipWhen(AGORIC_NET === networks.LOCAL);
-
-        cy.contains('Click to claim collateral').click();
-        cy.contains('button', 'Close Out Vault').click();
-        cy.acceptAccess().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-          cy.contains('button', 'Close Out Vault').should('not.exist');
-        });
-      },
-    );
+      cy.contains(/2.84 ATOM/, { timeout: MINUTE_MS }).click();
+      cy.contains('button', 'Close Out Vault').click();
+      cy.wait(MINUTE_MS);
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+        cy.contains('button', 'Close Out Vault', {
+          timeout: DEFAULT_TIMEOUT,
+        }).should('not.exist');
+      });
+    });
 
     it('should set ATOM price back to 12.34', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.setOraclePrice(12.34);
     });
 
+    it('should switch to the bidder wallet successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.switchWallet(bidderWalletName);
+    });
     it('should setup the web wallet and cancel the 150IST bid', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-      cy.switchWallet(bidderWalletName);
       cy.visit(webWalletURL);
 
       cy.acceptAccess().then(taskCompleted => {
@@ -591,6 +579,7 @@ describe('Wallet App Test Cases', () => {
 
       cy.getTokenAmount('IST').then(initialTokenValue => {
         cy.contains('Exit').click();
+        cy.wait(MINUTE_MS);
         cy.acceptAccess().then(taskCompleted => {
           expect(taskCompleted).to.be.true;
         });
