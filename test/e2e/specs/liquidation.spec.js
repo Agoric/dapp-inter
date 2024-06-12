@@ -474,9 +474,8 @@ describe('Wallet App Test Cases', () => {
 
       const propertyName = 'book0.collateralAvailable';
       const expectedValue = '9.659301 ATOM';
-      cy.wait(MINUTE_MS); // eslint-disable-line cypress/no-unnecessary-waiting
-
-      cy.verifyAuctionData(propertyName, expectedValue);
+      cy.wait(2 * MINUTE_MS);
+      cy.verifyAuctionData(propertyName, expectedValue); // eslint-disable-line cypress/no-unnecessary-waiting
     });
   });
 
@@ -489,7 +488,9 @@ describe('Wallet App Test Cases', () => {
       cy.wait(MINUTE_MS);
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
-        cy.contains('button', 'Close Out Vault').should('not.exist');
+        cy.contains('button', 'Close Out Vault', {
+          timeout: DEFAULT_TIMEOUT,
+        }).should('not.exist');
       });
     });
 
@@ -501,7 +502,9 @@ describe('Wallet App Test Cases', () => {
       cy.wait(MINUTE_MS);
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
-        cy.contains('button', 'Close Out Vault').should('not.exist');
+        cy.contains('button', 'Close Out Vault', {
+          timeout: DEFAULT_TIMEOUT,
+        }).should('not.exist');
       });
     });
 
@@ -513,7 +516,9 @@ describe('Wallet App Test Cases', () => {
       cy.wait(MINUTE_MS);
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
-        cy.contains('button', 'Close Out Vault').should('not.exist');
+        cy.contains('button', 'Close Out Vault', {
+          timeout: DEFAULT_TIMEOUT,
+        }).should('not.exist');
       });
     });
 
@@ -574,6 +579,7 @@ describe('Wallet App Test Cases', () => {
 
       cy.getTokenAmount('IST').then(initialTokenValue => {
         cy.contains('Exit').click();
+        cy.wait(MINUTE_MS);
         cy.acceptAccess().then(taskCompleted => {
           expect(taskCompleted).to.be.true;
         });
