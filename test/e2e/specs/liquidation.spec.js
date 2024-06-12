@@ -4,7 +4,6 @@ import {
   networks,
   configMap,
   webWalletURL,
-  ONE_MINUTE_WAIT,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -475,7 +474,7 @@ describe('Wallet App Test Cases', () => {
 
       const propertyName = 'book0.collateralAvailable';
       const expectedValue = '9.659301 ATOM';
-      cy.wait(ONE_MINUTE_WAIT); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(MINUTE_MS); // eslint-disable-line cypress/no-unnecessary-waiting
 
       cy.verifyAuctionData(propertyName, expectedValue);
     });
@@ -485,8 +484,9 @@ describe('Wallet App Test Cases', () => {
     it('should claim collateral from the first vault successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-      cy.contains(/3.42 ATOM/, { timeout: ONE_MINUTE_WAIT }).click();
+      cy.contains(/3.42 ATOM/, { timeout: MINUTE_MS }).click();
       cy.contains('button', 'Close Out Vault').click();
+      cy.wait(MINUTE_MS);
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
         cy.contains('button', 'Close Out Vault').should('not.exist');
@@ -496,8 +496,9 @@ describe('Wallet App Test Cases', () => {
     it('should claim collateral from the second vault successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-      cy.contains(/3.07 ATOM/, { timeout: ONE_MINUTE_WAIT }).click();
+      cy.contains(/3.07 ATOM/, { timeout: MINUTE_MS }).click();
       cy.contains('button', 'Close Out Vault').click();
+      cy.wait(MINUTE_MS);
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
         cy.contains('button', 'Close Out Vault').should('not.exist');
@@ -507,8 +508,9 @@ describe('Wallet App Test Cases', () => {
     it('should claim collateral from the third vault successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-      cy.contains(/2.84 ATOM/, { timeout: ONE_MINUTE_WAIT }).click();
+      cy.contains(/2.84 ATOM/, { timeout: MINUTE_MS }).click();
       cy.contains('button', 'Close Out Vault').click();
+      cy.wait(MINUTE_MS);
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
         cy.contains('button', 'Close Out Vault').should('not.exist');

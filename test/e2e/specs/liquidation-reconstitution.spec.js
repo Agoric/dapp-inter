@@ -474,7 +474,7 @@ describe('Wallet App Test Cases', () => {
         const propertyName = 'book0.collateralAvailable';
         const expectedValue = '31.414987 ATOM';
 
-        cy.wait(ONE_MINUTE_WAIT); // eslint-disable-line cypress/no-unnecessary-waiting
+        cy.wait(MINUTE_MS); // eslint-disable-line cypress/no-unnecessary-waiting
         cy.verifyAuctionData(propertyName, expectedValue);
       });
 
