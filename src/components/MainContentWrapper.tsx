@@ -6,8 +6,9 @@ import {
 } from '@agoric/zoe/src/contractSupport';
 import { useAtomValue } from 'jotai';
 import { PropsWithChildren, useMemo } from 'react';
-import { displayFunctionsAtom } from 'store/app';
+import { displayFunctionsAtom, networkConfigAtom } from 'store/app';
 import { useVaultStore } from 'store/vaults';
+import { useTotalActiveVaultsQuery } from 'utils/hooks';
 
 type TickerItemProps = {
   label: string;
@@ -48,6 +49,8 @@ const MainContentWrapper = ({ children }: PropsWithChildren) => {
     prices: state.prices,
   }));
   const displayFunctions = useAtomValue(displayFunctionsAtom);
+  const networkConfig = useAtomValue(networkConfigAtom);
+  const totalActiveVaults = useTotalActiveVaultsQuery(networkConfig.url);
 
   const subheader = useMemo(() => {
     let totalDebtForDisplay;
@@ -72,11 +75,15 @@ const MainContentWrapper = ({ children }: PropsWithChildren) => {
 
         let totalDebt = AmountMath.makeEmpty(debtBrand);
         let totalLocked = AmountMath.makeEmpty(debtBrand);
-        let numVaults = 0;
+        let numVaultsWithDebt = 0;
 
         [...metrics.values()].forEach(
           ({ numActiveVaults, totalCollateral, totalDebt: managerDebt }) => {
-            numVaults += numActiveVaults;
+            // UNTIL https://github.com/Agoric/agoric-sdk/issues/9463.
+            // This metric misleadingly only counts vaults with non-zero debt,
+            // even if they're 'active'.
+            numVaultsWithDebt += numActiveVaults;
+
             totalDebt = AmountMath.add(totalDebt, managerDebt);
 
             const price = prices.get(totalCollateral.brand);
@@ -94,7 +101,11 @@ const MainContentWrapper = ({ children }: PropsWithChildren) => {
 
         totalDebtForDisplay = `${displayAmount(totalDebt, 0, 'usd')}`;
         tvlForDisplay = `${displayAmount(totalLocked, 0, 'usd')}`;
-        numVaultsForDisplay = new Intl.NumberFormat().format(numVaults);
+
+        // Fallback to numVaultsWithDebt which undercounts 'active' vaults.
+        numVaultsForDisplay = new Intl.NumberFormat().format(
+          totalActiveVaults ?? numVaultsWithDebt,
+        );
       }
     }
 
@@ -117,7 +128,7 @@ const MainContentWrapper = ({ children }: PropsWithChildren) => {
         />
       </div>
     );
-  }, [displayFunctions, managerIds, metrics, prices]);
+  }, [displayFunctions, managerIds, metrics, totalActiveVaults, prices]);
 
   return (
     <div className="mt-[2px] flex flex-col flex-grow bg-gradient-to-br from-[#fffcf2] to-[#ffffff] rounded-t-[48px] shadow-[0px_34px_50px_0px_#ff7a1a] relative">
