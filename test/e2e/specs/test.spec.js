@@ -1,5 +1,4 @@
 import { mnemonics, phrasesList, MINUTE_MS } from '../test.utils';
-
 describe('Vaults UI Test Cases', () => {
   context('Test commands', () => {
     const networkPhrases = phrasesList[Cypress.env('AGORIC_NET') || 'local'];

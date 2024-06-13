@@ -102,7 +102,7 @@ jobs:
 
       - name: Upload e2e artifacts as workflow artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ inputs.is_emerynet_test && !cancelled() }}
+        if: ${{ !inputs.is_emerynet_test && !cancelled() }}
         with:
           name: e2e-artifacts
           path: |
