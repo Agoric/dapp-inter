@@ -111,6 +111,7 @@ Cypress.Commands.add('skipWhen', function (expression) {
 });
 
 const connectWalletLocalChain = () => {
+  cy.contains('button', 'Dismiss').click();
   cy.contains('Connect Wallet').click();
 
   cy.contains(

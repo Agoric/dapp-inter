@@ -12,10 +12,15 @@ services:
       yarn wait-on http://display:8080 &&
       echo -n "======> remote noVNC URL: " &&
       curl -s ngrok:4040/api/tunnels | jq -r .tunnels[0].public_url &&
+      echo "AGORIC_NET: $CYPRESS_AGORIC_NET" &&
+      echo "======> NGINX Configuration:" && cat /etc/nginx/nginx.conf &&
+      echo "======> NGINX Configuration_DEFAULT:" && cat /etc/nginx/sites-available/default &&
       if [ "$CYPRESS_AGORIC_NET" == "local" ]; then nginx; fi &&
+      echo "======> Checking agoricCHAIN:1317 connectivity:" && curl -I http://agoric_chain:26657 &&
+      echo "======> Checking localhost:1317 connectivity:" && curl -I http://localhost:26657 &&
       yarn dev & sleep 10 && yarn test:e2e --spec test/e2e/specs/test.spec.js'
     networks:
-      - x12
+          - x12
 
   display:
     extends:
