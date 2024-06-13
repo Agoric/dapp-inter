@@ -14,7 +14,7 @@ services:
       echo -n "======> remote noVNC URL: " &&
       curl -s ngrok:4040/api/tunnels | jq -r .tunnels[0].public_url &&
       if [ "$CYPRESS_AGORIC_NET" == "local" ]; then nginx; fi &&
-      npx start-server-and-test "yarn dev" http-get://localhost:5173 "yarn test:e2e --spec test/e2e/specs/liquidation.spec.js"'
+      yarn dev & sleep 10 && yarn test:e2e --spec test/e2e/specs/liquidation.spec.js'
     networks:
       - x13
 
