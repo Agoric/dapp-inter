@@ -79,6 +79,7 @@ const MainContentWrapper = ({ children }: PropsWithChildren) => {
 
         [...metrics.values()].forEach(
           ({ numActiveVaults, totalCollateral, totalDebt: managerDebt }) => {
+            // UNTIL https://github.com/Agoric/agoric-sdk/issues/9463.
             // This metric misleadingly only counts vaults with non-zero debt,
             // even if they're 'active'.
             numVaultsWithDebt += numActiveVaults;

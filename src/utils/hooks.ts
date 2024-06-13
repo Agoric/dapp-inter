@@ -62,7 +62,8 @@ export const useAuctionTimer = (schedule: LiquidationSchedule | null) => {
  *
  * This fetches from subquery, rather than a vstorage query to a network node,
  * because the query is more complex. However, subquery only works on mainnet,
- * hence why it checks the network config.
+ * hence why it checks the network config. Also, data might lag by up to 15
+ * minutes.
  */
 export const useTotalActiveVaultsQuery = (networkConfigUrl: string) => {
   const pollPeriodMs = 60_000;
