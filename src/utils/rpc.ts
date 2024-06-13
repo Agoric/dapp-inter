@@ -22,3 +22,23 @@ export const fetchAllAddrs = async (netconfigURL: string) => {
     apiAddrs,
   };
 };
+
+export const queryTotalActiveVaults = async () => {
+  const res = await fetch(
+    'https://api.subquery.network/sq/agoric-labs/agoric-mainnet-v2',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        query:
+          'query { vaults(filter: {state: {equalTo: "active"}}) {totalCount} }',
+      }),
+    },
+  );
+
+  const { data } = await res.json();
+
+  return data.vaults.totalCount as number;
+};

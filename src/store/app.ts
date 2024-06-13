@@ -136,7 +136,10 @@ export const rpcNodeAtom = atom(
 );
 
 export const networkConfigAtom = import.meta.env.VITE_NETWORK_CONFIG_URL
-  ? atom({ url: import.meta.env.VITE_NETWORK_CONFIG_URL, label: undefined })
+  ? atom({
+      url: import.meta.env.VITE_NETWORK_CONFIG_URL as string,
+      label: undefined,
+    })
   : atomWithStorage('agoric-network-config', networkConfigs.localhost);
 
 const usp = new URLSearchParams(window.location.search);
