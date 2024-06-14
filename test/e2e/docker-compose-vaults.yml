@@ -25,7 +25,7 @@ services:
         fi &&
         
         # Start development server and wait for it to be ready
-        yarn dev & sleep 5 &&
+        yarn dev & yarn wait-on http://127.0.0.1:5173/ &&
         
         # Run end-to-end tests
         yarn test:e2e --spec test/e2e/specs/test.spec.js'
