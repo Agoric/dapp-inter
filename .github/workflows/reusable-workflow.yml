@@ -122,3 +122,12 @@ jobs:
       - name: Log Path to GCS artifacts
         if: ${{ inputs.is_emerynet_test && !cancelled() }}
         run: echo "https://console.cloud.google.com/storage/browser/github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}/docker/videos"
+
+      - name: Notify About Failure
+        if: >
+          failure() && github.event_name != 'pull_request' &&
+          github.repository_owner == 'agoric'
+        uses: ./.github/actions/notify-action.yml
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+        continue-on-error: true
