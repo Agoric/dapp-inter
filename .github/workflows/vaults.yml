@@ -37,3 +37,5 @@ jobs:
         --exit-code-from synpress
       is_emerynet_test: ${{ github.event_name == 'schedule' || inputs.network == 'emerynet' }}
       mnemonic_phrase: ${{ inputs.phrase }}
+
+    secrets: inherit
