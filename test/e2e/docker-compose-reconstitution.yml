@@ -29,7 +29,7 @@ services:
         yarn dev & sleep 5 &&
         
         # Run end-to-end tests
-        yarn test:e2e --spec test/e2e/specs/liquidation.spec.js'
+        yarn test:e2e --spec test/e2e/specs/liquidation-reconstitution.spec.js'
     networks:
       - x13
 
