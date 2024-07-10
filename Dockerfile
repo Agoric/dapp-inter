@@ -10,7 +10,7 @@ RUN apt-get update \
     && apt-get install -y wget gnupg ca-certificates jq xvfb
 
 # Install Chromium
-RUN apt-get install chromium
+RUN apt-get install -y chromium
 
 # Setup Nginx
 RUN apt update && apt install -y nginx
