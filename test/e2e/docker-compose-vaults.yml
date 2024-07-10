@@ -28,7 +28,7 @@ services:
         yarn dev & sleep 5 &&
         
         # Run end-to-end tests
-        yarn test:e2e --spec test/e2e/specs/test.spec.js'
+        yarn test:e2e --spec test/e2e/specs/test.spec.js --browser chromium'
     networks:
       - x12
 
