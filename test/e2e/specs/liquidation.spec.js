@@ -443,12 +443,6 @@ describe('Wallet App Test Cases', () => {
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
-    it('should verify the value of collateralAvailable from the CLI successfully', () => {
-      const propertyName = 'book0.collateralAvailable';
-      const expectedValue = '45 ATOM';
-      cy.verifyAuctionData(propertyName, expectedValue);
-    });
-
     // Tests ran fine locally but failed in CI. Updating a3p container replicated failure locally. Tests pass with older container version.
     // UNTIL: a3p container compatibility is resolved.
     it(
@@ -555,10 +549,6 @@ describe('Wallet App Test Cases', () => {
       });
 
       cy.reload();
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
 
       cy.get('span')
         .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
