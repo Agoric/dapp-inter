@@ -556,10 +556,6 @@ describe('Wallet App Test Cases', () => {
 
       cy.reload();
 
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-
       cy.get('span')
         .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
         .should('exist');
