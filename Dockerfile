@@ -1,4 +1,6 @@
-FROM ghcr.io/agoric/agoric-sdk:45
+ARG BASE_IMAGE_TAG
+
+FROM ghcr.io/agoric/agoric-sdk:${BASE_IMAGE_TAG}
 
 # Add the Agoric CLI to the PATH to access 'agops' from the shell.
 ENV PATH="/usr/src/agoric-sdk/packages/agoric-cli/bin:${PATH}"
