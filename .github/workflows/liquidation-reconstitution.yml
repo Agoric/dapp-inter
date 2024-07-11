@@ -29,6 +29,11 @@ on:
         description: 'bidder account address'
         required: false
         type: string
+      base_image:
+        description: 'Base image tag for agoric-sdk'
+        required: false
+        default: latest
+        type: string
 
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label ||
@@ -48,5 +53,6 @@ jobs:
       user1_address: ${{ inputs.user1_address }}
       bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
       bidder_address: ${{ inputs.bidder_address }}
+      base_image: ${{ inputs.base_image }}
 
     secrets: inherit
