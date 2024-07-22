@@ -2,8 +2,8 @@ name: Poll for changes to start a deploy to CF
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Runs every 5 minutes
-  workflow_dispatch:  # Allows manual triggering of the workflow
+    - cron: '*/5 * * * *' # Runs every 5 minutes
+  workflow_dispatch: # Allows manual triggering of the workflow
 
 jobs:
   run-command:
@@ -23,7 +23,7 @@ jobs:
             echo "CHAIN_URL is not set. Skipping workflow."
             exit 0
           fi
-          
+
           if [ -z "${{ vars.DEPLOY_BRANCH }}" ]; then
             echo "DEPLOY_BRANCH environment variable does not exist."
             echo "HAS_DEPLOY_BRANCH=false" >> $GITHUB_ENV
@@ -41,7 +41,7 @@ jobs:
 
           # Fetch the new value
           NEW_REFERENCED_UI=$(curl -s $URL | jq -r '.value' | jq -r '.values[]' | jq -r .body | sed 's/^#//' | jq -r .current.ReferencedUI.value)
-          
+
           # Path to store the previous value
           OLD_REFERENCED_UI_FILE="./DEPLOYED_HASH"
 
@@ -64,7 +64,7 @@ jobs:
           # Check out the specific commit
           git fetch origin
           git checkout ${{ env.NEW_VALUE }}
-          
+
           # Get the deploy branch name from the environment variable
           DEPLOY_BRANCH="${{ vars.DEPLOY_BRANCH }}"
 
@@ -77,7 +77,7 @@ jobs:
         run: |
           git fetch origin
           git checkout main
-          
+
           # Define the path to the previous value file
           REFERENCED_UI_FILE="./DEPLOYED_HASH"
 
