@@ -41,7 +41,6 @@ jobs:
 
           # Fetch the new value
           NEW_REFERENCED_UI=$(curl -s $URL | jq -r '.value' | jq -r '.values[]' | jq -r .body | sed 's/^#//' | jq -r .current.ReferencedUI.value)
-          NEW_REFERENCED_UI=ae140e2780f14d5de64217ab9a67a4cc9a3f4ed2
           
           # Path to store the previous value
           OLD_REFERENCED_UI_FILE="./DEPLOYED_HASH"
@@ -59,22 +58,6 @@ jobs:
           echo "NEW_VALUE=$NEW_REFERENCED_UI" >> $GITHUB_ENV
           echo "PREVIOUS_VALUE=$OLD_REFERENCED_UI" >> $GITHUB_ENV
 
-      - name: Update DEPLOYED_HASH if value changed
-        if: env.NEW_VALUE != env.PREVIOUS_VALUE && steps.check_variables.outcome == 'success' && env.HAS_DEPLOY_BRANCH == 'true'
-        run: |
-          # Define the path to the previous value file
-          REFERENCED_UI_FILE="./DEPLOYED_HASH"
-
-          # Save the new value to the DEPLOYED_HASH file
-          echo "$NEW_VALUE" > $REFERENCED_UI_FILE
-
-          # Configure git and commit changes
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add $REFERENCED_UI_FILE
-          git commit -m "Update DEPLOYED_HASH with new value"
-          git push
-
       - name: Checkout the specific commit and deploy
         if: env.NEW_VALUE != env.PREVIOUS_VALUE && steps.check_variables.outcome == 'success' && env.HAS_DEPLOY_BRANCH == 'true'
         run: |
@@ -88,3 +71,22 @@ jobs:
           # Create or update the deploy branch
           git checkout -B $DEPLOY_BRANCH
           git push -f origin $DEPLOY_BRANCH
+
+      - name: Commit DEPLOYED_HASH if value changed
+        if: env.NEW_VALUE != env.PREVIOUS_VALUE && steps.check_variables.outcome == 'success' && env.HAS_DEPLOY_BRANCH == 'true'
+        run: |
+          git fetch origin
+          git checkout main
+          
+          # Define the path to the previous value file
+          REFERENCED_UI_FILE="./DEPLOYED_HASH"
+
+          # Save the new value to the DEPLOYED_HASH file
+          echo "$NEW_VALUE" > $REFERENCED_UI_FILE
+
+          # Configure git and commit changes
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add $REFERENCED_UI_FILE
+          git commit -m "Update DEPLOYED_HASH with new value"
+          git push
