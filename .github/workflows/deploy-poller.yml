@@ -1,13 +1,30 @@
-name: Poll for changes to start a deploy to CF
+name: Update Deploy Branch
 
 on:
   schedule:
     - cron: '*/5 * * * *' # Runs every 5 minutes
   workflow_dispatch: # Allows manual triggering of the workflow
+    inputs:
+      CHAIN_URL:
+        description: 'The URL of the chain. Example: https://emerynet.api.agoric.net'
+        required: false
+        default: ''
+      DEPLOY_BRANCH:
+        description: 'The branch to deploy. Example: deploy-emerynet'
+        required: false
+        default: ''
+      COMMIT_URL:
+        description: '(optional) Override ReferenceUI value with the url of the commit to deploy'
+        required: false
+        default: ''
 
 jobs:
   run-command:
     runs-on: ubuntu-latest
+
+    env:
+      CHAIN_URL: ${{ vars.CHAIN_URL || github.event.inputs.CHAIN_URL }}
+      DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || github.event.inputs.DEPLOY_BRANCH }}
 
     steps:
       - name: Checkout repository
@@ -19,28 +36,31 @@ jobs:
       - name: Check for required variables
         id: check_variables
         run: |
-          if [ -z "${{ vars.CHAIN_URL }}" ]; then
+          SKIP_RUN=false
+
+          if [ -z "${CHAIN_URL}" ]; then
             echo "CHAIN_URL is not set. Skipping workflow."
-            exit 0
+            SKIP_RUN=true
           fi
 
-          if [ -z "${{ vars.DEPLOY_BRANCH }}" ]; then
-            echo "DEPLOY_BRANCH environment variable does not exist."
-            echo "HAS_DEPLOY_BRANCH=false" >> $GITHUB_ENV
-          else
-            echo "DEPLOY_BRANCH environment variable found."
-            echo "HAS_DEPLOY_BRANCH=true" >> $GITHUB_ENV
-            echo "DEPLOY_BRANCH=${{ vars.DEPLOY_BRANCH }}" >> $GITHUB_ENV
+          if [ -z "${DEPLOY_BRANCH}" ]; then
+            echo "CHAIN_URL is not set. Skipping workflow."
+            SKIP_RUN=true
           fi
 
-      - name: Run bash command
-        if: steps.check_variables.outcome == 'success' && env.HAS_DEPLOY_BRANCH == 'true'
+          echo "SKIP_RUN=$SKIP_RUN" >> $GITHUB_ENV
+
+      - name: Check if deploy branch needs to be updated
+        if: env.SKIP_RUN == 'false'
         run: |
           # Define the URL from the environment variable
           URL="${{ vars.CHAIN_URL }}/agoric/vstorage/data/published.vaultFactory.governance"
 
           # Fetch the new value
           NEW_REFERENCED_UI=$(curl -s $URL | jq -r '.value' | jq -r '.values[]' | jq -r .body | sed 's/^#//' | jq -r .current.ReferencedUI.value)
+          if [ ${{ github.event.inputs.COMMIT_URL }} ]; then
+            NEW_REFERENCED_UI="${{ github.event.inputs.COMMIT_URL }}"
+          fi
 
           # Path to store the previous value
           OLD_REFERENCED_UI_FILE="./DEPLOYED_HASH"
@@ -55,25 +75,55 @@ jobs:
           fi
 
           # Output the values for the next step
-          echo "NEW_VALUE=$NEW_REFERENCED_UI" >> $GITHUB_ENV
-          echo "PREVIOUS_VALUE=$OLD_REFERENCED_UI" >> $GITHUB_ENV
+          if [ "$NEW_REFERENCED_UI" != "$OLD_REFERENCED_UI" ]; then
+            SHOULD_DEPLOY=true
+          else
+            SHOULD_DEPLOY=false
+          fi
 
-      - name: Checkout the specific commit and deploy
-        if: env.NEW_VALUE != env.PREVIOUS_VALUE && steps.check_variables.outcome == 'success' && env.HAS_DEPLOY_BRANCH == 'true'
+          echo "SHOULD_DEPLOY=$SHOULD_DEPLOY" >> $GITHUB_ENV
+          echo "NEW_VALUE=$NEW_REFERENCED_UI" >> $GITHUB_ENV
+
+      - name: Deploy commit to branch
+        if: env.SHOULD_DEPLOY == 'true' && env.SKIP_RUN == 'false'
         run: |
           # Check out the specific commit
           git fetch origin
-          git checkout ${{ env.NEW_VALUE }}
 
-          # Get the deploy branch name from the environment variable
-          DEPLOY_BRANCH="${{ vars.DEPLOY_BRANCH }}"
+          REPO_URL=$(echo "${{ env.NEW_VALUE }}" | sed -E 's|/commit/.*||').git
+          COMMIT_HASH=$(echo "${{ env.NEW_VALUE }}" | awk -F'/commit/' '{print $2}')
 
-          # Create or update the deploy branch
-          git checkout -B $DEPLOY_BRANCH
-          git push -f origin $DEPLOY_BRANCH
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
 
-      - name: Commit DEPLOYED_HASH if value changed
-        if: env.NEW_VALUE != env.PREVIOUS_VALUE && steps.check_variables.outcome == 'success' && env.HAS_DEPLOY_BRANCH == 'true'
+           # Clone the old repository and checkout the specific commit
+          git clone --single-branch $REPO_URL old-repo
+          cd old-repo
+
+          # Configure the remote URL with credentials
+          git remote add new-repo "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+
+          git fetch new-repo
+
+          git checkout -b deploy $COMMIT_HASH
+
+          # GitHub Actions worker doesn't have the correct permissions to checked in
+          # modified workflow files. To workaround this, we'll remove all files in 
+          # .github/workflows that doesn't exist on the remote
+
+          # Remove files not on the remote
+          rm -rf .github/workflows
+
+          # Mirror remote workflows
+          git checkout new-repo/${{ vars.DEPLOY_BRANCH }} .github/workflows
+
+          git commit -am "Undo any changes to workflows"
+
+          # # Push the commit to the deploy branch in the new repository
+          git push -f new-repo HEAD:${{ vars.DEPLOY_BRANCH }}
+
+      - name: Update DEPLOYED_HASH
+        if: env.SHOULD_DEPLOY == 'true' && env.SKIP_RUN == 'false'
         run: |
           git fetch origin
           git checkout main
