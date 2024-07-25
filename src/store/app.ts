@@ -183,8 +183,6 @@ export const localStorageStore = createStore<LocalStorageState>()(
   ),
 );
 
-export const isAppVersionOutdatedAtom = atom(false);
-
 export const smartWalletProvisionedAtom = atom(
   get => get(appAtom).smartWalletProvisioned,
 );

@@ -255,9 +255,6 @@ type VaultManagerUpdate = {
 type VaultFactoryParamsUpdate = {
   current: {
     MinInitialDebt: ValuePossessor<Amount<'nat'>>;
-    ReferencedUI?: ValuePossessor<string>;
-    // TODO remove backwards compatibility after https://github.com/Agoric/agoric-sdk/issues/7839
-    EndorsedUI: ValuePossessor<string>;
   };
 };
 
@@ -384,9 +381,6 @@ export const watchVaultFactory = () => {
         useVaultStore.setState({
           vaultFactoryParams: {
             minInitialDebt: value.current.MinInitialDebt.value,
-            referencedUI:
-              value.current.ReferencedUI?.value ??
-              value.current.EndorsedUI?.value,
           },
         });
       },
