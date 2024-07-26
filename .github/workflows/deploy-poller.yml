@@ -23,8 +23,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CHAIN_URL: ${{ vars.CHAIN_URL || github.event.inputs.CHAIN_URL }}
-      DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || github.event.inputs.DEPLOY_BRANCH }}
+      CHAIN_URL: ${{ github.event.inputs.CHAIN_URL || vars.CHAIN_URL }}
+      DEPLOY_BRANCH: ${{ github.event.inputs.DEPLOY_BRANCH || vars.DEPLOY_BRANCH }}
 
     steps:
       - name: Checkout repository
@@ -54,7 +54,7 @@ jobs:
         if: env.SKIP_RUN == 'false'
         run: |
           # Define the URL from the environment variable
-          URL="${{ vars.CHAIN_URL }}/agoric/vstorage/data/published.vaultFactory.governance"
+          URL="${{ env.CHAIN_URL }}/agoric/vstorage/data/published.vaultFactory.governance"
 
           # Fetch the new value
           NEW_REFERENCED_UI=$(curl -s $URL | jq -r '.value' | jq -r '.values[]' | jq -r .body | sed 's/^#//' | jq -r .current.ReferencedUI.value)
@@ -62,17 +62,33 @@ jobs:
             NEW_REFERENCED_UI="${{ github.event.inputs.COMMIT_URL }}"
           fi
 
-          # Path to store the previous value
-          OLD_REFERENCED_UI_FILE="./DEPLOYED_HASH"
+          # Check if the deploy branch exists on the remote
+          if git ls-remote --exit-code --heads origin ${{ env.DEPLOY_BRANCH }}; then
+            echo "Deploy branch exists. Checking out the branch."
+            
+            git fetch origin
+            git checkout ${{ env.DEPLOY_BRANCH }}
+            
+            # Path to store the previous value
+            OLD_REFERENCED_UI_FILE="./DEPLOYED_HASH"
 
-          # Check if the previous value exists
-          if [ -f "$OLD_REFERENCED_UI_FILE" ]; then
-            # Read the previous value
-            OLD_REFERENCED_UI=$(cat $OLD_REFERENCED_UI_FILE)
+            # Check if the previous value exists
+            if [ -f "$OLD_REFERENCED_UI_FILE" ]; then
+              # Read the previous value
+              OLD_REFERENCED_UI=$(cat $OLD_REFERENCED_UI_FILE)
+            else
+              # File does not exist, set previous value to empty
+              OLD_REFERENCED_UI=""
+            fi
           else
+            echo "Deploy branch does not exist. Skipping checkout."
+            
             # File does not exist, set previous value to empty
             OLD_REFERENCED_UI=""
           fi
+
+          echo "New value: $NEW_REFERENCED_UI"
+          echo "Old value: $OLD_REFERENCED_UI"
 
           # Output the values for the next step
           if [ "$NEW_REFERENCED_UI" != "$OLD_REFERENCED_UI" ]; then
@@ -114,29 +130,19 @@ jobs:
           # Remove files not on the remote
           rm -rf .github/workflows
 
-          # Mirror remote workflows
-          git checkout new-repo/${{ vars.DEPLOY_BRANCH }} .github/workflows
-
-          git commit -am "Undo any changes to workflows"
-
-          # # Push the commit to the deploy branch in the new repository
-          git push -f new-repo HEAD:${{ vars.DEPLOY_BRANCH }}
-
-      - name: Update DEPLOYED_HASH
-        if: env.SHOULD_DEPLOY == 'true' && env.SKIP_RUN == 'false'
-        run: |
-          git fetch origin
-          git checkout main
-
-          # Define the path to the previous value file
-          REFERENCED_UI_FILE="./DEPLOYED_HASH"
+          # Check if the deploy branch exists on the remote
+          if git ls-remote --exit-code --heads origin ${{ env.DEPLOY_BRANCH }}; then
+            # Mirror remote workflows if they exist
+            if git ls-tree --name-only -r new-repo/${{ vars.DEPLOY_BRANCH }}:.github/workflows &> /dev/null; then
+              git checkout new-repo/${{ vars.DEPLOY_BRANCH }} .github/workflows
+            fi
+          fi
 
           # Save the new value to the DEPLOYED_HASH file
-          echo "$NEW_VALUE" > $REFERENCED_UI_FILE
+          echo "$NEW_VALUE" > ./DEPLOYED_HASH
+          git add ./DEPLOYED_HASH
 
-          # Configure git and commit changes
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add $REFERENCED_UI_FILE
-          git commit -m "Update DEPLOYED_HASH with new value"
-          git push
+          git commit -am "Prepare branch for deploy"
+
+          # # Push the commit to the deploy branch in the new repository
+          git push -f new-repo HEAD:${{ env.DEPLOY_BRANCH }}
