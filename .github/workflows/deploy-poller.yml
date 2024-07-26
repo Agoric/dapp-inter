@@ -23,8 +23,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      CHAIN_URL: ${{ vars.CHAIN_URL || github.event.inputs.CHAIN_URL }}
-      DEPLOY_BRANCH: ${{ vars.DEPLOY_BRANCH || github.event.inputs.DEPLOY_BRANCH }}
+      CHAIN_URL: ${{ github.event.inputs.CHAIN_URL || vars.CHAIN_URL }}
+      DEPLOY_BRANCH: ${{ github.event.inputs.DEPLOY_BRANCH || vars.DEPLOY_BRANCH }}
 
     steps:
       - name: Checkout repository
@@ -61,7 +61,7 @@ jobs:
           if [ ${{ github.event.inputs.COMMIT_URL }} ]; then
             NEW_REFERENCED_UI="${{ github.event.inputs.COMMIT_URL }}"
           fi
-          
+
           # Check if the deploy branch exists on the remote
           if git ls-remote --exit-code --heads origin ${{ env.DEPLOY_BRANCH }}; then
             echo "Deploy branch exists. Checking out the branch."
@@ -87,8 +87,8 @@ jobs:
             OLD_REFERENCED_UI=""
           fi
 
-          echo $NEW_REFERENCED_UI
-          echo $OLD_REFERENCED_UI
+          echo "New value: $NEW_REFERENCED_UI"
+          echo "Old value: $OLD_REFERENCED_UI"
 
           # Output the values for the next step
           if [ "$NEW_REFERENCED_UI" != "$OLD_REFERENCED_UI" ]; then
@@ -105,13 +105,13 @@ jobs:
         run: |
           # Check out the specific commit
           git fetch origin
-          
+
           REPO_URL=$(echo "${{ env.NEW_VALUE }}" | sed -E 's|/commit/.*||').git
           COMMIT_HASH=$(echo "${{ env.NEW_VALUE }}" | awk -F'/commit/' '{print $2}')
 
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          
+
            # Clone the old repository and checkout the specific commit
           git clone --single-branch $REPO_URL old-repo
           cd old-repo
@@ -132,10 +132,12 @@ jobs:
 
           # Check if the deploy branch exists on the remote
           if git ls-remote --exit-code --heads origin ${{ env.DEPLOY_BRANCH }}; then
-            # Mirror remote workflows
-            git checkout new-repo/${{ env.DEPLOY_BRANCH }} .github/workflows
+            # Mirror remote workflows if they exist
+            if git ls-tree --name-only -r new-repo/${{ vars.DEPLOY_BRANCH }}:.github/workflows &> /dev/null; then
+              git checkout new-repo/${{ vars.DEPLOY_BRANCH }} .github/workflows
+            fi
           fi
-          
+
           # Save the new value to the DEPLOYED_HASH file
           echo "$NEW_VALUE" > ./DEPLOYED_HASH
           git add ./DEPLOYED_HASH
