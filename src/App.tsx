@@ -8,7 +8,6 @@ import { useAtomValue, useAtom, useSetAtom } from 'jotai';
 import {
   chainStorageWatcherAtom,
   currentTimeAtom,
-  isAppVersionOutdatedAtom,
   networkConfigAtom,
   rpcNodeAtom,
   appStore,
@@ -18,9 +17,6 @@ import {
 import Root from 'views/Root';
 import DisclaimerDialog from 'components/DisclaimerDialog';
 import { secondsSinceEpoch } from 'utils/date';
-import { vaultStoreAtom } from 'store/vaults';
-import AppVersionDialog from 'components/AppVersionDialog';
-import { currentlyVisitedHash, ipfsHashLength } from 'utils/ipfs';
 import { fetchChainInfo } from 'utils/rpc';
 import { makeAgoricChainStorageWatcher } from '@agoric/rpc';
 
@@ -61,27 +57,6 @@ const useTimeKeeper = () => {
       clearInterval(id);
     };
   }, [setCurrentTime]);
-};
-
-const useAppVersionWatcher = () => {
-  const { vaultFactoryParams } = useAtomValue(vaultStoreAtom);
-  const setIsAppVersionOutdated = useSetAtom(isAppVersionOutdatedAtom);
-
-  const { referencedUI } = vaultFactoryParams ?? {};
-
-  useEffect(() => {
-    // We can roughly approximate if it's a valid hash, rather than empty or
-    // "NONE" or the like, by checking its length. Otherwise don't complain.
-    if (referencedUI?.length !== ipfsHashLength) {
-      return;
-    }
-
-    const current = currentlyVisitedHash();
-
-    if (referencedUI !== current) {
-      setIsAppVersionOutdated(true);
-    }
-  }, [referencedUI, setIsAppVersionOutdated]);
 };
 
 const App = () => {
@@ -140,7 +115,6 @@ const App = () => {
   ]);
 
   useTimeKeeper();
-  useAppVersionWatcher();
 
   return (
     <div>
@@ -155,7 +129,6 @@ const App = () => {
         <RouterProvider router={router} />
       </div>
       <DisclaimerDialog />
-      <AppVersionDialog />
       <ChainConnectionErrorDialog />
       <NodeSelectorDialog />
     </div>
