@@ -1,9 +1,4 @@
-import {
-  branchBridgeHref,
-  localBridgeHref,
-  networkConfigs,
-  prodBridgeHref,
-} from 'config';
+import { networkConfigs } from 'config';
 import { atom } from 'jotai';
 import { atomWithStorage } from 'jotai/utils';
 import { atomWithStore } from 'jotai-zustand';
@@ -143,23 +138,6 @@ export const networkConfigAtom = import.meta.env.VITE_NETWORK_CONFIG_URL
   : atomWithStorage('agoric-network-config', networkConfigs.localhost);
 
 export const bannerAtom = atom<string | undefined>(undefined);
-
-const usp = new URLSearchParams(window.location.search);
-const wallet = usp.get('wallet');
-let bridgeHref = prodBridgeHref;
-if (wallet === 'local') {
-  bridgeHref = localBridgeHref;
-} else if (wallet) {
-  bridgeHref = branchBridgeHref(wallet);
-}
-
-export const bridgeHrefAtom = atom<string>(bridgeHref);
-
-export const walletUiHrefAtom = atom(get => {
-  const bridgeUrl = new URL(get(bridgeHrefAtom));
-
-  return bridgeUrl ? bridgeUrl.origin + '/wallet/' : '';
-});
 
 // Increment whenever the terms on https://docs.inter.trade/disclaimer change.
 export const latestDisclaimerIndex = 1;
