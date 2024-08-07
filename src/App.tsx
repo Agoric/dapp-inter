@@ -6,6 +6,7 @@ import ErrorPage from 'views/ErrorPage';
 import { watchVbank } from 'service/vbank';
 import { useAtomValue, useAtom, useSetAtom } from 'jotai';
 import {
+  bannerAtom,
   chainStorageWatcherAtom,
   currentTimeAtom,
   networkConfigAtom,
@@ -25,6 +26,7 @@ import 'styles/globals.css';
 import ChainConnectionErrorDialog from 'components/ChainConnectionErrorDialog';
 import { useStore } from 'zustand';
 import NodeSelectorDialog from 'components/NodeSelectorDialog';
+import NoticeBanner from 'components/NoticeBanner';
 
 const router = createHashRouter([
   {
@@ -68,14 +70,17 @@ const App = () => {
   );
   const { setChainConnectionError } = useStore(appStore);
   const setRpcNode = useSetAtom(rpcNodeAtom);
+  const setBanner = useSetAtom(bannerAtom);
 
   useEffect(() => {
     let isCancelled = false;
     if (chainStorageWatcher) return;
     const startWatching = async () => {
       try {
-        const { rpc, chainName, api } = await fetchChainInfo(netConfig.url);
+        const { rpc, chainName, api, dappInterJumperBanner } =
+          await fetchChainInfo(netConfig.url);
         if (isCancelled) return;
+        setBanner(dappInterJumperBanner);
         setRpcNode(savedRpcNode || rpc);
         setChainStorageWatcher(
           makeAgoricChainStorageWatcher(savedApiNode || api, chainName, e => {
@@ -112,6 +117,7 @@ const App = () => {
     setChainConnectionError,
     savedRpcNode,
     savedApiNode,
+    setBanner,
   ]);
 
   useTimeKeeper();
@@ -125,7 +131,8 @@ const App = () => {
         hideProgressBar={true}
         autoClose={false}
       ></ToastContainer>
-      <div className="w-screen max-w-7xl m-auto">
+      <NoticeBanner />
+      <div className="w-full max-w-7xl m-auto">
         <RouterProvider router={router} />
       </div>
       <DisclaimerDialog />

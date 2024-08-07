@@ -142,6 +142,8 @@ export const networkConfigAtom = import.meta.env.VITE_NETWORK_CONFIG_URL
     })
   : atomWithStorage('agoric-network-config', networkConfigs.localhost);
 
+export const bannerAtom = atom<string | undefined>(undefined);
+
 const usp = new URLSearchParams(window.location.search);
 const wallet = usp.get('wallet');
 let bridgeHref = prodBridgeHref;
