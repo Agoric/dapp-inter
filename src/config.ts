@@ -25,14 +25,6 @@ export const networkConfigs = {
   },
 };
 
-export const prodSignerHref = 'https://wallet.agoric.app/wallet/';
-export const prodBridgeHref = prodSignerHref + 'bridge.html';
-export const localBridgeHref = 'http://localhost:3000/wallet/bridge.html';
-export const branchBridgeHref = (branchName: string) =>
-  `https://${branchName}.wallet-app.pages.dev/wallet/bridge.html`;
-
-export const signerTarget = 'wallet';
-
 export const disclaimerHref = 'https://docs.inter.trade/disclaimer';
 
 export const psmHref = 'https://psm.inter.trade/';
