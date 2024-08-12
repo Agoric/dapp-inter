@@ -45,7 +45,7 @@ jobs:
     uses: ./.github/workflows/reusable-workflow.yml
     with:
       docker_compose_command: |
-        docker-compose -f test/e2e/docker-compose-liquidation.yml \
+        docker compose -f test/e2e/docker-compose-liquidation.yml \
         --profile synpress up --build \
         --exit-code-from synpress
       is_emerynet_test: ${{ inputs.network == 'emerynet' }}
