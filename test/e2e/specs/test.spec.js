@@ -37,7 +37,13 @@ describe('Vaults UI Test Cases', () => {
         cy.contains('button', 'Dismiss').click();
         cy.get('button').contains('Local Network').click();
         cy.get('button').contains(networkPhrases.interNetwork).click();
-        cy.get('button').contains('Keep using Old Version').click();
+        cy.get('body').then($body => {
+          if (
+            $body.find('button:contains("Keep using Old Version")').length > 0
+          ) {
+            cy.get('button').contains('Keep using Old Version').click();
+          }
+        });
       }
 
       cy.contains('Connect Wallet').click();
