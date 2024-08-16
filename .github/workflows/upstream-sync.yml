@@ -66,6 +66,23 @@ jobs:
         if: env.HAS_UPSTREAM == 'true' && env.HAS_SYNC_BRANCH == 'true'
         run: |
           git checkout -B ${{ env.UPSTREAM_SYNC_BRANCH_NAME }} upstream/main
+
+          # GitHub Actions worker doesn't have the correct permissions to checked in
+          # modified workflow files. To workaround this, we'll remove all files in 
+          # .github/workflows that doesn't exist on the remote
+
+          # Remove files not on the remote
+          rm -rf .github/workflows
+
+          # Check if the deploy branch exists on the remote
+          if git ls-remote --exit-code --heads origin ${{ env.UPSTREAM_SYNC_BRANCH_NAME }}; then
+            # Mirror remote workflows if they exist
+            if git ls-tree --name-only -r origin/${{ env.UPSTREAM_SYNC_BRANCH_NAME }}:.github/workflows &> /dev/null; then
+              git checkout origin/${{ env.UPSTREAM_SYNC_BRANCH_NAME }} .github/workflows
+            fi
+          fi
+
+          git commit -am "Prepare branch for deploy"
           git push -f origin ${{ env.UPSTREAM_SYNC_BRANCH_NAME }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
