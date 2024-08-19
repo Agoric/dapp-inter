@@ -16,9 +16,15 @@ describe('Wallet App Test Cases', () => {
   const LIQUIDATED_TIMEOUT = currentConfig.LIQUIDATED_TIMEOUT;
   const user1Mnemonic = currentConfig.user1Mnemonic;
   const user1Address = currentConfig.user1Address;
-  const bidderMnemonic = currentConfig.bidderMnemonic;
-  const bidderAddress = currentConfig.bidderAddress;
-  const bidderWalletName = currentConfig.bidderWalletName;
+  const bidder1Mnemonic = currentConfig.bidder1Mnemonic;
+  const bidder1Address = currentConfig.bidder1Address;
+  const bidder1WalletName = currentConfig.bidder1WalletName;
+  const bidder2Mnemonic = currentConfig.bidder2Mnemonic;
+  const bidder2Address = currentConfig.bidder2Address;
+  const bidder2WalletName = currentConfig.bidder2WalletName;
+  const bidder3Mnemonic = currentConfig.bidder3Mnemonic;
+  const bidder3Address = currentConfig.bidder3Address;
+  const bidder3WalletName = currentConfig.bidder3WalletName;
   const gov1Mnemonic = currentConfig.gov1Mnemonic;
   const gov1Address = currentConfig.gov1Address;
   const gov2Mnemonic = currentConfig.gov2Mnemonic;
@@ -31,8 +37,8 @@ describe('Wallet App Test Cases', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
       cy.setupWallet({
-        secretWords: bidderMnemonic,
-        walletName: bidderWalletName,
+        secretWords: bidder1Mnemonic,
+        walletName: bidder1WalletName,
       }).then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
@@ -333,9 +339,9 @@ describe('Wallet App Test Cases', () => {
     it('should add the bidder key successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.addKeys({
-        keyName: 'bidder',
-        mnemonic: bidderMnemonic,
-        expectedAddress: bidderAddress,
+        keyName: 'bidder1',
+        mnemonic: bidder1Mnemonic,
+        expectedAddress: bidder1Address,
       });
     });
     it('should set ATOM price to 12.34', () => {
@@ -383,23 +389,23 @@ describe('Wallet App Test Cases', () => {
         taskTimeout: DEFAULT_TASK_TIMEOUT,
       },
       () => {
-        cy.switchWallet(bidderWalletName);
+        cy.switchWallet(bidder1WalletName);
         cy.addNewTokensFound();
         cy.getTokenAmount('IST').then(initialTokenValue => {
           cy.placeBidByPrice({
-            fromAddress: bidderAddress,
+            fromAddress: bidder1Address,
             giveAmount: '90IST',
             price: 9,
           });
 
           cy.placeBidByDiscount({
-            fromAddress: bidderAddress,
+            fromAddress: bidder1Address,
             giveAmount: '80IST',
             discount: 10,
           });
 
           cy.placeBidByDiscount({
-            fromAddress: bidderAddress,
+            fromAddress: bidder1Address,
             giveAmount: '150IST',
             discount: 15,
           });
@@ -523,7 +529,7 @@ describe('Wallet App Test Cases', () => {
 
     it('should switch to the bidder wallet successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
-      cy.switchWallet(bidderWalletName);
+      cy.switchWallet(bidder1WalletName);
     });
     it('should setup the web wallet and cancel the 150IST bid', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
