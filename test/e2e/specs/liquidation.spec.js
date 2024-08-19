@@ -33,12 +33,34 @@ describe('Wallet App Test Cases', () => {
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
-    it('should set up bidder wallet', () => {
+    it('should set up bidder1 wallet', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
       cy.setupWallet({
         secretWords: bidder1Mnemonic,
         walletName: bidder1WalletName,
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
+
+    it('should set up bidder2 wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+      cy.setupWallet({
+        secretWords: bidder2Mnemonic,
+        walletName: bidder2WalletName,
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
+
+    it('should set up bidder3 wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+      cy.setupWallet({
+        secretWords: bidder3Mnemonic,
+        walletName: bidder3WalletName,
       }).then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
@@ -336,12 +358,30 @@ describe('Wallet App Test Cases', () => {
       });
     });
 
-    it('should add the bidder key successfully', () => {
+    it('should add the bidder1 key successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.addKeys({
         keyName: 'bidder1',
         mnemonic: bidder1Mnemonic,
         expectedAddress: bidder1Address,
+      });
+    });
+
+    it('should add the bidder2 key successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.addKeys({
+        keyName: 'bidder2',
+        mnemonic: bidder2Mnemonic,
+        expectedAddress: bidder2Address,
+      });
+    });
+
+    it('should add the bidder3 key successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.addKeys({
+        keyName: 'bidder3',
+        mnemonic: bidder3Mnemonic,
+        expectedAddress: bidder3Address,
       });
     });
     it('should set ATOM price to 12.34', () => {
