@@ -41,11 +41,24 @@ export const configMap = {
       Cypress.env('USER1_MNEMONIC_INPUT') || Cypress.env('USER1_MNEMONIC'),
     user1Address:
       Cypress.env('USER1_ADDRESS_INPUT') || Cypress.env('USER1_ADDRESS'),
-    bidderMnemonic:
-      Cypress.env('BIDDER_MNEMONIC_INPUT') || Cypress.env('BIDDER_MNEMONIC'),
-    bidderAddress:
-      Cypress.env('BIDDER_ADDRESS_INPUT') || Cypress.env('BIDDER_ADDRESS'),
-    bidderWalletName: 'bidder',
+    // Bidder 1
+    bidder1Mnemonic:
+      Cypress.env('BIDDER1_MNEMONIC_INPUT') || Cypress.env('BIDDER1_MNEMONIC'),
+    bidder1Address:
+      Cypress.env('BIDDER1_ADDRESS_INPUT') || Cypress.env('BIDDER1_ADDRESS'),
+    bidder1WalletName: 'bidder1',
+    // Bidder 2
+    bidder2Mnemonic:
+      Cypress.env('BIDDER2_MNEMONIC_INPUT') || Cypress.env('BIDDER2_MNEMONIC'),
+    bidder1Address:
+      Cypress.env('BIDDER2_ADDRESS_INPUT') || Cypress.env('BIDDER2_ADDRESS'),
+    bidder2WalletName: 'bidder2',
+    // Bidder 3
+    bidder3Mnemonic:
+      Cypress.env('BIDDER3_MNEMONIC_INPUT') || Cypress.env('BIDDER3_MNEMONIC'),
+    bidder3Address:
+      Cypress.env('BIDDER3_ADDRESS_INPUT') || Cypress.env('BIDDER3_ADDRESS'),
+    bidder3WalletName: 'bidder3',
     gov1Mnemonic: Cypress.env('GOV1_MNEMONIC'),
     gov1Address: Cypress.env('GOV1_ADDRESS'),
     gov1WalletName: 'emerynetGov1',
