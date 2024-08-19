@@ -50,7 +50,7 @@ export const configMap = {
     // Bidder 2
     bidder2Mnemonic:
       Cypress.env('BIDDER2_MNEMONIC_INPUT') || Cypress.env('BIDDER2_MNEMONIC'),
-    bidder1Address:
+    bidder2Address:
       Cypress.env('BIDDER2_ADDRESS_INPUT') || Cypress.env('BIDDER2_ADDRESS'),
     bidder2WalletName: 'bidder2',
     // Bidder 3
