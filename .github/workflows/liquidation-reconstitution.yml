@@ -34,14 +34,17 @@ on:
         required: false
         default: latest
         type: string
+  pull_request:
+    types:
+      - labeled
 
 concurrency:
-  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label ||
-    github.head_ref || github.ref }}'
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
   cancel-in-progress: true
 
 jobs:
   run-e2e:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || contains(github.event.label.name, 'liquidation-reconstitution-testing')
     uses: ./.github/workflows/reusable-workflow.yml
     with:
       docker_compose_command: |
