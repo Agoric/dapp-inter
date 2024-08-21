@@ -34,21 +34,28 @@ on:
         required: false
         default: latest
         type: string
+  pull_request:
+    types:
+      - labeled
+      - synchronize
 
 concurrency:
-  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label ||
-    github.head_ref || github.ref }}'
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   run-e2e:
+    if: >-
+      github.event_name == 'schedule' || 
+      github.event_name == 'workflow_dispatch' || 
+      contains(github.event.pull_request.labels.*.name, 'liquidation-reconstitution-testing')
     uses: ./.github/workflows/reusable-workflow.yml
     with:
       docker_compose_command: |
         docker compose -f test/e2e/docker-compose-reconstitution.yml \
         --profile synpress up --build \
         --exit-code-from synpress
-      is_emerynet_test: ${{ inputs.network == 'emerynet' }}
+      is_emerynet_test: ${{ inputs.network == 'emerynet' || contains(github.event.pull_request.labels.*.name, 'emerynet') }}
       user1_mnemonic: ${{ inputs.user1_mnemonic }}
       user1_address: ${{ inputs.user1_address }}
       bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
