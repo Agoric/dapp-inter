@@ -7,7 +7,6 @@ services:
     depends_on:
       - display
       - video
-      - agd
     command: >
       bash -c '
         # Display local noVNC URL

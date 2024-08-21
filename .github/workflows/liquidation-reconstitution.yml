@@ -53,7 +53,7 @@ jobs:
     with:
       docker_compose_command: |
         docker compose -f test/e2e/docker-compose-reconstitution.yml \
-        --profile synpress up --build \
+        --profile $SYNPRESS_PROFILE up --build \
         --exit-code-from synpress
       is_emerynet_test: ${{ inputs.network == 'emerynet' || contains(github.event.pull_request.labels.*.name, 'emerynet') }}
       user1_mnemonic: ${{ inputs.user1_mnemonic }}
