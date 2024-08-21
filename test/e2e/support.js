@@ -175,3 +175,11 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     expect(resp.body).to.eq('success');
   });
 });
+
+afterEach(function () {
+  if (this.currentTest.state === 'failed') {
+    const testName = this.currentTest.title;
+    const errorMessage = this.currentTest.err.message;
+    cy.task('info', `Test "${testName}" failed with error: ${errorMessage}`);
+  }
+});
