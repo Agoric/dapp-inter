@@ -31,28 +31,7 @@ describe('Vaults UI Test Cases', () => {
     });
 
     it('should connect with the wallet', () => {
-      cy.visit('/');
-
-      if (!networkPhrases.isLocal) {
-        cy.contains('button', 'Dismiss').click();
-        cy.get('button').contains('Local Network').click();
-        cy.get('button').contains(networkPhrases.interNetwork).click();
-        cy.get('body').then($body => {
-          if (
-            $body.find('button:contains("Keep using Old Version")').length > 0
-          ) {
-            cy.get('button').contains('Keep using Old Version').click();
-          }
-        });
-      }
-
-      cy.contains('Connect Wallet').click();
-
-      cy.acceptAccess();
-      cy.get('label input[type="checkbox"]').check();
-      cy.contains('Proceed').click();
-
-      cy.acceptAccess();
+      cy.connectWithWallet({ isVaultsTests: true });
     });
 
     it('should create a new vault and approve the transaction successfully', () => {
