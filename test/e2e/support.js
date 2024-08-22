@@ -197,3 +197,13 @@ afterEach(function () {
     cy.task('info', `Test "${testName}" failed with error: ${errorMessage}`);
   }
 });
+Cypress.Commands.add(
+  'waitForWebWalletToBecomeStable',
+  (timeout = Cypress.config('defaultCommandTimeout')) => {
+    cy.reload();
+
+    cy.get('span').contains('ATOM', { timeout }).should('exist');
+
+    cy.get('span').contains('BLD', { timeout }).should('exist');
+  },
+);

@@ -667,19 +667,11 @@ describe('Wallet App Test Cases', () => {
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
-
-      cy.reload();
-
-      cy.get('span')
-        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
-        .should('exist');
-      cy.get('span')
-        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
-        .should('exist');
     });
 
     it('should verify completely filled bid of 90IST', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.waitForWebWalletToBecomeStable();
       cy.contains('90.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
         'not.exist',
       );
@@ -692,6 +684,7 @@ describe('Wallet App Test Cases', () => {
 
     it('should verify completely filled bid of 80IST', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.waitForWebWalletToBecomeStable();
       cy.contains('80.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
         'not.exist',
       );
@@ -703,7 +696,7 @@ describe('Wallet App Test Cases', () => {
     });
     it('should check the existence of partially filled bid of 150IST and cancel it', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
-
+      cy.waitForWebWalletToBecomeStable();
       cy.contains('150.00 IST', { timeout: DEFAULT_TIMEOUT }).should('exist');
 
       cy.getTokenAmount('IST').then(initialTokenValue => {
