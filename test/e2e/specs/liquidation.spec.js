@@ -429,6 +429,7 @@ describe('Wallet App Test Cases', () => {
         taskTimeout: DEFAULT_TASK_TIMEOUT,
       },
       () => {
+        cy.skipWhen(AGORIC_NET === networks.EMERYNET);
         cy.switchWallet(bidder1WalletName);
         cy.addNewTokensFound();
         cy.getTokenAmount('IST').then(initialTokenValue => {
@@ -446,6 +447,78 @@ describe('Wallet App Test Cases', () => {
 
           cy.placeBidByDiscount({
             fromAddress: bidder1Address,
+            giveAmount: '150IST',
+            discount: 15,
+          });
+
+          cy.getTokenAmount('IST').then(tokenValue => {
+            expect(tokenValue).to.lessThan(initialTokenValue);
+          });
+        });
+      },
+    );
+
+    it(
+      'should place bid using bidder1 addresss',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+        cy.switchWallet(bidder1WalletName);
+        cy.addNewTokensFound();
+        cy.getTokenAmount('IST').then(initialTokenValue => {
+          cy.placeBidByPrice({
+            fromAddress: bidder1Address,
+            giveAmount: '90IST',
+            price: 9,
+          });
+
+          cy.getTokenAmount('IST').then(tokenValue => {
+            expect(tokenValue).to.lessThan(initialTokenValue);
+          });
+        });
+      },
+    );
+
+    it(
+      'should place bid using bidder2 addresss',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+        cy.switchWallet(bidder2WalletName);
+        cy.addNewTokensFound();
+        cy.getTokenAmount('IST').then(initialTokenValue => {
+          cy.placeBidByDiscount({
+            fromAddress: bidder2Address,
+            giveAmount: '80IST',
+            discount: 10,
+          });
+
+          cy.getTokenAmount('IST').then(tokenValue => {
+            expect(tokenValue).to.lessThan(initialTokenValue);
+          });
+        });
+      },
+    );
+
+    it(
+      'should place bid using bidder3 addresss',
+      {
+        defaultCommandTimeout: DEFAULT_TIMEOUT,
+        taskTimeout: DEFAULT_TASK_TIMEOUT,
+      },
+      () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+        cy.switchWallet(bidder3WalletName);
+        cy.addNewTokensFound();
+        cy.getTokenAmount('IST').then(initialTokenValue => {
+          cy.placeBidByDiscount({
+            fromAddress: bidder3Address,
             giveAmount: '150IST',
             discount: 15,
           });
@@ -567,11 +640,12 @@ describe('Wallet App Test Cases', () => {
       cy.setOraclePrice(12.34);
     });
 
-    it('should switch to the bidder wallet successfully', () => {
+    it('should switch to the bidder1 wallet successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.switchWallet(bidder1WalletName);
     });
-    it('should setup the web wallet and cancel the 150IST bid', () => {
+
+    it('should setup the web wallet', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
       cy.visit(webWalletURL);
@@ -602,15 +676,34 @@ describe('Wallet App Test Cases', () => {
       cy.get('span')
         .contains('BLD', { timeout: DEFAULT_TIMEOUT })
         .should('exist');
+    });
 
-      // Verify completely filled bids
+    it('should verify completely filled bid of 90IST', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.contains('90.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
         'not.exist',
       );
+    });
+
+    it('should switch to the bidder2 wallet successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.switchWallet(bidder2WalletName);
+    });
+
+    it('should verify completely filled bid of 80IST', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.contains('80.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
         'not.exist',
       );
-      // Verify 150 IST Bid to exist
+    });
+
+    it('should switch to the bidder3 wallet successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.switchWallet(bidder3WalletName);
+    });
+    it('should check the existence of partially filled bid of 150IST and cancel it', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
       cy.contains('150.00 IST', { timeout: DEFAULT_TIMEOUT }).should('exist');
 
       cy.getTokenAmount('IST').then(initialTokenValue => {
