@@ -110,8 +110,14 @@ Cypress.Commands.add('skipWhen', function (expression) {
   }
 });
 
-const connectWalletLocalChain = () => {
+const connectWalletLocalChain = ({ isVaultsTests = false }) => {
   cy.contains('Connect Wallet').click();
+
+  if (isVaultsTests) {
+    cy.acceptAccess().then(taskCompleted => {
+      expect(taskCompleted).to.be.true;
+    });
+  }
 
   cy.contains(
     'By clicking here you are indicating that you have read and agree to our',
@@ -125,16 +131,22 @@ const connectWalletLocalChain = () => {
     expect(taskCompleted).to.be.true;
   });
 
-  cy.acceptAccess().then(taskCompleted => {
-    expect(taskCompleted).to.be.true;
-  });
+  if (!isVaultsTests) {
+    cy.acceptAccess().then(taskCompleted => {
+      expect(taskCompleted).to.be.true;
+    });
+  }
 };
 
 const connectWalletEmerynet = () => {
   cy.contains('button', 'Dismiss').click();
   cy.get('button').contains('Local Network').click();
   cy.get('button').contains('Agoric Emerynet').click();
-  cy.get('button').contains('Keep using Old Version').click();
+  cy.get('body').then($body => {
+    if ($body.find('button:contains("Keep using Old Version")').length > 0) {
+      cy.get('button').contains('Keep using Old Version').click();
+    }
+  });
 
   cy.contains('Connect Wallet').click();
 
@@ -150,10 +162,12 @@ const connectWalletEmerynet = () => {
   });
 };
 
-Cypress.Commands.add('connectWithWallet', () => {
+Cypress.Commands.add('connectWithWallet', (options = {}) => {
+  const { isVaultsTests = false } = options;
+
   cy.visit('/');
   if (AGORIC_NET === networks.LOCAL) {
-    connectWalletLocalChain();
+    connectWalletLocalChain({ isVaultsTests });
   } else {
     connectWalletEmerynet();
   }
