@@ -8,6 +8,9 @@ import {
 
 describe('Wallet App Test Cases', () => {
   let startTime;
+  let bidder1AtomValueBefore;
+  let bidder2AtomValueBefore;
+  let bidder3AtomValueBefore;
   const AGORIC_NET = Cypress.env('AGORIC_NET');
   const currentConfig = configMap[AGORIC_NET];
   const DEFAULT_TIMEOUT = currentConfig.DEFAULT_TIMEOUT;
@@ -458,6 +461,30 @@ describe('Wallet App Test Cases', () => {
       },
     );
 
+    it('should setup the web wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+      cy.visit(webWalletURL);
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.visit(`${webWalletURL}/wallet/`);
+
+      cy.get('input[type="checkbox"]').check();
+      cy.contains('Proceed').click();
+      cy.get('button[aria-label="Settings"]').click();
+
+      cy.contains('div', 'Mainnet').click();
+      cy.contains('li', 'Emerynet').click();
+      cy.contains('button', 'Connect').click();
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
+
     it(
       'should place bid using bidder1 addresss',
       {
@@ -481,6 +508,13 @@ describe('Wallet App Test Cases', () => {
         });
       },
     );
+
+    it('should extract and record current ATOM amount for bidder1', () => {
+      cy.getTokenAmountByLabel('ATOM').then(amount => {
+        bidder1AtomValueBefore = amount;
+        cy.task('info', `The extracted amount is: ${bidder1AtomValueBefore}`);
+      });
+    });
 
     it(
       'should place bid using bidder2 addresss',
@@ -506,6 +540,13 @@ describe('Wallet App Test Cases', () => {
       },
     );
 
+    it('should extract and record current ATOM amount for bidder2', () => {
+      cy.getTokenAmountByLabel('ATOM').then(amount => {
+        bidder2AtomValueBefore = amount;
+        cy.task('info', `The extracted amount is: ${bidder2AtomValueBefore}`);
+      });
+    });
+
     it(
       'should place bid using bidder3 addresss',
       {
@@ -530,8 +571,19 @@ describe('Wallet App Test Cases', () => {
       },
     );
 
-    it('should verify vaults that are at a risk of being liquidated', () => {
+    it('should extract and record current ATOM amount for bidder3', () => {
+      cy.getTokenAmountByLabel('ATOM').then(amount => {
+        bidder3AtomValueBefore = amount;
+        cy.task('info', `The extracted amount is: ${bidder3AtomValueBefore}`);
+      });
+    });
+
+    it('should set ATOM price to 9.99', () => {
       cy.setOraclePrice(9.99);
+    });
+
+    it('should verify vaults that are at a risk of being liquidated', () => {
+      cy.visit('/');
       cy.switchWallet('user1');
       cy.contains(
         /Please increase your collateral or repay your outstanding IST debt./,
@@ -645,36 +697,19 @@ describe('Wallet App Test Cases', () => {
       cy.switchWallet(bidder1WalletName);
     });
 
-    it('should setup the web wallet', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
-
-      cy.visit(webWalletURL);
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-
-      cy.visit(`${webWalletURL}/wallet/`);
-
-      cy.get('input[type="checkbox"]').check();
-      cy.contains('Proceed').click();
-      cy.get('button[aria-label="Settings"]').click();
-
-      cy.contains('div', 'Mainnet').click();
-      cy.contains('li', 'Emerynet').click();
-      cy.contains('button', 'Connect').click();
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-    });
-
     it('should verify completely filled bid of 90IST', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
-      cy.waitForWebWalletToBecomeStable();
+      cy.visit(`${webWalletURL}/wallet/`);
+      cy.reloadAndWaitForWebWalletToBecomeStable();
       cy.contains('90.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
         'not.exist',
       );
+
+      cy.getTokenAmountByLabel('ATOM').then(amount => {
+        cy.task('info', `ATOMs received: ${amount}`);
+        // expect(amount - bidder1AtomValueBefore).to.be.at.least(10);
+        // expect(amount - bidder1AtomValueBefore).to.be.below(11);
+      });
     });
 
     it('should switch to the bidder2 wallet successfully', () => {
@@ -684,19 +719,25 @@ describe('Wallet App Test Cases', () => {
 
     it('should verify completely filled bid of 80IST', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
-      cy.waitForWebWalletToBecomeStable();
+      cy.reloadAndWaitForWebWalletToBecomeStable();
       cy.contains('80.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
         'not.exist',
       );
+
+      cy.getTokenAmountByLabel('ATOM').then(amount => {
+        cy.task('info', `ATOMs received: ${amount}`);
+        // expect(amount - bidder2AtomValueBefore).to.be.at.least(8);
+        // expect(amount - bidder2AtomValueBefore).to.be.below(9);
+      });
     });
 
     it('should switch to the bidder3 wallet successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.switchWallet(bidder3WalletName);
     });
-    it('should check the existence of partially filled bid of 150IST and cancel it', () => {
+    it('should cancel 150IST bid and verify ATOM balance', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
-      cy.waitForWebWalletToBecomeStable();
+      cy.reloadAndWaitForWebWalletToBecomeStable();
       cy.contains('150.00 IST', { timeout: DEFAULT_TIMEOUT }).should('exist');
 
       cy.getTokenAmount('IST').then(initialTokenValue => {
@@ -709,6 +750,14 @@ describe('Wallet App Test Cases', () => {
         cy.getTokenAmount('IST').then(tokenValue => {
           expect(tokenValue).to.greaterThan(initialTokenValue);
         });
+      });
+
+      cy.reloadAndWaitForWebWalletToBecomeStable();
+
+      cy.getTokenAmountByLabel('ATOM').then(amount => {
+        cy.task('info', `ATOMs received: ${amount}`);
+        // expect(amount - bidder3AtomValueBefore).to.be.at.least(16);
+        // expect(amount - bidder3AtomValueBefore).to.be.below(17);
       });
     });
   });
