@@ -10,9 +10,15 @@ describe('Wallet App Test Cases', () => {
   const LIQUIDATED_TIMEOUT = currentConfig.LIQUIDATED_TIMEOUT;
   const user1Mnemonic = currentConfig.user1Mnemonic;
   const user1Address = currentConfig.user1Address;
-  const bidderMnemonic = currentConfig.bidderMnemonic;
-  const bidderAddress = currentConfig.bidderAddress;
-  const bidderWalletName = currentConfig.bidderWalletName;
+  const bidder1Mnemonic = currentConfig.bidder1Mnemonic;
+  const bidder1Address = currentConfig.bidder1Address;
+  const bidder1WalletName = currentConfig.bidder1WalletName;
+  const bidder2Mnemonic = currentConfig.bidder2Mnemonic;
+  const bidder2Address = currentConfig.bidder2Address;
+  const bidder2WalletName = currentConfig.bidder2WalletName;
+  const bidder3Mnemonic = currentConfig.bidder3Mnemonic;
+  const bidder3Address = currentConfig.bidder3Address;
+  const bidder3WalletName = currentConfig.bidder3WalletName;
   const gov1Mnemonic = currentConfig.gov1Mnemonic;
   const gov1Address = currentConfig.gov1Address;
   const gov2Mnemonic = currentConfig.gov2Mnemonic;
@@ -21,12 +27,34 @@ describe('Wallet App Test Cases', () => {
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
-    it('should set up bidder wallet', () => {
+    it('should set up bidder1 wallet', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
       cy.setupWallet({
-        secretWords: bidderMnemonic,
-        walletName: bidderWalletName,
+        secretWords: bidder1Mnemonic,
+        walletName: bidder1WalletName,
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
+
+    it('should set up bidder2 wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+      cy.setupWallet({
+        secretWords: bidder2Mnemonic,
+        walletName: bidder2WalletName,
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
+
+    it('should set up bidder3 wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+      cy.setupWallet({
+        secretWords: bidder3Mnemonic,
+        walletName: bidder3WalletName,
       }).then(taskCompleted => {
         expect(taskCompleted).to.be.true;
       });
@@ -323,12 +351,30 @@ describe('Wallet App Test Cases', () => {
       });
     });
 
-    it('should add the bidder key successfully', () => {
+    it('should add the bidder1 key successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.addKeys({
-        keyName: 'bidder',
-        mnemonic: bidderMnemonic,
-        expectedAddress: bidderAddress,
+        keyName: 'bidder1',
+        mnemonic: bidder1Mnemonic,
+        expectedAddress: bidder1Address,
+      });
+    });
+
+    it('should add the bidder2 key successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.addKeys({
+        keyName: 'bidder2',
+        mnemonic: bidder2Mnemonic,
+        expectedAddress: bidder2Address,
+      });
+    });
+
+    it('should add the bidder3 key successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.addKeys({
+        keyName: 'bidder3',
+        mnemonic: bidder3Mnemonic,
+        expectedAddress: bidder3Address,
       });
     });
     it('should set ATOM price to 12.34', () => {
@@ -378,17 +424,17 @@ describe('Wallet App Test Cases', () => {
         });
       });
       it('should place bids from the CLI successfully', () => {
-        cy.switchWallet(bidderWalletName);
+        cy.switchWallet(bidder1WalletName);
         cy.addNewTokensFound();
         cy.getTokenAmount('IST').then(initialTokenValue => {
           cy.placeBidByDiscount({
-            fromAddress: bidderAddress,
+            fromAddress: bidder1Address,
             giveAmount: '75IST',
             discount: 22,
           });
 
           cy.placeBidByDiscount({
-            fromAddress: bidderAddress,
+            fromAddress: bidder1Address,
             giveAmount: '25IST',
             discount: 30,
           });

@@ -22,12 +22,28 @@ on:
         description: 'user1 account address'
         required: false
         type: string
-      bidder_mnemonic:
+      bidder1_mnemonic:
         description: 'The mnemonic phrase for the account used for bidding'
         required: false
         type: string
-      bidder_address:
-        description: 'bidder account address'
+      bidder1_address:
+        description: 'bidder 1 account address'
+        required: false
+        type: string
+      bidder2_mnemonic:
+        description: 'The mnemonic phrase for the account used for bidding'
+        required: false
+        type: string
+      bidder2_address:
+        description: 'bidder 2 account address'
+        required: false
+        type: string
+      bidder3_mnemonic:
+        description: 'The mnemonic phrase for the account used for bidding'
+        required: false
+        type: string
+      bidder3_address:
+        description: 'bidder 3 account address'
         required: false
         type: string
       base_image:
@@ -85,12 +101,23 @@ jobs:
           CYPRESS_GOV2_ADDRESS: ${{ secrets.CYPRESS_GOV2_ADDRESS }}
           CYPRESS_USER1_MNEMONIC: ${{ secrets.CYPRESS_USER1_MNEMONIC }}
           CYPRESS_USER1_ADDRESS: ${{ secrets.CYPRESS_USER1_ADDRESS }}
-          CYPRESS_BIDDER_MNEMONIC: ${{ secrets.CYPRESS_BIDDER_MNEMONIC }}
-          CYPRESS_BIDDER_ADDRESS: ${{ secrets.CYPRESS_BIDDER_ADDRESS }}
           CYPRESS_USER1_MNEMONIC_INPUT: ${{ inputs.user1_mnemonic }}
           CYPRESS_USER1_ADDRESS_INPUT: ${{ inputs.user1_address }}
-          CYPRESS_BIDDER_MNEMONIC_INPUT: ${{ inputs.bidder_mnemonic }}
-          CYPRESS_BIDDER_ADDRESS_INPUT: ${{ inputs.bidder_address }}
+          # Bidder 1
+          CYPRESS_BIDDER1_MNEMONIC: ${{ secrets.CYPRESS_BIDDER1_MNEMONIC }}
+          CYPRESS_BIDDER1_ADDRESS: ${{ secrets.CYPRESS_BIDDER1_ADDRESS }}
+          CYPRESS_BIDDER1_MNEMONIC_INPUT: ${{ inputs.bidder1_mnemonic }}
+          CYPRESS_BIDDER1_ADDRESS_INPUT: ${{ inputs.bidder1_address }}
+          # Bidder 2
+          CYPRESS_BIDDER2_MNEMONIC: ${{ secrets.CYPRESS_BIDDER2_MNEMONIC }}
+          CYPRESS_BIDDER2_ADDRESS: ${{ secrets.CYPRESS_BIDDER2_ADDRESS }}
+          CYPRESS_BIDDER2_MNEMONIC_INPUT: ${{ inputs.bidder2_mnemonic }}
+          CYPRESS_BIDDER2_ADDRESS_INPUT: ${{ inputs.bidder2_address }}
+          # Bidder 3
+          CYPRESS_BIDDER3_MNEMONIC: ${{ secrets.CYPRESS_BIDDER3_MNEMONIC }}
+          CYPRESS_BIDDER3_ADDRESS: ${{ secrets.CYPRESS_BIDDER3_ADDRESS }}
+          CYPRESS_BIDDER3_MNEMONIC_INPUT: ${{ inputs.bidder3_mnemonic }}
+          CYPRESS_BIDDER3_ADDRESS_INPUT: ${{ inputs.bidder3_address }}
 
       - name: Upload e2e artifacts as workflow artifacts
         uses: actions/upload-artifact@v4

@@ -21,12 +21,28 @@ on:
         description: 'user1 account address'
         required: false
         type: string
-      bidder_mnemonic:
+      bidder1_mnemonic:
         description: 'The mnemonic phrase for the account used for bidding'
         required: false
         type: string
-      bidder_address:
-        description: 'bidder account address'
+      bidder1_address:
+        description: 'bidder 1 account address'
+        required: false
+        type: string
+      bidder2_mnemonic:
+        description: 'The mnemonic phrase for the account used for bidding'
+        required: false
+        type: string
+      bidder2_address:
+        description: 'bidder 2 account address'
+        required: false
+        type: string
+      bidder3_mnemonic:
+        description: 'The mnemonic phrase for the account used for bidding'
+        required: false
+        type: string
+      bidder3_address:
+        description: 'bidder 3 account address'
         required: false
         type: string
       base_image:
@@ -58,8 +74,12 @@ jobs:
       is_emerynet_test: ${{ inputs.network == 'emerynet' || contains(github.event.pull_request.labels.*.name, 'emerynet') }}
       user1_mnemonic: ${{ inputs.user1_mnemonic }}
       user1_address: ${{ inputs.user1_address }}
-      bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
-      bidder_address: ${{ inputs.bidder_address }}
+      bidder1_mnemonic: ${{ inputs.bidder1_mnemonic }}
+      bidder1_address: ${{ inputs.bidder1_address }}
+      bidder2_mnemonic: ${{ inputs.bidder2_mnemonic }}
+      bidder2_address: ${{ inputs.bidder2_address }}
+      bidder3_mnemonic: ${{ inputs.bidder3_mnemonic }}
+      bidder3_address: ${{ inputs.bidder3_address }}
       base_image: ${{ inputs.base_image || 'latest' }}
 
     secrets: inherit

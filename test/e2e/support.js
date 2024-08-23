@@ -197,3 +197,28 @@ afterEach(function () {
     cy.task('info', `Test "${testName}" failed with error: ${errorMessage}`);
   }
 });
+
+Cypress.Commands.add(
+  'reloadAndWaitForWebWalletToBecomeStable',
+  (timeout = Cypress.config('defaultCommandTimeout')) => {
+    cy.reload();
+
+    cy.get('span').contains('ATOM', { timeout }).should('exist');
+
+    cy.get('span').contains('BLD', { timeout }).should('exist');
+  },
+);
+
+Cypress.Commands.add('getTokenAmountByLabel', label => {
+  cy.contains('span', label)
+    .parent()
+    .find('div')
+    .filter((index, element) => {
+      return Cypress.$(element).find('span').length === 1;
+    })
+    .invoke('text')
+    .then(text => {
+      const amount = parseFloat(text.split(' ')[0]);
+      cy.wrap(amount);
+    });
+});
