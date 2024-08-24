@@ -99,14 +99,10 @@ jobs:
           CYPRESS_GOV1_ADDRESS: ${{ inputs.gov1_address || secrets.CYPRESS_GOV1_ADDRESS }}
           CYPRESS_GOV2_MNEMONIC: ${{ inputs.gov2_mnemonic || secrets.CYPRESS_GOV2_MNEMONIC }}
           CYPRESS_GOV2_ADDRESS: ${{ inputs.gov2_address || secrets.CYPRESS_GOV2_ADDRESS }}
-          CYPRESS_USER1_MNEMONIC: ${{ secrets.CYPRESS_USER1_MNEMONIC }}
-          CYPRESS_USER1_ADDRESS: ${{ secrets.CYPRESS_USER1_ADDRESS }}
-          CYPRESS_BIDDER_MNEMONIC: ${{ secrets.CYPRESS_BIDDER1_MNEMONIC }}
-          CYPRESS_BIDDER_ADDRESS: ${{ secrets.CYPRESS_BIDDER1_ADDRESS }}
-          CYPRESS_USER1_MNEMONIC_INPUT: ${{ inputs.user1_mnemonic }}
-          CYPRESS_USER1_ADDRESS_INPUT: ${{ inputs.user1_address }}
-          CYPRESS_BIDDER_MNEMONIC_INPUT: ${{ inputs.bidder_mnemonic }}
-          CYPRESS_BIDDER_ADDRESS_INPUT: ${{ inputs.bidder_address }}
+          CYPRESS_USER1_MNEMONIC: ${{ inputs.user1_mnemonic || secrets.CYPRESS_USER1_MNEMONIC }}
+          CYPRESS_USER1_ADDRESS: ${{ inputs.user1_address || secrets.CYPRESS_USER1_ADDRESS }}
+          CYPRESS_BIDDER_MNEMONIC: ${{ inputs.bidder_mnemonic || secrets.CYPRESS_BIDDER1_MNEMONIC }}
+          CYPRESS_BIDDER_ADDRESS: ${{ inputs.bidder_address || secrets.CYPRESS_BIDDER1_ADDRESS }}
 
       - name: Upload e2e artifacts as workflow artifacts
         uses: actions/upload-artifact@v4

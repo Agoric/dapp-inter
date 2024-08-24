@@ -39,22 +39,18 @@ export const configMap = {
     LIQUIDATING_TIMEOUT: 13 * 60 * 1000,
     LIQUIDATED_TIMEOUT: 5 * 60 * 1000,
     COMMAND_TIMEOUT: 6 * 60 * 1000,
-    user1Mnemonic:
-      Cypress.env('USER1_MNEMONIC_INPUT') || Cypress.env('USER1_MNEMONIC'),
-    user1Address:
-      Cypress.env('USER1_ADDRESS_INPUT') || Cypress.env('USER1_ADDRESS'),
-    bidderMnemonic:
-      Cypress.env('BIDDER_MNEMONIC_INPUT') || Cypress.env('BIDDER_MNEMONIC'),
-    bidderAddress:
-      Cypress.env('BIDDER_ADDRESS_INPUT') || Cypress.env('BIDDER_ADDRESS'),
+    user1Mnemonic: Cypress.env('USER1_MNEMONIC'),
+    user1Address: Cypress.env('USER1_ADDRESS'),
+    bidderMnemonic: Cypress.env('BIDDER_MNEMONIC'),
+    bidderAddress: Cypress.env('BIDDER_ADDRESS'),
     bidderWalletName: 'bidder',
     gov1Mnemonic: Cypress.env('GOV1_MNEMONIC'),
     gov1Address: Cypress.env('GOV1_ADDRESS'),
-    gov1WalletName: 'emerynetGov1',
+    gov1WalletName: 'gov1',
     gov2Mnemonic: Cypress.env('GOV2_MNEMONIC'),
     gov2Address: Cypress.env('GOV2_ADDRESS'),
-    gov2WalletName: 'emerynetGov2',
-    econGovURL: 'https://econ-gov.inter.trade/?agoricNet=emerynet',
+    gov2WalletName: 'gov2',
+    econGovURL: `https://econ-gov.inter.trade/?agoricNet=${Cypress.env('AGORIC_NET')}`,
   },
   local: {
     DEFAULT_TIMEOUT: 1 * 60 * 1000,
