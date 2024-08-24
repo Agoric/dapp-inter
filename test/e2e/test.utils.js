@@ -25,6 +25,13 @@ export const phrasesList = {
   },
 };
 
+export const agoricNetworks = {
+  emerynet: 'Agoric Emerynet',
+  devnet: 'Agoric Devnet',
+  ollinet: 'Agoric Ollinet',
+  xnet: 'Agoric Xnet',
+};
+
 export const networks = {
   EMERYNET: 'emerynet',
   LOCAL: 'local',
