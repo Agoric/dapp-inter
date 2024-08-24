@@ -11,8 +11,10 @@ on:
         default: 'emerynet'
         type: choice
         options:
-          - local
           - emerynet
+          - devnet
+          - ollinet
+          - xnet
       user1_mnemonic:
         description: 'The mnemonic phrase for the account to be used for vaults'
         required: false
@@ -55,7 +57,15 @@ jobs:
         docker compose -f test/e2e/docker-compose-liquidation.yml \
         --profile $SYNPRESS_PROFILE up --build \
         --exit-code-from synpress
-      is_emerynet_test: ${{ inputs.network == 'emerynet' || contains(github.event.pull_request.labels.*.name, 'emerynet') }}
+      AGORIC_NET: >-
+        ${{ github.event.inputs.network 
+            || contains(github.event.pull_request.labels.*.name, 'emerynet') && 'emerynet' 
+            || contains(github.event.pull_request.labels.*.name, 'devnet') && 'devnet' 
+            || contains(github.event.pull_request.labels.*.name, 'ollinet') && 'ollinet' 
+            || contains(github.event.pull_request.labels.*.name, 'xnet') && 'xnet' 
+            || github.event_name == 'schedule' && 'emerynet' 
+            || 'local' 
+        }}
       user1_mnemonic: ${{ inputs.user1_mnemonic }}
       user1_address: ${{ inputs.user1_address }}
       bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
