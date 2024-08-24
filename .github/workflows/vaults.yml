@@ -18,6 +18,7 @@ on:
         default: 'emerynet'
         type: choice
         options:
+          - local
           - emerynet
           - devnet
           - ollinet

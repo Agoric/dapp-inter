@@ -9,7 +9,8 @@ import {
 } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
-const COMMAND_TIMEOUT = configMap[AGORIC_NET].COMMAND_TIMEOUT;
+const network = AGORIC_NET !== 'local' ? 'testnet' : 'local';
+const COMMAND_TIMEOUT = configMap[network].COMMAND_TIMEOUT;
 
 const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
 

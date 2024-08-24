@@ -14,17 +14,6 @@ export const accountAddresses = {
 export const webWalletURL = 'https://wallet.agoric.app/';
 export const MINUTE_MS = 1 * 60 * 1000;
 
-export const phrasesList = {
-  emerynet: {
-    interNetwork: 'Agoric Emerynet',
-    isLocal: false,
-  },
-  local: {
-    interNetwork: 'Local Network',
-    isLocal: true,
-  },
-};
-
 export const agoricNetworks = {
   emerynet: 'Agoric Emerynet',
   devnet: 'Agoric Devnet',
@@ -35,7 +24,7 @@ export const agoricNetworks = {
 export const networks = {
   EMERYNET: 'emerynet',
   LOCAL: 'local',
-  DEVNET: 'devnet'
+  DEVNET: 'devnet',
 };
 
 export const webWalletSelectors = {
@@ -44,7 +33,7 @@ export const webWalletSelectors = {
 };
 
 export const configMap = {
-  emerynet: {
+  testnet: {
     DEFAULT_TIMEOUT: 3 * 60 * 1000,
     DEFAULT_TASK_TIMEOUT: 3 * 60 * 1000,
     LIQUIDATING_TIMEOUT: 13 * 60 * 1000,
