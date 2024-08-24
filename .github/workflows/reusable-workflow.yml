@@ -35,6 +35,22 @@ on:
         required: false
         default: latest
         type: string
+      gov1_mnemonic:
+        description: 'Mnemonic for gov1 wallet'
+        required: false
+        type: string
+      gov1_address:
+        description: 'gov1 account address'
+        required: false
+        type: string
+      gov2_mnemonic:
+        description: 'Mnemonic for gov2 wallet'
+        required: false
+        type: string
+      gov2_address:
+        description: 'gov2 account address'
+        required: false
+        type: string
 
 jobs:
   e2e:
@@ -79,14 +95,14 @@ jobs:
           CYPRESS_MNEMONIC_PHRASE: ${{ inputs.mnemonic_phrase }}
           BASE_IMAGE_TAG_INPUT: ${{ inputs.base_image }}
           # Liquidation Secrets
-          CYPRESS_GOV1_MNEMONIC: ${{ secrets.CYPRESS_GOV1_MNEMONIC }}
-          CYPRESS_GOV1_ADDRESS: ${{ secrets.CYPRESS_GOV1_ADDRESS }}
-          CYPRESS_GOV2_MNEMONIC: ${{ secrets.CYPRESS_GOV2_MNEMONIC }}
-          CYPRESS_GOV2_ADDRESS: ${{ secrets.CYPRESS_GOV2_ADDRESS }}
+          CYPRESS_GOV1_MNEMONIC: ${{ inputs.gov1_mnemonic || secrets.CYPRESS_GOV1_MNEMONIC }}
+          CYPRESS_GOV1_ADDRESS: ${{ inputs.gov1_address || secrets.CYPRESS_GOV1_ADDRESS }}
+          CYPRESS_GOV2_MNEMONIC: ${{ inputs.gov2_mnemonic || secrets.CYPRESS_GOV2_MNEMONIC }}
+          CYPRESS_GOV2_ADDRESS: ${{ inputs.gov2_address || secrets.CYPRESS_GOV2_ADDRESS }}
           CYPRESS_USER1_MNEMONIC: ${{ secrets.CYPRESS_USER1_MNEMONIC }}
           CYPRESS_USER1_ADDRESS: ${{ secrets.CYPRESS_USER1_ADDRESS }}
-          CYPRESS_BIDDER_MNEMONIC: ${{ secrets.CYPRESS_BIDDER_MNEMONIC }}
-          CYPRESS_BIDDER_ADDRESS: ${{ secrets.CYPRESS_BIDDER_ADDRESS }}
+          CYPRESS_BIDDER_MNEMONIC: ${{ secrets.CYPRESS_BIDDER1_MNEMONIC }}
+          CYPRESS_BIDDER_ADDRESS: ${{ secrets.CYPRESS_BIDDER1_ADDRESS }}
           CYPRESS_USER1_MNEMONIC_INPUT: ${{ inputs.user1_mnemonic }}
           CYPRESS_USER1_ADDRESS_INPUT: ${{ inputs.user1_address }}
           CYPRESS_BIDDER_MNEMONIC_INPUT: ${{ inputs.bidder_mnemonic }}
