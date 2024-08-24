@@ -7,10 +7,10 @@ on:
         description: 'Docker Compose command to run E2E tests'
         required: true
         type: string
-      is_emerynet_test:
+      AGORIC_NET:
         required: false
-        default: false
-        type: boolean
+        default: emerynet
+        type: string
       mnemonic_phrase:
         required: false
         type: string
@@ -50,7 +50,7 @@ jobs:
 
       - name: 'GCP auth'
         uses: 'google-github-actions/auth@v2'
-        if: ${{ inputs.is_emerynet_test }}
+        if: ${{ inputs.AGORIC_NET != 'local' }}
         with:
           project_id: 'simulationlab'
           workload_identity_provider: 'projects/60745596728/locations/global/workloadIdentityPools/github/providers/dapp-inter'
@@ -59,8 +59,8 @@ jobs:
         run: ${{ inputs.docker_compose_command }}
         env:
           # conditionals based on github event
-          SYNPRESS_PROFILE: ${{ inputs.is_emerynet_test && 'daily-tests' || 'synpress' }}
-          CYPRESS_AGORIC_NET: ${{ inputs.is_emerynet_test && 'emerynet' || 'local' }}
+          SYNPRESS_PROFILE: ${{ inputs.AGORIC_NET == 'local' && 'synpress' || 'daily-tests' }}
+          CYPRESS_AGORIC_NET: ${{ inputs.AGORIC_NET }}
           # for docker-compose.yml
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
@@ -94,7 +94,7 @@ jobs:
 
       - name: Upload e2e artifacts as workflow artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ !inputs.is_emerynet_test && !cancelled() }}
+        if: ${{ inputs.AGORIC_NET == 'local' && !cancelled() }}
         with:
           name: e2e-artifacts
           path: |
@@ -105,14 +105,14 @@ jobs:
 
       - name: Upload e2e artifacts to GCP
         uses: google-github-actions/upload-cloud-storage@v2
-        if: ${{ inputs.is_emerynet_test && !cancelled() }}
+        if: ${{ inputs.AGORIC_NET != 'local' && !cancelled() }}
         with:
           path: 'test/e2e/docker'
           destination: 'github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}'
         continue-on-error: true
 
       - name: Log Path to GCS artifacts
-        if: ${{ inputs.is_emerynet_test && !cancelled() }}
+        if: ${{ inputs.AGORIC_NET != 'local' && !cancelled() }}
         run: echo "https://console.cloud.google.com/storage/browser/github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}/docker/videos"
 
       - name: Notify About Failure
