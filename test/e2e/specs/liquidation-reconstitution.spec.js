@@ -32,6 +32,7 @@ describe('Wallet App Test Cases', () => {
       });
     });
     it('should set up user1 wallet', () => {
+      cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
       cy.setupWallet({
         secretWords: user1Mnemonic,
         walletName: 'user1',
