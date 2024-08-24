@@ -73,15 +73,7 @@ jobs:
         docker compose -f test/e2e/docker-compose-reconstitution.yml \
         --profile $SYNPRESS_PROFILE up --build \
         --exit-code-from synpress
-      AGORIC_NET: >-
-        ${{ github.event.inputs.network 
-            || contains(github.event.pull_request.labels.*.name, 'emerynet') && 'emerynet' 
-            || contains(github.event.pull_request.labels.*.name, 'devnet') && 'devnet' 
-            || contains(github.event.pull_request.labels.*.name, 'ollinet') && 'ollinet' 
-            || contains(github.event.pull_request.labels.*.name, 'xnet') && 'xnet' 
-            || github.event_name == 'schedule' && 'emerynet' 
-            || 'local' 
-        }}
+      AGORIC_NET: devnet
       user1_mnemonic: ${{ inputs.user1_mnemonic }}
       user1_address: ${{ inputs.user1_address }}
       bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
