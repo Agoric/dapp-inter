@@ -1,15 +1,16 @@
-import { mnemonics, phrasesList, MINUTE_MS } from '../test.utils';
+import { mnemonics, MINUTE_MS } from '../test.utils';
 describe('Vaults UI Test Cases', () => {
   context('Test commands', () => {
-    const networkPhrases = phrasesList[Cypress.env('AGORIC_NET') || 'local'];
+    const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
     const customWalletPhrase = Cypress.env('MNEMONIC_PHRASE');
 
     it('should setup the wallet', () => {
+      cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
       if (customWalletPhrase) {
         cy.setupWallet({
           secretWords: customWalletPhrase,
         });
-      } else if (networkPhrases.isLocal) {
+      } else if (AGORIC_NET === 'local') {
         cy.setupWallet({
           secretWords: mnemonics.user1,
           walletName: 'user1',

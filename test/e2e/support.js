@@ -3,12 +3,14 @@ import {
   networks,
   configMap,
   FACUET_HEADERS,
-  FACUET_URL,
   MINUTE_MS,
+  agoricNetworks,
+  FAUCET_URL_MAP,
 } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
-const COMMAND_TIMEOUT = configMap[AGORIC_NET].COMMAND_TIMEOUT;
+const network = AGORIC_NET !== 'local' ? 'testnet' : 'local';
+const COMMAND_TIMEOUT = configMap[network].COMMAND_TIMEOUT;
 
 const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
 
@@ -138,10 +140,10 @@ const connectWalletLocalChain = ({ isVaultsTests = false }) => {
   }
 };
 
-const connectWalletEmerynet = () => {
+const connectWalletTestnet = () => {
   cy.contains('button', 'Dismiss').click();
   cy.get('button').contains('Local Network').click();
-  cy.get('button').contains('Agoric Emerynet').click();
+  cy.get('button').contains(agoricNetworks[AGORIC_NET]).click();
   cy.get('body').then($body => {
     if ($body.find('button:contains("Keep using Old Version")').length > 0) {
       cy.get('button').contains('Keep using Old Version').click();
@@ -169,14 +171,14 @@ Cypress.Commands.add('connectWithWallet', (options = {}) => {
   if (AGORIC_NET === networks.LOCAL) {
     connectWalletLocalChain({ isVaultsTests });
   } else {
-    connectWalletEmerynet();
+    connectWalletTestnet();
   }
 });
 
 Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
   cy.request({
     method: 'POST',
-    url: FACUET_URL,
+    url: FAUCET_URL_MAP[AGORIC_NET],
     body: {
       address: walletAddress,
       command,

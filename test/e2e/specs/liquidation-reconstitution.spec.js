@@ -3,7 +3,8 @@ import { mnemonics, MINUTE_MS, networks, configMap } from '../test.utils';
 describe('Wallet App Test Cases', () => {
   let startTime;
   const AGORIC_NET = Cypress.env('AGORIC_NET');
-  const currentConfig = configMap[AGORIC_NET];
+  const network = AGORIC_NET !== 'local' ? 'testnet' : 'local';
+  const currentConfig = configMap[network];
   const DEFAULT_TIMEOUT = currentConfig.DEFAULT_TIMEOUT;
   const DEFAULT_TASK_TIMEOUT = currentConfig.DEFAULT_TASK_TIMEOUT;
   const LIQUIDATING_TIMEOUT = currentConfig.LIQUIDATING_TIMEOUT;
@@ -32,6 +33,7 @@ describe('Wallet App Test Cases', () => {
       });
     });
     it('should set up user1 wallet', () => {
+      cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
       cy.setupWallet({
         secretWords: user1Mnemonic,
         walletName: 'user1',
@@ -41,7 +43,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should set up gov1 wallet', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
       cy.setupWallet({
         secretWords: mnemonics.gov1,
@@ -52,7 +54,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should set up gov2 wallet', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
       cy.setupWallet({
         secretWords: mnemonics.gov2,
@@ -65,7 +67,7 @@ describe('Wallet App Test Cases', () => {
 
   context('Adjusting manager params from econ-gov', () => {
     it('should connect with chain and wallet', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
       cy.visit(econGovURL);
       cy.acceptAccess().then(taskCompleted => {
@@ -73,7 +75,7 @@ describe('Wallet App Test Cases', () => {
       });
     });
     it('should allow gov2 to create a proposal', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
       cy.visit(econGovURL);
       cy.acceptAccess();
@@ -141,7 +143,8 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov2 to vote on the proposal', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
+
       cy.visit(econGovURL);
 
       cy.get('button').contains('Vote').click();
@@ -153,7 +156,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov1 to vote on the proposal', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
       cy.switchWallet('gov1');
       cy.visit(econGovURL);
@@ -167,7 +170,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait for proposal to pass', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
       cy.wait(MINUTE_MS - Date.now() + startTime);
       cy.visit(econGovURL);
@@ -187,7 +190,7 @@ describe('Wallet App Test Cases', () => {
 
   context('Adjusting auction params from econ-gov', () => {
     it('should allow gov1 to create a proposal', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
       cy.visit(econGovURL);
 
@@ -246,7 +249,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov1 to vote on the proposal', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
       cy.visit(econGovURL);
 
@@ -259,7 +262,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should allow gov2 to vote on the proposal', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
       cy.switchWallet('gov2');
       cy.visit(econGovURL);
@@ -273,7 +276,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should wait for proposal to pass', () => {
-      cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
       cy.wait(MINUTE_MS - Date.now() + startTime);
       cy.visit(econGovURL);
@@ -370,7 +373,8 @@ describe('Wallet App Test Cases', () => {
     },
     () => {
       it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
-        cy.skipWhen(AGORIC_NET === networks.EMERYNET);
+        cy.skipWhen(AGORIC_NET !== networks.LOCAL);
+
         cy.createVault({
           wantMinted: 400,
           giveCollateral: 80,

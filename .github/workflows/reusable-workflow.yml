@@ -7,10 +7,10 @@ on:
         description: 'Docker Compose command to run E2E tests'
         required: true
         type: string
-      is_emerynet_test:
+      AGORIC_NET:
         required: false
-        default: false
-        type: boolean
+        default: emerynet
+        type: string
       mnemonic_phrase:
         required: false
         type: string
@@ -35,6 +35,22 @@ on:
         required: false
         default: latest
         type: string
+      gov1_mnemonic:
+        description: 'Mnemonic for gov1 wallet'
+        required: false
+        type: string
+      gov1_address:
+        description: 'gov1 account address'
+        required: false
+        type: string
+      gov2_mnemonic:
+        description: 'Mnemonic for gov2 wallet'
+        required: false
+        type: string
+      gov2_address:
+        description: 'gov2 account address'
+        required: false
+        type: string
 
 jobs:
   e2e:
@@ -50,7 +66,7 @@ jobs:
 
       - name: 'GCP auth'
         uses: 'google-github-actions/auth@v2'
-        if: ${{ inputs.is_emerynet_test }}
+        if: ${{ inputs.AGORIC_NET != 'local' }}
         with:
           project_id: 'simulationlab'
           workload_identity_provider: 'projects/60745596728/locations/global/workloadIdentityPools/github/providers/dapp-inter'
@@ -59,8 +75,8 @@ jobs:
         run: ${{ inputs.docker_compose_command }}
         env:
           # conditionals based on github event
-          SYNPRESS_PROFILE: ${{ inputs.is_emerynet_test && 'daily-tests' || 'synpress' }}
-          CYPRESS_AGORIC_NET: ${{ inputs.is_emerynet_test && 'emerynet' || 'local' }}
+          SYNPRESS_PROFILE: ${{ inputs.AGORIC_NET == 'local' && 'synpress' || 'daily-tests' }}
+          CYPRESS_AGORIC_NET: ${{ inputs.AGORIC_NET }}
           # for docker-compose.yml
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
@@ -79,22 +95,18 @@ jobs:
           CYPRESS_MNEMONIC_PHRASE: ${{ inputs.mnemonic_phrase }}
           BASE_IMAGE_TAG_INPUT: ${{ inputs.base_image }}
           # Liquidation Secrets
-          CYPRESS_GOV1_MNEMONIC: ${{ secrets.CYPRESS_GOV1_MNEMONIC }}
-          CYPRESS_GOV1_ADDRESS: ${{ secrets.CYPRESS_GOV1_ADDRESS }}
-          CYPRESS_GOV2_MNEMONIC: ${{ secrets.CYPRESS_GOV2_MNEMONIC }}
-          CYPRESS_GOV2_ADDRESS: ${{ secrets.CYPRESS_GOV2_ADDRESS }}
-          CYPRESS_USER1_MNEMONIC: ${{ secrets.CYPRESS_USER1_MNEMONIC }}
-          CYPRESS_USER1_ADDRESS: ${{ secrets.CYPRESS_USER1_ADDRESS }}
-          CYPRESS_BIDDER_MNEMONIC: ${{ secrets.CYPRESS_BIDDER_MNEMONIC }}
-          CYPRESS_BIDDER_ADDRESS: ${{ secrets.CYPRESS_BIDDER_ADDRESS }}
-          CYPRESS_USER1_MNEMONIC_INPUT: ${{ inputs.user1_mnemonic }}
-          CYPRESS_USER1_ADDRESS_INPUT: ${{ inputs.user1_address }}
-          CYPRESS_BIDDER_MNEMONIC_INPUT: ${{ inputs.bidder_mnemonic }}
-          CYPRESS_BIDDER_ADDRESS_INPUT: ${{ inputs.bidder_address }}
+          CYPRESS_GOV1_MNEMONIC: ${{ inputs.gov1_mnemonic || secrets.CYPRESS_GOV1_MNEMONIC }}
+          CYPRESS_GOV1_ADDRESS: ${{ inputs.gov1_address || secrets.CYPRESS_GOV1_ADDRESS }}
+          CYPRESS_GOV2_MNEMONIC: ${{ inputs.gov2_mnemonic || secrets.CYPRESS_GOV2_MNEMONIC }}
+          CYPRESS_GOV2_ADDRESS: ${{ inputs.gov2_address || secrets.CYPRESS_GOV2_ADDRESS }}
+          CYPRESS_USER1_MNEMONIC: ${{ inputs.user1_mnemonic || secrets.CYPRESS_USER1_MNEMONIC }}
+          CYPRESS_USER1_ADDRESS: ${{ inputs.user1_address || secrets.CYPRESS_USER1_ADDRESS }}
+          CYPRESS_BIDDER_MNEMONIC: ${{ inputs.bidder_mnemonic || secrets.CYPRESS_BIDDER1_MNEMONIC }}
+          CYPRESS_BIDDER_ADDRESS: ${{ inputs.bidder_address || secrets.CYPRESS_BIDDER1_ADDRESS }}
 
       - name: Upload e2e artifacts as workflow artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ !inputs.is_emerynet_test && !cancelled() }}
+        if: ${{ inputs.AGORIC_NET == 'local' && !cancelled() }}
         with:
           name: e2e-artifacts
           path: |
@@ -105,14 +117,14 @@ jobs:
 
       - name: Upload e2e artifacts to GCP
         uses: google-github-actions/upload-cloud-storage@v2
-        if: ${{ inputs.is_emerynet_test && !cancelled() }}
+        if: ${{ inputs.AGORIC_NET != 'local' && !cancelled() }}
         with:
           path: 'test/e2e/docker'
           destination: 'github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}'
         continue-on-error: true
 
       - name: Log Path to GCS artifacts
-        if: ${{ inputs.is_emerynet_test && !cancelled() }}
+        if: ${{ inputs.AGORIC_NET != 'local' && !cancelled() }}
         run: echo "https://console.cloud.google.com/storage/browser/github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}/docker/videos"
 
       - name: Notify About Failure

@@ -14,45 +14,43 @@ export const accountAddresses = {
 export const webWalletURL = 'https://wallet.agoric.app/';
 export const MINUTE_MS = 1 * 60 * 1000;
 
-export const phrasesList = {
-  emerynet: {
-    interNetwork: 'Agoric Emerynet',
-    isLocal: false,
-  },
-  local: {
-    interNetwork: 'Local Network',
-    isLocal: true,
-  },
+export const agoricNetworks = {
+  emerynet: 'Agoric Emerynet',
+  devnet: 'Agoric Devnet',
+  ollinet: 'Agoric Ollinet',
+  xnet: 'Agoric Xnet',
 };
 
 export const networks = {
   EMERYNET: 'emerynet',
   LOCAL: 'local',
+  DEVNET: 'devnet',
+};
+
+export const webWalletSelectors = {
+  emerynet: 'Emerynet',
+  devnet: 'Devnet',
 };
 
 export const configMap = {
-  emerynet: {
+  testnet: {
     DEFAULT_TIMEOUT: 3 * 60 * 1000,
     DEFAULT_TASK_TIMEOUT: 3 * 60 * 1000,
     LIQUIDATING_TIMEOUT: 13 * 60 * 1000,
     LIQUIDATED_TIMEOUT: 5 * 60 * 1000,
     COMMAND_TIMEOUT: 6 * 60 * 1000,
-    user1Mnemonic:
-      Cypress.env('USER1_MNEMONIC_INPUT') || Cypress.env('USER1_MNEMONIC'),
-    user1Address:
-      Cypress.env('USER1_ADDRESS_INPUT') || Cypress.env('USER1_ADDRESS'),
-    bidderMnemonic:
-      Cypress.env('BIDDER_MNEMONIC_INPUT') || Cypress.env('BIDDER_MNEMONIC'),
-    bidderAddress:
-      Cypress.env('BIDDER_ADDRESS_INPUT') || Cypress.env('BIDDER_ADDRESS'),
+    user1Mnemonic: Cypress.env('USER1_MNEMONIC'),
+    user1Address: Cypress.env('USER1_ADDRESS'),
+    bidderMnemonic: Cypress.env('BIDDER_MNEMONIC'),
+    bidderAddress: Cypress.env('BIDDER_ADDRESS'),
     bidderWalletName: 'bidder',
     gov1Mnemonic: Cypress.env('GOV1_MNEMONIC'),
     gov1Address: Cypress.env('GOV1_ADDRESS'),
-    gov1WalletName: 'emerynetGov1',
+    gov1WalletName: 'gov1',
     gov2Mnemonic: Cypress.env('GOV2_MNEMONIC'),
     gov2Address: Cypress.env('GOV2_ADDRESS'),
-    gov2WalletName: 'emerynetGov2',
-    econGovURL: 'https://econ-gov.inter.trade/?agoricNet=emerynet',
+    gov2WalletName: 'gov2',
+    econGovURL: `https://econ-gov.inter.trade/?agoricNet=${Cypress.env('AGORIC_NET')}`,
   },
   local: {
     DEFAULT_TIMEOUT: 1 * 60 * 1000,
@@ -75,7 +73,12 @@ export const configMap = {
   },
 };
 
-export const FACUET_URL = 'https://emerynet.faucet.agoric.net/go';
+export const FAUCET_URL_MAP = {
+  emerynet: 'https://emerynet.faucet.agoric.net/go',
+  devnet: 'https://devnet.faucet.agoric.net/go',
+  ollinet: 'https://ollinet.faucet.agoric.net/go',
+  xnet: 'https://xnet.faucet.agoric.net/go',
+};
 
 export const FACUET_HEADERS = {
   Accept:

@@ -13,6 +13,9 @@ on:
         options:
           - local
           - emerynet
+          - devnet
+          - ollinet
+          - xnet
       user1_mnemonic:
         description: 'The mnemonic phrase for the account to be used for vaults'
         required: false
@@ -27,6 +30,22 @@ on:
         type: string
       bidder_address:
         description: 'bidder account address'
+        required: false
+        type: string
+      gov1_mnemonic:
+        description: 'Mnemonic for gov1 wallet'
+        required: false
+        type: string
+      gov1_address:
+        description: 'gov1 account address'
+        required: false
+        type: string
+      gov2_mnemonic:
+        description: 'Mnemonic for gov2 wallet'
+        required: false
+        type: string
+      gov2_address:
+        description: 'gov2 account address'
         required: false
         type: string
       base_image:
@@ -55,11 +74,23 @@ jobs:
         docker compose -f test/e2e/docker-compose-liquidation.yml \
         --profile $SYNPRESS_PROFILE up --build \
         --exit-code-from synpress
-      is_emerynet_test: ${{ inputs.network == 'emerynet' || contains(github.event.pull_request.labels.*.name, 'emerynet') }}
+      AGORIC_NET: >-
+        ${{ github.event.inputs.network 
+            || contains(github.event.pull_request.labels.*.name, 'emerynet') && 'emerynet' 
+            || contains(github.event.pull_request.labels.*.name, 'devnet') && 'devnet' 
+            || contains(github.event.pull_request.labels.*.name, 'ollinet') && 'ollinet' 
+            || contains(github.event.pull_request.labels.*.name, 'xnet') && 'xnet' 
+            || github.event_name == 'schedule' && 'emerynet' 
+            || 'local' 
+        }}
       user1_mnemonic: ${{ inputs.user1_mnemonic }}
       user1_address: ${{ inputs.user1_address }}
       bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
       bidder_address: ${{ inputs.bidder_address }}
       base_image: ${{ inputs.base_image || 'latest' }}
+      gov1_mnemonic: ${{ inputs.gov1_mnemonic }}
+      gov1_address: ${{ inputs.gov1_address }}
+      gov2_mnemonic: ${{ inputs.gov2_mnemonic }}
+      gov2_address: ${{ inputs.gov2_address }}
 
     secrets: inherit
