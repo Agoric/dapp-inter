@@ -4,6 +4,7 @@ import {
   networks,
   configMap,
   webWalletURL,
+  webWalletSelectors,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -523,11 +524,15 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should switch to the bidder wallet successfully', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.skipWhen(
+        AGORIC_NET !== networks.EMERYNET || AGORIC_NET !== networks.DEVNET,
+      );
       cy.switchWallet(bidderWalletName);
     });
     it('should setup the web wallet and cancel the 150IST bid', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.skipWhen(
+        AGORIC_NET !== networks.EMERYNET || AGORIC_NET !== networks.DEVNET,
+      );
 
       cy.visit(webWalletURL);
 
@@ -542,7 +547,7 @@ describe('Wallet App Test Cases', () => {
       cy.get('button[aria-label="Settings"]').click();
 
       cy.contains('div', 'Mainnet').click();
-      cy.contains('li', 'Emerynet').click();
+      cy.contains('li', webWalletSelectors[AGORIC_NET]).click();
       cy.contains('button', 'Connect').click();
 
       cy.acceptAccess().then(taskCompleted => {

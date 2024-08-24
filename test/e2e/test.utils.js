@@ -35,6 +35,12 @@ export const agoricNetworks = {
 export const networks = {
   EMERYNET: 'emerynet',
   LOCAL: 'local',
+  DEVNET: 'devnet'
+};
+
+export const webWalletSelectors = {
+  emerynet: 'Emerynet',
+  devnet: 'Devnet',
 };
 
 export const configMap = {
