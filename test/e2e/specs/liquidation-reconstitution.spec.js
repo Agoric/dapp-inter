@@ -3,7 +3,8 @@ import { mnemonics, MINUTE_MS, networks, configMap } from '../test.utils';
 describe('Wallet App Test Cases', () => {
   let startTime;
   const AGORIC_NET = Cypress.env('AGORIC_NET');
-  const currentConfig = configMap[AGORIC_NET];
+  const network = AGORIC_NET !== 'local' ? 'testnet' : 'local';
+  const currentConfig = configMap[network];
   const DEFAULT_TIMEOUT = currentConfig.DEFAULT_TIMEOUT;
   const DEFAULT_TASK_TIMEOUT = currentConfig.DEFAULT_TASK_TIMEOUT;
   const LIQUIDATING_TIMEOUT = currentConfig.LIQUIDATING_TIMEOUT;
