@@ -78,3 +78,78 @@ recommended that you use the environment variable `VITE_NETWORK_CONFIG_URL` to p
 ```
 VITE_NETWORK_CONFIG_URL=https://<PRODUCTION-NETWORK>.net/network-config yarn build
 ```
+
+# Testing
+
+End-to-end (E2E) tests have been written to test the dapp and perform automated testing on emerynet/devnet during upgrades.
+
+## Running Tests on Local Machine
+
+To run tests on your local machine, start by opening your terminal and starting the development server:
+
+```bash
+yarn dev
+```
+
+Once the server is running, you can start the tests with the following command:
+
+```bash
+CYPRESS_AGORIC_NET=<network> yarn test:e2e --spec=<pathToTestFile>
+```
+
+Replace `<network>` with one of the following options: `local`, `emerynet`, or `devnet`, and `<pathToTestFile>` with the path to the specific test file you want to run. We have the following test files in the repo:
+
+- `test/e2e/specs/test.spec.js` – Tests related to vaults.
+- `test/e2e/specs/liquidation.spec.js` – Tests related to the liquidation happy path scenario.
+- `test/e2e/specs/liquidation-reconstitution.spec.js` – Tests related to the liquidation reconstitution scenario.
+
+If you are running the tests on a local network, you'll need to start a local a3p network first. Use this command:
+
+```bash
+docker compose -f tests/e2e/docker-compose.yml up -d agd
+```
+
+When testing liquidation scenarios, make sure to export the following environment variables:
+
+- `CYPRESS_USER1_MNEMONIC`: Mnemonic for the `user1`. This wallet is responsible for creating vaults during tests.
+- `CYPRESS_USER1_ADDRESS`: Wallet address for the `user1`.
+- `CYPRESS_BIDDER_MNEMONIC`: Mnemonic for the bidder. This wallet is responsible for placing bids.
+- `CYPRESS_BIDDER_ADDRESS`: Wallet address for the bidder.
+- `CYPRESS_GOV1_MNEMONIC`: Mnemonic for the `gov1` account. This wallet, along with `gov2`, is responsible for changing the price of ATOM during testing.
+- `CYPRESS_GOV1_ADDRESS`: Wallet address for the `gov1` account.
+- `CYPRESS_GOV2_MNEMONIC`: Mnemonic for the `gov2` account.
+- `CYPRESS_GOV2_ADDRESS`: Wallet address for the `gov2` account.
+
+Make sure these environment variables are correctly set in your environment before running the tests. If you are testing with a local chain, setting these environment variables is not required.
+
+Also ensure you have Chrome installed on your machine, as the tests run using the Chrome browser by default.
+
+## Running Tests on GitHub
+
+To run these tests on GitHub, you can manually trigger the workflows and provide wallet mnemonics and addresses to use specific wallets for testing.
+
+1. **Navigate to the Actions Tab**  
+   Go to the repository on GitHub and click on the **Actions** tab.
+
+2. **Trigger the Vaults E2E Tests**  
+   To run the tests for vaults:
+
+   - Find the `Vaults E2E tests` workflow.
+   - Click on it and select **Run workflow**.
+   - Choose the network where you want to run the tests (e.g., `local`, `emerynet`, `devnet`).
+   - Input the mnemonic and address of the wallet you want to use for testing.
+
+3. **Run Liquidation Tests**  
+   To run tests for the liquidation scenarios:
+   - For the Liquidation happy path scenario, click on the `Liquidation E2E tests` workflow.
+   - For the Liquidation reconstitution scenario, click on the `Liquidation reconstitution E2E tests` workflow.
+   - Select **Run workflow** for either test.
+   - Input the following details:
+     - **Network**: Specify the network to run the tests.
+     - **Wallet Details**:
+       - `user1` mnemonic and address (for creating vaults)
+       - `bidder` mnemonic and address (for placing bids)
+       - `gov1` and `gov2` mnemonics and addresses (for governance tasks)
+     - **Agoric-SDK Image Tag**: Specify the image tag to use for testing.
+
+These workflows allow you to input all the parameters that you would normally set as environment variables when testing locally.
