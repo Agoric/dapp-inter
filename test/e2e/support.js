@@ -3,9 +3,9 @@ import {
   networks,
   configMap,
   FACUET_HEADERS,
-  FACUET_URL,
   MINUTE_MS,
   agoricNetworks,
+  FAUCET_URL_MAP,
 } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
@@ -178,7 +178,7 @@ Cypress.Commands.add('connectWithWallet', (options = {}) => {
 Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
   cy.request({
     method: 'POST',
-    url: FACUET_URL,
+    url: FAUCET_URL_MAP[AGORIC_NET],
     body: {
       address: walletAddress,
       command,

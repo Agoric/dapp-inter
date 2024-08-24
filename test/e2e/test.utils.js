@@ -73,7 +73,12 @@ export const configMap = {
   },
 };
 
-export const FACUET_URL = 'https://emerynet.faucet.agoric.net/go';
+export const FAUCET_URL_MAP = {
+  emerynet: 'https://emerynet.faucet.agoric.net/go',
+  devnet: 'https://devnet.faucet.agoric.net/go',
+  ollinet: 'https://ollinet.faucet.agoric.net/go',
+  xnet: 'https://xnet.faucet.agoric.net/go',
+};
 
 export const FACUET_HEADERS = {
   Accept:
