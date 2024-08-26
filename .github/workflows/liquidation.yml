@@ -32,22 +32,6 @@ on:
         description: 'bidder account address'
         required: false
         type: string
-      gov1_mnemonic:
-        description: 'Mnemonic for gov1 wallet'
-        required: false
-        type: string
-      gov1_address:
-        description: 'gov1 account address'
-        required: false
-        type: string
-      gov2_mnemonic:
-        description: 'Mnemonic for gov2 wallet'
-        required: false
-        type: string
-      gov2_address:
-        description: 'gov2 account address'
-        required: false
-        type: string
       base_image:
         description: 'Base image tag for agoric-sdk'
         required: false
@@ -93,9 +77,5 @@ jobs:
       bidder_address: ${{ inputs.bidder_address }}
       base_image: ${{ inputs.base_image || 'latest' }}
       a3p_image_tag: ${{ inputs.a3p_image_tag || 'latest' }}
-      gov1_mnemonic: ${{ inputs.gov1_mnemonic }}
-      gov1_address: ${{ inputs.gov1_address }}
-      gov2_mnemonic: ${{ inputs.gov2_mnemonic }}
-      gov2_address: ${{ inputs.gov2_address }}
 
     secrets: inherit
