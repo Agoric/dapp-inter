@@ -35,20 +35,8 @@ on:
         required: false
         default: latest
         type: string
-      gov1_mnemonic:
-        description: 'Mnemonic for gov1 wallet'
-        required: false
-        type: string
-      gov1_address:
-        description: 'gov1 account address'
-        required: false
-        type: string
-      gov2_mnemonic:
-        description: 'Mnemonic for gov2 wallet'
-        required: false
-        type: string
-      gov2_address:
-        description: 'gov2 account address'
+      a3p_image_tag:
+        description: 'Docker image tag for the a3p chain to use in testing'
         required: false
         type: string
 
@@ -78,6 +66,7 @@ jobs:
           SYNPRESS_PROFILE: ${{ inputs.AGORIC_NET == 'local' && 'synpress' || 'daily-tests' }}
           CYPRESS_AGORIC_NET: ${{ inputs.AGORIC_NET }}
           # for docker-compose.yml
+          A3P_IMAGE_TAG: ${{ inputs.a3p_image_tag }}
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
           DOCKER_DEFAULT_PLATFORM: linux/amd64
@@ -95,14 +84,14 @@ jobs:
           CYPRESS_MNEMONIC_PHRASE: ${{ inputs.mnemonic_phrase }}
           BASE_IMAGE_TAG_INPUT: ${{ inputs.base_image }}
           # Liquidation Secrets
-          CYPRESS_GOV1_MNEMONIC: ${{ inputs.gov1_mnemonic || secrets.CYPRESS_GOV1_MNEMONIC }}
-          CYPRESS_GOV1_ADDRESS: ${{ inputs.gov1_address || secrets.CYPRESS_GOV1_ADDRESS }}
-          CYPRESS_GOV2_MNEMONIC: ${{ inputs.gov2_mnemonic || secrets.CYPRESS_GOV2_MNEMONIC }}
-          CYPRESS_GOV2_ADDRESS: ${{ inputs.gov2_address || secrets.CYPRESS_GOV2_ADDRESS }}
-          CYPRESS_USER1_MNEMONIC: ${{ inputs.user1_mnemonic || secrets.CYPRESS_USER1_MNEMONIC }}
-          CYPRESS_USER1_ADDRESS: ${{ inputs.user1_address || secrets.CYPRESS_USER1_ADDRESS }}
-          CYPRESS_BIDDER_MNEMONIC: ${{ inputs.bidder_mnemonic || secrets.CYPRESS_BIDDER1_MNEMONIC }}
-          CYPRESS_BIDDER_ADDRESS: ${{ inputs.bidder_address || secrets.CYPRESS_BIDDER1_ADDRESS }}
+          CYPRESS_GOV1_MNEMONIC: ${{ secrets.CYPRESS_GOV1_MNEMONIC }}
+          CYPRESS_GOV1_ADDRESS: ${{ secrets.CYPRESS_GOV1_ADDRESS }}
+          CYPRESS_GOV2_MNEMONIC: ${{ secrets.CYPRESS_GOV2_MNEMONIC }}
+          CYPRESS_GOV2_ADDRESS: ${{ secrets.CYPRESS_GOV2_ADDRESS }}
+          CYPRESS_USER1_MNEMONIC: ${{ secrets.CYPRESS_USER1_MNEMONIC }}
+          CYPRESS_USER1_ADDRESS: ${{ secrets.CYPRESS_USER1_ADDRESS }}
+          CYPRESS_BIDDER_MNEMONIC: ${{ secrets.CYPRESS_BIDDER1_MNEMONIC }}
+          CYPRESS_BIDDER_ADDRESS: ${{ secrets.CYPRESS_BIDDER1_ADDRESS }}
 
       - name: Upload e2e artifacts as workflow artifacts
         uses: actions/upload-artifact@v4

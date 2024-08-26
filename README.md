@@ -79,7 +79,7 @@ recommended that you use the environment variable `VITE_NETWORK_CONFIG_URL` to p
 VITE_NETWORK_CONFIG_URL=https://<PRODUCTION-NETWORK>.net/network-config yarn build
 ```
 
-# Testing
+# E2E Testing
 
 End-to-end (E2E) tests have been written to test the dapp and perform automated testing on emerynet/devnet during upgrades.
 

@@ -30,6 +30,10 @@ on:
         description: 'The mnemonic phrase for the account to use in testing'
         required: false
         type: string
+      a3p_image_tag:
+        description: 'Docker image tag for the a3p chain to use in testing'
+        required: false
+        type: string
 
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
@@ -53,5 +57,6 @@ jobs:
             || 'local' 
         }}
       mnemonic_phrase: ${{ inputs.phrase }}
+      a3p_image_tag: ${{ inputs.a3p_image_tag || 'latest' }}
 
     secrets: inherit
