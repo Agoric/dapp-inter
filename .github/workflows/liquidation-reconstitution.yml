@@ -53,6 +53,10 @@ on:
         required: false
         default: latest
         type: string
+      a3p_image_tag:
+        description: 'Docker image tag for the a3p chain to use in testing'
+        required: false
+        type: string
   pull_request:
     types:
       - labeled
@@ -88,6 +92,7 @@ jobs:
       bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
       bidder_address: ${{ inputs.bidder_address }}
       base_image: ${{ inputs.base_image || 'latest' }}
+      a3p_image_tag: ${{ inputs.a3p_image_tag || 'latest' }}
       gov1_mnemonic: ${{ inputs.gov1_mnemonic }}
       gov1_address: ${{ inputs.gov1_address }}
       gov2_mnemonic: ${{ inputs.gov2_mnemonic }}

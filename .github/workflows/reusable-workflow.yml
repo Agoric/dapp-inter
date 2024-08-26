@@ -51,6 +51,10 @@ on:
         description: 'gov2 account address'
         required: false
         type: string
+      a3p_image_tag:
+        description: 'Docker image tag for the a3p chain to use in testing'
+        required: false
+        type: string
 
 jobs:
   e2e:
@@ -78,6 +82,7 @@ jobs:
           SYNPRESS_PROFILE: ${{ inputs.AGORIC_NET == 'local' && 'synpress' || 'daily-tests' }}
           CYPRESS_AGORIC_NET: ${{ inputs.AGORIC_NET }}
           # for docker-compose.yml
+          A3P_IMAGE_TAG: ${{ inputs.a3p_image_tag }}
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
           DOCKER_DEFAULT_PLATFORM: linux/amd64
