@@ -153,3 +153,73 @@ To run these tests on GitHub, you can manually trigger the workflows and provide
      - **Agoric-SDK Image Tag**: Specify the image tag to use for testing.
 
 These workflows allow you to input all the parameters that you would normally set as environment variables when testing locally.
+
+# Running E2E Tests with A3P Locally
+
+## 1. Navigate to the A3P Integration Directory
+
+Open your terminal and change your directory to the A3P integration folder in the Agoric SDK:
+
+```bash
+cd agoric-sdk/a3p-integration
+```
+
+## 2. Install Dependencies and Build the Project
+
+Once inside the `a3p-integration` directory, you need to install all the necessary dependencies and then build the project.
+
+```bash
+yarn && yarn build
+```
+
+## 3. Find the Image Tag
+
+Run the following command to list all Docker images currently available on your machine:
+
+```bash
+docker images
+```
+
+Look for `use-vaults-auctions`. Note down the hash as it will be needed for subsequent steps.
+
+## 4. Start the container
+
+```bash
+docker run -p 26657:26657 -p 1317:1317 -p 9090:9090 {hash}
+```
+
+Make sure to replace `{hash}` with the actual hash you found in the previous step.
+
+For the next steps, open the `dapp-inter` repo.
+
+## 5. Ensure Keys are in Local Keyring
+
+You need to make sure that certain keys `(gov1, gov2, and user1)` are present in your local keyring. To find the mnemonics for these keys, open the file `test/e2e/test.utils.js`. On `line 1` of this file, you should find the mnemonics listed.
+
+Use the mnemonics to import the keys `(gov1, gov2, user1)` into your local keyring with `agd`.
+
+## 6. Adjust agops Path in Code
+
+You need to adjust the file path for `agops` in code to match your local machine’s directory structure. Open the file located at `test/e2e/support.js` in your code editor. Go to `line number 15` and locate the path configuration for `agops`. Modify this path to match the actual location of agops on your computer.
+
+## 7. Start the Local Development Server
+
+To start your local development server, use the following command:
+
+```bash
+yarn dev
+```
+
+## 8. Run the End-to-End Tests
+
+Once the server is running, you can start the end-to-end (E2E) tests using Cypress with the following command:
+
+```bash
+CYPRESS_AGORIC_NET=local yarn test:e2e --spec=<pathToTestFile>
+```
+
+Replace `<pathToTestFile>` with the specific path to the test file you want to run. We have the following test files in the repo:
+
+- `test/e2e/specs/test.spec.js` – Tests related to vaults.
+- `test/e2e/specs/liquidation.spec.js` – Tests related to the liquidation happy path scenario.
+- `test/e2e/specs/liquidation-reconstitution.spec.js` – Tests related to the liquidation reconstitution scenario.
