@@ -15,6 +15,12 @@ describe('Vaults UI Test Cases', () => {
           secretWords: mnemonics.user1,
           walletName: 'user1',
         });
+      } else if (AGORIC_NET === 'xnet') {
+        cy.task('info', 'Connecting with wallet...');
+        cy.setupWallet({
+          secretWords: Cypress.env('USER1_MNEMONIC'),
+          walletName: 'user1',
+        });
       } else {
         cy.setupWallet({
           createNewWallet: true,
@@ -36,7 +42,9 @@ describe('Vaults UI Test Cases', () => {
     });
 
     it('should create a new vault and approve the transaction successfully', () => {
-      cy.contains('button', /ATOM/).click();
+      if (AGORIC_NET !== 'xnet') {
+        cy.contains('button', /ATOM/).click();
+      }
 
       cy.contains('ATOM to lock up *')
         .next()
