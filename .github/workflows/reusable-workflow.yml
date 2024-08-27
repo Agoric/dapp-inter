@@ -114,7 +114,7 @@ jobs:
 
       - name: Log Path to GCS artifacts
         if: ${{ inputs.AGORIC_NET != 'local' && !cancelled() }}
-        run: echo "https://console.cloud.google.com/storage/browser/github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}/docker/videos"
+        run: echo "https://console.cloud.google.com/storage/browser/github-artifacts/${{ github.repository }}/${{ github.run_id }}/${{ github.event.repository.updated_at }}/docker/videos-ci"
 
       - name: Notify About Failure
         if: >
