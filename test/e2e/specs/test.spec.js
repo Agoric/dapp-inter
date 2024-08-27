@@ -15,6 +15,12 @@ describe('Vaults UI Test Cases', () => {
           secretWords: mnemonics.user1,
           walletName: 'user1',
         });
+      } else if (AGORIC_NET === 'xnet') {
+        cy.task('info', 'Connecting with wallet...');
+        cy.setupWallet({
+          secretWords: Cypress.env('USER1_MNEMONIC'),
+          walletName: 'user1',
+        });
       } else {
         cy.setupWallet({
           createNewWallet: true,
