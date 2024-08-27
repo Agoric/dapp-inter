@@ -156,6 +156,8 @@ These workflows allow you to input all the parameters that you would normally se
 
 # Running E2E Tests with A3P Locally
 
+To run end-to-end tests locally, it's best to avoid running multiple processes or programs on your computer, as this can cause the tests to become flaky and produce unreliable results. Let's see the steps to run these tests:
+
 ## 1. Navigate to the A3P Integration Directory
 
 Open your terminal and change your directory to the A3P integration folder in the Agoric SDK:
@@ -207,8 +209,10 @@ You need to adjust the file path for `agops` in code to match your local machine
 To start your local development server, use the following command:
 
 ```bash
-yarn dev
+yarn dev --host
 ```
+
+Be sure to include the `--host` flag if you're using a Mac, as this ensures that `localhost` works correctly with Cypress.
 
 ## 8. Run the End-to-End Tests
 
