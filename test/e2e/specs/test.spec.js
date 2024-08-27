@@ -42,7 +42,9 @@ describe('Vaults UI Test Cases', () => {
     });
 
     it('should create a new vault and approve the transaction successfully', () => {
-      cy.contains('button', /ATOM/).click();
+      if (AGORIC_NET !== 'xnet') {
+        cy.contains('button', /ATOM/).click();
+      }
 
       cy.contains('ATOM to lock up *')
         .next()
