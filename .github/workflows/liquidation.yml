@@ -68,7 +68,7 @@ jobs:
             || contains(github.event.pull_request.labels.*.name, 'devnet') && 'devnet' 
             || contains(github.event.pull_request.labels.*.name, 'ollinet') && 'ollinet' 
             || contains(github.event.pull_request.labels.*.name, 'xnet') && 'xnet' 
-            || github.event_name == 'schedule' && 'emerynet' 
+            || github.event_name == 'schedule' && 'local' 
             || 'local' 
         }}
       user1_mnemonic: ${{ inputs.user1_mnemonic }}
