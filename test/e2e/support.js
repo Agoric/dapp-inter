@@ -3,9 +3,7 @@ import {
   networks,
   configMap,
   FACUET_HEADERS,
-  MINUTE_MS,
   agoricNetworks,
-  FAUCET_URL_MAP,
 } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
@@ -176,20 +174,41 @@ Cypress.Commands.add('connectWithWallet', (options = {}) => {
 });
 
 Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
+  const TRANSACTION_STATUS = {
+    FAILED: 1000,
+    NOT_FOUND: 1001,
+    SUCCESSFUL: 1002,
+  };
+
+  const getStatus = txHash =>
+    cy
+      .request({
+        method: 'GET',
+        url: `https://${AGORIC_NET}.faucet.agoric.net/api/transaction-status/${txHash}`,
+      })
+      .then(resp => {
+        const { transactionStatus } = resp.body;
+        if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
+          // eslint-disable-next-line cypress/no-unnecessary-waiting
+          return cy.wait(2000).then(() => getStatus(txHash));
+        else return cy.wrap(transactionStatus);
+      });
+
   cy.request({
-    method: 'POST',
-    url: FAUCET_URL_MAP[AGORIC_NET],
     body: {
       address: walletAddress,
       command,
       clientType: 'SMART_WALLET',
     },
+    followRedirect: false,
     headers: FACUET_HEADERS,
-    timeout: 4 * MINUTE_MS,
-    retryOnStatusCodeFailure: true,
-  }).then(resp => {
-    expect(resp.body).to.eq('success');
-  });
+    method: 'POST',
+    url: `https://${AGORIC_NET}.faucet.agoric.net/go`,
+  })
+    .then(resp =>
+      getStatus(/\/transaction-status\/(.*)/.exec(resp.headers.location)[1]),
+    )
+    .then(status => expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
 });
 
 afterEach(function () {
