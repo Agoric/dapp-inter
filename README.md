@@ -83,47 +83,6 @@ VITE_NETWORK_CONFIG_URL=https://<PRODUCTION-NETWORK>.net/network-config yarn bui
 
 End-to-end (E2E) tests have been written to test the dapp and perform automated testing on emerynet/devnet during upgrades.
 
-## Running Tests on Local Machine
-
-To run tests on your local machine, start by opening your terminal and starting the development server:
-
-```bash
-yarn dev
-```
-
-Once the server is running, you can start the tests with the following command:
-
-```bash
-CYPRESS_AGORIC_NET=<network> yarn test:e2e --spec=<pathToTestFile>
-```
-
-Replace `<network>` with one of the following options: `local`, `emerynet`, or `devnet`, and `<pathToTestFile>` with the path to the specific test file you want to run. We have the following test files in the repo:
-
-- `test/e2e/specs/test.spec.js` – Tests related to vaults.
-- `test/e2e/specs/liquidation.spec.js` – Tests related to the liquidation happy path scenario.
-- `test/e2e/specs/liquidation-reconstitution.spec.js` – Tests related to the liquidation reconstitution scenario.
-
-If you are running the tests on a local network, you'll need to start a local a3p network first. Use this command:
-
-```bash
-docker compose -f tests/e2e/docker-compose.yml up -d agd
-```
-
-When testing liquidation scenarios, make sure to export the following environment variables:
-
-- `CYPRESS_USER1_MNEMONIC`: Mnemonic for the `user1`. This wallet is responsible for creating vaults during tests.
-- `CYPRESS_USER1_ADDRESS`: Wallet address for the `user1`.
-- `CYPRESS_BIDDER_MNEMONIC`: Mnemonic for the bidder. This wallet is responsible for placing bids.
-- `CYPRESS_BIDDER_ADDRESS`: Wallet address for the bidder.
-- `CYPRESS_GOV1_MNEMONIC`: Mnemonic for the `gov1` account. This wallet, along with `gov2`, is responsible for changing the price of ATOM during testing.
-- `CYPRESS_GOV1_ADDRESS`: Wallet address for the `gov1` account.
-- `CYPRESS_GOV2_MNEMONIC`: Mnemonic for the `gov2` account.
-- `CYPRESS_GOV2_ADDRESS`: Wallet address for the `gov2` account.
-
-Make sure these environment variables are correctly set in your environment before running the tests. If you are testing with a local chain, setting these environment variables is not required.
-
-Also ensure you have Chrome installed on your machine, as the tests run using the Chrome browser by default.
-
 ## Running Tests on GitHub
 
 To run these tests on GitHub, you can manually trigger the workflows and provide wallet mnemonics and addresses to use specific wallets for testing.
@@ -154,59 +113,28 @@ To run these tests on GitHub, you can manually trigger the workflows and provide
 
 These workflows allow you to input all the parameters that you would normally set as environment variables when testing locally.
 
-# Running E2E Tests with A3P Locally
+## Running Tests on Local Machine
 
 To run end-to-end tests locally, it's best to avoid running multiple processes or programs on your computer, as this can cause the tests to become flaky and produce unreliable results. Let's see the steps to run these tests:
 
-## 1. Navigate to the A3P Integration Directory
+### 1. Exporting Environment Variables
 
-Open your terminal and change your directory to the A3P integration folder in the Agoric SDK:
+When testing liquidation scenarios, make sure to export the following environment variables:
 
-```bash
-cd agoric-sdk/a3p-integration
-```
+- `CYPRESS_USER1_MNEMONIC`: Mnemonic for the `user1`. This wallet is responsible for creating vaults during tests.
+- `CYPRESS_USER1_ADDRESS`: Wallet address for the `user1`.
+- `CYPRESS_BIDDER_MNEMONIC`: Mnemonic for the bidder. This wallet is responsible for placing bids.
+- `CYPRESS_BIDDER_ADDRESS`: Wallet address for the bidder.
+- `CYPRESS_GOV1_MNEMONIC`: Mnemonic for the `gov1` account. This wallet, along with `gov2`, is responsible for changing the price of ATOM during testing.
+- `CYPRESS_GOV1_ADDRESS`: Wallet address for the `gov1` account.
+- `CYPRESS_GOV2_MNEMONIC`: Mnemonic for the `gov2` account.
+- `CYPRESS_GOV2_ADDRESS`: Wallet address for the `gov2` account.
 
-## 2. Install Dependencies and Build the Project
+Make sure these environment variables are correctly set in your environment before running the tests. If you are testing with `a3p` chain, setting these environment variables is not required.
 
-Once inside the `a3p-integration` directory, you need to install all the necessary dependencies and then build the project.
+### 2. Start the development server
 
-```bash
-yarn && yarn build
-```
-
-## 3. Find the Image Tag
-
-Run the following command to list all Docker images currently available on your machine:
-
-```bash
-docker images
-```
-
-Look for `use-vaults-auctions`. Note down the hash as it will be needed for subsequent steps.
-
-## 4. Start the container
-
-```bash
-docker run -p 26657:26657 -p 1317:1317 -p 9090:9090 {hash}
-```
-
-Make sure to replace `{hash}` with the actual hash you found in the previous step.
-
-For the next steps, open the `dapp-inter` repo.
-
-## 5. Ensure Keys are in Local Keyring
-
-You need to make sure that certain keys `(gov1, gov2, and user1)` are present in your local keyring. To find the mnemonics for these keys, open the file `test/e2e/test.utils.js`. On `line 1` of this file, you should find the mnemonics listed.
-
-Use the mnemonics to import the keys `(gov1, gov2, user1)` into your local keyring with `agd`.
-
-## 6. Adjust agops Path in Code
-
-You need to adjust the file path for `agops` in code to match your local machine’s directory structure. Open the file located at `test/e2e/support.js` in your code editor. Go to `line number 15` and locate the path configuration for `agops`. Modify this path to match the actual location of agops on your computer.
-
-## 7. Start the Local Development Server
-
-To start your local development server, use the following command:
+To run tests on your local machine, first start your local development server, use the following command:
 
 ```bash
 yarn dev --host
@@ -214,16 +142,56 @@ yarn dev --host
 
 Be sure to include the `--host` flag if you're using a Mac, as this ensures that `localhost` works correctly with Cypress.
 
-## 8. Run the End-to-End Tests
+### 3. Ensure Keys are in Local Keyring
 
-Once the server is running, you can start the end-to-end (E2E) tests using Cypress with the following command:
+You need to ensure that certain keys `(gov1, gov2, and user1)` are present in your local keyring. To find the mnemonics for these keys, open the file `test/e2e/test.utils.js` and look for the `mnemonics` object in the file.
+
+**Note:** The test cases for adding keys using `agd` from the CLI might fail. This is expected behavior and is fine when testing on your local machine.
+
+### 4. Adjust agops Path in Code
+
+Adjust the file path for `agops` in code to match your local machine’s directory structure. Open the file located at `test/e2e/support.js`. Go to `line number 15` and locate the path configuration for `agops`. Modify this path to match the actual location of agops on your computer.
+
+### 5. Running the a3p chain(optional)
+
+If you plan to run tests with `CYPRESS_AGORIC_NET=local`, you must start the `a3p` chain beforehand. To do this, use the following command:
 
 ```bash
-CYPRESS_AGORIC_NET=local yarn test:e2e --spec=<pathToTestFile>
+docker run -d -p 26657:26657 -p 1317:1317 -p 9090:9090 ghcr.io/agoric/agoric-3-proposals:latest
 ```
+
+Alternatively, you can create an `a3p` chain from a specific branch in your `agoric-sdk` repository. To do this, navigate to the `a3p-integration` directory in your `agoric-sdk` repository. Install all necessary dependencies and build the project with:
+
+```bash
+yarn && yarn build
+```
+
+Once the build is complete, locate the Docker image you just created by running:
+
+```bash
+docker images
+```
+
+Find the hash of your new image and start the container using the hash:
+
+```bash
+docker run -p 26657:26657 -p 1317:1317 -p 9090:9090 {hash}
+```
+
+### 6. Run the tests
+
+Next, run the tests using the following command:
+
+```bash
+CYPRESS_AGORIC_NET=<network> yarn test:e2e --spec=<pathToTestFile>
+```
+
+where `<network>` can be: `local`,`emerynet`,`devnet`, `xnet` or `ollinet`.
 
 Replace `<pathToTestFile>` with the specific path to the test file you want to run. We have the following test files in the repo:
 
 - `test/e2e/specs/test.spec.js` – Tests related to vaults.
 - `test/e2e/specs/liquidation.spec.js` – Tests related to the liquidation happy path scenario.
 - `test/e2e/specs/liquidation-reconstitution.spec.js` – Tests related to the liquidation reconstitution scenario.
+
+**Note:** The tests use chrome browser by default so they require it to be installed.
