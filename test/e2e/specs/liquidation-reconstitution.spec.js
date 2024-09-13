@@ -425,6 +425,7 @@ describe('Wallet App Test Cases', () => {
       });
 
       it('should verify the value of startProceedsGoal from the CLI successfully', () => {
+        cy.wait(20000)
         const propertyName = 'book0.startProceedsGoal';
         const expectedValue = '309.54 IST';
 
