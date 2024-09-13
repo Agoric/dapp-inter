@@ -425,6 +425,7 @@ describe('Wallet App Test Cases', () => {
       });
 
       it('should verify the value of startProceedsGoal from the CLI successfully', () => {
+        cy.wait(30000); // Wait for 30 seconds
         const propertyName = 'book0.startProceedsGoal';
         const expectedValue = '309.54 IST';
 
@@ -432,6 +433,7 @@ describe('Wallet App Test Cases', () => {
       });
 
       it('should verify the value of startCollateral from the CLI successfully', () => {
+        cy.wait(30000); // Wait for 30 seconds
         const propertyName = 'book0.startCollateral';
         const expectedValue = '45 ATOM';
 
