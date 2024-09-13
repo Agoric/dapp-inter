@@ -435,13 +435,14 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should verify the value of startProceedsGoal from the CLI successfully', () => {
-      cy.wait(20000)
+      cy.wait(30000); // Wait for 30 seconds
       const propertyName = 'book0.startProceedsGoal';
       const expectedValue = '309.54 IST';
       cy.verifyAuctionData(propertyName, expectedValue);
     });
 
     it('should verify the value of startCollateral from the CLI successfully', () => {
+      cy.wait(30000); // Wait for 30 seconds
       const propertyName = 'book0.startCollateral';
       const expectedValue = '45 ATOM';
       cy.verifyAuctionData(propertyName, expectedValue);
@@ -466,6 +467,7 @@ describe('Wallet App Test Cases', () => {
     );
 
     it('should verify the value of collateralAvailable from the CLI successfully', () => {
+      cy.wait(30000); // Wait for 30 seconds
       const propertyName = 'book0.collateralAvailable';
       const expectedValue = '9.659301 ATOM';
       cy.wait(2 * MINUTE_MS);
