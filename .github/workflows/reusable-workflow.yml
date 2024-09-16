@@ -35,8 +35,8 @@ on:
         required: false
         default: latest
         type: string
-      a3p_image_tag:
-        description: 'Docker image tag for the a3p chain to use in testing'
+      docker_image:
+        description: 'Docker image for the a3p chain to use in testing'
         required: false
         type: string
 
@@ -59,6 +59,15 @@ jobs:
           project_id: 'simulationlab'
           workload_identity_provider: 'projects/60745596728/locations/global/workloadIdentityPools/github/providers/dapp-inter'
 
+      - name: Docker Image Used For E2E Testing
+        run: |
+          if [ -z "${{ inputs.docker_image }}" ]; then
+            echo "Error: Docker image not provided."
+            exit 1
+          else
+            echo "Docker Image: ${{ inputs.docker_image }}"
+          fi
+
       - name: Run e2e tests
         run: ${{ inputs.docker_compose_command }}
         env:
@@ -66,7 +75,7 @@ jobs:
           SYNPRESS_PROFILE: ${{ inputs.AGORIC_NET == 'local' && 'synpress' || 'daily-tests' }}
           CYPRESS_AGORIC_NET: ${{ inputs.AGORIC_NET }}
           # for docker-compose.yml
-          A3P_IMAGE_TAG: ${{ inputs.a3p_image_tag }}
+          DOCKER_IMAGE: ${{ inputs.docker_image }}
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
           DOCKER_DEFAULT_PLATFORM: linux/amd64
