@@ -35,9 +35,10 @@ on:
         required: false
         default: latest
         type: string
-      a3p_image_tag:
-        description: 'Docker image tag for the a3p chain to use in testing'
+      docker_image:
+        description: 'Docker image for the a3p chain to use in testing'
         required: false
+        default: ghcr.io/agoric/agoric-3-proposals:latest
         type: string
 
 jobs:
@@ -66,7 +67,7 @@ jobs:
           SYNPRESS_PROFILE: ${{ inputs.AGORIC_NET == 'local' && 'synpress' || 'daily-tests' }}
           CYPRESS_AGORIC_NET: ${{ inputs.AGORIC_NET }}
           # for docker-compose.yml
-          A3P_IMAGE_TAG: ${{ inputs.a3p_image_tag }}
+          DOCKER_IMAGE: ${{ inputs.docker_image }}
           COMPOSE_DOCKER_CLI_BUILD: 1
           DOCKER_BUILDKIT: 1
           DOCKER_DEFAULT_PLATFORM: linux/amd64

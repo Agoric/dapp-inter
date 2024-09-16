@@ -30,8 +30,8 @@ on:
         description: 'The mnemonic phrase for the account to use in testing'
         required: false
         type: string
-      a3p_image_tag:
-        description: 'Docker image tag for the a3p chain to use in testing'
+      docker_image:
+        description: 'Docker image for the a3p chain to use in testing'
         required: false
         type: string
 
@@ -57,6 +57,6 @@ jobs:
             || 'local' 
         }}
       mnemonic_phrase: ${{ inputs.phrase }}
-      a3p_image_tag: ${{ inputs.a3p_image_tag || 'latest' }}
+      docker_image: ${{ inputs.docker_image || 'latest' }}
 
     secrets: inherit

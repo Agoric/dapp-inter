@@ -37,8 +37,8 @@ on:
         required: false
         default: latest
         type: string
-      a3p_image_tag:
-        description: 'Docker image tag for the a3p chain to use in testing'
+      docker_image:
+        description: 'Docker image for the a3p chain to use in testing'
         required: false
         type: string
   pull_request:
@@ -76,6 +76,6 @@ jobs:
       bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
       bidder_address: ${{ inputs.bidder_address }}
       base_image: ${{ inputs.base_image || 'latest' }}
-      a3p_image_tag: ${{ inputs.a3p_image_tag || 'latest' }}
+      docker_image: ${{ inputs.docker_image }}
 
     secrets: inherit
