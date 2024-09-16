@@ -76,6 +76,6 @@ jobs:
       bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
       bidder_address: ${{ inputs.bidder_address }}
       base_image: ${{ inputs.base_image || 'latest' }}
-      docker_image: ${{ inputs.docker_image }}
+      docker_image: ${{ inputs.docker_image || 'ghcr.io/agoric/agoric-3-proposals:latest' }}
 
     secrets: inherit

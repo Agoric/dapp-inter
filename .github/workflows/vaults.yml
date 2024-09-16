@@ -57,6 +57,6 @@ jobs:
             || 'local' 
         }}
       mnemonic_phrase: ${{ inputs.phrase }}
-      docker_image: ${{ inputs.docker_image || 'latest' }}
+      docker_image: ${{ inputs.docker_image || 'ghcr.io/agoric/agoric-3-proposals:latest' }}
 
     secrets: inherit
