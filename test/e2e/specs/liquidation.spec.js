@@ -195,6 +195,12 @@ describe('Wallet App Test Cases', () => {
     });
   });
 
+  context('Old auctioneer', () => {
+    it('should pause the old auctioneer', () => {
+      cy.pauseOldAuctioneer();
+    });
+  });
+
   context('Adjusting auction params from econ-gov', () => {
     it('should allow gov1 to create a proposal', () => {
       cy.skipWhen(AGORIC_NET !== networks.LOCAL);
