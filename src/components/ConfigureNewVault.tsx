@@ -19,6 +19,7 @@ import {
 import { maxIstToMintFromVault } from 'utils/vaultMath';
 import LeapLiquidityModal, { Direction } from './leap-elements/LiquidityModal';
 import { useMemo } from 'react';
+import { NatValue } from '@agoric/ertp/src/types';
 
 const maxIstWarning =
   'Warning: This will create a vault with the lowest possible collateralization ratio which greatly increases your risk of liquidation if there are downward price movements.';
@@ -103,7 +104,7 @@ const ConfigureNewVault = () => {
       selectedMetrics.totalDebt,
       AmountMath.makeEmpty(selectedParams.debtLimit.brand),
       selectedParams.mintFee,
-      AmountMath.make(collateralBrand, valueToLock),
+      AmountMath.make(collateralBrand, valueToLock ?? 0n),
       collateralPrice,
       selectedParams.inferredMinimumCollateralization,
       lockedPrice,
@@ -126,7 +127,7 @@ const ConfigureNewVault = () => {
       return;
     }
 
-    setValueToLock(purse.currentAmount.value);
+    setValueToLock(purse.currentAmount.value as NatValue);
   };
 
   const onMaxDebtClicked = () => {

@@ -19,7 +19,12 @@ import type {
   VaultMetrics,
   VaultParams,
 } from 'store/vaults';
-import type { Amount, Brand, NatValue } from '@agoric/ertp/src/types';
+import type {
+  Amount,
+  Brand,
+  NatAmount,
+  NatValue,
+} from '@agoric/ertp/src/types';
 
 export const isLiquidationPriceBelowGivenPrice = (
   locked: Amount<'nat'>,
@@ -74,9 +79,12 @@ export const computeToLock = (
 };
 
 /**
- * @returns tuple of [value of difference, boolean of whether it's negative]
+ * Returns [value of difference, boolean of whether it's negative]
  */
-export const netValue = (lockedValue: Amount<'nat'>, debt: Amount<'nat'>) =>
+export const netValue = (
+  lockedValue: Amount<'nat'>,
+  debt: Amount<'nat'>,
+): [NatAmount, boolean] =>
   AmountMath.isGTE(lockedValue, debt)
     ? [AmountMath.subtract(lockedValue, debt), false]
     : [AmountMath.subtract(debt, lockedValue), true];

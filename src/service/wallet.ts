@@ -6,10 +6,7 @@ import {
   ChainConnection,
 } from 'store/app';
 import { toast } from 'react-toastify';
-import {
-  makeAgoricWalletConnection,
-  AgoricKeplrConnectionErrors as Errors,
-} from '@agoric/web-components';
+import { makeAgoricWalletConnection, Errors } from '@agoric/web-components';
 import type { Id as ToastId, ToastContent, ToastOptions } from 'react-toastify';
 
 const watchPurses = (chainConnection: ChainConnection) => {
@@ -76,6 +73,25 @@ type ConnectionError = {
 
 const autoCloseDelayMs = 7000;
 
+const getReadOnlyAddressFromUrlParams = () =>
+  new URLSearchParams(window.location.search).get('address');
+
+const makeReadOnlyClientConfig = (address: string) => {
+  return {
+    address,
+    client: {
+      getSequence: () => 0,
+      signAndBroadcast: (_address: string, msgs: unknown[], _fee: unknown) => {
+        console.log('Messages to sign copied below:');
+        console.log(msgs);
+        throw new Error(
+          'Cannot sign message in read-only mode. See previous console log for message contents.',
+        );
+      },
+    },
+  };
+};
+
 export const makeWalletService = () => {
   let stopWatchingPurses: () => void;
   let stopWatchingPublicSubscribers: () => void;
@@ -90,6 +106,8 @@ export const makeWalletService = () => {
   const showToast = (content: ToastContent, options?: ToastOptions) => {
     toastId = toast.error(content, options);
   };
+
+  const readOnlyAddress = getReadOnlyAddressFromUrlParams();
 
   const connect = async (shouldCheckDisclaimer = true) => {
     const {
@@ -113,6 +131,7 @@ export const makeWalletService = () => {
     appStore.setState({ isWalletConnectionInProgress: true });
     try {
       assert(rpcNode);
+      assert(chainStorageWatcher);
       const connection = await makeAgoricWalletConnection(
         chainStorageWatcher,
         rpcNode,
@@ -125,6 +144,8 @@ export const makeWalletService = () => {
                   (e instanceof Error ? `: ${e.message}` : ''),
               ),
             ),
+        // @ts-expect-error Fake clientConfig for special read-only mode.
+        readOnlyAddress ? makeReadOnlyClientConfig(readOnlyAddress) : undefined,
       );
       appStore.setState({ chainConnection: connection });
       stopWatchingPurses = watchPurses(connection);
