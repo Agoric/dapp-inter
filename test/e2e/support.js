@@ -5,6 +5,7 @@ import {
   FACUET_HEADERS,
   agoricNetworks,
 } from './test.utils';
+import { makeMarshal, Far } from './unmarshal.js';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
 const network = AGORIC_NET !== 'local' ? 'testnet' : 'local';
@@ -102,6 +103,69 @@ Cypress.Commands.add('verifyAuctionData', (propertyName, expectedValue) => {
 
       expect(propertyValue).to.equal(expectedValue);
     });
+});
+
+const { fromCapData } = makeMarshal(undefined, (s, iface) =>
+  Far(iface, { getSlot: () => s }),
+);
+
+Cypress.Commands.add('pauseOldAuctioneer', () => {
+  const agopsOpts = {
+    env: { AGORIC_NET },
+    timeout: COMMAND_TIMEOUT,
+  };
+  const netConfig =
+    AGORIC_NET === 'local'
+      ? ''
+      : `-B https://${AGORIC_NET}.agoric.net/network-config`;
+  cy.exec(
+    `agoric follow ${netConfig} -lF :published.agoricNames.instance -o text`,
+  ).then(async ({ stdout }) => {
+    cy.wait(2 * 60 * 1000);
+    const byName = Object.fromEntries(fromCapData(JSON.parse(stdout)));
+    cy.expect(byName).to.have.property('auctioneer');
+    cy.task('info', `Object is: ${JSON.stringify(byName)}`);
+    const auctioneer = byName.auctioneer;
+    // cy.expect(byName).to.have.property('auctioneer175');
+    const oldAuctioneer = byName.auctioneer175;
+
+    cy.exec(
+      `${agops} ec find-continuing-id --from gov1 --for 'charter member invitation'`,
+      agopsOpts,
+    ).then(({ stdout }) => {
+      const acceptId = stdout.trim();
+      cy.expect(acceptId).to.be.a('string');
+      cy.expect(acceptId).to.have.length.of.at.least(2);
+
+      const changeFile = '/tmp/proposeChange.json';
+      cy.expect(acceptId).to.be.a('string');
+      cy.expect(acceptId).to.have.length.of.at.least(2);
+      cy.exec(
+        `${agops} auctioneer proposeParamChange --charterAcceptOfferId ${acceptId} --start-frequency 100000000000000`,
+        agopsOpts,
+      ).then(({ stdout }) => {
+        const offerSpec = JSON.parse(stdout);
+        cy.task('info', `offerSpec is: ${JSON.stringify(offerSpec)}`);
+        // cy.expect(offerSpec.slots[0]).to.equal(auctioneer.getSlot());
+        offerSpec.slots[0] = oldAuctioneer.getSlot();
+        cy.writeFile(changeFile, JSON.stringify(offerSpec), 'utf8');
+
+        const broadcastCommand = `${agops} perf satisfaction --executeOffer ${changeFile} --from gov1 --keyring-backend=test`;
+
+        cy.exec(broadcastCommand, {
+          env: { AGORIC_NET },
+          timeout: COMMAND_TIMEOUT,
+          failOnNonZeroExit: false, //@@@
+        }).then(({ stdout, stderr }) => {
+          console.log('@@broadcast', { stdout, stderr });
+          expect(stdout).not.to.contain('Error');
+        });
+
+        cy.exec(`${agops} ec vote --send-from gov1 --forPosition 0`, agopsOpts);
+        cy.exec(`${agops} ec vote --send-from gov2 --forPosition 0`, agopsOpts);
+      });
+    });
+  });
 });
 
 Cypress.Commands.add('skipWhen', function (expression) {
