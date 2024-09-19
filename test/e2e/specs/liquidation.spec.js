@@ -310,6 +310,9 @@ describe('Wallet App Test Cases', () => {
   });
 
   context('Creating vaults and changing ATOM price', () => {
+    it('should pause the old auctioneer', () => {
+      cy.pauseOldAuctioneer();
+    });
     it(
       'should connect with the wallet',
       {
@@ -380,6 +383,10 @@ describe('Wallet App Test Cases', () => {
   });
 
   context('Place bids and make all vaults enter liquidation', () => {
+    it('should pause the old auctioneer', () => {
+      cy.pauseOldAuctioneer();
+    });
+
     it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
       cy.skipWhen(AGORIC_NET !== networks.LOCAL);
       cy.createVault({ wantMinted: 400, giveCollateral: 80, userKey: 'gov1' });
