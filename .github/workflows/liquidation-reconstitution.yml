@@ -2,7 +2,7 @@ name: Liquidation Reconstitution E2E tests
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '20 1 * * *'
   workflow_dispatch:
     inputs:
       network:
