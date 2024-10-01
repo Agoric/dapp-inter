@@ -1,5 +1,7 @@
 import { mnemonics, MINUTE_MS } from '../test.utils';
 describe('Vaults UI Test Cases', () => {
+  const txRetryCount = 2;
+
   context('Test commands', () => {
     const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
     const customWalletPhrase = Cypress.env('MNEMONIC_PHRASE');
@@ -53,19 +55,29 @@ describe('Vaults UI Test Cases', () => {
           cy.get('input[type="number"]').clear();
           cy.get('input[type="number"]').type(10);
         });
-
-      cy.contains('button', 'Create Vault').click();
-
-      cy.confirmTransaction().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-        cy.contains(
-          'p',
-          'You can manage your vaults from the "My Vaults" view.',
-          { timeout: MINUTE_MS },
-        ).should('exist');
-        cy.contains('Manage my Vaults').click();
-      });
     });
+
+    it(
+      'should confirm transaction for creating a new vault',
+      {
+        retries: {
+          runMode: txRetryCount,
+        },
+      },
+      () => {
+        cy.contains('button', 'Create Vault').click();
+
+        cy.confirmTransaction().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+          cy.contains(
+            'p',
+            'You can manage your vaults from the "My Vaults" view.',
+            { timeout: MINUTE_MS },
+          ).should('exist');
+          cy.contains('Manage my Vaults').click();
+        });
+      },
+    );
 
     it('should open the new vault', () => {
       cy.get('span')
@@ -104,16 +116,26 @@ describe('Vaults UI Test Cases', () => {
               cy.get('input[type="number"]').type(1);
             });
         });
-
-      cy.contains('button', 'Adjust Vault').click();
-      cy.confirmTransaction().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-        cy.contains('p', "Your vault's balances have been updated.", {
-          timeout: MINUTE_MS,
-        }).should('exist');
-        cy.contains('Adjust more').click();
-      });
     });
+
+    it(
+      'should confirm transaction for adjusting the collateral by performin a withdrawl',
+      {
+        retries: {
+          runMode: txRetryCount,
+        },
+      },
+      () => {
+        cy.contains('button', 'Adjust Vault').click();
+        cy.confirmTransaction().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+          cy.contains('p', "Your vault's balances have been updated.", {
+            timeout: MINUTE_MS,
+          }).should('exist');
+          cy.contains('Adjust more').click();
+        });
+      },
+    );
 
     it('should adjust the collateral by depositing ATOM and approve the transaction successfully', () => {
       cy.contains('div', 'Adjust Collateral')
@@ -129,16 +151,26 @@ describe('Vaults UI Test Cases', () => {
               cy.get('input[type="number"]').type(1);
             });
         });
-
-      cy.contains('button', 'Adjust Vault').click();
-      cy.confirmTransaction().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-        cy.contains('p', "Your vault's balances have been updated.", {
-          timeout: MINUTE_MS,
-        }).should('exist');
-        cy.contains('Adjust more').click();
-      });
     });
+
+    it(
+      'should confirm transaction for adjusting the collateral by depositing ATOM',
+      {
+        retries: {
+          runMode: txRetryCount,
+        },
+      },
+      () => {
+        cy.contains('button', 'Adjust Vault').click();
+        cy.confirmTransaction().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+          cy.contains('p', "Your vault's balances have been updated.", {
+            timeout: MINUTE_MS,
+          }).should('exist');
+          cy.contains('Adjust more').click();
+        });
+      },
+    );
 
     it('should adjust the debt by minting more IST and approve the transaction successfully', () => {
       cy.contains('div', 'Adjust Debt')
@@ -153,16 +185,26 @@ describe('Vaults UI Test Cases', () => {
               cy.get('input[type="number"]').type(1);
             });
         });
-
-      cy.contains('button', 'Adjust Vault').click();
-      cy.confirmTransaction().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-        cy.contains('p', "Your vault's balances have been updated.", {
-          timeout: MINUTE_MS,
-        }).should('exist');
-        cy.contains('Adjust more').click();
-      });
     });
+
+    it(
+      'should confirm transaction for adjusting the debt by minting more IST',
+      {
+        retries: {
+          runMode: txRetryCount,
+        },
+      },
+      () => {
+        cy.contains('button', 'Adjust Vault').click();
+        cy.confirmTransaction().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+          cy.contains('p', "Your vault's balances have been updated.", {
+            timeout: MINUTE_MS,
+          }).should('exist');
+          cy.contains('Adjust more').click();
+        });
+      },
+    );
 
     it('should adjust the debt by repaying and approve the transaction successfully', () => {
       cy.contains('div', 'Adjust Debt')
@@ -177,16 +219,26 @@ describe('Vaults UI Test Cases', () => {
               cy.get('input[type="number"]').type(1);
             });
         });
-
-      cy.contains('button', 'Adjust Vault').click();
-      cy.confirmTransaction().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-        cy.contains('p', "Your vault's balances have been updated.", {
-          timeout: MINUTE_MS,
-        }).should('exist');
-        cy.contains('Adjust more').click();
-      });
     });
+
+    it(
+      'should confirm transaction for adjusting the debt by repaying',
+      {
+        retries: {
+          runMode: txRetryCount,
+        },
+      },
+      () => {
+        cy.contains('button', 'Adjust Vault').click();
+        cy.confirmTransaction().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+          cy.contains('p', "Your vault's balances have been updated.", {
+            timeout: MINUTE_MS,
+          }).should('exist');
+          cy.contains('Adjust more').click();
+        });
+      },
+    );
 
     it('should close the vault and approve the transaction successfully', () => {
       cy.contains('Close Out Vault').click();
