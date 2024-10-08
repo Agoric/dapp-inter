@@ -439,14 +439,17 @@ describe('Wallet App Test Cases', () => {
 
       if (AGORIC_NET === networks.LOCAL) {
         const expectedValue = 9.99;
+        cy.task('info', `Expected Value: ${expectedValue}`);
         cy.fetchVStorageData({
           url: auctionURL,
           field: 'startPrice',
         }).then(data => {
-          cy.calculateRatios(data, { hasDenom: true }).then(result => {
-            const valueFound = result.find(item => item === expectedValue);
-            expect(valueFound).to.be.true;
-          });
+          cy.calculateRatios(data, { hasDenom: true, useValue: false }).then(
+            result => {
+              const valueFound = result.includes(expectedValue);
+              expect(valueFound).to.be.true;
+            },
+          );
         });
       } else {
         const propertyName = 'book0.startPrice';
@@ -458,14 +461,17 @@ describe('Wallet App Test Cases', () => {
     it('should verify the value of startProceedsGoal', () => {
       if (AGORIC_NET === networks.LOCAL) {
         const expectedValue = 309.54;
+        cy.task('info', `Expected Value: ${expectedValue}`);
         cy.fetchVStorageData({
           url: auctionURL,
           field: 'startProceedsGoal',
         }).then(data => {
-          cy.calculateRatios(data, { hasDenom: false }).then(result => {
-            const valueFound = result.find(item => item === expectedValue);
-            expect(valueFound).to.be.true;
-          });
+          cy.calculateRatios(data, { hasDenom: false, useValue: true }).then(
+            result => {
+              const valueFound = result.includes(expectedValue);
+              expect(valueFound).to.be.true;
+            },
+          );
         });
       } else {
         const propertyName = 'book0.startProceedsGoal';
@@ -477,14 +483,17 @@ describe('Wallet App Test Cases', () => {
     it('should verify the value of startCollateral', () => {
       if (AGORIC_NET === networks.LOCAL) {
         const expectedValue = 45;
+        cy.task('info', `Expected Value: ${expectedValue}`);
         cy.fetchVStorageData({
           url: auctionURL,
           field: 'startCollateral',
         }).then(data => {
-          cy.calculateRatios(data, { hasDenom: false }).then(result => {
-            const valueFound = result.find(item => item === expectedValue);
-            expect(valueFound).to.be.true;
-          });
+          cy.calculateRatios(data, { hasDenom: false, useValue: true }).then(
+            result => {
+              const valueFound = result.includes(expectedValue);
+              expect(valueFound).to.be.true;
+            },
+          );
         });
       } else {
         const propertyName = 'book0.startCollateral';
@@ -516,14 +525,17 @@ describe('Wallet App Test Cases', () => {
 
       if (AGORIC_NET === networks.LOCAL) {
         const expectedValue = 9.659301;
+        cy.task('info', `Expected Value: ${expectedValue}`);
         cy.fetchVStorageData({
           url: auctionURL,
           field: 'collateralAvailable',
         }).then(data => {
-          cy.calculateRatios(data, { hasDenom: false }).then(result => {
-            const valueFound = result.find(item => item === expectedValue);
-            expect(valueFound).to.be.true;
-          });
+          cy.calculateRatios(data, { hasDenom: false, useValue: true }).then(
+            result => {
+              const valueFound = result.includes(expectedValue);
+              expect(valueFound).to.be.true;
+            },
+          );
         });
       } else {
         const propertyName = 'book0.collateralAvailable';
@@ -533,112 +545,115 @@ describe('Wallet App Test Cases', () => {
     });
   });
 
-  context('Close the vaults and cancel bids - TESTNET(s)', () => {
-    it('should claim collateral from the first vault successfully', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+  context(
+    'Claim collateral from vaults, restore ATOM price to 12.34, and cancel bids on TESTNET(s).',
+    () => {
+      it('should claim collateral from the first vault successfully', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
-      cy.contains(/3.42 ATOM/, { timeout: MINUTE_MS }).click();
-      cy.contains('button', 'Close Out Vault').click();
-      cy.wait(MINUTE_MS);
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-        cy.contains('button', 'Close Out Vault', {
-          timeout: DEFAULT_TIMEOUT,
-        }).should('not.exist');
-      });
-    });
-
-    it('should claim collateral from the second vault successfully', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
-
-      cy.contains(/3.07 ATOM/, { timeout: MINUTE_MS }).click();
-      cy.contains('button', 'Close Out Vault').click();
-      cy.wait(MINUTE_MS);
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-        cy.contains('button', 'Close Out Vault', {
-          timeout: DEFAULT_TIMEOUT,
-        }).should('not.exist');
-      });
-    });
-
-    it('should claim collateral from the third vault successfully', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
-
-      cy.contains(/2.84 ATOM/, { timeout: MINUTE_MS }).click();
-      cy.contains('button', 'Close Out Vault').click();
-      cy.wait(MINUTE_MS);
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-        cy.contains('button', 'Close Out Vault', {
-          timeout: DEFAULT_TIMEOUT,
-        }).should('not.exist');
-      });
-    });
-
-    it('should set ATOM price back to 12.34', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
-      cy.setOraclePrice(12.34);
-    });
-
-    it('should switch to the bidder wallet successfully', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
-      cy.switchWallet(bidderWalletName);
-    });
-
-    it('should setup the web wallet and cancel the 150IST bid', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
-
-      cy.visit(webWalletURL);
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-
-      cy.visit(`${webWalletURL}/wallet/`);
-
-      cy.get('input[type="checkbox"]').check();
-      cy.contains('Proceed').click();
-      cy.get('button[aria-label="Settings"]').click();
-
-      cy.contains('div', 'Mainnet').click();
-      cy.contains('li', webWalletSelectors[AGORIC_NET]).click();
-      cy.contains('button', 'Connect').click();
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-
-      cy.reload();
-
-      cy.get('span')
-        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
-        .should('exist');
-      cy.get('span')
-        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
-        .should('exist');
-
-      // Verify completely filled bids
-      cy.contains('90.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
-        'not.exist',
-      );
-      cy.contains('80.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
-        'not.exist',
-      );
-      // Verify 150 IST Bid to exist
-      cy.contains('150.00 IST', { timeout: DEFAULT_TIMEOUT }).should('exist');
-
-      cy.getTokenAmount('IST').then(initialTokenValue => {
-        cy.contains('Exit').click();
+        cy.contains(/3.42 ATOM/, { timeout: MINUTE_MS }).click();
+        cy.contains('button', 'Close Out Vault').click();
         cy.wait(MINUTE_MS);
         cy.acceptAccess().then(taskCompleted => {
           expect(taskCompleted).to.be.true;
-        });
-        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
-        cy.getTokenAmount('IST').then(tokenValue => {
-          expect(tokenValue).to.greaterThan(initialTokenValue);
+          cy.contains('button', 'Close Out Vault', {
+            timeout: DEFAULT_TIMEOUT,
+          }).should('not.exist');
         });
       });
-    });
-  });
+
+      it('should claim collateral from the second vault successfully', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+        cy.contains(/3.07 ATOM/, { timeout: MINUTE_MS }).click();
+        cy.contains('button', 'Close Out Vault').click();
+        cy.wait(MINUTE_MS);
+        cy.acceptAccess().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+          cy.contains('button', 'Close Out Vault', {
+            timeout: DEFAULT_TIMEOUT,
+          }).should('not.exist');
+        });
+      });
+
+      it('should claim collateral from the third vault successfully', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+        cy.contains(/2.84 ATOM/, { timeout: MINUTE_MS }).click();
+        cy.contains('button', 'Close Out Vault').click();
+        cy.wait(MINUTE_MS);
+        cy.acceptAccess().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+          cy.contains('button', 'Close Out Vault', {
+            timeout: DEFAULT_TIMEOUT,
+          }).should('not.exist');
+        });
+      });
+
+      it('should set ATOM price back to 12.34', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+        cy.setOraclePrice(12.34);
+      });
+
+      it('should switch to the bidder wallet successfully', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+        cy.switchWallet(bidderWalletName);
+      });
+
+      it('should setup the web wallet and cancel the 150IST bid', () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+        cy.visit(webWalletURL);
+
+        cy.acceptAccess().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+        });
+
+        cy.visit(`${webWalletURL}/wallet/`);
+
+        cy.get('input[type="checkbox"]').check();
+        cy.contains('Proceed').click();
+        cy.get('button[aria-label="Settings"]').click();
+
+        cy.contains('div', 'Mainnet').click();
+        cy.contains('li', webWalletSelectors[AGORIC_NET]).click();
+        cy.contains('button', 'Connect').click();
+
+        cy.acceptAccess().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+        });
+
+        cy.reload();
+
+        cy.get('span')
+          .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
+          .should('exist');
+        cy.get('span')
+          .contains('BLD', { timeout: DEFAULT_TIMEOUT })
+          .should('exist');
+
+        // Verify completely filled bids
+        cy.contains('90.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
+          'not.exist',
+        );
+        cy.contains('80.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
+          'not.exist',
+        );
+        // Verify 150 IST Bid to exist
+        cy.contains('150.00 IST', { timeout: DEFAULT_TIMEOUT }).should('exist');
+
+        cy.getTokenAmount('IST').then(initialTokenValue => {
+          cy.contains('Exit').click();
+          cy.wait(MINUTE_MS);
+          cy.acceptAccess().then(taskCompleted => {
+            expect(taskCompleted).to.be.true;
+          });
+          cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
+          cy.getTokenAmount('IST').then(tokenValue => {
+            expect(tokenValue).to.greaterThan(initialTokenValue);
+          });
+        });
+      });
+    },
+  );
 });

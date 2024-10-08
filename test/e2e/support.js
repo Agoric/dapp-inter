@@ -218,7 +218,7 @@ Cypress.Commands.add('fetchVStorageData', params => {
     cy.task('info', `Data fetched successfully for ${field}`);
 
     const data = JSON.parse(response.body.value);
-    cy.task('info', `VStorage Data: ${data}`);
+    cy.task('info', `VStorage Data: ${JSON.stringify(data)}`);
 
     const arr = data.values.map((value, _) => {
       const parsedValue = JSON.parse(value);
@@ -226,28 +226,35 @@ Cypress.Commands.add('fetchVStorageData', params => {
       return body[`${field}`];
     });
 
-    cy.task('info', `Filtered Data: ${arr}`);
-    return arr;
+    cy.task('info', `Filtered Data: ${JSON.stringify(arr)}`);
+    cy.wrap(arr);
   });
 });
 
 Cypress.Commands.add(
   'calculateRatios',
-  (data, options = { hasDenom: true }) => {
-    return data.map(item => {
-      if (item !== null && item !== undefined) {
-        const numerValue = Number(item.numerator.value.replace('+', ''));
+  (data, options = { hasDenom: true, useValue: false }) => {
+    cy.wrap(
+      data.map(item => {
+        if (item !== null && item !== undefined) {
+          const numerValue = options.useValue
+            ? Number(item.value.replace('+', ''))
+            : item.numerator
+              ? Number(item.numerator.value.replace('+', ''))
+              : 0;
 
-        const denomValue = options.hasDenom
-          ? Number(item.denominator.value.replace('+', ''))
-          : 1_000_000;
+          const denomValue =
+            options.hasDenom && item.denominator
+              ? Number(item.denominator.value.replace('+', ''))
+              : 1_000_000;
 
-        const ratio = numerValue / denomValue;
-        return ratio;
-      }
+          const ratio = numerValue / denomValue;
+          return ratio;
+        }
 
-      return item;
-    });
+        return item;
+      }),
+    );
   },
 );
 
