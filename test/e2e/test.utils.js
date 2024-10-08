@@ -51,6 +51,7 @@ export const configMap = {
     gov2Address: Cypress.env('GOV2_ADDRESS'),
     gov2WalletName: 'gov2',
     econGovURL: `https://econ-gov.inter.trade/?agoricNet=${Cypress.env('AGORIC_NET')}`,
+    auctionURL: `https://${Cypress.env('AGORIC_NET')?.trim()}.api.agoric.net/agoric/vstorage/data/published.auction.book0`,
   },
   local: {
     DEFAULT_TIMEOUT: 1 * 60 * 1000,
@@ -70,6 +71,8 @@ export const configMap = {
     gov2Address: accountAddresses.gov2,
     gov2WalletName: 'gov2',
     econGovURL: 'https://econ-gov.inter.trade/?agoricNet=local',
+    auctionURL:
+      'http://localhost:1317/agoric/vstorage/data/published.auction.book0',
   },
 };
 

@@ -211,6 +211,53 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
     .then(status => expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
 });
 
+Cypress.Commands.add('fetchVStorageData', params => {
+  const { url, field } = params;
+  cy.request(url).then(response => {
+    expect(response.status).to.eq(200);
+    cy.task('info', `Data fetched successfully for ${field}`);
+
+    const data = JSON.parse(response.body.value);
+    cy.task('info', `VStorage Data: ${JSON.stringify(data)}`);
+
+    const arr = data.values.map((value, _) => {
+      const parsedValue = JSON.parse(value);
+      const body = JSON.parse(parsedValue.body.slice(1));
+      return body[`${field}`];
+    });
+
+    cy.task('info', `Filtered Data: ${JSON.stringify(arr)}`);
+    cy.wrap(arr);
+  });
+});
+
+Cypress.Commands.add(
+  'calculateRatios',
+  (data, options = { hasDenom: true, useValue: false }) => {
+    cy.wrap(
+      data.map(item => {
+        if (item !== null && item !== undefined) {
+          const numerValue = options.useValue
+            ? Number(item.value.replace('+', ''))
+            : item.numerator
+              ? Number(item.numerator.value.replace('+', ''))
+              : 0;
+
+          const denomValue =
+            options.hasDenom && item.denominator
+              ? Number(item.denominator.value.replace('+', ''))
+              : 1_000_000;
+
+          const ratio = numerValue / denomValue;
+          return ratio;
+        }
+
+        return item;
+      }),
+    );
+  },
+);
+
 afterEach(function () {
   if (this.currentTest.state === 'failed') {
     const testName = this.currentTest.title;
