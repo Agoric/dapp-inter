@@ -26,6 +26,7 @@ describe('Wallet App Test Cases', () => {
   const gov2Mnemonic = currentConfig.gov2Mnemonic;
   const gov2Address = currentConfig.gov2Address;
   const econGovURL = currentConfig.econGovURL;
+  const auctionURL = currentConfig.auctionURL;
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
@@ -414,40 +415,86 @@ describe('Wallet App Test Cases', () => {
       },
     );
 
-    it('should verify vaults that are at a risk of being liquidated', () => {
+    it('should set ATOM price to 9.99', () => {
       cy.setOraclePrice(9.99);
+    });
+
+    it('should verify vaults that are at a risk of being liquidated', () => {
       cy.switchWallet('user1');
       cy.contains(
         /Please increase your collateral or repay your outstanding IST debt./,
       );
     });
 
-    it('should wait and verify vaults are being liquidated', () => {
+    it('should wait and verify vaults are liquidating', () => {
       cy.contains(/vaults are liquidating./, {
         timeout: LIQUIDATING_TIMEOUT,
       });
     });
+  });
 
-    it('should verify the value of startPrice from the CLI successfully', () => {
-      const propertyName = 'book0.startPrice';
-      const expectedValue = '9.99 IST/ATOM';
-      cy.verifyAuctionData(propertyName, expectedValue);
+  context('Verify auction values while vaults are LIQUIDATING', () => {
+    it('should verify the value of startPrice', () => {
+      cy.wait(MINUTE_MS);
+
+      if (AGORIC_NET === networks.LOCAL) {
+        const expectedValue = 9.99;
+        cy.fetchVStorageData({
+          url: auctionURL,
+          field: 'startPrice',
+        }).then(data => {
+          cy.calculateRatios(data, { hasDenom: true }).then(result => {
+            const valueFound = result.find(item => item === expectedValue);
+            expect(valueFound).to.be.true;
+          });
+        });
+      } else {
+        const propertyName = 'book0.startPrice';
+        const expectedValue = '9.99 IST/ATOM';
+        cy.verifyAuctionData(propertyName, expectedValue);
+      }
     });
 
-    it('should verify the value of startProceedsGoal from the CLI successfully', () => {
-      const propertyName = 'book0.startProceedsGoal';
-      const expectedValue = '309.54 IST';
-      cy.verifyAuctionData(propertyName, expectedValue);
+    it('should verify the value of startProceedsGoal', () => {
+      if (AGORIC_NET === networks.LOCAL) {
+        const expectedValue = 309.54;
+        cy.fetchVStorageData({
+          url: auctionURL,
+          field: 'startProceedsGoal',
+        }).then(data => {
+          cy.calculateRatios(data, { hasDenom: false }).then(result => {
+            const valueFound = result.find(item => item === expectedValue);
+            expect(valueFound).to.be.true;
+          });
+        });
+      } else {
+        const propertyName = 'book0.startProceedsGoal';
+        const expectedValue = '309.54 IST';
+        cy.verifyAuctionData(propertyName, expectedValue);
+      }
     });
 
-    it('should verify the value of startCollateral from the CLI successfully', () => {
-      const propertyName = 'book0.startCollateral';
-      const expectedValue = '45 ATOM';
-      cy.verifyAuctionData(propertyName, expectedValue);
+    it('should verify the value of startCollateral', () => {
+      if (AGORIC_NET === networks.LOCAL) {
+        const expectedValue = 45;
+        cy.fetchVStorageData({
+          url: auctionURL,
+          field: 'startCollateral',
+        }).then(data => {
+          cy.calculateRatios(data, { hasDenom: false }).then(result => {
+            const valueFound = result.find(item => item === expectedValue);
+            expect(valueFound).to.be.true;
+          });
+        });
+      } else {
+        const propertyName = 'book0.startCollateral';
+        const expectedValue = '45 ATOM';
+        cy.verifyAuctionData(propertyName, expectedValue);
+      }
     });
+  });
 
-    // Tests ran fine locally but failed in CI. Updating a3p container replicated failure locally. Tests pass with older container version.
-    // UNTIL: a3p container compatibility is resolved.
+  context('Wait for Vaults to be LIQUIDATED', () => {
     it(
       'should wait and verify vaults are liquidated',
       {
@@ -464,15 +511,29 @@ describe('Wallet App Test Cases', () => {
       },
     );
 
-    it('should verify the value of collateralAvailable from the CLI successfully', () => {
-      const propertyName = 'book0.collateralAvailable';
-      const expectedValue = '9.659301 ATOM';
-      cy.wait(2 * MINUTE_MS);
-      cy.verifyAuctionData(propertyName, expectedValue); // eslint-disable-line cypress/no-unnecessary-waiting
+    it('should verify the value of collateralAvailable', () => {
+      cy.wait(MINUTE_MS);
+
+      if (AGORIC_NET === networks.LOCAL) {
+        const expectedValue = 9.659301;
+        cy.fetchVStorageData({
+          url: auctionURL,
+          field: 'collateralAvailable',
+        }).then(data => {
+          cy.calculateRatios(data, { hasDenom: false }).then(result => {
+            const valueFound = result.find(item => item === expectedValue);
+            expect(valueFound).to.be.true;
+          });
+        });
+      } else {
+        const propertyName = 'book0.collateralAvailable';
+        const expectedValue = '9.659301 ATOM';
+        cy.verifyAuctionData(propertyName, expectedValue); // eslint-disable-line cypress/no-unnecessary-waiting
+      }
     });
   });
 
-  context('Close the vaults and cancel bids', () => {
+  context('Close the vaults and cancel bids - TESTNET(s)', () => {
     it('should claim collateral from the first vault successfully', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
@@ -521,15 +582,12 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should switch to the bidder wallet successfully', () => {
-      cy.skipWhen(
-        AGORIC_NET !== networks.EMERYNET || AGORIC_NET !== networks.DEVNET,
-      );
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.switchWallet(bidderWalletName);
     });
+
     it('should setup the web wallet and cancel the 150IST bid', () => {
-      cy.skipWhen(
-        AGORIC_NET !== networks.EMERYNET || AGORIC_NET !== networks.DEVNET,
-      );
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
 
       cy.visit(webWalletURL);
 
