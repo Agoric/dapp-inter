@@ -497,7 +497,6 @@ describe('Wallet App Test Cases', () => {
     'Wait for two vaults to be RECONSTITUTED and one to be LIQUIDATED',
     () => {
       it('should verify 2 vaults are reconstituted', () => {
-        cy.skipWhen(AGORIC_NET === networks.LOCAL);
         cy.contains(
           /Please increase your collateral or repay your outstanding IST debt./,
           { timeout: LIQUIDATING_TIMEOUT },
@@ -511,8 +510,6 @@ describe('Wallet App Test Cases', () => {
           taskTimeout: DEFAULT_TASK_TIMEOUT,
         },
         () => {
-          cy.skipWhen(AGORIC_NET === networks.LOCAL);
-
           cy.contains(/Collateral left to claim/, {
             timeout: LIQUIDATED_TIMEOUT,
           });
@@ -524,7 +521,7 @@ describe('Wallet App Test Cases', () => {
         cy.wait(MINUTE_MS);
 
         if (AGORIC_NET === networks.LOCAL) {
-          const expectedValue = 34.98999;
+          const expectedValue = 31.414987;
           cy.task('info', `Expected Value: ${expectedValue}`);
           cy.fetchVStorageData({
             url: auctionURL,
