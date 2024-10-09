@@ -30,6 +30,7 @@ export const networks = {
 export const webWalletSelectors = {
   emerynet: 'Emerynet',
   devnet: 'Devnet',
+  local: 'Local',
 };
 
 export const configMap = {
@@ -80,4 +81,12 @@ export const FACUET_HEADERS = {
   Accept:
     'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
   'Content-Type': 'application/x-www-form-urlencoded',
+};
+
+export const ATOM_DENOMS = {
+  local: 'ibc/BA313C4A19DFBF943586C0387E6B11286F9E416B4DD27574E6909CABE0E342FA',
+  emerynet:
+    'ibc/06362C6F7F4FB702B94C13CD2E7C03DEC357683FD978936340B43FBFBC5351EB',
+  devnet: 'ibc/toyatom',
+  xnet: 'ibc/06362C6F7F4FB702B94C13CD2E7C03DEC357683FD978936340B43FBFBC5351EB',
 };
