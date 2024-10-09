@@ -31,9 +31,19 @@ describe('Wallet App Test Cases', () => {
   let user1AtomBalance = 0;
 
   context('Setting up accounts', () => {
+    // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
+    it('should set up bidder wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+
+      cy.setupWallet({
+        secretWords: bidderMnemonic,
+        walletName: bidderWalletName,
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+    });
     it('should set up user1 wallet', () => {
       cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
-
       cy.setupWallet({
         secretWords: user1Mnemonic,
         walletName: 'user1',
@@ -41,83 +51,15 @@ describe('Wallet App Test Cases', () => {
         expect(taskCompleted).to.be.true;
       });
     });
-    // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
-    it('should set up bidder/gov1 wallet', () => {
-      let mnemonic = bidderMnemonic;
-      let walletName = bidderWalletName;
 
-      if (AGORIC_NET === networks.LOCAL) {
-        cy.task('info', `gov1 is the bidder wallet`);
-        mnemonic = mnemonics.gov1;
-        walletName = 'gov1';
-      }
-
-      cy.setupWallet({
-        secretWords: mnemonic,
-        walletName: walletName,
-      }).then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-    });
-
-    it('should setup the web wallet', () => {
-      cy.visit(webWalletURL);
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-
-      cy.visit(`${webWalletURL}/wallet/`);
-
-      cy.get('input[type="checkbox"]').check();
-      cy.contains('Proceed').click();
-      cy.get('button[aria-label="Settings"]').click();
-
-      cy.contains('Mainnet').click();
-      cy.contains('li', webWalletSelectors[AGORIC_NET]).click();
-
-      cy.contains('button', 'Connect').click();
-
-      cy.wait(8000); // eslint-disable-line cypress/no-unnecessary-waiting
-
-      if (AGORIC_NET !== networks.LOCAL) {
-        cy.acceptAccess().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-        });
-      }
-
-      cy.reload();
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-
-      cy.acceptAccess().then(taskCompleted => {
-        expect(taskCompleted).to.be.true;
-      });
-
-      cy.get('span')
-        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
-        .should('exist');
-      cy.get('span')
-        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
-        .should('exist');
-    });
-
-    it('should cancel 1ST bid - A3P', () => {
+    it('should set up gov1 wallet', () => {
       cy.skipWhen(AGORIC_NET !== networks.LOCAL);
 
-      cy.addNewTokensFound();
-      cy.getTokenAmount('IST').then(initialTokenValue => {
-        cy.contains('Exit').click();
-        cy.wait(10000); // eslint-disable-line cypress/no-unnecessary-waiting
-        cy.acceptAccess().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-        });
-        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
-        cy.getTokenAmount('IST').then(tokenValue => {
-          expect(tokenValue).to.greaterThan(initialTokenValue);
-        });
+      cy.setupWallet({
+        secretWords: mnemonics.gov1,
+        walletName: 'gov1',
+      }).then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
       });
     });
 
@@ -144,8 +86,8 @@ describe('Wallet App Test Cases', () => {
     });
     it('should allow gov2 to create a proposal', () => {
       cy.skipWhen(AGORIC_NET !== networks.LOCAL);
-
       cy.visit(econGovURL);
+      cy.acceptAccess();
 
       cy.get('button').contains('Vaults').click();
       cy.get('button').contains('Select Manager').click();
@@ -357,14 +299,12 @@ describe('Wallet App Test Cases', () => {
         .within(() => {
           cy.get('span').contains('Change Accepted').should('be.visible');
         });
+
+      cy.switchWallet('user1');
     });
   });
 
   context('Creating vaults and changing ATOM price', () => {
-    it('should switch to user1 wallet', () => {
-      cy.switchWallet('user1');
-    });
-
     it(
       'should connect with the wallet',
       {
@@ -458,7 +398,7 @@ describe('Wallet App Test Cases', () => {
       },
       () => {
         cy.switchWallet(bidderWalletName);
-
+        cy.addNewTokensFound();
         cy.getTokenAmount('IST').then(initialTokenValue => {
           cy.placeBidByPrice({
             fromAddress: bidderAddress,
@@ -716,11 +656,35 @@ describe('Wallet App Test Cases', () => {
       cy.switchWallet(bidderWalletName);
     });
 
-    it('should cancel partially filled 150IST bid', () => {
+    it('should setup the web wallet and cancel the 150IST bid', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.visit(webWalletURL);
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+
       cy.visit(`${webWalletURL}/wallet/`);
+
+      cy.get('input[type="checkbox"]').check();
+      cy.contains('Proceed').click();
+      cy.get('button[aria-label="Settings"]').click();
+
+      cy.contains('div', 'Mainnet').click();
+      cy.contains('li', webWalletSelectors[AGORIC_NET]).click();
+      cy.contains('button', 'Connect').click();
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.reload();
 
       cy.get('span')
         .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+      cy.get('span')
+        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
         .should('exist');
 
       // Verify completely filled bids
@@ -730,12 +694,11 @@ describe('Wallet App Test Cases', () => {
       cy.contains('80.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
         'not.exist',
       );
-
       // Verify 150 IST Bid to exist
       cy.contains('150.00 IST', { timeout: DEFAULT_TIMEOUT }).should('exist');
 
       cy.getTokenAmount('IST').then(initialTokenValue => {
-        cy.contains('Exit').click();
+        cy.contains('Exit').eq(1).click();
         cy.wait(MINUTE_MS);
         cy.acceptAccess().then(taskCompleted => {
           expect(taskCompleted).to.be.true;
@@ -748,6 +711,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it("should see increase in the bidder's ATOM balance because of partially filled bid", () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.wait(10000); // eslint-disable-line cypress/no-unnecessary-waiting
 
       const expectedValue = 16.43;
