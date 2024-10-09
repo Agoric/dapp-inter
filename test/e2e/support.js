@@ -4,10 +4,15 @@ import {
   configMap,
   FACUET_HEADERS,
   agoricNetworks,
+  ATOM_DENOMS,
 } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
 const network = AGORIC_NET !== 'local' ? 'testnet' : 'local';
+const balanceUrl =
+  AGORIC_NET !== 'local'
+    ? `https://${AGORIC_NET}.api.agoric.net/cosmos/bank/v1beta1/balances/`
+    : 'http://localhost:1317/cosmos/bank/v1beta1/balances/';
 const COMMAND_TIMEOUT = configMap[network].COMMAND_TIMEOUT;
 
 const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
@@ -257,6 +262,38 @@ Cypress.Commands.add(
     );
   },
 );
+
+Cypress.Commands.add('getATOMBalance', ({ walletAddress }) => {
+  cy.task('info', `Query balance using balance url: ${balanceUrl}`);
+
+  cy.request(`${balanceUrl}/${walletAddress}`).then(response => {
+    expect(response.status).to.eq(200);
+    cy.task('info', `Balances fetched successfully for ${walletAddress}`);
+
+    const balancesArr = response.body?.balances;
+    if (!balancesArr || !Array.isArray(balancesArr)) {
+      throw new Error('Balances array is missing or invalid');
+    }
+
+    cy.task('info', `Balances: ${JSON.stringify(balancesArr)}`);
+    cy.task('info', `denom for ATOM:${ATOM_DENOMS[AGORIC_NET]}`);
+
+    const atomBalance = balancesArr.find(
+      balance => balance.denom === ATOM_DENOMS[AGORIC_NET],
+    );
+    if (!atomBalance) {
+      throw new Error(
+        `ATOM balance not found for denom: ${ATOM_DENOMS[AGORIC_NET]}`,
+      );
+    }
+    cy.task('info', `ATOM Balance:${JSON.stringify(atomBalance)}`);
+
+    const atomBalanceNormalized = Number(atomBalance.amount) / 1_000_000;
+    cy.task('info', `ATOM Balance Normalized:${atomBalanceNormalized}`);
+
+    cy.wrap(atomBalanceNormalized);
+  });
+});
 
 afterEach(function () {
   if (this.currentTest.state === 'failed') {
