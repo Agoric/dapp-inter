@@ -30,6 +30,7 @@ export const networks = {
 export const webWalletSelectors = {
   emerynet: 'Emerynet',
   devnet: 'Devnet',
+  local: 'Local',
 };
 
 export const configMap = {
