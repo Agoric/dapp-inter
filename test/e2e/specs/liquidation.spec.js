@@ -656,7 +656,7 @@ describe('Wallet App Test Cases', () => {
       cy.switchWallet(bidderWalletName);
     });
 
-    it('should setup the web wallet and cancel the 150IST bid', () => {
+    it('should setup the web wallet', () => {
       cy.visit(webWalletURL);
 
       cy.acceptAccess().then(taskCompleted => {
@@ -695,9 +695,41 @@ describe('Wallet App Test Cases', () => {
       );
       // Verify 150 IST Bid to exist
       cy.contains('150.00 IST', { timeout: DEFAULT_TIMEOUT }).should('exist');
+    });
+
+    it('should cancel the 1IST bid', () => {
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
+      cy.reload();
 
       cy.getTokenAmount('IST').then(initialTokenValue => {
-        cy.contains('Exit').eq(1).click();
+        cy.contains('Exit').click();
+        cy.wait(MINUTE_MS);
+        cy.acceptAccess().then(taskCompleted => {
+          expect(taskCompleted).to.be.true;
+        });
+        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
+        cy.getTokenAmount('IST').then(tokenValue => {
+          expect(tokenValue).to.greaterThan(initialTokenValue);
+        });
+      });
+    });
+
+    it('should save bidder ATOM balance', () => {
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
+      cy.wait(MINUTE_MS);
+      cy.getATOMBalance({
+        walletAddress: bidderAddress,
+      }).then(output => {
+        bidderAtomBalance = Number(output.toFixed(2));
+        cy.task('info', `bidderAtomBalance: ${bidderAtomBalance}`);
+      });
+    });
+
+    it('should cancel the 150IST bid', () => {
+      cy.reload();
+
+      cy.getTokenAmount('IST').then(initialTokenValue => {
+        cy.contains('Exit').click();
         cy.wait(MINUTE_MS);
         cy.acceptAccess().then(taskCompleted => {
           expect(taskCompleted).to.be.true;
