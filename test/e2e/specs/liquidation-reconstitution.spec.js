@@ -382,6 +382,17 @@ describe('Wallet App Test Cases', () => {
           userKey: 'gov1',
         });
       });
+
+      it('should save bidder ATOM balance before placing bids', () => {
+        cy.wait(MINUTE_MS);
+        cy.getATOMBalance({
+          walletAddress: bidderAddress,
+        }).then(output => {
+          bidderAtomBalance = Number(output.toFixed(3));
+          cy.task('info', `bidderAtomBalance: ${bidderAtomBalance}`);
+        });
+      });
+
       it('should place bids from the CLI successfully', () => {
         cy.switchWallet(bidderWalletName);
         cy.addNewTokensFound();
@@ -542,6 +553,74 @@ describe('Wallet App Test Cases', () => {
       });
     },
   );
+
+  context('Verification of Filled Bids', () => {
+    it("should see increase in the bidder's ATOM balance", () => {
+      const expectedValue = 13.585;
+      cy.task(
+        'info',
+        `Expected increase due to completely filled bids: ${expectedValue}`,
+      );
+
+      cy.getATOMBalance({
+        walletAddress: bidderAddress,
+      }).then(newBalance => {
+        cy.task('info', `Initial bidder ATOM Balance: ${bidderAtomBalance}`);
+        cy.task('info', `New bidder ATOM Balance: ${newBalance}`);
+
+        const balanceIncrease = Number(
+          (newBalance - bidderAtomBalance).toFixed(3),
+        );
+        cy.task('info', `Actual increase: ${balanceIncrease}`);
+        bidderAtomBalance = Number(newBalance.toFixed(2));
+
+        expect(balanceIncrease).to.eq(expectedValue);
+      });
+    });
+
+    it('should switch to the bidder wallet successfully', () => {
+      cy.switchWallet(bidderWalletName);
+    });
+
+    it('should setup the web wallet and not see any bids', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.visit(webWalletURL);
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.visit(`${webWalletURL}/wallet/`);
+
+      cy.get('input[type="checkbox"]').check();
+      cy.contains('Proceed').click();
+      cy.get('button[aria-label="Settings"]').click();
+
+      cy.contains('div', 'Mainnet').click();
+      cy.contains('li', webWalletSelectors[AGORIC_NET]).click();
+      cy.contains('button', 'Connect').click();
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.reload();
+
+      cy.get('span')
+        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+      cy.get('span')
+        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+
+      cy.contains('75.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
+        'not.exist',
+      );
+      cy.contains('25.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
+        'not.exist',
+      );
+    });
+  });
 
   context(
     'Close the vaults and restore ATOM price to 12.34 on TESTNET(s).',
