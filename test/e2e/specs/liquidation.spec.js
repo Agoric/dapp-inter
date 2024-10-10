@@ -657,7 +657,6 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should setup the web wallet and cancel the 150IST bid', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.visit(webWalletURL);
 
       cy.acceptAccess().then(taskCompleted => {
@@ -711,7 +710,6 @@ describe('Wallet App Test Cases', () => {
     });
 
     it("should see increase in the bidder's ATOM balance because of partially filled bid", () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.wait(10000); // eslint-disable-line cypress/no-unnecessary-waiting
 
       const expectedValue = 16.43;
