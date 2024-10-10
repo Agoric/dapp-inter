@@ -1,4 +1,12 @@
-import { mnemonics, MINUTE_MS, networks, configMap } from '../test.utils';
+import {
+  mnemonics,
+  MINUTE_MS,
+  networks,
+  configMap,
+  QUICK_WAIT,
+  webWalletURL,
+  webWalletSelectors,
+} from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
   let startTime;
@@ -20,6 +28,7 @@ describe('Wallet App Test Cases', () => {
   const gov2Address = currentConfig.gov2Address;
   const econGovURL = currentConfig.econGovURL;
   const auctionURL = currentConfig.auctionURL;
+  let bidderAtomBalance = 0;
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
@@ -382,6 +391,17 @@ describe('Wallet App Test Cases', () => {
           userKey: 'gov1',
         });
       });
+
+      it('should save bidder ATOM balance before placing bids', () => {
+        cy.wait(QUICK_WAIT);
+        cy.getATOMBalance({
+          walletAddress: bidderAddress,
+        }).then(output => {
+          bidderAtomBalance = Number(output.toFixed(3));
+          cy.task('info', `bidderAtomBalance: ${bidderAtomBalance}`);
+        });
+      });
+
       it('should place bids from the CLI successfully', () => {
         cy.switchWallet(bidderWalletName);
         cy.addNewTokensFound();
@@ -425,7 +445,7 @@ describe('Wallet App Test Cases', () => {
 
   context('Verify auction values while vaults are LIQUIDATING', () => {
     it('should verify the value of startPrice', () => {
-      cy.wait(MINUTE_MS);
+      cy.wait(QUICK_WAIT);
 
       if (AGORIC_NET === networks.LOCAL) {
         const expectedValue = 9.99;
@@ -518,7 +538,7 @@ describe('Wallet App Test Cases', () => {
       );
 
       it('should verify the value of collateralAvailable', () => {
-        cy.wait(MINUTE_MS);
+        cy.wait(QUICK_WAIT);
 
         if (AGORIC_NET === networks.LOCAL) {
           const expectedValue = 31.414987;
@@ -542,6 +562,74 @@ describe('Wallet App Test Cases', () => {
       });
     },
   );
+
+  context('Verification of Filled Bids', () => {
+    it("should see increase in the bidder's ATOM balance", () => {
+      const expectedValue = 13.585;
+      cy.task(
+        'info',
+        `Expected increase due to completely filled bids: ${expectedValue}`,
+      );
+
+      cy.getATOMBalance({
+        walletAddress: bidderAddress,
+      }).then(newBalance => {
+        cy.task('info', `Initial bidder ATOM Balance: ${bidderAtomBalance}`);
+        cy.task('info', `New bidder ATOM Balance: ${newBalance}`);
+
+        const balanceIncrease = Number(
+          (newBalance - bidderAtomBalance).toFixed(3),
+        );
+        cy.task('info', `Actual increase: ${balanceIncrease}`);
+        bidderAtomBalance = Number(newBalance.toFixed(2));
+
+        expect(balanceIncrease).to.eq(expectedValue);
+      });
+    });
+
+    it('should switch to the bidder wallet successfully', () => {
+      cy.switchWallet(bidderWalletName);
+    });
+
+    it('should setup the web wallet and not see any bids', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.visit(webWalletURL);
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.visit(`${webWalletURL}/wallet/`);
+
+      cy.get('input[type="checkbox"]').check();
+      cy.contains('Proceed').click();
+      cy.get('button[aria-label="Settings"]').click();
+
+      cy.contains('div', 'Mainnet').click();
+      cy.contains('li', webWalletSelectors[AGORIC_NET]).click();
+      cy.contains('button', 'Connect').click();
+
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+
+      cy.reload();
+
+      cy.get('span')
+        .contains('ATOM', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+      cy.get('span')
+        .contains('BLD', { timeout: DEFAULT_TIMEOUT })
+        .should('exist');
+
+      cy.contains('75.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
+        'not.exist',
+      );
+      cy.contains('25.00 IST', { timeout: DEFAULT_TIMEOUT }).should(
+        'not.exist',
+      );
+    });
+  });
 
   context(
     'Close the vaults and restore ATOM price to 12.34 on TESTNET(s).',
