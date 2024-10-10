@@ -5,6 +5,8 @@ import {
   configMap,
   webWalletURL,
   webWalletSelectors,
+  QUICK_WAIT,
+  THIRTY_SECONDS,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -381,7 +383,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should save bidder ATOM balance before placing bids', () => {
-      cy.wait(MINUTE_MS);
+      cy.wait(QUICK_WAIT);
       cy.getATOMBalance({
         walletAddress: bidderAddress,
       }).then(output => {
@@ -445,7 +447,7 @@ describe('Wallet App Test Cases', () => {
 
   context('Verify auction values while vaults are LIQUIDATING', () => {
     it('should verify the value of startPrice', () => {
-      cy.wait(MINUTE_MS);
+      cy.wait(THIRTY_SECONDS);
 
       if (AGORIC_NET === networks.LOCAL) {
         const expectedValue = 9.99;
@@ -531,7 +533,7 @@ describe('Wallet App Test Cases', () => {
     );
 
     it('should verify the value of collateralAvailable', () => {
-      cy.wait(MINUTE_MS);
+      cy.wait(QUICK_WAIT);
 
       if (AGORIC_NET === networks.LOCAL) {
         const expectedValue = 9.659301;
@@ -557,7 +559,7 @@ describe('Wallet App Test Cases', () => {
 
   context('Claim collateral from the liquidated vaults', () => {
     it('should save user1 ATOM balance before claiming collateral', () => {
-      cy.wait(MINUTE_MS);
+      cy.wait(QUICK_WAIT);
 
       cy.getATOMBalance({
         walletAddress: user1Address,
@@ -570,7 +572,7 @@ describe('Wallet App Test Cases', () => {
     it('should claim collateral from the first vault successfully', () => {
       cy.contains(/3.42 ATOM/, { timeout: MINUTE_MS }).click();
       cy.contains('button', 'Close Out Vault').click();
-      cy.wait(5000); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(QUICK_WAIT); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
         cy.contains('button', 'Close Out Vault', {
@@ -582,7 +584,7 @@ describe('Wallet App Test Cases', () => {
     it('should claim collateral from the second vault successfully', () => {
       cy.contains(/3.07 ATOM/, { timeout: MINUTE_MS }).click();
       cy.contains('button', 'Close Out Vault').click();
-      cy.wait(5000); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(QUICK_WAIT); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
         cy.contains('button', 'Close Out Vault', {
@@ -594,7 +596,7 @@ describe('Wallet App Test Cases', () => {
     it('should claim collateral from the third vault successfully', () => {
       cy.contains(/2.84 ATOM/, { timeout: MINUTE_MS }).click();
       cy.contains('button', 'Close Out Vault').click();
-      cy.wait(5000); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(QUICK_WAIT); // eslint-disable-line cypress/no-unnecessary-waiting
       cy.acceptAccess().then(taskCompleted => {
         expect(taskCompleted).to.be.true;
         cy.contains('button', 'Close Out Vault', {
@@ -604,7 +606,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it("should see increase in the user1's ATOM balance after claiming collateral", () => {
-      cy.wait(10000); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(QUICK_WAIT); // eslint-disable-line cypress/no-unnecessary-waiting
 
       const expectedValue = 9.35;
       cy.task(
@@ -703,7 +705,7 @@ describe('Wallet App Test Cases', () => {
 
       cy.getTokenAmount('IST').then(initialTokenValue => {
         cy.contains('Exit').click();
-        cy.wait(MINUTE_MS);
+        cy.wait(QUICK_WAIT);
         cy.acceptAccess().then(taskCompleted => {
           expect(taskCompleted).to.be.true;
         });
@@ -716,7 +718,7 @@ describe('Wallet App Test Cases', () => {
 
     it('should save bidder ATOM balance', () => {
       cy.skipWhen(AGORIC_NET !== networks.LOCAL);
-      cy.wait(MINUTE_MS);
+      cy.wait(QUICK_WAIT);
       cy.getATOMBalance({
         walletAddress: bidderAddress,
       }).then(output => {
@@ -730,7 +732,7 @@ describe('Wallet App Test Cases', () => {
 
       cy.getTokenAmount('IST').then(initialTokenValue => {
         cy.contains('Exit').click();
-        cy.wait(MINUTE_MS);
+        cy.wait(QUICK_WAIT);
         cy.acceptAccess().then(taskCompleted => {
           expect(taskCompleted).to.be.true;
         });
@@ -742,7 +744,7 @@ describe('Wallet App Test Cases', () => {
     });
 
     it("should see increase in the bidder's ATOM balance because of partially filled bid", () => {
-      cy.wait(10000); // eslint-disable-line cypress/no-unnecessary-waiting
+      cy.wait(QUICK_WAIT); // eslint-disable-line cypress/no-unnecessary-waiting
 
       const expectedValue = 16.43;
       cy.task(

@@ -1,4 +1,12 @@
-import { mnemonics, MINUTE_MS, networks, configMap } from '../test.utils';
+import {
+  mnemonics,
+  MINUTE_MS,
+  networks,
+  configMap,
+  QUICK_WAIT,
+  webWalletURL,
+  webWalletSelectors,
+} from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
   let startTime;
@@ -20,6 +28,7 @@ describe('Wallet App Test Cases', () => {
   const gov2Address = currentConfig.gov2Address;
   const econGovURL = currentConfig.econGovURL;
   const auctionURL = currentConfig.auctionURL;
+  let bidderAtomBalance = 0;
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
@@ -384,7 +393,7 @@ describe('Wallet App Test Cases', () => {
       });
 
       it('should save bidder ATOM balance before placing bids', () => {
-        cy.wait(MINUTE_MS);
+        cy.wait(QUICK_WAIT);
         cy.getATOMBalance({
           walletAddress: bidderAddress,
         }).then(output => {
@@ -436,7 +445,7 @@ describe('Wallet App Test Cases', () => {
 
   context('Verify auction values while vaults are LIQUIDATING', () => {
     it('should verify the value of startPrice', () => {
-      cy.wait(MINUTE_MS);
+      cy.wait(QUICK_WAIT);
 
       if (AGORIC_NET === networks.LOCAL) {
         const expectedValue = 9.99;
@@ -529,7 +538,7 @@ describe('Wallet App Test Cases', () => {
       );
 
       it('should verify the value of collateralAvailable', () => {
-        cy.wait(MINUTE_MS);
+        cy.wait(QUICK_WAIT);
 
         if (AGORIC_NET === networks.LOCAL) {
           const expectedValue = 31.414987;
