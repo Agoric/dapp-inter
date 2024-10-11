@@ -6,6 +6,7 @@ import {
   QUICK_WAIT,
   webWalletURL,
   webWalletSelectors,
+  tokens,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -29,6 +30,7 @@ describe('Wallet App Test Cases', () => {
   const econGovURL = currentConfig.econGovURL;
   const auctionURL = currentConfig.auctionURL;
   let bidderAtomBalance = 0;
+  let bidderIstBalance = 0;
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
@@ -394,33 +396,52 @@ describe('Wallet App Test Cases', () => {
 
       it('should save bidder ATOM balance before placing bids', () => {
         cy.wait(QUICK_WAIT);
-        cy.getATOMBalance({
+        cy.getTokenBalance({
           walletAddress: bidderAddress,
+          token: tokens.ATOM,
         }).then(output => {
           bidderAtomBalance = Number(output.toFixed(3));
           cy.task('info', `bidderAtomBalance: ${bidderAtomBalance}`);
         });
       });
 
+      it('should save bidder IST balance before placing bid', () => {
+        cy.getTokenBalance({
+          walletAddress: bidderAddress,
+          token: tokens.IST,
+        }).then(output => {
+          bidderIstBalance = Number(output.toFixed(2));
+          cy.task('info', `bidder IST Balance: ${bidderIstBalance}`);
+        });
+      });
+
       it('should place bids from the CLI successfully', () => {
         cy.switchWallet(bidderWalletName);
         cy.addNewTokensFound();
-        cy.getTokenAmount('IST').then(initialTokenValue => {
-          cy.placeBidByDiscount({
-            fromAddress: bidderAddress,
-            giveAmount: '75IST',
-            discount: 22,
-          });
 
-          cy.placeBidByDiscount({
-            fromAddress: bidderAddress,
-            giveAmount: '25IST',
-            discount: 30,
-          });
+        cy.placeBidByDiscount({
+          fromAddress: bidderAddress,
+          giveAmount: '75IST',
+          discount: 22,
+        });
 
-          cy.getTokenAmount('IST').then(tokenValue => {
-            expect(tokenValue).to.lessThan(initialTokenValue);
-          });
+        cy.placeBidByDiscount({
+          fromAddress: bidderAddress,
+          giveAmount: '25IST',
+          discount: 30,
+        });
+      });
+
+      it("should see decrease in bidder's IST balance after placing bid", () => {
+        cy.wait(QUICK_WAIT);
+        cy.getTokenBalance({
+          walletAddress: bidderAddress,
+          token: tokens.IST,
+        }).then(newBalance => {
+          cy.task('info', `Initial Balance: ${bidderIstBalance}`);
+          cy.task('info', `New Balance: ${newBalance}`);
+          expect(newBalance).to.be.lessThan(bidderIstBalance);
+          bidderIstBalance = newBalance;
         });
       });
 
@@ -571,11 +592,12 @@ describe('Wallet App Test Cases', () => {
         `Expected increase due to completely filled bids: ${expectedValue}`,
       );
 
-      cy.getATOMBalance({
+      cy.getTokenBalance({
         walletAddress: bidderAddress,
+        token: tokens.ATOM,
       }).then(newBalance => {
-        cy.task('info', `Initial bidder ATOM Balance: ${bidderAtomBalance}`);
-        cy.task('info', `New bidder ATOM Balance: ${newBalance}`);
+        cy.task('info', `Initial Balance: ${bidderAtomBalance}`);
+        cy.task('info', `New Balance: ${newBalance}`);
 
         const balanceIncrease = Number(
           (newBalance - bidderAtomBalance).toFixed(3),
