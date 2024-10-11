@@ -85,10 +85,37 @@ export const FACUET_HEADERS = {
   'Content-Type': 'application/x-www-form-urlencoded',
 };
 
+const COMMON_DENOMS = {
+  IST: 'uist',
+  BLD: 'ubld',
+};
+
 export const ATOM_DENOMS = {
   local: 'ibc/BA313C4A19DFBF943586C0387E6B11286F9E416B4DD27574E6909CABE0E342FA',
   emerynet:
     'ibc/06362C6F7F4FB702B94C13CD2E7C03DEC357683FD978936340B43FBFBC5351EB',
   devnet: 'ibc/toyatom',
   xnet: 'ibc/06362C6F7F4FB702B94C13CD2E7C03DEC357683FD978936340B43FBFBC5351EB',
+};
+
+export const DENOMS = {
+  ATOM: ATOM_DENOMS,
+  IST: {
+    local: COMMON_DENOMS.IST,
+    emerynet: COMMON_DENOMS.IST,
+    devnet: COMMON_DENOMS.IST,
+    xnet: COMMON_DENOMS.IST,
+  },
+  BLD: {
+    local: COMMON_DENOMS.BLD,
+    emerynet: COMMON_DENOMS.BLD,
+    devnet: COMMON_DENOMS.BLD,
+    xnet: COMMON_DENOMS.BLD,
+  },
+};
+
+export const tokens = {
+  ATOM: 'ATOM',
+  IST: 'IST',
+  BLD: 'BLD',
 };
