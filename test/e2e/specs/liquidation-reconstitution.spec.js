@@ -413,16 +413,6 @@ describe('Wallet App Test Cases', () => {
       taskTimeout: DEFAULT_TASK_TIMEOUT,
     },
     () => {
-      it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
-        cy.skipWhen(AGORIC_NET !== networks.LOCAL);
-
-        cy.createVault({
-          wantMinted: 400,
-          giveCollateral: 80,
-          userKey: 'gov1',
-        });
-      });
-
       it('should save bidder ATOM balance before placing bids', () => {
         cy.wait(QUICK_WAIT);
         cy.getTokenBalance({

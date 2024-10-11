@@ -786,7 +786,6 @@ describe('Wallet App Test Cases', () => {
 
     it('should cancel the 1IST bid', () => {
       cy.skipWhen(AGORIC_NET !== networks.LOCAL);
-      cy.reload();
 
       cy.contains('Exit').click();
       cy.wait(QUICK_WAIT);

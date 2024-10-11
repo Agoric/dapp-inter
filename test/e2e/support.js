@@ -23,7 +23,12 @@ Cypress.Commands.add('addKeys', params => {
 
   cy.exec(command, {
     failOnNonZeroExit: false,
-  }).then(({ stdout }) => {
+  }).then(({ stdout, stderr }) => {
+    if (stderr && !stdout) {
+      cy.task('error', `STDERR: ${stderr}`);
+      throw Error(stderr);
+    }
+    cy.task('info', `STDOUT: ${stdout}`);
     expect(stdout).to.contain(expectedAddress);
   });
 });
@@ -35,7 +40,12 @@ Cypress.Commands.add('setOraclePrice', price => {
       env: { AGORIC_NET },
       timeout: COMMAND_TIMEOUT,
     },
-  ).then(({ stdout }) => {
+  ).then(({ stdout, stderr }) => {
+    if (stderr && !stdout) {
+      cy.task('error', `STDERR: ${stderr}`);
+      throw Error(stderr);
+    }
+    cy.task('info', `STDOUT: ${stdout}`);
     expect(stdout).to.not.contain('Error');
     expect(stdout).to.not.contain('error');
   });
@@ -57,7 +67,12 @@ Cypress.Commands.add('createVault', params => {
     cy.exec(broadcastCommand, {
       env: { AGORIC_NET },
       timeout: COMMAND_TIMEOUT,
-    }).then(({ stdout }) => {
+    }).then(({ stdout, stderr }) => {
+      if (stderr && !stdout) {
+        cy.task('error', `STDERR: ${stderr}`);
+        throw Error(stderr);
+      }
+      cy.task('info', `STDOUT: ${stdout}`);
       expect(stdout).not.to.contain('Error');
     });
   });
@@ -71,7 +86,12 @@ Cypress.Commands.add('placeBidByPrice', params => {
     env: { AGORIC_NET },
     timeout: COMMAND_TIMEOUT,
     failOnNonZeroExit: false,
-  }).then(({ stdout }) => {
+  }).then(({ stdout, stderr }) => {
+    if (stderr && !stdout) {
+      cy.task('error', `STDERR: ${stderr}`);
+      throw Error(stderr);
+    }
+    cy.task('info', `STDOUT: ${stdout}`);
     expect(stdout).to.contain('Your bid has been accepted');
   });
 });
@@ -85,7 +105,12 @@ Cypress.Commands.add('placeBidByDiscount', params => {
     env: { AGORIC_NET },
     timeout: COMMAND_TIMEOUT,
     failOnNonZeroExit: false,
-  }).then(({ stdout }) => {
+  }).then(({ stdout, stderr }) => {
+    if (stderr && !stdout) {
+      cy.task('error', `STDERR: ${stderr}`);
+      throw Error(stderr);
+    }
+    cy.task('info', `STDOUT: ${stdout}`);
     expect(stdout).to.contain('Your bid has been accepted');
   });
 });
