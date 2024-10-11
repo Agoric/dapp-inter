@@ -7,6 +7,7 @@ import {
   webWalletSelectors,
   QUICK_WAIT,
   THIRTY_SECONDS,
+  tokens,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -31,6 +32,7 @@ describe('Wallet App Test Cases', () => {
   const auctionURL = currentConfig.auctionURL;
   let bidderAtomBalance = 0;
   let user1AtomBalance = 0;
+  let bidderIstBalance = 0;
 
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
@@ -384,11 +386,22 @@ describe('Wallet App Test Cases', () => {
 
     it('should save bidder ATOM balance before placing bids', () => {
       cy.wait(QUICK_WAIT);
-      cy.getATOMBalance({
+      cy.getTokenBalance({
         walletAddress: bidderAddress,
+        token: tokens.ATOM,
       }).then(output => {
         bidderAtomBalance = Number(output.toFixed(3));
         cy.task('info', `bidderAtomBalance: ${bidderAtomBalance}`);
+      });
+    });
+
+    it('should save bidder IST balance before placing bid', () => {
+      cy.getTokenBalance({
+        walletAddress: bidderAddress,
+        token: tokens.IST,
+      }).then(output => {
+        bidderIstBalance = Number(output.toFixed(2));
+        cy.task('info', `bidder IST Balance: ${bidderIstBalance}`);
       });
     });
 
@@ -401,31 +414,39 @@ describe('Wallet App Test Cases', () => {
       () => {
         cy.switchWallet(bidderWalletName);
         cy.addNewTokensFound();
-        cy.getTokenAmount('IST').then(initialTokenValue => {
-          cy.placeBidByPrice({
-            fromAddress: bidderAddress,
-            giveAmount: '90IST',
-            price: 9,
-          });
 
-          cy.placeBidByDiscount({
-            fromAddress: bidderAddress,
-            giveAmount: '80IST',
-            discount: 10,
-          });
+        cy.placeBidByPrice({
+          fromAddress: bidderAddress,
+          giveAmount: '90IST',
+          price: 9,
+        });
 
-          cy.placeBidByDiscount({
-            fromAddress: bidderAddress,
-            giveAmount: '150IST',
-            discount: 15,
-          });
+        cy.placeBidByDiscount({
+          fromAddress: bidderAddress,
+          giveAmount: '80IST',
+          discount: 10,
+        });
 
-          cy.getTokenAmount('IST').then(tokenValue => {
-            expect(tokenValue).to.lessThan(initialTokenValue);
-          });
+        cy.placeBidByDiscount({
+          fromAddress: bidderAddress,
+          giveAmount: '150IST',
+          discount: 15,
         });
       },
     );
+
+    it("should see decrease in bidder's IST balance after placing bid", () => {
+      cy.wait(QUICK_WAIT);
+      cy.getTokenBalance({
+        walletAddress: bidderAddress,
+        token: tokens.IST,
+      }).then(newBalance => {
+        cy.task('info', `Initial Balance: ${bidderIstBalance}`);
+        cy.task('info', `New Balance: ${newBalance}`);
+        expect(newBalance).to.be.lessThan(bidderIstBalance);
+        bidderIstBalance = newBalance;
+      });
+    });
 
     it('should set ATOM price to 9.99', () => {
       cy.setOraclePrice(9.99);
@@ -561,8 +582,9 @@ describe('Wallet App Test Cases', () => {
     it('should save user1 ATOM balance before claiming collateral', () => {
       cy.wait(QUICK_WAIT);
 
-      cy.getATOMBalance({
+      cy.getTokenBalance({
         walletAddress: user1Address,
+        token: tokens.ATOM,
       }).then(output => {
         user1AtomBalance = Number(output.toFixed(2));
         cy.task('info', `user1 ATOM Balance: ${user1AtomBalance}`);
@@ -614,11 +636,12 @@ describe('Wallet App Test Cases', () => {
         `Expected increase after claiming collateral filled bids: ${expectedValue}`,
       );
 
-      cy.getATOMBalance({
+      cy.getTokenBalance({
         walletAddress: user1Address,
+        token: tokens.ATOM,
       }).then(newBalance => {
-        cy.task('info', `Initial user1 ATOM Balance: ${user1AtomBalance}`);
-        cy.task('info', `New user1 ATOM Balance: ${newBalance}`);
+        cy.task('info', `Initial Balance: ${user1AtomBalance}`);
+        cy.task('info', `New Balance: ${newBalance}`);
 
         const balanceIncrease = Number(
           (newBalance - user1AtomBalance).toFixed(2),
@@ -638,11 +661,12 @@ describe('Wallet App Test Cases', () => {
         `Expected increase due to completely filled bids: ${expectedValue}`,
       );
 
-      cy.getATOMBalance({
+      cy.getTokenBalance({
         walletAddress: bidderAddress,
+        token: tokens.ATOM,
       }).then(newBalance => {
-        cy.task('info', `Initial bidder ATOM Balance: ${bidderAtomBalance}`);
-        cy.task('info', `New bidder ATOM Balance: ${newBalance}`);
+        cy.task('info', `Initial Balance: ${bidderAtomBalance}`);
+        cy.task('info', `New Balance: ${newBalance}`);
 
         const balanceIncrease = Number(
           (newBalance - bidderAtomBalance).toFixed(3),
@@ -703,24 +727,35 @@ describe('Wallet App Test Cases', () => {
       cy.skipWhen(AGORIC_NET !== networks.LOCAL);
       cy.reload();
 
-      cy.getTokenAmount('IST').then(initialTokenValue => {
-        cy.contains('Exit').click();
-        cy.wait(QUICK_WAIT);
-        cy.acceptAccess().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-        });
-        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
-        cy.getTokenAmount('IST').then(tokenValue => {
-          expect(tokenValue).to.greaterThan(initialTokenValue);
-        });
+      cy.contains('Exit').click();
+      cy.wait(QUICK_WAIT);
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+      cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
+    });
+
+    it("should see increase in bidder's IST balance after canceling the bid", () => {
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
+
+      cy.wait(QUICK_WAIT);
+      cy.getTokenBalance({
+        walletAddress: bidderAddress,
+        token: tokens.IST,
+      }).then(newBalance => {
+        cy.task('info', `Initial Balance: ${bidderIstBalance}`);
+        cy.task('info', `New Balance: ${newBalance}`);
+        expect(newBalance).to.be.greaterThan(bidderIstBalance);
+        bidderIstBalance = newBalance;
       });
     });
 
     it('should save bidder ATOM balance', () => {
       cy.skipWhen(AGORIC_NET !== networks.LOCAL);
       cy.wait(QUICK_WAIT);
-      cy.getATOMBalance({
+      cy.getTokenBalance({
         walletAddress: bidderAddress,
+        token: tokens.ATOM,
       }).then(output => {
         bidderAtomBalance = Number(output.toFixed(2));
         cy.task('info', `bidderAtomBalance: ${bidderAtomBalance}`);
@@ -730,16 +765,26 @@ describe('Wallet App Test Cases', () => {
     it('should cancel the 150IST bid', () => {
       cy.reload();
 
-      cy.getTokenAmount('IST').then(initialTokenValue => {
-        cy.contains('Exit').click();
-        cy.wait(QUICK_WAIT);
-        cy.acceptAccess().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-        });
-        cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
-        cy.getTokenAmount('IST').then(tokenValue => {
-          expect(tokenValue).to.greaterThan(initialTokenValue);
-        });
+      cy.contains('Exit').click();
+      cy.wait(QUICK_WAIT);
+      cy.acceptAccess().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+      });
+      cy.contains('Accepted', { timeout: DEFAULT_TIMEOUT }).should('exist');
+    });
+
+    it("should see increase in bidder's IST balance after canceling the bid", () => {
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
+
+      cy.wait(QUICK_WAIT);
+      cy.getTokenBalance({
+        walletAddress: bidderAddress,
+        token: tokens.IST,
+      }).then(newBalance => {
+        cy.task('info', `Initial Balance: ${bidderIstBalance}`);
+        cy.task('info', `New Balance: ${newBalance}`);
+        expect(newBalance).to.be.greaterThan(bidderIstBalance);
+        bidderIstBalance = newBalance;
       });
     });
 
@@ -752,11 +797,12 @@ describe('Wallet App Test Cases', () => {
         `Expected increase due to completely filled bids: ${expectedValue}`,
       );
 
-      cy.getATOMBalance({
+      cy.getTokenBalance({
         walletAddress: bidderAddress,
+        token: tokens.ATOM,
       }).then(newBalance => {
-        cy.task('info', `Initial bidder ATOM Balance: ${bidderAtomBalance}`);
-        cy.task('info', `New bidder ATOM Balance: ${newBalance}`);
+        cy.task('info', `Initial Balance: ${bidderAtomBalance}`);
+        cy.task('info', `New Balance: ${newBalance}`);
 
         const balanceIncrease = Number(
           (newBalance - bidderAtomBalance).toFixed(2),

@@ -4,7 +4,7 @@ import {
   configMap,
   FACUET_HEADERS,
   agoricNetworks,
-  ATOM_DENOMS,
+  DENOMS,
 } from './test.utils';
 
 const AGORIC_NET = Cypress.env('AGORIC_NET') || 'local';
@@ -263,35 +263,45 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add('getATOMBalance', ({ walletAddress }) => {
-  cy.task('info', `Query balance using balance url: ${balanceUrl}`);
+Cypress.Commands.add('getTokenBalance', ({ walletAddress, token }) => {
+  const validTokens = Object.keys(DENOMS);
+  if (!validTokens.includes(token)) {
+    throw new Error(
+      `Invalid token. Allowed values are: ${validTokens.join(', ')}`,
+    );
+  }
+
+  const tokenDenom = DENOMS[token][AGORIC_NET];
+  cy.task('info', `Querying balance for ${token} using denom: ${tokenDenom}`);
 
   cy.request(`${balanceUrl}/${walletAddress}`).then(response => {
     expect(response.status).to.eq(200);
-    cy.task('info', `Balances fetched successfully for ${walletAddress}`);
+    cy.task(
+      'info',
+      `Balances fetched successfully for wallet: ${walletAddress}`,
+    );
 
     const balancesArr = response.body?.balances;
     if (!balancesArr || !Array.isArray(balancesArr)) {
       throw new Error('Balances array is missing or invalid');
     }
 
-    cy.task('info', `Balances: ${JSON.stringify(balancesArr)}`);
-    cy.task('info', `denom for ATOM:${ATOM_DENOMS[AGORIC_NET]}`);
+    cy.task('info', `Fetched Balances: ${JSON.stringify(balancesArr)}`);
 
-    const atomBalance = balancesArr.find(
-      balance => balance.denom === ATOM_DENOMS[AGORIC_NET],
+    const tokenBalance = balancesArr.find(
+      balance => balance.denom === tokenDenom,
     );
-    if (!atomBalance) {
-      throw new Error(
-        `ATOM balance not found for denom: ${ATOM_DENOMS[AGORIC_NET]}`,
-      );
+
+    if (!tokenBalance) {
+      throw new Error(`${token} balance not found for denom: ${tokenDenom}`);
     }
-    cy.task('info', `ATOM Balance:${JSON.stringify(atomBalance)}`);
 
-    const atomBalanceNormalized = Number(atomBalance.amount) / 1_000_000;
-    cy.task('info', `ATOM Balance Normalized:${atomBalanceNormalized}`);
+    cy.task('info', `${token} Balance: ${JSON.stringify(tokenBalance)}`);
 
-    cy.wrap(atomBalanceNormalized);
+    const tokenBalanceNormalized = Number(tokenBalance.amount) / 1_000_000;
+    cy.task('info', `Normalized ${token} Balance: ${tokenBalanceNormalized}`);
+
+    cy.wrap(tokenBalanceNormalized);
   });
 });
 
