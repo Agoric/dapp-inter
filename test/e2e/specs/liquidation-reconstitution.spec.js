@@ -30,8 +30,10 @@ describe('Wallet App Test Cases', () => {
   const gov2Address = currentConfig.gov2Address;
   const econGovURL = currentConfig.econGovURL;
   const auctionURL = currentConfig.auctionURL;
+  const reserveURL = currentConfig.reserveURL;
   let bidderAtomBalance = 0;
   let bidderIstBalance = 0;
+  let shortfallBalance = 0;
 
   context('Verify if both bidder and user1 have sufficient balance', () => {
     // Note: Transaction fees are not considered in these calculations.
@@ -434,6 +436,17 @@ describe('Wallet App Test Cases', () => {
         });
       });
 
+      it('should save current value of shortfall balance', () => {
+        cy.fetchVStorageData({
+          url: reserveURL,
+          field: 'shortfallBalance',
+          latest: true,
+        }).then(output => {
+          shortfallBalance = Number(Number(output.value.slice(1)).toFixed(2));
+          cy.task('info', `Current Shortfall balance: ${shortfallBalance}`);
+        });
+      });
+
       it('should place bids from the CLI successfully', () => {
         cy.switchWallet(bidderWalletName);
         cy.addNewTokensFound();
@@ -638,6 +651,32 @@ describe('Wallet App Test Cases', () => {
       });
     },
   );
+
+  context('Verification of Shortfall balance', () => {
+    it('should see an increase of 5.525 IST in shortfall balance', () => {
+      const expectedValue = 5.525;
+      cy.task('info', `Expected: ${expectedValue}`);
+
+      cy.fetchVStorageData({
+        url: reserveURL,
+        field: 'shortfallBalance',
+        latest: true,
+      }).then(newBalanceObj => {
+        let newBalance = Number(
+          (Number(newBalanceObj.value.slice(1)) / 1_000_000).toFixed(2),
+        );
+        cy.task('info', `Initial shortfallBalance: ${shortfallBalance}`);
+        cy.task('info', `New shortfallBalance: ${JSON.stringify(newBalance)}`);
+
+        const balanceIncrease = Number(
+          (newBalance - shortfallBalance).toFixed(2),
+        );
+        cy.task('info', `Actual increase: ${balanceIncrease}`);
+
+        expect(balanceIncrease).to.eq(expectedValue);
+      });
+    });
+  });
 
   context('Verification of Filled Bids', () => {
     it("should see increase in the bidder's ATOM balance", () => {

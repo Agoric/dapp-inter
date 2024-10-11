@@ -15,7 +15,7 @@ const balanceUrl =
     : 'http://localhost:1317/cosmos/bank/v1beta1/balances/';
 const COMMAND_TIMEOUT = configMap[network].COMMAND_TIMEOUT;
 
-const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
+const agops = 'agops';
 
 Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
@@ -252,7 +252,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
 });
 
 Cypress.Commands.add('fetchVStorageData', params => {
-  const { url, field } = params;
+  const { url, field, latest = false } = params;
   cy.request(url).then(response => {
     expect(response.status).to.eq(200);
     cy.task('info', `Data fetched successfully for ${field}`);
@@ -267,6 +267,11 @@ Cypress.Commands.add('fetchVStorageData', params => {
     });
 
     cy.task('info', `Filtered Data: ${JSON.stringify(arr)}`);
+
+    if (latest) {
+      return cy.wrap(arr.at(-1));
+    }
+
     cy.wrap(arr);
   });
 });
