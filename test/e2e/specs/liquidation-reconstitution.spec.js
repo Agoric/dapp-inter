@@ -33,6 +33,34 @@ describe('Wallet App Test Cases', () => {
   let bidderAtomBalance = 0;
   let bidderIstBalance = 0;
 
+  context('Verify if both bidder and user1 have sufficient balance', () => {
+    // Note: Transaction fees are not considered in these calculations.
+
+    it('verify user1 balance is sufficient to create 3 vaults', () => {
+      cy.getTokenBalance({
+        walletAddress: user1Address,
+        token: tokens.ATOM,
+      }).then(balance => {
+        expect(
+          balance,
+          'Balance should be more than 45 ATOMs',
+        ).to.be.greaterThan(45);
+      });
+    });
+
+    it('verify bidder balance is sufficient to place 3 bids', () => {
+      cy.getTokenBalance({
+        walletAddress: bidderAddress,
+        token: tokens.IST,
+      }).then(balance => {
+        expect(
+          balance,
+          'Balance should be more than 100 ISTs',
+        ).to.be.greaterThan(100);
+      });
+    });
+  });
+
   context('Setting up accounts', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
     it('should set up bidder wallet', () => {
@@ -385,16 +413,6 @@ describe('Wallet App Test Cases', () => {
       taskTimeout: DEFAULT_TASK_TIMEOUT,
     },
     () => {
-      it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
-        cy.skipWhen(AGORIC_NET !== networks.LOCAL);
-
-        cy.createVault({
-          wantMinted: 400,
-          giveCollateral: 80,
-          userKey: 'gov1',
-        });
-      });
-
       it('should save bidder ATOM balance before placing bids', () => {
         cy.wait(QUICK_WAIT);
         cy.getTokenBalance({

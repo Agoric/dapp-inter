@@ -23,7 +23,12 @@ Cypress.Commands.add('addKeys', params => {
 
   cy.exec(command, {
     failOnNonZeroExit: false,
-  }).then(({ stdout }) => {
+  }).then(({ stdout, stderr }) => {
+    if (stderr && !stdout) {
+      cy.task('error', `STDERR: ${stderr}`);
+      throw Error(stderr);
+    }
+    cy.task('info', `STDOUT: ${stdout}`);
     expect(stdout).to.contain(expectedAddress);
   });
 });
@@ -35,7 +40,12 @@ Cypress.Commands.add('setOraclePrice', price => {
       env: { AGORIC_NET },
       timeout: COMMAND_TIMEOUT,
     },
-  ).then(({ stdout }) => {
+  ).then(({ stdout, stderr }) => {
+    if (stderr && !stdout) {
+      cy.task('error', `STDERR: ${stderr}`);
+      throw Error(stderr);
+    }
+    cy.task('info', `STDOUT: ${stdout}`);
     expect(stdout).to.not.contain('Error');
     expect(stdout).to.not.contain('error');
   });
@@ -57,7 +67,12 @@ Cypress.Commands.add('createVault', params => {
     cy.exec(broadcastCommand, {
       env: { AGORIC_NET },
       timeout: COMMAND_TIMEOUT,
-    }).then(({ stdout }) => {
+    }).then(({ stdout, stderr }) => {
+      if (stderr && !stdout) {
+        cy.task('error', `STDERR: ${stderr}`);
+        throw Error(stderr);
+      }
+      cy.task('info', `STDOUT: ${stdout}`);
       expect(stdout).not.to.contain('Error');
     });
   });
@@ -71,7 +86,12 @@ Cypress.Commands.add('placeBidByPrice', params => {
     env: { AGORIC_NET },
     timeout: COMMAND_TIMEOUT,
     failOnNonZeroExit: false,
-  }).then(({ stdout }) => {
+  }).then(({ stdout, stderr }) => {
+    if (stderr && !stdout) {
+      cy.task('error', `STDERR: ${stderr}`);
+      throw Error(stderr);
+    }
+    cy.task('info', `STDOUT: ${stdout}`);
     expect(stdout).to.contain('Your bid has been accepted');
   });
 });
@@ -85,7 +105,12 @@ Cypress.Commands.add('placeBidByDiscount', params => {
     env: { AGORIC_NET },
     timeout: COMMAND_TIMEOUT,
     failOnNonZeroExit: false,
-  }).then(({ stdout }) => {
+  }).then(({ stdout, stderr }) => {
+    if (stderr && !stdout) {
+      cy.task('error', `STDERR: ${stderr}`);
+      throw Error(stderr);
+    }
+    cy.task('info', `STDOUT: ${stdout}`);
     expect(stdout).to.contain('Your bid has been accepted');
   });
 });
@@ -315,10 +340,30 @@ Cypress.Commands.add('getTokenBalance', ({ walletAddress, token }) => {
   });
 });
 
+let shouldSkip = false;
+
+beforeEach(function () {
+  if (shouldSkip) {
+    throw new Error(
+      'Test skipped: user1 or bidder do not have sufficient balance.',
+    );
+  }
+});
+
 afterEach(function () {
   if (this.currentTest.state === 'failed') {
     const testName = this.currentTest.title;
     const errorMessage = this.currentTest.err.message;
+
+    if (
+      [
+        'verify user1 balance is sufficient to create 3 vaults',
+        'verify bidder balance is sufficient to place 3 bids',
+      ].includes(testName)
+    ) {
+      shouldSkip = true;
+    }
+
     cy.task('error', `Test "${testName}" failed with error: ${errorMessage}`);
   }
 });
