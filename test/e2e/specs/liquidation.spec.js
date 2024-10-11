@@ -51,7 +51,6 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('verify bidder balance is sufficient to place 3 bids', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.getTokenBalance({
         walletAddress: bidderAddress,
         token: tokens.IST,
@@ -410,11 +409,6 @@ describe('Wallet App Test Cases', () => {
   });
 
   context('Place bids and make all vaults enter liquidation', () => {
-    it('should create a vault minting 400 ISTs and giving 80 ATOMs as collateral', () => {
-      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
-      cy.createVault({ wantMinted: 400, giveCollateral: 80, userKey: 'gov1' });
-    });
-
     it('should save bidder ATOM balance before placing bids', () => {
       cy.wait(QUICK_WAIT);
       cy.getTokenBalance({

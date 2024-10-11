@@ -49,7 +49,6 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('verify bidder balance is sufficient to place 3 bids', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
       cy.getTokenBalance({
         walletAddress: bidderAddress,
         token: tokens.IST,
