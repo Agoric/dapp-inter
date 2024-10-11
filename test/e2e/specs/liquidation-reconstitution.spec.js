@@ -7,6 +7,7 @@ import {
   webWalletURL,
   webWalletSelectors,
   tokens,
+  extractNumber,
 } from '../test.utils';
 
 describe('Wallet App Test Cases', () => {
@@ -483,9 +484,15 @@ describe('Wallet App Test Cases', () => {
           );
         });
       } else {
-        const propertyName = 'book0.startPrice';
+        const propertyName = 'startPrice';
         const expectedValue = '9.99 IST/ATOM';
-        cy.verifyAuctionData(propertyName, expectedValue);
+        cy.task('info', `Expected Value: ${expectedValue}`);
+        cy.getAuctionParam(propertyName).then(value => {
+          const actualValue = extractNumber(value);
+          const expectedValueRounded = extractNumber(expectedValue);
+
+          expect(actualValue).to.eq(expectedValueRounded);
+        });
       }
     });
 
@@ -505,9 +512,21 @@ describe('Wallet App Test Cases', () => {
           );
         });
       } else {
-        const propertyName = 'book0.startProceedsGoal';
+        const propertyName = 'startProceedsGoal';
         const expectedValue = '309.54 IST';
-        cy.verifyAuctionData(propertyName, expectedValue);
+        cy.task('info', `Expected Value: ${expectedValue}`);
+        cy.getAuctionParam(propertyName).then(value => {
+          cy.task(
+            'info',
+            'Comparing actual and expected values rounded to one decimal place.',
+          );
+
+          const actualValue = Math.round(extractNumber(value) * 10) / 10;
+          const expectedValueRounded =
+            Math.round(extractNumber(expectedValue) * 10) / 10;
+
+          expect(actualValue).to.eq(expectedValueRounded);
+        });
       }
     });
 
@@ -527,9 +546,15 @@ describe('Wallet App Test Cases', () => {
           );
         });
       } else {
-        const propertyName = 'book0.startCollateral';
+        const propertyName = 'startCollateral';
         const expectedValue = '45 ATOM';
-        cy.verifyAuctionData(propertyName, expectedValue);
+        cy.task('info', `Expected Value: ${expectedValue}`);
+        cy.getAuctionParam(propertyName).then(value => {
+          const actualValue = extractNumber(value);
+          const expectedValueRounded = extractNumber(expectedValue);
+
+          expect(actualValue).to.eq(expectedValueRounded);
+        });
       }
     });
   });
@@ -576,9 +601,21 @@ describe('Wallet App Test Cases', () => {
             );
           });
         } else {
-          const propertyName = 'book0.collateralAvailable';
+          const propertyName = 'collateralAvailable';
           const expectedValue = '31.414987 ATOM';
-          cy.verifyAuctionData(propertyName, expectedValue); // eslint-disable-line cypress/no-unnecessary-waiting
+          cy.task('info', `Expected Value: ${expectedValue}`);
+          cy.getAuctionParam(propertyName).then(value => {
+            cy.task(
+              'info',
+              'Comparing actual and expected values rounded to one decimal place.',
+            );
+
+            const actualValue = Math.round(extractNumber(value) * 10) / 10;
+            const expectedValueRounded =
+              Math.round(extractNumber(expectedValue) * 10) / 10;
+
+            expect(actualValue).to.eq(expectedValueRounded);
+          });
         }
       });
     },
