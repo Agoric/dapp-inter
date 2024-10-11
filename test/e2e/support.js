@@ -315,10 +315,30 @@ Cypress.Commands.add('getTokenBalance', ({ walletAddress, token }) => {
   });
 });
 
+let shouldSkip = false;
+
+beforeEach(function () {
+  if (shouldSkip) {
+    throw new Error(
+      'Test skipped: user1 or bidder do not have sufficient balance.',
+    );
+  }
+});
+
 afterEach(function () {
   if (this.currentTest.state === 'failed') {
     const testName = this.currentTest.title;
     const errorMessage = this.currentTest.err.message;
+
+    if (
+      [
+        'verify user1 balance is sufficient to create 3 vaults',
+        'verify bidder balance is sufficient to place 3 bids',
+      ].includes(testName)
+    ) {
+      shouldSkip = true;
+    }
+
     cy.task('error', `Test "${testName}" failed with error: ${errorMessage}`);
   }
 });
