@@ -119,3 +119,8 @@ export const tokens = {
   IST: 'IST',
   BLD: 'BLD',
 };
+
+export const extractNumber = expectedValue => {
+  const match = expectedValue.match(/[\d.]+/);
+  return match ? parseFloat(match[0]) : null;
+};
