@@ -673,7 +673,7 @@ describe('Wallet App Test Cases', () => {
         );
         cy.task('info', `Actual increase: ${balanceIncrease}`);
 
-        expect(balanceIncrease).to.eq(expectedValue);
+        expect(balanceIncrease).to.eq(Number(expectedValue.toFixed(2)));
       });
     });
   });
