@@ -90,22 +90,32 @@ Cypress.Commands.add('placeBidByDiscount', params => {
   });
 });
 
-Cypress.Commands.add('verifyAuctionData', (propertyName, expectedValue) => {
+Cypress.Commands.add('getAuctionParam', propertyName => {
   return cy
     .exec(`${agops} inter auction status`, {
       env: { AGORIC_NET },
       failOnNonZeroExit: false,
       timeout: COMMAND_TIMEOUT,
     })
-    .then(({ stdout }) => {
-      const output = JSON.parse(stdout);
-      const propertyValue = Cypress._.get(output, propertyName);
+    .then(({ stdout, stderr }) => {
+      if (stderr && !stdout) {
+        cy.task('error', `STDERR: ${stderr}`);
+        throw Error(stderr);
+      }
+      cy.task('info', `STDOUT: ${stdout}`);
+
+      const output = JSON.parse(stdout)['book0'];
+      cy.task('info', `book0: ${JSON.stringify(output)}`);
+
+      const propertyValue = output[propertyName];
 
       if (!propertyValue) {
         throw new Error(`Error: ${propertyName} property is missing or empty`);
       }
 
-      expect(propertyValue).to.equal(expectedValue);
+      cy.task('info', `${propertyName}: ${propertyValue}`);
+
+      cy.wrap(propertyValue);
     });
 });
 
@@ -309,6 +319,6 @@ afterEach(function () {
   if (this.currentTest.state === 'failed') {
     const testName = this.currentTest.title;
     const errorMessage = this.currentTest.err.message;
-    cy.task('info', `Test "${testName}" failed with error: ${errorMessage}`);
+    cy.task('error', `Test "${testName}" failed with error: ${errorMessage}`);
   }
 });
