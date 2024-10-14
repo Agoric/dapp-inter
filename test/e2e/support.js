@@ -36,7 +36,7 @@ Cypress.Commands.add('addKeys', params => {
 
 Cypress.Commands.add('setOraclePrice', price => {
   cy.exec(
-    `${agops} oracle setPrice --keys gov1,gov2 --pair ATOM.USD --price ${price}`,
+    `${agops} oracle setPrice --keys gov1,gov2 --pair ATOM.USD --price ${price}  --keyring-backend=os`,
     {
       env: { AGORIC_NET },
       timeout: COMMAND_TIMEOUT,
