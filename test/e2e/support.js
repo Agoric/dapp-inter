@@ -28,8 +28,25 @@ Cypress.Commands.add('addKeys', params => {
       cy.task('error', `STDERR: ${stderr}`);
       throw Error(stderr);
     }
-    cy.task('info', `STDOUT: ${stdout}`);
     expect(stdout).to.contain(expectedAddress);
+  });
+});
+
+Cypress.Commands.add('createNewUser', params => {
+  const { keyName } = params;
+  const command = `agd keys add ${keyName} --keyring-backend=test --output=json`;
+
+  cy.exec(command, {
+    failOnNonZeroExit: false,
+  }).then(({ stdout, stderr }) => {
+    if (stderr && !stdout) {
+      cy.task('error', `STDERR: ${stderr}`);
+      throw Error(stderr);
+    }
+    cy.task('info', `STDOUT: ${stdout}`);
+    const output = JSON.parse(stdout);
+
+    cy.wrap({ address: output.address, mnemonic: output.mnemonic });
   });
 });
 
