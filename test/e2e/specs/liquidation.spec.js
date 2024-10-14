@@ -851,7 +851,6 @@ describe('Wallet App Test Cases', () => {
     });
 
     it('should save bidder ATOM balance', () => {
-      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
       cy.wait(QUICK_WAIT);
       cy.getTokenBalance({
         walletAddress: bidderAddress,
