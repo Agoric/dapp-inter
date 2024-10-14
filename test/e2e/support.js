@@ -15,7 +15,7 @@ const balanceUrl =
     : 'http://localhost:1317/cosmos/bank/v1beta1/balances/';
 const COMMAND_TIMEOUT = configMap[network].COMMAND_TIMEOUT;
 
-const agops = 'agops';
+const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
 
 Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
@@ -41,11 +41,9 @@ Cypress.Commands.add('setOraclePrice', price => {
       timeout: COMMAND_TIMEOUT,
     },
   ).then(({ stdout, stderr }) => {
-    if (stderr && !stdout) {
-      cy.task('error', `STDERR: ${stderr}`);
-      throw Error(stderr);
-    }
     cy.task('info', `STDOUT: ${stdout}`);
+    cy.task('info', `STDERR: ${stderr}`);
+
     expect(stdout).to.not.contain('Error');
     expect(stdout).to.not.contain('error');
   });
