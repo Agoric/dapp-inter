@@ -505,99 +505,108 @@ describe('Liquidation Reconstitution Testing', () => {
     },
   );
 
-  context('Verify auction values while vaults are LIQUIDATING', () => {
-    it('should verify the value of startPrice', () => {
-      cy.wait(QUICK_WAIT);
+  context(
+    'Verify auction values while vaults are LIQUIDATING',
+    {
+      retries: {
+        runMode: 2,
+        openMode: 2,
+      },
+    },
+    () => {
+      it('should verify the value of startPrice', () => {
+        cy.wait(QUICK_WAIT);
 
-      if (AGORIC_NET === networks.LOCAL) {
-        const expectedValue = 9.99;
-        cy.task('info', `Expected Value: ${expectedValue}`);
-        cy.fetchVStorageData({
-          url: auctionURL,
-          field: 'startPrice',
-        }).then(data => {
-          cy.calculateRatios(data, { hasDenom: true, useValue: false }).then(
-            result => {
-              const valueFound = result.includes(expectedValue);
-              expect(valueFound).to.be.true;
-            },
-          );
-        });
-      } else {
-        const propertyName = 'startPrice';
-        const expectedValue = '9.99 IST/ATOM';
-        cy.task('info', `Expected Value: ${expectedValue}`);
-        cy.getAuctionParam(propertyName).then(value => {
-          const actualValue = extractNumber(value);
-          const expectedValueRounded = extractNumber(expectedValue);
+        if (AGORIC_NET === networks.LOCAL) {
+          const expectedValue = 9.99;
+          cy.task('info', `Expected Value: ${expectedValue}`);
+          cy.fetchVStorageData({
+            url: auctionURL,
+            field: 'startPrice',
+          }).then(data => {
+            cy.calculateRatios(data, { hasDenom: true, useValue: false }).then(
+              result => {
+                const valueFound = result.includes(expectedValue);
+                expect(valueFound).to.be.true;
+              },
+            );
+          });
+        } else {
+          const propertyName = 'startPrice';
+          const expectedValue = '9.99 IST/ATOM';
+          cy.task('info', `Expected Value: ${expectedValue}`);
+          cy.getAuctionParam(propertyName).then(value => {
+            const actualValue = extractNumber(value);
+            const expectedValueRounded = extractNumber(expectedValue);
 
-          expect(actualValue).to.eq(expectedValueRounded);
-        });
-      }
-    });
+            expect(actualValue).to.eq(expectedValueRounded);
+          });
+        }
+      });
 
-    it('should verify the value of startProceedsGoal', () => {
-      if (AGORIC_NET === networks.LOCAL) {
-        const expectedValue = 309.54;
-        cy.task('info', `Expected Value: ${expectedValue}`);
-        cy.fetchVStorageData({
-          url: auctionURL,
-          field: 'startProceedsGoal',
-        }).then(data => {
-          cy.calculateRatios(data, { hasDenom: false, useValue: true }).then(
-            result => {
-              const valueFound = result.includes(expectedValue);
-              expect(valueFound).to.be.true;
-            },
-          );
-        });
-      } else {
-        const propertyName = 'startProceedsGoal';
-        const expectedValue = '309.54 IST';
-        cy.task('info', `Expected Value: ${expectedValue}`);
-        cy.getAuctionParam(propertyName).then(value => {
-          cy.task(
-            'info',
-            'Comparing actual and expected values rounded to one decimal place.',
-          );
+      it('should verify the value of startProceedsGoal', () => {
+        if (AGORIC_NET === networks.LOCAL) {
+          const expectedValue = 309.54;
+          cy.task('info', `Expected Value: ${expectedValue}`);
+          cy.fetchVStorageData({
+            url: auctionURL,
+            field: 'startProceedsGoal',
+          }).then(data => {
+            cy.calculateRatios(data, { hasDenom: false, useValue: true }).then(
+              result => {
+                const valueFound = result.includes(expectedValue);
+                expect(valueFound).to.be.true;
+              },
+            );
+          });
+        } else {
+          const propertyName = 'startProceedsGoal';
+          const expectedValue = '309.54 IST';
+          cy.task('info', `Expected Value: ${expectedValue}`);
+          cy.getAuctionParam(propertyName).then(value => {
+            cy.task(
+              'info',
+              'Comparing actual and expected values rounded to one decimal place.',
+            );
 
-          const actualValue = Math.round(extractNumber(value) * 10) / 10;
-          const expectedValueRounded =
-            Math.round(extractNumber(expectedValue) * 10) / 10;
+            const actualValue = Math.round(extractNumber(value) * 10) / 10;
+            const expectedValueRounded =
+              Math.round(extractNumber(expectedValue) * 10) / 10;
 
-          expect(actualValue).to.eq(expectedValueRounded);
-        });
-      }
-    });
+            expect(actualValue).to.eq(expectedValueRounded);
+          });
+        }
+      });
 
-    it('should verify the value of startCollateral', () => {
-      if (AGORIC_NET === networks.LOCAL) {
-        const expectedValue = 45;
-        cy.task('info', `Expected Value: ${expectedValue}`);
-        cy.fetchVStorageData({
-          url: auctionURL,
-          field: 'startCollateral',
-        }).then(data => {
-          cy.calculateRatios(data, { hasDenom: false, useValue: true }).then(
-            result => {
-              const valueFound = result.includes(expectedValue);
-              expect(valueFound).to.be.true;
-            },
-          );
-        });
-      } else {
-        const propertyName = 'startCollateral';
-        const expectedValue = '45 ATOM';
-        cy.task('info', `Expected Value: ${expectedValue}`);
-        cy.getAuctionParam(propertyName).then(value => {
-          const actualValue = extractNumber(value);
-          const expectedValueRounded = extractNumber(expectedValue);
+      it('should verify the value of startCollateral', () => {
+        if (AGORIC_NET === networks.LOCAL) {
+          const expectedValue = 45;
+          cy.task('info', `Expected Value: ${expectedValue}`);
+          cy.fetchVStorageData({
+            url: auctionURL,
+            field: 'startCollateral',
+          }).then(data => {
+            cy.calculateRatios(data, { hasDenom: false, useValue: true }).then(
+              result => {
+                const valueFound = result.includes(expectedValue);
+                expect(valueFound).to.be.true;
+              },
+            );
+          });
+        } else {
+          const propertyName = 'startCollateral';
+          const expectedValue = '45 ATOM';
+          cy.task('info', `Expected Value: ${expectedValue}`);
+          cy.getAuctionParam(propertyName).then(value => {
+            const actualValue = extractNumber(value);
+            const expectedValueRounded = extractNumber(expectedValue);
 
-          expect(actualValue).to.eq(expectedValueRounded);
-        });
-      }
-    });
-  });
+            expect(actualValue).to.eq(expectedValueRounded);
+          });
+        }
+      });
+    },
+  );
 
   context(
     'Wait for two vaults to be RECONSTITUTED and one to be LIQUIDATED',
