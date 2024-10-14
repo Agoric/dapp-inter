@@ -442,7 +442,9 @@ describe('Wallet App Test Cases', () => {
           field: 'shortfallBalance',
           latest: true,
         }).then(output => {
-          shortfallBalance = Number(Number(output.value.slice(1)).toFixed(2));
+          shortfallBalance = Number(
+            (Number(output.value.slice(1)) / 1_000_000).toFixed(2),
+          );
           cy.task('info', `Current Shortfall balance: ${shortfallBalance}`);
         });
       });
