@@ -23,8 +23,6 @@ describe('Liquidation Testing', () => {
   const DEFAULT_TASK_TIMEOUT = currentConfig.DEFAULT_TASK_TIMEOUT;
   const LIQUIDATING_TIMEOUT = currentConfig.LIQUIDATING_TIMEOUT;
   const LIQUIDATED_TIMEOUT = currentConfig.LIQUIDATED_TIMEOUT;
-  const user1Mnemonic = currentConfig.user1Mnemonic;
-  const user1Address = currentConfig.user1Address;
   const bidderMnemonic = currentConfig.bidderMnemonic;
   const bidderAddress = currentConfig.bidderAddress;
   const bidderWalletName = currentConfig.bidderWalletName;
@@ -35,10 +33,45 @@ describe('Liquidation Testing', () => {
   const econGovURL = currentConfig.econGovURL;
   const auctionURL = currentConfig.auctionURL;
   const reserveURL = currentConfig.reserveURL;
+  let user1Mnemonic =
+    AGORIC_NET === 'local' ? currentConfig.user1Mnemonic : null;
+  let user1Address = AGORIC_NET === 'local' ? currentConfig.user1Address : null;
   let bidderAtomBalance = 0;
   let user1AtomBalance = 0;
   let bidderIstBalance = 0;
   let shortfallBalance = 0;
+
+  context('Create new user1 wallet - TESTNET', () => {
+    it('log value of AGORIC_NET', () => {
+      cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
+    });
+
+    it('create and provision a new wallet', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.createNewUser({ keyName: 'user1' })
+        .then(output => {
+          cy.task('info', `${JSON.stringify(output)}`);
+          cy.wrap(output);
+        })
+        .then(({ mnemonic, address }) => {
+          for (let i = 0; i < 3; i++) {
+            cy.provisionFromFaucet(address, 'delegate');
+          }
+          cy.provisionFromFaucet(address, 'client');
+          cy.wrap({ mnemonic, address });
+        })
+        .then(({ mnemonic, address }) => {
+          user1Mnemonic = mnemonic;
+          cy.task('info', `user1 mnemonic: ${user1Mnemonic}`);
+          user1Address = address;
+          cy.task('info', `user1 address: ${address}`);
+        })
+        .then(() => {
+          expect(user1Mnemonic).to.not.be.null;
+          expect(user1Address).to.not.be.null;
+        });
+    });
+  });
 
   context('Verify if both bidder and user1 have sufficient balance', () => {
     // Note: Transaction fees are not considered in these calculations.
@@ -82,7 +115,6 @@ describe('Liquidation Testing', () => {
     });
 
     it('should set up user1 wallet', () => {
-      cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
       cy.setupWallet({
         secretWords: user1Mnemonic,
         walletName: 'user1',
@@ -355,7 +387,7 @@ describe('Liquidation Testing', () => {
       },
     );
 
-    it('should add all the keys successfully', () => {
+    it('should add gov keys successfully', () => {
       cy.addKeys({
         keyName: 'gov1',
         mnemonic: gov1Mnemonic,
@@ -366,6 +398,10 @@ describe('Liquidation Testing', () => {
         mnemonic: gov2Mnemonic,
         expectedAddress: gov2Address,
       });
+    });
+
+    it('should add user1 key successfully', () => {
+      cy.skipWhen(AGORIC_NET !== networks.LOCAL);
       cy.addKeys({
         keyName: 'user1',
         mnemonic: user1Mnemonic,

@@ -194,7 +194,6 @@ const connectWalletLocalChain = ({ isVaultsTests = false }) => {
 };
 
 const connectWalletTestnet = () => {
-  cy.contains('button', 'Dismiss').click();
   cy.get('button').contains('Local Network').click();
   cy.get('button').contains(agoricNetworks[AGORIC_NET]).click();
   cy.get('body').then($body => {
