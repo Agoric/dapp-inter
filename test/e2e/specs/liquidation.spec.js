@@ -47,7 +47,7 @@ describe('Wallet App Test Cases', () => {
 
   context('WWW', () => {
     it('should set ATOM price to 12.34', () => {
-      cy.setOraclePrice(7.0);
+      cy.setOraclePrice(12.34);
     });
   });
 });

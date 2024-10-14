@@ -39,17 +39,12 @@ Cypress.Commands.add('setOraclePrice', price => {
     {
       env: { AGORIC_NET },
       timeout: COMMAND_TIMEOUT,
-      failOnNonZeroExit: false,
     },
   ).then(({ stdout, stderr }) => {
-    // if (stderr && !stdout) {
-    //   cy.task('error', `STDERR: ${stderr}`);
-    //   throw Error(stderr);
-    // }
     cy.task('info', `STDOUT: ${stdout}`);
     cy.task('info', `STDERR: ${stderr}`);
-    // expect(stdout).to.not.contain('Error');
-    // expect(stdout).to.not.contain('error');
+    expect(stdout).to.not.contain('Error');
+    expect(stdout).to.not.contain('error');
   });
 });
 
