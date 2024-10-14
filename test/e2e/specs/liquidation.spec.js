@@ -5,7 +5,8 @@ import {
   configMap,
   webWalletURL,
   webWalletSelectors,
-  QUICK_WAIT,
+  QUICK_WAIT_LOCAL,
+  QUICK_WAIT_TESTNET,
   THIRTY_SECONDS,
   tokens,
   extractNumber,
@@ -16,6 +17,8 @@ describe('Wallet App Test Cases', () => {
   const AGORIC_NET = Cypress.env('AGORIC_NET');
   const network = AGORIC_NET !== 'local' ? 'testnet' : 'local';
   const currentConfig = configMap[network];
+  const QUICK_WAIT =
+    AGORIC_NET === 'local' ? QUICK_WAIT_LOCAL : QUICK_WAIT_TESTNET;
   const DEFAULT_TIMEOUT = currentConfig.DEFAULT_TIMEOUT;
   const DEFAULT_TASK_TIMEOUT = currentConfig.DEFAULT_TASK_TIMEOUT;
   const LIQUIDATING_TIMEOUT = currentConfig.LIQUIDATING_TIMEOUT;

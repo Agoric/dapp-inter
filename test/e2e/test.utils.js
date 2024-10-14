@@ -13,7 +13,8 @@ export const accountAddresses = {
 
 export const webWalletURL = 'https://wallet.agoric.app/';
 export const MINUTE_MS = 1 * 60 * 1000;
-export const QUICK_WAIT = 10 * 1000;
+export const QUICK_WAIT_LOCAL = 10 * 1000;
+export const QUICK_WAIT_TESTNET = 20 * 1000;
 export const THIRTY_SECONDS = 30 * 1000;
 
 export const agoricNetworks = {
