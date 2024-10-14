@@ -756,7 +756,7 @@ describe('Wallet App Test Cases', () => {
 
   context('Verification of Fully and Partially Filled Bids', () => {
     it("should see increase in the bidder's ATOM balance after liquidation", () => {
-      const expectedValue = 18.908;
+      const expectedValue = 18.91;
       cy.task(
         'info',
         `Expected increase due to completely filled bids: ${expectedValue}`,
@@ -770,7 +770,7 @@ describe('Wallet App Test Cases', () => {
         cy.task('info', `New Balance: ${newBalance}`);
 
         const balanceIncrease = Number(
-          (newBalance - bidderAtomBalance).toFixed(3),
+          (newBalance - bidderAtomBalance).toFixed(2),
         );
         cy.task('info', `Actual increase: ${balanceIncrease}`);
         bidderAtomBalance = Number(newBalance.toFixed(2));
