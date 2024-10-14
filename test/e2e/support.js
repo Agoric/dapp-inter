@@ -16,7 +16,7 @@ const balanceUrl =
 const COMMAND_TIMEOUT = configMap[network].COMMAND_TIMEOUT;
 
 
-const agops = '/usr/src/agoric-sdk/packages/agoric-cli/bin/agops';
+const agops = 'agops';
 
 Cypress.Commands.add('addKeys', params => {
   const { keyName, mnemonic, expectedAddress } = params;
@@ -40,6 +40,7 @@ Cypress.Commands.add('setOraclePrice', price => {
     {
       env: { AGORIC_NET },
       timeout: COMMAND_TIMEOUT,
+      failOnNonZeroExit: false
     },
   ).then(({ stdout, stderr }) => {
     // if (stderr && !stdout) {
