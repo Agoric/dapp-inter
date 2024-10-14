@@ -11,7 +11,7 @@ import {
   extractNumber,
 } from '../test.utils';
 
-describe('Wallet App Test Cases', () => {
+describe('Liquidation Reconstitution Testing', () => {
   let startTime;
   const AGORIC_NET = Cypress.env('AGORIC_NET');
   const network = AGORIC_NET !== 'local' ? 'testnet' : 'local';
@@ -474,12 +474,16 @@ describe('Wallet App Test Cases', () => {
         cy.getTokenBalance({
           walletAddress: bidderAddress,
           token: tokens.IST,
-        }).then(newBalance => {
-          cy.task('info', `Initial Balance: ${bidderIstBalance}`);
-          cy.task('info', `New Balance: ${newBalance}`);
-          expect(newBalance).to.be.lessThan(bidderIstBalance);
-          bidderIstBalance = newBalance;
-        });
+        })
+          .then(newBalance => {
+            cy.task('info', `Initial Balance: ${bidderIstBalance}`);
+            cy.task('info', `New Balance: ${newBalance}`);
+            cy.wrap(newBalance);
+          })
+          .then(newBalance => {
+            expect(newBalance).to.be.lessThan(bidderIstBalance);
+            bidderIstBalance = newBalance;
+          });
       });
 
       it('should set ATOM price to 9.99', () => {
@@ -666,20 +670,26 @@ describe('Wallet App Test Cases', () => {
         url: reserveURL,
         field: 'shortfallBalance',
         latest: true,
-      }).then(newBalanceObj => {
-        let newBalance = Number(
-          (Number(newBalanceObj.value.slice(1)) / 1_000_000).toFixed(2),
-        );
-        cy.task('info', `Initial shortfallBalance: ${shortfallBalance}`);
-        cy.task('info', `New shortfallBalance: ${JSON.stringify(newBalance)}`);
+      })
+        .then(newBalanceObj => {
+          let newBalance = Number(
+            (Number(newBalanceObj.value.slice(1)) / 1_000_000).toFixed(2),
+          );
+          cy.task('info', `Initial shortfallBalance: ${shortfallBalance}`);
+          cy.task(
+            'info',
+            `New shortfallBalance: ${JSON.stringify(newBalance)}`,
+          );
 
-        const balanceIncrease = Number(
-          (newBalance - shortfallBalance).toFixed(2),
-        );
-        cy.task('info', `Actual increase: ${balanceIncrease}`);
-
-        expect(balanceIncrease).to.eq(Number(expectedValue.toFixed(2)));
-      });
+          const balanceIncrease = Number(
+            (newBalance - shortfallBalance).toFixed(2),
+          );
+          cy.task('info', `Actual increase: ${balanceIncrease}`);
+          cy.wrap(balanceIncrease);
+        })
+        .then(balanceIncrease => {
+          expect(balanceIncrease).to.eq(Number(expectedValue.toFixed(2)));
+        });
     });
   });
 
@@ -694,18 +704,21 @@ describe('Wallet App Test Cases', () => {
       cy.getTokenBalance({
         walletAddress: bidderAddress,
         token: tokens.ATOM,
-      }).then(newBalance => {
-        cy.task('info', `Initial Balance: ${bidderAtomBalance}`);
-        cy.task('info', `New Balance: ${newBalance}`);
+      })
+        .then(newBalance => {
+          cy.task('info', `Initial Balance: ${bidderAtomBalance}`);
+          cy.task('info', `New Balance: ${newBalance}`);
 
-        const balanceIncrease = Number(
-          (newBalance - bidderAtomBalance).toFixed(3),
-        );
-        cy.task('info', `Actual increase: ${balanceIncrease}`);
-        bidderAtomBalance = Number(newBalance.toFixed(2));
-
-        expect(balanceIncrease).to.eq(expectedValue);
-      });
+          const balanceIncrease = Number(
+            (newBalance - bidderAtomBalance).toFixed(3),
+          );
+          cy.task('info', `Actual increase: ${balanceIncrease}`);
+          bidderAtomBalance = Number(newBalance.toFixed(2));
+          cy.wrap(balanceIncrease);
+        })
+        .then(balanceIncrease => {
+          expect(balanceIncrease).to.eq(expectedValue);
+        });
     });
 
     it('should switch to the bidder wallet successfully', () => {
