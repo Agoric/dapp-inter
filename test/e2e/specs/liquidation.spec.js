@@ -1007,8 +1007,6 @@ describe('Liquidation Testing', () => {
     });
 
     it('should cancel the 150IST bid', () => {
-      cy.reload();
-
       cy.contains('Exit').click();
       cy.wait(QUICK_WAIT);
       cy.acceptAccess().then(taskCompleted => {

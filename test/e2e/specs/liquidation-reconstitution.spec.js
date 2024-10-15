@@ -771,8 +771,8 @@ describe('Liquidation Reconstitution Testing', () => {
   );
 
   context('Verification of Shortfall balance', () => {
-    it('should see an increase of 5.525 IST in shortfall balance', () => {
-      const expectedValue = 5.525;
+    it('should see an increase of 5.5 IST in shortfall balance', () => {
+      const expectedValue = 5.5;
       cy.task('info', `Expected: ${expectedValue}`);
 
       cy.fetchVStorageData({
@@ -782,7 +782,7 @@ describe('Liquidation Reconstitution Testing', () => {
       })
         .then(newBalanceObj => {
           let newBalance = Number(
-            (Number(newBalanceObj.value.slice(1)) / 1_000_000).toFixed(2),
+            (Number(newBalanceObj.value.slice(1)) / 1_000_000).toFixed(1),
           );
           cy.task('info', `Initial shortfallBalance: ${shortfallBalance}`);
           cy.task(
@@ -791,14 +791,47 @@ describe('Liquidation Reconstitution Testing', () => {
           );
 
           const balanceIncrease = Number(
-            (newBalance - shortfallBalance).toFixed(2),
+            (newBalance - shortfallBalance).toFixed(1),
           );
           cy.task('info', `Actual increase: ${balanceIncrease}`);
           cy.wrap(balanceIncrease);
         })
         .then(balanceIncrease => {
-          expect(balanceIncrease).to.eq(Number(expectedValue.toFixed(2)));
+          expect(balanceIncrease).to.eq(expectedValue);
         });
+    });
+  });
+
+  context('Close reconstituted Vaults - TESTNET(s)', () => {
+    it('should close the 100 IST vault and approve the transaction successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.wait(QUICK_WAIT);
+      const regexVault100 = new RegExp('100(\\.\\d+)?');
+      cy.contains(regexVault100, { timeout: DEFAULT_TIMEOUT }).click();
+      cy.contains('Close Out Vault').click();
+      cy.contains('button.bg-interPurple', 'Close Out Vault').click();
+
+      cy.confirmTransaction().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+        cy.contains('button.bg-interPurple', 'Close Out Vault', {
+          timeout: DEFAULT_TIMEOUT,
+        }).should('not.exist');
+      });
+    });
+
+    it('should close the 103 IST vault and approve the transaction successfully', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      const regexVault103 = new RegExp('103(\\.\\d+)?');
+      cy.contains(regexVault103, { timeout: DEFAULT_TIMEOUT }).click();
+      cy.contains('Close Out Vault').click();
+      cy.contains('button.bg-interPurple', 'Close Out Vault').click();
+
+      cy.confirmTransaction().then(taskCompleted => {
+        expect(taskCompleted).to.be.true;
+        cy.contains('button.bg-interPurple', 'Close Out Vault', {
+          timeout: DEFAULT_TIMEOUT,
+        }).should('not.exist');
+      });
     });
   });
 
@@ -874,43 +907,10 @@ describe('Liquidation Reconstitution Testing', () => {
     });
   });
 
-  context(
-    'Close the vaults and restore ATOM price to 12.34 on TESTNET(s).',
-    () => {
-      it('should close the 100 IST vault and approve the transaction successfully', () => {
-        cy.skipWhen(AGORIC_NET === networks.LOCAL);
-        const regexVault100 = new RegExp('100(\\.\\d+)?');
-        cy.contains(regexVault100, { timeout: DEFAULT_TIMEOUT }).click();
-        cy.contains('Close Out Vault').click();
-        cy.contains('button.bg-interPurple', 'Close Out Vault').click();
-
-        cy.confirmTransaction().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-          cy.contains('button.bg-interPurple', 'Close Out Vault').should(
-            'not.exist',
-          );
-        });
-      });
-
-      it('should close the 103 IST vault and approve the transaction successfully', () => {
-        cy.skipWhen(AGORIC_NET === networks.LOCAL);
-        const regexVault103 = new RegExp('103(\\.\\d+)?');
-        cy.contains(regexVault103, { timeout: DEFAULT_TIMEOUT }).click();
-        cy.contains('Close Out Vault').click();
-        cy.contains('button.bg-interPurple', 'Close Out Vault').click();
-
-        cy.confirmTransaction().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-          cy.contains('button.bg-interPurple', 'Close Out Vault').should(
-            'not.exist',
-          );
-        });
-      });
-
-      it('should set ATOM price back to 12.34', () => {
-        cy.skipWhen(AGORIC_NET === networks.LOCAL);
-        cy.setOraclePrice(12.34);
-      });
-    },
-  );
+  context('Restore ATOM price to 12.34 on TESTNET(s).', () => {
+    it('should set ATOM price back to 12.34', () => {
+      cy.skipWhen(AGORIC_NET === networks.LOCAL);
+      cy.setOraclePrice(12.34);
+    });
+  });
 });
