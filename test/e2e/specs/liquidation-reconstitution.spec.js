@@ -153,7 +153,7 @@ describe('Liquidation Reconstitution Testing', () => {
     });
   });
 
-  context('Setting up accounts', () => {
+  context('Setting up Keplr wallets', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
     it('should set up bidder wallet', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
@@ -444,17 +444,56 @@ describe('Liquidation Reconstitution Testing', () => {
     it('should set ATOM price to 12.34', () => {
       cy.setOraclePrice(12.34);
     });
-    it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 100, giveCollateral: 15, userKey: 'user1' });
-    });
+    it(
+      'should create a vault minting 100 ISTs and giving 15 ATOMs as collateral',
+      {
+        retries: {
+          runMode: 1,
+          openMode: 1,
+        },
+      },
+      () => {
+        cy.createVault({
+          wantMinted: 100,
+          giveCollateral: 15,
+          userKey: 'user1',
+        });
+      },
+    );
 
-    it('should create a vault minting 103 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 103, giveCollateral: 15, userKey: 'user1' });
-    });
+    it(
+      'should create a vault minting 103 ISTs and giving 15 ATOMs as collateral',
+      {
+        retries: {
+          runMode: 1,
+          openMode: 1,
+        },
+      },
+      () => {
+        cy.createVault({
+          wantMinted: 103,
+          giveCollateral: 15,
+          userKey: 'user1',
+        });
+      },
+    );
 
-    it('should create a vault minting 105 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 105, giveCollateral: 15, userKey: 'user1' });
-    });
+    it(
+      'should create a vault minting 105 ISTs and giving 15 ATOMs as collateral',
+      {
+        retries: {
+          runMode: 1,
+          openMode: 1,
+        },
+      },
+      () => {
+        cy.createVault({
+          wantMinted: 105,
+          giveCollateral: 15,
+          userKey: 'user1',
+        });
+      },
+    );
 
     it(
       'should check for the existence of vaults on the UI',

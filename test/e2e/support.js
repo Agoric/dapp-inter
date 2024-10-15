@@ -383,6 +383,7 @@ afterEach(function () {
       shouldSkip = true;
     }
 
-    cy.task('error', `Test "${testName}" failed with error: ${errorMessage}`);
+    // TODO: Investigate why the `error` event is not functioning in CI.
+    cy.task('info', `Test "${testName}" failed with error: ${errorMessage}`);
   }
 });
