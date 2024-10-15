@@ -43,8 +43,6 @@ export const configMap = {
     LIQUIDATING_TIMEOUT: 13 * 60 * 1000,
     LIQUIDATED_TIMEOUT: 5 * 60 * 1000,
     COMMAND_TIMEOUT: 6 * 60 * 1000,
-    user1Mnemonic: Cypress.env('USER1_MNEMONIC'),
-    user1Address: Cypress.env('USER1_ADDRESS'),
     bidderMnemonic: Cypress.env('BIDDER_MNEMONIC'),
     bidderAddress: Cypress.env('BIDDER_ADDRESS'),
     bidderWalletName: 'bidder',

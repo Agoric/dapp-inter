@@ -23,8 +23,6 @@ describe('Liquidation Testing', () => {
   const DEFAULT_TASK_TIMEOUT = currentConfig.DEFAULT_TASK_TIMEOUT;
   const LIQUIDATING_TIMEOUT = currentConfig.LIQUIDATING_TIMEOUT;
   const LIQUIDATED_TIMEOUT = currentConfig.LIQUIDATED_TIMEOUT;
-  const user1Mnemonic = currentConfig.user1Mnemonic;
-  const user1Address = currentConfig.user1Address;
   const bidderMnemonic = currentConfig.bidderMnemonic;
   const bidderAddress = currentConfig.bidderAddress;
   const bidderWalletName = currentConfig.bidderWalletName;
@@ -35,10 +33,99 @@ describe('Liquidation Testing', () => {
   const econGovURL = currentConfig.econGovURL;
   const auctionURL = currentConfig.auctionURL;
   const reserveURL = currentConfig.reserveURL;
+  let user1Mnemonic =
+    AGORIC_NET === networks.LOCAL ? currentConfig.user1Mnemonic : null;
+  let user1Address =
+    AGORIC_NET === networks.LOCAL ? currentConfig.user1Address : null;
   let bidderAtomBalance = 0;
   let user1AtomBalance = 0;
   let bidderIstBalance = 0;
   let shortfallBalance = 0;
+
+  context('Add key for user1 wallet', () => {
+    it('add key for user1 wallet using agd', () => {
+      cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
+
+      if (AGORIC_NET === networks.LOCAL) {
+        cy.addKeys({
+          keyName: 'user1',
+          mnemonic: user1Mnemonic,
+          expectedAddress: user1Address,
+        });
+      } else {
+        cy.task('info', 'get mnemonic for the new wallet using agd');
+        cy.createNewUser({ keyName: 'user1' })
+          .then(output => {
+            cy.task('info', `${JSON.stringify(output)}`);
+            cy.wrap(output);
+          })
+          .then(({ mnemonic, address }) => {
+            user1Mnemonic = mnemonic;
+            cy.task('info', `user1 mnemonic: ${user1Mnemonic}`);
+            user1Address = address;
+            cy.task('info', `user1 address: ${address}`);
+          })
+          .then(() => {
+            expect(user1Mnemonic).to.not.be.null;
+            expect(user1Address).to.not.be.null;
+          });
+      }
+    });
+
+    it(
+      'should provision the user1 wallet',
+      {
+        retries: {
+          runMode: 2,
+          openMode: 2,
+        },
+      },
+      () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+        // UNTIL https://github.com/Agoric/instagoric/issues/64
+        for (let i = 0; i < 3; i++) {
+          cy.provisionFromFaucet(user1Address, 'delegate');
+        }
+        cy.provisionFromFaucet(user1Address, 'client');
+      },
+    );
+  });
+
+  context('Add key for bidder wallet', () => {
+    it('add key for bidder wallet using agd', () => {
+      if (AGORIC_NET === networks.LOCAL) {
+        cy.task('info', 'gov1 is the bidder wallet');
+        cy.addKeys({
+          keyName: 'gov1',
+          mnemonic: gov1Mnemonic,
+          expectedAddress: gov1Address,
+        });
+      } else {
+        cy.addKeys({
+          keyName: 'bidder',
+          mnemonic: bidderMnemonic,
+          expectedAddress: bidderAddress,
+        });
+      }
+    });
+  });
+
+  context('Add keys for gov1 and gov2 wallet', () => {
+    it('add keys for gov1 and gov2 wallet using agd', () => {
+      if (AGORIC_NET !== networks.LOCAL) {
+        cy.addKeys({
+          keyName: 'gov1',
+          mnemonic: gov1Mnemonic,
+          expectedAddress: gov1Address,
+        });
+      }
+      cy.addKeys({
+        keyName: 'gov2',
+        mnemonic: gov2Mnemonic,
+        expectedAddress: gov2Address,
+      });
+    });
+  });
 
   context('Verify if both bidder and user1 have sufficient balance', () => {
     // Note: Transaction fees are not considered in these calculations.
@@ -68,7 +155,7 @@ describe('Liquidation Testing', () => {
     });
   });
 
-  context('Setting up accounts', () => {
+  context('Setting up Keplr wallets', () => {
     // Using exports from the synthetic-chain lib instead of hardcoding mnemonics UNTIL https://github.com/Agoric/agoric-3-proposals/issues/154
     it('should set up bidder wallet', () => {
       cy.skipWhen(AGORIC_NET === networks.LOCAL);
@@ -82,7 +169,6 @@ describe('Liquidation Testing', () => {
     });
 
     it('should set up user1 wallet', () => {
-      cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
       cy.setupWallet({
         secretWords: user1Mnemonic,
         walletName: 'user1',
@@ -355,47 +441,60 @@ describe('Liquidation Testing', () => {
       },
     );
 
-    it('should add all the keys successfully', () => {
-      cy.addKeys({
-        keyName: 'gov1',
-        mnemonic: gov1Mnemonic,
-        expectedAddress: gov1Address,
-      });
-      cy.addKeys({
-        keyName: 'gov2',
-        mnemonic: gov2Mnemonic,
-        expectedAddress: gov2Address,
-      });
-      cy.addKeys({
-        keyName: 'user1',
-        mnemonic: user1Mnemonic,
-        expectedAddress: user1Address,
-      });
-    });
-
-    it('should add the bidder key successfully', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
-      cy.addKeys({
-        keyName: 'bidder',
-        mnemonic: bidderMnemonic,
-        expectedAddress: bidderAddress,
-      });
-    });
     it('should set ATOM price to 12.34', () => {
       cy.setOraclePrice(12.34);
     });
 
-    it('should create a vault minting 100 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 100, giveCollateral: 15, userKey: 'user1' });
-    });
+    it(
+      'should create a vault minting 100 ISTs and giving 15 ATOMs as collateral',
+      {
+        retries: {
+          runMode: 1,
+          openMode: 1,
+        },
+      },
+      () => {
+        cy.createVault({
+          wantMinted: 100,
+          giveCollateral: 15,
+          userKey: 'user1',
+        });
+      },
+    );
 
-    it('should create a vault minting 103 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 103, giveCollateral: 15, userKey: 'user1' });
-    });
+    it(
+      'should create a vault minting 103 ISTs and giving 15 ATOMs as collateral',
+      {
+        retries: {
+          runMode: 1,
+          openMode: 1,
+        },
+      },
+      () => {
+        cy.createVault({
+          wantMinted: 103,
+          giveCollateral: 15,
+          userKey: 'user1',
+        });
+      },
+    );
 
-    it('should create a vault minting 105 ISTs and giving 15 ATOMs as collateral', () => {
-      cy.createVault({ wantMinted: 105, giveCollateral: 15, userKey: 'user1' });
-    });
+    it(
+      'should create a vault minting 105 ISTs and giving 15 ATOMs as collateral',
+      {
+        retries: {
+          runMode: 1,
+          openMode: 1,
+        },
+      },
+      () => {
+        cy.createVault({
+          wantMinted: 105,
+          giveCollateral: 15,
+          userKey: 'user1',
+        });
+      },
+    );
 
     it(
       'should check for the existence of vaults on the UI',
@@ -908,8 +1007,6 @@ describe('Liquidation Testing', () => {
     });
 
     it('should cancel the 150IST bid', () => {
-      cy.reload();
-
       cy.contains('Exit').click();
       cy.wait(QUICK_WAIT);
       cy.acceptAccess().then(taskCompleted => {

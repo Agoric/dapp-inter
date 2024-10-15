@@ -28,8 +28,25 @@ Cypress.Commands.add('addKeys', params => {
       cy.task('error', `STDERR: ${stderr}`);
       throw Error(stderr);
     }
-    cy.task('info', `STDOUT: ${stdout}`);
     expect(stdout).to.contain(expectedAddress);
+  });
+});
+
+Cypress.Commands.add('createNewUser', params => {
+  const { keyName } = params;
+  const command = `agd keys add ${keyName} --keyring-backend=test --output=json`;
+
+  cy.exec(command, {
+    failOnNonZeroExit: false,
+  }).then(({ stdout, stderr }) => {
+    if (stderr && !stdout) {
+      cy.task('error', `STDERR: ${stderr}`);
+      throw Error(stderr);
+    }
+    cy.task('info', `STDOUT: ${stdout}`);
+    const output = JSON.parse(stdout);
+
+    cy.wrap({ address: output.address, mnemonic: output.mnemonic });
   });
 });
 
@@ -177,7 +194,6 @@ const connectWalletLocalChain = ({ isVaultsTests = false }) => {
 };
 
 const connectWalletTestnet = () => {
-  cy.contains('button', 'Dismiss').click();
   cy.get('button').contains('Local Network').click();
   cy.get('button').contains(agoricNetworks[AGORIC_NET]).click();
   cy.get('body').then($body => {
@@ -367,6 +383,7 @@ afterEach(function () {
       shouldSkip = true;
     }
 
-    cy.task('error', `Test "${testName}" failed with error: ${errorMessage}`);
+    // TODO: Investigate why the `error` event is not functioning in CI.
+    cy.task('info', `Test "${testName}" failed with error: ${errorMessage}`);
   }
 });
