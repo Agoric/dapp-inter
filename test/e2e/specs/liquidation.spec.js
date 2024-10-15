@@ -42,12 +42,10 @@ describe('Liquidation Testing', () => {
   let bidderIstBalance = 0;
   let shortfallBalance = 0;
 
-  context('Setting up user1 wallet', () => {
-    it('log value of AGORIC_NET', () => {
+  context('Add key for user1 wallet', () => {
+    it('add key for user1 wallet using agd', () => {
       cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
-    });
 
-    it('add keys for user1 wallet using agd', () => {
       if (AGORIC_NET === networks.LOCAL) {
         cy.addKeys({
           keyName: 'user1',
@@ -91,6 +89,42 @@ describe('Liquidation Testing', () => {
         cy.provisionFromFaucet(user1Address, 'client');
       },
     );
+  });
+
+  context('Add key for bidder wallet', () => {
+    it('add key for bidder wallet using agd', () => {
+      if (AGORIC_NET === networks.LOCAL) {
+        cy.task('info', 'gov1 is the bidder wallet');
+        cy.addKeys({
+          keyName: 'gov1',
+          mnemonic: gov1Mnemonic,
+          expectedAddress: gov1Address,
+        });
+      } else {
+        cy.addKeys({
+          keyName: 'bidder',
+          mnemonic: bidderMnemonic,
+          expectedAddress: bidderAddress,
+        });
+      }
+    });
+  });
+
+  context('Add keys for gov1 and gov2 wallet', () => {
+    it('add keys for gov1 and gov2 wallet using agd', () => {
+      if (AGORIC_NET !== networks.LOCAL) {
+        cy.addKeys({
+          keyName: 'gov1',
+          mnemonic: gov1Mnemonic,
+          expectedAddress: gov1Address,
+        });
+      }
+      cy.addKeys({
+        keyName: 'gov2',
+        mnemonic: gov2Mnemonic,
+        expectedAddress: gov2Address,
+      });
+    });
   });
 
   context('Verify if both bidder and user1 have sufficient balance', () => {
@@ -407,27 +441,6 @@ describe('Liquidation Testing', () => {
       },
     );
 
-    it('should add gov keys successfully', () => {
-      cy.addKeys({
-        keyName: 'gov1',
-        mnemonic: gov1Mnemonic,
-        expectedAddress: gov1Address,
-      });
-      cy.addKeys({
-        keyName: 'gov2',
-        mnemonic: gov2Mnemonic,
-        expectedAddress: gov2Address,
-      });
-    });
-
-    it('should add the bidder key successfully', () => {
-      cy.skipWhen(AGORIC_NET === networks.LOCAL);
-      cy.addKeys({
-        keyName: 'bidder',
-        mnemonic: bidderMnemonic,
-        expectedAddress: bidderAddress,
-      });
-    });
     it('should set ATOM price to 12.34', () => {
       cy.setOraclePrice(12.34);
     });
