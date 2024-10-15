@@ -880,7 +880,7 @@ describe('Liquidation Reconstitution Testing', () => {
       it('should close the 100 IST vault and approve the transaction successfully', () => {
         cy.skipWhen(AGORIC_NET === networks.LOCAL);
         const regexVault100 = new RegExp('100(\\.\\d+)?');
-        cy.contains(regexVault100, { timeout: LIQUIDATING_TIMEOUT }).click();
+        cy.contains(regexVault100, { timeout: DEFAULT_TIMEOUT }).click();
         cy.contains('Close Out Vault').click();
         cy.contains('button.bg-interPurple', 'Close Out Vault').click();
 
@@ -895,7 +895,7 @@ describe('Liquidation Reconstitution Testing', () => {
       it('should close the 103 IST vault and approve the transaction successfully', () => {
         cy.skipWhen(AGORIC_NET === networks.LOCAL);
         const regexVault103 = new RegExp('103(\\.\\d+)?');
-        cy.contains(regexVault103, { timeout: LIQUIDATING_TIMEOUT }).click();
+        cy.contains(regexVault103, { timeout: DEFAULT_TIMEOUT }).click();
         cy.contains('Close Out Vault').click();
         cy.contains('button.bg-interPurple', 'Close Out Vault').click();
 
