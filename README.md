@@ -121,8 +121,6 @@ To run end-to-end tests locally, it's best to avoid running multiple processes o
 
 When testing liquidation scenarios, make sure to export the following environment variables:
 
-- `CYPRESS_USER1_MNEMONIC`: Mnemonic for the `user1`. This wallet is responsible for creating vaults during tests.
-- `CYPRESS_USER1_ADDRESS`: Wallet address for the `user1`.
 - `CYPRESS_BIDDER_MNEMONIC`: Mnemonic for the bidder. This wallet is responsible for placing bids.
 - `CYPRESS_BIDDER_ADDRESS`: Wallet address for the bidder.
 - `CYPRESS_GOV1_MNEMONIC`: Mnemonic for the `gov1` account. This wallet, along with `gov2`, is responsible for changing the price of ATOM during testing.
@@ -144,7 +142,7 @@ Be sure to include the `--host` flag if you're using a Mac, as this ensures that
 
 ### 3. Ensure Keys are in Local Keyring
 
-You need to ensure that certain keys `(gov1, gov2, and user1)` are present in your local keyring. To find the mnemonics for these keys, open the file `test/e2e/test.utils.js` and look for the `mnemonics` object in the file.
+Ensure the `gov1`, `gov2`, and `user1` keys are in your local keyring using the `--keyring-backend=test` option. You can find their mnemonics in the `mnemonics` object within `test/e2e/test.utils.js`. If testing on networks other than `AGORIC_NET=local` (e.g., `emerynet` or `devnet`), also add the `bidder` key, using the mnemonic specified by `CYPRESS_BIDDER_MNEMONIC`.
 
 **Note:** The test cases for adding keys using `agd` from the CLI might fail. This is expected behavior and is fine when testing on your local machine.
 
