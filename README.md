@@ -121,8 +121,6 @@ To run end-to-end tests locally, it's best to avoid running multiple processes o
 
 When testing liquidation scenarios, make sure to export the following environment variables:
 
-- `CYPRESS_USER1_MNEMONIC`: Mnemonic for the `user1`. This wallet is responsible for creating vaults during tests.
-- `CYPRESS_USER1_ADDRESS`: Wallet address for the `user1`.
 - `CYPRESS_BIDDER_MNEMONIC`: Mnemonic for the bidder. This wallet is responsible for placing bids.
 - `CYPRESS_BIDDER_ADDRESS`: Wallet address for the bidder.
 - `CYPRESS_GOV1_MNEMONIC`: Mnemonic for the `gov1` account. This wallet, along with `gov2`, is responsible for changing the price of ATOM during testing.
