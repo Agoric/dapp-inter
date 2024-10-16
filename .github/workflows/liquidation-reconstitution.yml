@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       network:
-        description: 'Select the blockchain network for testing'
+        description: 'AGORIC_NET'
         required: false
         default: 'emerynet'
         type: choice
@@ -16,22 +16,6 @@ on:
           - devnet
           - ollinet
           - xnet
-      user1_mnemonic:
-        description: 'The mnemonic phrase for the account to be used for vaults'
-        required: false
-        type: string
-      user1_address:
-        description: 'user1 account address'
-        required: false
-        type: string
-      bidder_mnemonic:
-        description: 'The mnemonic phrase for the account used for bidding'
-        required: false
-        type: string
-      bidder_address:
-        description: 'bidder account address'
-        required: false
-        type: string
       base_image:
         description: 'Base image tag for agoric-sdk'
         required: false
@@ -71,10 +55,6 @@ jobs:
             || github.event_name == 'schedule' && 'local' 
             || 'local' 
         }}
-      user1_mnemonic: ${{ inputs.user1_mnemonic }}
-      user1_address: ${{ inputs.user1_address }}
-      bidder_mnemonic: ${{ inputs.bidder_mnemonic }}
-      bidder_address: ${{ inputs.bidder_address }}
       base_image: ${{ inputs.base_image || 'latest' }}
       docker_image: ${{ inputs.docker_image || 'ghcr.io/agoric/agoric-3-proposals:latest' }}
 

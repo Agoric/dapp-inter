@@ -14,22 +14,6 @@ on:
       mnemonic_phrase:
         required: false
         type: string
-      user1_mnemonic:
-        description: 'The mnemonic phrase for the account to be used for vaults'
-        required: false
-        type: string
-      user1_address:
-        description: 'user1 account address'
-        required: false
-        type: string
-      bidder_mnemonic:
-        description: 'The mnemonic phrase for the account used for bidding'
-        required: false
-        type: string
-      bidder_address:
-        description: 'bidder account address'
-        required: false
-        type: string
       base_image:
         description: 'Base image tag for agoric-sdk'
         required: false
