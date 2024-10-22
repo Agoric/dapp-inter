@@ -66,16 +66,20 @@ describe('Vaults UI Test Cases', () => {
       },
       () => {
         cy.contains('button', 'Create Vault').click();
-
-        cy.confirmTransaction().then(taskCompleted => {
-          expect(taskCompleted).to.be.true;
-          cy.contains(
-            'p',
-            'You can manage your vaults from the "My Vaults" view.',
-            { timeout: MINUTE_MS },
-          ).should('exist');
-          cy.contains('Manage my Vaults').click();
+        cy.get('body').then($body => {
+          if ($body.find('div:contains("Smart Wallet Required")').length > 0) {
+            cy.get('button').contains('Proceed').click();
+          }
         });
+
+        cy.confirmTransaction();
+
+        cy.contains(
+          'p',
+          'You can manage your vaults from the "My Vaults" view.',
+          { timeout: MINUTE_MS },
+        ).should('exist');
+        cy.contains('Manage my Vaults').click();
       },
     );
 
