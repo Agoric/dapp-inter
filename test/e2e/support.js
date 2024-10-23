@@ -193,7 +193,10 @@ const connectWalletLocalChain = ({ isVaultsTests = false }) => {
   }
 };
 
-const connectWalletTestnet = () => {
+const connectWalletTestnet = ({ isVaultsTests }) => {
+  if (isVaultsTests) {
+    cy.contains('button', 'Dismiss').click();
+  }
   cy.get('button').contains('Local Network').click();
   cy.get('button').contains(agoricNetworks[AGORIC_NET]).click();
   cy.get('body').then($body => {
@@ -223,7 +226,7 @@ Cypress.Commands.add('connectWithWallet', (options = {}) => {
   if (AGORIC_NET === networks.LOCAL) {
     connectWalletLocalChain({ isVaultsTests });
   } else {
-    connectWalletTestnet();
+    connectWalletTestnet({ isVaultsTests });
   }
 });
 
