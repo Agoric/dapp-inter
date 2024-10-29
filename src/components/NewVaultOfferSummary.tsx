@@ -184,6 +184,8 @@ const NewVaultOfferSummary = () => {
 
   const createVault = async () => {
     setIsProvisionDialogOpen(false);
+    assert(depositAmount);
+    assert(mintAmount);
     await makeOpenVaultOffer(depositAmount, mintAmount, () =>
       setIsVaultCreationDialogOpen(true),
     );
@@ -218,7 +220,7 @@ const NewVaultOfferSummary = () => {
     return 'Create Vault';
   }, [chainConnection, vaultLimitReached]);
 
-  const debtBalanceInfo = debtBalance && (
+  const debtBalanceInfo = debtBalance ? (
     <Popover className="inline absolute -right-5 top-[3px]">
       <Popover.Button className="text-base">
         <HiOutlineInformationCircle />
@@ -242,6 +244,8 @@ const NewVaultOfferSummary = () => {
         </Popover.Panel>
       </Transition>
     </Popover>
+  ) : (
+    ''
   );
 
   return (
