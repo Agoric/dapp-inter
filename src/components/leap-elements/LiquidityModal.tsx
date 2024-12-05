@@ -22,6 +22,8 @@ const agoricChainId = 'agoric-3';
 
 const chainIdForCollateralPetname = (petname?: string) => {
   switch (petname) {
+    case 'dATOM':
+      return 'neutron-1';
     case 'stATOM':
       return 'stride-1';
     case 'stOSMO':
@@ -42,6 +44,8 @@ const chainIdForCollateralPetname = (petname?: string) => {
 
 const assetForCollateralPetname = (petname?: string) => {
   switch (petname) {
+    case 'dATOM':
+      return ['symbol', 'dATOM'] as AssetSelector;
     case 'stATOM':
       return ['symbol', 'stATOM'] as AssetSelector;
     case 'stOSMO':
