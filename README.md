@@ -119,7 +119,15 @@ To run end-to-end tests locally, it's best to avoid running multiple processes o
 
 ### 1. Exporting Environment Variables
 
-When testing liquidation scenarios, make sure to export the following environment variables:
+When conducting liquidation tests, certain environment variables need to be set to ensure the tests run correctly. However, these variables are not required when testing with a local chain.
+
+#### Testing on Local Chain:
+
+No additional environment variables are needed. Proceed with your tests as usual.
+
+#### Testing on Testnet Chains (e.g., Emerynet, Devnet):
+
+Before running the tests, export the necessary environment variables. Here is the list of environment variables you should set:
 
 - `CYPRESS_BIDDER_MNEMONIC`: Mnemonic for the bidder. This wallet is responsible for placing bids.
 - `CYPRESS_BIDDER_ADDRESS`: Wallet address for the bidder.
@@ -127,8 +135,6 @@ When testing liquidation scenarios, make sure to export the following environmen
 - `CYPRESS_GOV1_ADDRESS`: Wallet address for the `gov1` account.
 - `CYPRESS_GOV2_MNEMONIC`: Mnemonic for the `gov2` account.
 - `CYPRESS_GOV2_ADDRESS`: Wallet address for the `gov2` account.
-
-Make sure these environment variables are correctly set in your environment before running the tests. If you are testing with `a3p` chain, setting these environment variables is not required.
 
 ### 2. Start the development server
 
