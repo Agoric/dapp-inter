@@ -293,44 +293,55 @@ Cypress.Commands.add('fetchVStorageData', params => {
   });
 });
 
-Cypress.Commands.add(
-  'requestFaucet',
-  (walletAddress, command, denoms, amount) => {
-    const TRANSACTION_STATUS = {
-      FAILED: 1000,
-      NOT_FOUND: 1001,
-      SUCCESSFUL: 1002,
-    };
+Cypress.Commands.add('requestFaucet', (walletAddress, denoms, amount) => {
+  const TRANSACTION_STATUS = {
+    FAILED: 1000,
+    NOT_FOUND: 1001,
+    SUCCESSFUL: 1002,
+  };
 
-    const getStatus = txHash =>
-      cy
-        .request({
-          method: 'GET',
-          url: `https://emerynet.faucet.agoric.net/api/transaction-status/${txHash}`,
-        })
-        .then(resp => {
-          const { transactionStatus } = resp.body;
-          if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND)
-            // eslint-disable-next-line cypress/no-unnecessary-waiting
-            return cy.wait(2000).then(() => getStatus(txHash));
-          else return cy.wrap(transactionStatus);
-        });
+  const getStatus = (txHash, retries = 10) => {
+    if (retries <= 0) {
+      return cy.wrap('TIMEOUT');
+    }
 
-    cy.request({
-      method: 'POST',
-      url: 'https://emerynet.faucet.agoric.net/go',
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-      },
-      body: `address=${walletAddress}&clientType=SMART_WALLET&command=${command}&denoms=${encodeURIComponent(denoms)}&amount=${amount}`,
-      form: true,
+    return cy
+      .request({
+        method: 'GET',
+        url: `https://${AGORIC_NET}.faucet.agoric.net/api/transaction-status/${txHash}`,
+      })
+      .then(resp => {
+        const { transactionStatus } = resp.body;
+        if (transactionStatus === TRANSACTION_STATUS.NOT_FOUND) {
+          // eslint-disable-next-line cypress/no-unnecessary-waiting
+          return cy.wait(2000).then(() => getStatus(txHash, retries - 1));
+        } else {
+          return cy.wrap(transactionStatus);
+        }
+      });
+  };
+
+  cy.request({
+    method: 'POST',
+    url: `https://${AGORIC_NET}.faucet.agoric.net/go`,
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+    },
+    body: `address=${walletAddress}&clientType=SMART_WALLET&command=custom_denoms_list&denoms=${encodeURIComponent(denoms)}&amount=${amount}`,
+    form: true,
+  })
+    .then(resp => {
+      cy.task('info', `RESP: ${resp}`);
+      cy.wait(2000);
+      const responseData = resp;
+      const redirects = responseData.redirects;
+      const txHashMatch = redirects[0].match(
+        /transaction-status\/([A-F0-9]{64})/,
+      );
+      return getStatus(txHashMatch[1]);
     })
-      .then(resp =>
-        getStatus(/\/transaction-status\/(.*)/.exec(resp.headers.location)[1]),
-      )
-      .then(status => expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
-  },
-);
+    .then(status => expect(status).to.eq(TRANSACTION_STATUS.SUCCESSFUL));
+});
 
 Cypress.Commands.add(
   'calculateRatios',

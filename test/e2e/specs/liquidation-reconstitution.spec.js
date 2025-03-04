@@ -89,6 +89,20 @@ describe('Liquidation Reconstitution Testing', () => {
         cy.provisionFromFaucet(user1Address, 'client');
       },
     );
+
+    it(
+      "should request ATOMs from the faucet using user1's wallet",
+      {
+        retries: {
+          runMode: 2,
+          openMode: 2,
+        },
+      },
+      () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+        cy.requestFaucet(user1Address, ATOM_DENOMS[AGORIC_NET], 100);
+      },
+    );
   });
 
   context('Add key for bidder wallet', () => {

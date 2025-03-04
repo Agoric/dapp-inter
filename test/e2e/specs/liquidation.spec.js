@@ -10,6 +10,7 @@ import {
   THIRTY_SECONDS,
   tokens,
   extractNumber,
+  ATOM_DENOMS,
 } from '../test.utils';
 
 describe('Liquidation Testing', () => {
@@ -91,6 +92,20 @@ describe('Liquidation Testing', () => {
         cy.provisionFromFaucet(user1Address, 'client');
       },
     );
+
+    it(
+      "should request ATOMs from the faucet using user1's wallet",
+      {
+        retries: {
+          runMode: 2,
+          openMode: 2,
+        },
+      },
+      () => {
+        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+        cy.requestFaucet(user1Address, ATOM_DENOMS[AGORIC_NET], 100);
+      },
+    );
   });
 
   context('Add key for bidder wallet', () => {
@@ -133,6 +148,7 @@ describe('Liquidation Testing', () => {
     // Note: Transaction fees are not considered in these calculations.
 
     it('verify user1 balance is sufficient to create 3 vaults', () => {
+      cy.wait(8000);
       cy.getTokenBalance({
         walletAddress: user1Address,
         token: tokens.ATOM,
