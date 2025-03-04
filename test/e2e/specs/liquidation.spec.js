@@ -14,8 +14,10 @@ import {
 
 describe('Liquidation Testing', () => {
   let startTime;
-  const AGORIC_NET = Cypress.env('AGORIC_NET');
-  const network = AGORIC_NET !== 'local' ? 'testnet' : 'local';
+  const AGORIC_NET = Cypress.env('AGORIC_NET').trim();
+  const network =
+    { local: 'local', emerynet: 'emerynet' }[AGORIC_NET] || 'testnet';
+
   const currentConfig = configMap[network];
   const QUICK_WAIT =
     AGORIC_NET === 'local' ? QUICK_WAIT_LOCAL : QUICK_WAIT_TESTNET;

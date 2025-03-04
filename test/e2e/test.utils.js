@@ -3,12 +3,15 @@ export const mnemonics = {
     'tackle hen gap lady bike explain erode midnight marriage wide upset culture model select dial trial swim wood step scan intact what card symptom',
   gov1: 'such field health riot cost kitten silly tube flash wrap festival portion imitate this make question host bitter puppy wait area glide soldier knee',
   gov2: 'physical immune cargo feel crawl style fox require inhale law local glory cheese bring swear royal spy buyer diesel field when task spin alley',
+  validator:
+    'soap hub stick bomb dish index wing shield cruel board siren force glory assault rotate busy area topple resource okay clown wedding hint unhappy',
 };
 
 export const accountAddresses = {
   user1: 'agoric1ydzxwh6f893jvpaslmaz6l8j2ulup9a7x8qvvq',
   gov1: 'agoric1ee9hr0jyrxhy999y755mp862ljgycmwyp4pl7q',
   gov2: 'agoric1wrfh296eu2z34p6pah7q04jjuyj3mxu9v98277',
+  validator: 'agoric1estsewt6jqsx77pwcxkn5ah0jqgu8rhgflwfdl',
 };
 
 export const webWalletURL = 'https://wallet.agoric.app/';
@@ -37,6 +40,25 @@ export const webWalletSelectors = {
 };
 
 export const configMap = {
+  emerynet: {
+    DEFAULT_TIMEOUT: 3 * 60 * 1000,
+    DEFAULT_TASK_TIMEOUT: 3 * 60 * 1000,
+    LIQUIDATING_TIMEOUT: 13 * 60 * 1000,
+    LIQUIDATED_TIMEOUT: 5 * 60 * 1000,
+    COMMAND_TIMEOUT: 6 * 60 * 1000,
+    bidderMnemonic: mnemonics.validator,
+    bidderAddress: accountAddresses.validator,
+    bidderWalletName: 'bidder',
+    gov1Mnemonic: mnemonics.gov1,
+    gov1Address: accountAddresses.gov1,
+    gov1WalletName: 'gov1',
+    gov2Mnemonic: mnemonics.gov2,
+    gov2Address: accountAddresses.gov2,
+    gov2WalletName: 'gov2',
+    econGovURL: `https://econ-gov.inter.trade/?agoricNet=${Cypress.env('AGORIC_NET')}`,
+    auctionURL: `https://${Cypress.env('AGORIC_NET')?.trim()}.api.agoric.net/agoric/vstorage/data/published.auction.book0`,
+    reserveURL: `https://${Cypress.env('AGORIC_NET')?.trim()}.api.agoric.net/agoric/vstorage/data/published.reserve.metrics`,
+  },
   testnet: {
     DEFAULT_TIMEOUT: 3 * 60 * 1000,
     DEFAULT_TASK_TIMEOUT: 3 * 60 * 1000,
