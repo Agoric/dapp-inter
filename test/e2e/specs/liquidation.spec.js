@@ -9,7 +9,6 @@ import {
   QUICK_WAIT_TESTNET,
   THIRTY_SECONDS,
   tokens,
-  extractNumber,
 } from '../test.utils';
 
 describe('Liquidation Testing', () => {
@@ -17,6 +16,8 @@ describe('Liquidation Testing', () => {
   const AGORIC_NET = Cypress.env('AGORIC_NET').trim();
   const network =
     { local: 'local', emerynet: 'emerynet' }[AGORIC_NET] || 'testnet';
+  const checkLastestAuctionValue =
+    network === 'local' || network === 'emerynet' ? false : true;
 
   const currentConfig = configMap[network];
   const QUICK_WAIT =
@@ -540,7 +541,6 @@ describe('Liquidation Testing', () => {
       cy.fetchVStorageData({
         url: reserveURL,
         field: 'shortfallBalance',
-        latest: true,
       }).then(output => {
         shortfallBalance = Number(
           (Number(output.value.slice(1)) / 1_000_000).toFixed(2),
@@ -629,9 +629,11 @@ describe('Liquidation Testing', () => {
 
         const expectedValue = 9.99;
         cy.task('info', `Expected Value: ${expectedValue}`);
+        // TODO: temporarily check second last value
         cy.fetchVStorageData({
           url: auctionURL,
           field: 'startPrice',
+          latest: checkLastestAuctionValue,
         }).then(data => {
           cy.calculateRatios(data, { hasDenom: true, useValue: false }).then(
             result => {
@@ -645,9 +647,11 @@ describe('Liquidation Testing', () => {
       it('should verify the value of startProceedsGoal', () => {
         const expectedValue = 309.54;
         cy.task('info', `Expected Value: ${expectedValue}`);
+        // TODO: temporarily check second last value
         cy.fetchVStorageData({
           url: auctionURL,
           field: 'startProceedsGoal',
+          latest: checkLastestAuctionValue,
         }).then(data => {
           cy.calculateRatios(data, { hasDenom: false, useValue: true }).then(
             result => {
@@ -661,9 +665,11 @@ describe('Liquidation Testing', () => {
       it('should verify the value of startCollateral', () => {
         const expectedValue = 45;
         cy.task('info', `Expected Value: ${expectedValue}`);
+        // TODO: temporarily check second last value
         cy.fetchVStorageData({
           url: auctionURL,
           field: 'startCollateral',
+          latest: checkLastestAuctionValue,
         }).then(data => {
           cy.calculateRatios(data, { hasDenom: false, useValue: true }).then(
             result => {
@@ -706,9 +712,11 @@ describe('Liquidation Testing', () => {
 
         const expectedValue = 9.659301;
         cy.task('info', `Expected Value: ${expectedValue}`);
+        // TODO: temporarily check second last value
         cy.fetchVStorageData({
           url: auctionURL,
           field: 'collateralAvailable',
+          latest: checkLastestAuctionValue,
         }).then(data => {
           cy.calculateRatios(data, { hasDenom: false, useValue: true }).then(
             result => {
@@ -806,7 +814,6 @@ describe('Liquidation Testing', () => {
       cy.fetchVStorageData({
         url: reserveURL,
         field: 'shortfallBalance',
-        latest: true,
       })
         .then(newBalanceObj => {
           let newBalance = Number(

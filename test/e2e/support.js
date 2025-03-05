@@ -269,7 +269,7 @@ Cypress.Commands.add('provisionFromFaucet', (walletAddress, command) => {
 });
 
 Cypress.Commands.add('fetchVStorageData', params => {
-  const { url, field, latest = false } = params;
+  const { url, field, latest = true } = params;
   cy.request(url).then(response => {
     expect(response.status).to.eq(200);
     cy.task('info', `Data fetched successfully for ${field}`);
