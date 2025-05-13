@@ -13,9 +13,9 @@ import {
 
 describe('Liquidation Testing', () => {
   let startTime;
-  const AGORIC_NET = Cypress.env('AGORIC_NET').trim();
-  const network =
-    { local: 'local', emerynet: 'emerynet' }[AGORIC_NET] || 'testnet';
+  const AGORIC_NET = 'emerynet';
+  const network = AGORIC_NET;
+
   const checkLastestAuctionValue =
     network === 'local' || network === 'emerynet' ? false : true;
 
