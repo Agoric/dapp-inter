@@ -37,9 +37,13 @@ describe('Liquidation Testing', () => {
   const auctionURL = currentConfig.auctionURL;
   const reserveURL = currentConfig.reserveURL;
   let user1Mnemonic =
-    AGORIC_NET === networks.LOCAL ? currentConfig.user1Mnemonic : null;
+    AGORIC_NET === networks.LOCAL || AGORIC_NET === networks.EMERYNET
+      ? currentConfig.user1Mnemonic
+      : null;
   let user1Address =
-    AGORIC_NET === networks.LOCAL ? currentConfig.user1Address : null;
+    AGORIC_NET === networks.LOCAL || AGORIC_NET === networks.EMERYNET
+      ? currentConfig.user1Address
+      : null;
   let bidderAtomBalance = 0;
   let user1AtomBalance = 0;
   let bidderIstBalance = 0;
@@ -49,7 +53,7 @@ describe('Liquidation Testing', () => {
     it('add key for user1 wallet using agd', () => {
       cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
 
-      if (AGORIC_NET === networks.LOCAL) {
+      if (AGORIC_NET === networks.LOCAL || AGORIC_NET === networks.EMERYNET) {
         cy.addKeys({
           keyName: 'user1',
           mnemonic: user1Mnemonic,
@@ -84,7 +88,9 @@ describe('Liquidation Testing', () => {
         },
       },
       () => {
-        cy.skipWhen(AGORIC_NET === networks.LOCAL);
+        cy.skipWhen(
+          AGORIC_NET === networks.LOCAL || AGORIC_NET === networks.EMERYNET,
+        );
         // UNTIL https://github.com/Agoric/instagoric/issues/64
         for (let i = 0; i < 3; i++) {
           cy.provisionFromFaucet(user1Address, 'delegate');
@@ -96,7 +102,7 @@ describe('Liquidation Testing', () => {
 
   context('Add key for bidder wallet', () => {
     it('add key for bidder wallet using agd', () => {
-      if (AGORIC_NET === networks.LOCAL) {
+      if (AGORIC_NET === networks.LOCAL || AGORIC_NET === networks.EMERYNET) {
         cy.task('info', 'gov1 is the bidder wallet');
         cy.addKeys({
           keyName: 'gov1',
@@ -115,7 +121,7 @@ describe('Liquidation Testing', () => {
 
   context('Add keys for gov1 and gov2 wallet', () => {
     it('add keys for gov1 and gov2 wallet using agd', () => {
-      if (AGORIC_NET !== networks.LOCAL) {
+      if (AGORIC_NET !== networks.LOCAL || AGORIC_NET !== networks.EMERYNET) {
         cy.addKeys({
           keyName: 'gov1',
           mnemonic: gov1Mnemonic,
