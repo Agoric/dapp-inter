@@ -36,8 +36,9 @@ describe('Liquidation Testing', () => {
   const econGovURL = currentConfig.econGovURL;
   const auctionURL = currentConfig.auctionURL;
   const reserveURL = currentConfig.reserveURL;
-  let user1Mnemonic = currentConfig.user1Mnemonic;
-  let user1Address = currentConfig.user1Address;
+  let user1Mnemonic =
+    'orbit bench unit task food shock brand bracket domain regular warfare company announce wheel grape trust sphere boy doctor half guard ritual three ecology';
+  let user1Address = 'agoric1p2aqakv3ulz4qfy2nut86j9gx0dx0yw09h96md';
   let bidderAtomBalance = 0;
   let user1AtomBalance = 0;
   let bidderIstBalance = 0;
