@@ -12,29 +12,10 @@ describe('Vaults UI Test Cases', () => {
         cy.setupWallet({
           secretWords: customWalletPhrase,
         });
-      } else if (AGORIC_NET === 'local') {
+      } else {
         cy.setupWallet({
           secretWords: mnemonics.user1,
           walletName: 'user1',
-        });
-      } else if (AGORIC_NET === 'xnet') {
-        cy.task('info', 'Connecting with wallet...');
-        cy.setupWallet({
-          secretWords: Cypress.env('USER1_MNEMONIC'),
-          walletName: 'user1',
-        });
-      } else {
-        cy.setupWallet({
-          createNewWallet: true,
-          walletName: 'my created wallet',
-          selectedChains: ['Agoric'],
-        });
-
-        cy.getWalletAddress('Agoric').then(address => {
-          // provision BLD
-          cy.provisionFromFaucet(address, 'delegate');
-          // provision IST
-          cy.provisionFromFaucet(address, 'client');
         });
       }
     });
