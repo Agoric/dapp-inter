@@ -53,81 +53,27 @@ describe('Liquidation Testing', () => {
     it('add key for user1 wallet using agd', () => {
       cy.task('info', `AGORIC_NET: ${AGORIC_NET}`);
 
-      if (AGORIC_NET === networks.LOCAL || AGORIC_NET === networks.EMERYNET) {
-        cy.addKeys({
-          keyName: 'user1',
-          mnemonic: user1Mnemonic,
-          expectedAddress: user1Address,
-        });
-      } else {
-        cy.task('info', 'get mnemonic for the new wallet using agd');
-        cy.createNewUser({ keyName: 'user1' })
-          .then(output => {
-            cy.task('info', `${JSON.stringify(output)}`);
-            cy.wrap(output);
-          })
-          .then(({ mnemonic, address }) => {
-            user1Mnemonic = mnemonic;
-            cy.task('info', `user1 mnemonic: ${user1Mnemonic}`);
-            user1Address = address;
-            cy.task('info', `user1 address: ${address}`);
-          })
-          .then(() => {
-            expect(user1Mnemonic).to.not.be.null;
-            expect(user1Address).to.not.be.null;
-          });
-      }
+      cy.addKeys({
+        keyName: 'user1',
+        mnemonic: user1Mnemonic,
+        expectedAddress: user1Address,
+      });
     });
-
-    it(
-      'should provision the user1 wallet',
-      {
-        retries: {
-          runMode: 2,
-          openMode: 2,
-        },
-      },
-      () => {
-        cy.skipWhen(
-          AGORIC_NET === networks.LOCAL || AGORIC_NET === networks.EMERYNET,
-        );
-        // UNTIL https://github.com/Agoric/instagoric/issues/64
-        for (let i = 0; i < 3; i++) {
-          cy.provisionFromFaucet(user1Address, 'delegate');
-        }
-        cy.provisionFromFaucet(user1Address, 'client');
-      },
-    );
   });
 
   context('Add key for bidder wallet', () => {
     it('add key for bidder wallet using agd', () => {
-      if (AGORIC_NET === networks.LOCAL || AGORIC_NET === networks.EMERYNET) {
-        cy.task('info', 'gov1 is the bidder wallet');
-        cy.addKeys({
-          keyName: 'gov1',
-          mnemonic: gov1Mnemonic,
-          expectedAddress: gov1Address,
-        });
-      } else {
-        cy.addKeys({
-          keyName: 'bidder',
-          mnemonic: bidderMnemonic,
-          expectedAddress: bidderAddress,
-        });
-      }
+      cy.task('info', 'gov1 is the bidder wallet');
+      cy.addKeys({
+        keyName: 'gov1',
+        mnemonic: gov1Mnemonic,
+        expectedAddress: gov1Address,
+      });
     });
   });
 
   context('Add keys for gov1 and gov2 wallet', () => {
     it('add keys for gov1 and gov2 wallet using agd', () => {
-      if (AGORIC_NET !== networks.LOCAL || AGORIC_NET !== networks.EMERYNET) {
-        cy.addKeys({
-          keyName: 'gov1',
-          mnemonic: gov1Mnemonic,
-          expectedAddress: gov1Address,
-        });
-      }
       cy.addKeys({
         keyName: 'gov2',
         mnemonic: gov2Mnemonic,
