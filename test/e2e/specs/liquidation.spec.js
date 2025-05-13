@@ -36,14 +36,8 @@ describe('Liquidation Testing', () => {
   const econGovURL = currentConfig.econGovURL;
   const auctionURL = currentConfig.auctionURL;
   const reserveURL = currentConfig.reserveURL;
-  let user1Mnemonic =
-    AGORIC_NET === networks.LOCAL || AGORIC_NET === networks.EMERYNET
-      ? currentConfig.user1Mnemonic
-      : null;
-  let user1Address =
-    AGORIC_NET === networks.LOCAL || AGORIC_NET === networks.EMERYNET
-      ? currentConfig.user1Address
-      : null;
+  let user1Mnemonic = currentConfig.user1Mnemonic;
+  let user1Address = currentConfig.user1Address;
   let bidderAtomBalance = 0;
   let user1AtomBalance = 0;
   let bidderIstBalance = 0;
