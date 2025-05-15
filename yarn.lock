@@ -345,10 +345,10 @@
     "@endo/marshal" "0.8.5"
     "@endo/promise-kit" "0.2.56"
 
-"@agoric/rpc@^0.9.0":
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/@agoric/rpc/-/rpc-0.9.0.tgz#bf43046fa855b666089797315af1085cb84d44a6"
-  integrity sha512-mJ7akVnEC/Gu0Gc/X0+NrVZ3/SC5QawcrWjyTkIBGZ+2geEmyPQ9euAEJ3Luq3cmcqi2XxF2NEHzU/0VU0SKng==
+"@agoric/rpc@^0.10.0":
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/@agoric/rpc/-/rpc-0.10.0.tgz#bfbcf9712a1e130ecc9e55ba70734952c95eb6b7"
+  integrity sha512-A89Iaiu1bbSYGPq66wdPKL0IVqAM1kOiHsi8Wf+vN9+aSsrsRH3dOy8nWo/3dM/SAvM/GRBDZmLs6rPsizP6yw==
   dependencies:
     "@endo/marshal" "^0.8.9"
     axios "^1.6.2"

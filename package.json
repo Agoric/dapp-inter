@@ -19,7 +19,7 @@
     "@agoric/cosmic-proto": "^0.3.0",
     "@agoric/ertp": "^0.16.2",
     "@agoric/inter-protocol": "^0.16.1",
-    "@agoric/rpc": "^0.9.0",
+    "@agoric/rpc": "^0.10.0",
     "@agoric/smart-wallet": "^0.5.3",
     "@agoric/ui-components": "^0.9.0",
     "@agoric/wallet": "^0.18.3",
@@ -78,5 +78,6 @@
     "**/@agoric/xsnap": "0.14.3-u14.0",
     "**/@agoric/time": "0.3.3-u14.0",
     "**/@agoric/vats": "0.15.2-u15.0"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
