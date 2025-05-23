@@ -27,7 +27,7 @@ export const fetchAllAddrs = async (netconfigURL: string) => {
 
 export const queryTotalActiveVaults = async () => {
   const res = await fetch(
-    'https://api.subquery.network/sq/agoric-labs/agoric-mainnet-v2',
+    'https://index-api.onfinality.io/sq/agoric-labs/agoric-mainnet-v2',
     {
       method: 'POST',
       headers: {
