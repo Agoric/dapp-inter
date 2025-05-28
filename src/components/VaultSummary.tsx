@@ -10,7 +10,8 @@ import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 import {
   ceilMultiplyBy,
   makeRatioFromAmounts,
-} from '@agoric/zoe/src/contractSupport';
+  multiplyBy,
+} from '@agoric/zoe/src/contractSupport/ratio';
 import clsx from 'clsx';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { isLiquidationPriceBelowGivenPrice, netValue } from 'utils/vaultMath';
@@ -23,10 +24,9 @@ import {
 } from 'store/adjustVault';
 import { AmountMath } from '@agoric/ertp';
 import CloseVaultDialog from './CloseVaultDialog';
-import { multiplyBy } from '@agoric/zoe/src/contractSupport/ratio';
 import { motion } from 'framer-motion';
 import LeapLiquidityModal, { Direction } from './leap-elements/LiquidityModal';
-import type { Brand } from '@agoric/ertp/src/types';
+import type { Brand } from '@agoric/ertp';
 
 const cardVariant = {
   active: {
@@ -550,7 +550,11 @@ const VaultSummary = ({ vaultKey }: Props) => {
         />
         <TableRow
           left="Collateralization Ratio"
-          right={`${displayPercent(collateralizationRatio, 0)}%`}
+          right={
+            collateralizationRatio
+              ? `${displayPercent(collateralizationRatio, 0)}%`
+              : '--'
+          }
         />
       </tbody>
     );
