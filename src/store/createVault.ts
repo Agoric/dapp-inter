@@ -8,9 +8,9 @@ import {
   istAvailable,
 } from 'utils/vaultMath';
 import { pursesAtom } from './app';
-import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
-import { AmountMath } from '@agoric/ertp';
-import type { Amount, NatValue } from '@agoric/ertp/src/types';
+import { ratioGTE } from '@agoric/zoe/src/contractSupport/index';
+import { AmountMath } from '@agoric/ertp/src/index';
+import type { Amount, NatValue } from '@agoric/ertp/src/index';
 import type { Getter } from 'jotai';
 import { DebtAction } from './adjustVault';
 import { displayFunctionsAtom } from './app';
@@ -203,7 +203,7 @@ export const inputErrorsAtom = atom<VaultCreationErrors>(get => {
         debtAfterChange(
           DebtAction.Mint,
           mintFee,
-          AmountMath.makeEmpty(mintedAvailable.brand),
+          AmountMath.makeEmpty(mintedAvailable.brand, 'nat'),
           AmountMath.make(mintedAvailable.brand, valueToReceive),
         ),
       )

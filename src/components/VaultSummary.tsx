@@ -21,12 +21,12 @@ import {
   DebtAction,
   debtActionAtom,
 } from 'store/adjustVault';
-import { AmountMath } from '@agoric/ertp';
+import { AmountMath } from '@agoric/ertp/src/index';
 import CloseVaultDialog from './CloseVaultDialog';
-import { multiplyBy } from '@agoric/zoe/src/contractSupport/ratio';
+import { multiplyBy } from '@agoric/zoe/src/contractSupport/index';
 import { motion } from 'framer-motion';
 import LeapLiquidityModal, { Direction } from './leap-elements/LiquidityModal';
-import type { Brand } from '@agoric/ertp/src/types';
+import type { Brand } from '@agoric/ertp/src/index';
 
 const cardVariant = {
   active: {
@@ -550,7 +550,11 @@ const VaultSummary = ({ vaultKey }: Props) => {
         />
         <TableRow
           left="Collateralization Ratio"
-          right={`${displayPercent(collateralizationRatio, 0)}%`}
+          right={
+            collateralizationRatio
+              ? `${displayPercent(collateralizationRatio, 0)}%`
+              : '--'
+          }
         />
       </tbody>
     );

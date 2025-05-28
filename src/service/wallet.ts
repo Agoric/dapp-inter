@@ -6,10 +6,7 @@ import {
   ChainConnection,
 } from 'store/app';
 import { toast } from 'react-toastify';
-import {
-  makeAgoricWalletConnection,
-  AgoricKeplrConnectionErrors as Errors,
-} from '@agoric/web-components';
+import { makeAgoricWalletConnection, Errors } from '@agoric/web-components';
 import type { Id as ToastId, ToastContent, ToastOptions } from 'react-toastify';
 
 const watchPurses = (chainConnection: ChainConnection) => {

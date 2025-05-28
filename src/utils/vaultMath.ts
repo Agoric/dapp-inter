@@ -6,10 +6,10 @@ import {
   floorMultiplyBy,
   makeRatioFromAmounts,
 } from '@agoric/zoe/src/contractSupport';
-import { AmountMath } from '@agoric/ertp';
+import { AmountMath } from '@agoric/ertp/src/index';
 import { CollateralAction, DebtAction } from 'store/adjustVault';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
-import { ratioGTE } from '@agoric/zoe/src/contractSupport/ratio';
+import { ratioGTE } from '@agoric/zoe/src/contractSupport/index';
 import type {
   DebtSnapshot,
   PriceDescription,
@@ -19,7 +19,7 @@ import type {
   VaultMetrics,
   VaultParams,
 } from 'store/vaults';
-import type { Amount, Brand, NatValue } from '@agoric/ertp/src/types';
+import type { Amount, Brand, NatValue } from '@agoric/ertp/src/index';
 
 export const isLiquidationPriceBelowGivenPrice = (
   locked: Amount<'nat'>,
@@ -107,7 +107,7 @@ export const debtAfterChange = (
     return AmountMath.subtract(totalDebt, debtChange);
   }
 
-  return AmountMath.makeEmpty(totalDebt.brand);
+  return AmountMath.makeEmpty(totalDebt.brand, 'nat');
 };
 
 export const lockedAfterChange = (
@@ -127,7 +127,7 @@ export const lockedAfterChange = (
     return AmountMath.subtract(locked, lockedChange);
   }
 
-  return AmountMath.makeEmpty(locked.brand);
+  return AmountMath.makeEmpty(locked.brand, 'nat');
 };
 
 const lowestPrice = (priceA: Ratio, priceB?: Ratio) =>
@@ -139,7 +139,7 @@ export const istAvailable = (
 ): Amount<'nat'> =>
   AmountMath.isGTE(debtLimit, totalDebt)
     ? AmountMath.subtract(debtLimit, totalDebt)
-    : AmountMath.makeEmpty(debtLimit.brand);
+    : AmountMath.makeEmpty(debtLimit.brand, 'nat');
 
 export const maxIstToMintFromVault = (
   debtLimit: Amount<'nat'>,
@@ -177,7 +177,7 @@ export const maxIstToMintFromVault = (
     currentDebt,
   )
     ? AmountMath.subtract(currentDebtCeiling, currentDebt)
-    : AmountMath.makeEmpty(currentDebt.brand);
+    : AmountMath.makeEmpty(currentDebt.brand, 'nat');
 
   const maxDebtDeltaBeforeMintFee = floorDivideBy(
     maxDebtDeltaAfterMintFee,

@@ -1,4 +1,4 @@
-import { AmountMath } from '@agoric/ertp';
+import { AmountMath } from '@agoric/ertp/src/index';
 import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 import {
   ceilMultiplyBy,
@@ -7,7 +7,7 @@ import {
 import {
   floorMultiplyBy,
   ratioGTE,
-} from '@agoric/zoe/src/contractSupport/ratio';
+} from '@agoric/zoe/src/contractSupport/index';
 import { atom } from 'jotai';
 import {
   debtAfterChange,
@@ -24,7 +24,7 @@ import type {
   VaultPhase,
   PriceDescription,
 } from './vaults';
-import type { Amount, NatValue } from '@agoric/ertp/src/types';
+import type { Amount, NatValue } from '@agoric/ertp/src/index';
 
 type VaultToAdjust = {
   totalLockedValue: Amount<'nat'>;
