@@ -1,6 +1,9 @@
 import { atom } from 'jotai';
 import { vaultStoreAtom } from './vaults';
-import { makeRatioFromAmounts } from '@agoric/zoe/src/contractSupport';
+import {
+  makeRatioFromAmounts,
+  ratioGTE,
+} from '@agoric/zoe/src/contractSupport';
 import {
   collateralizationRatio,
   computeToLock,
@@ -8,9 +11,8 @@ import {
   istAvailable,
 } from 'utils/vaultMath';
 import { pursesAtom } from './app';
-import { ratioGTE } from '@agoric/zoe/src/contractSupport/index';
-import { AmountMath } from '@agoric/ertp/src/index';
-import type { Amount, NatValue } from '@agoric/ertp/src/index';
+import { AmountMath } from '@agoric/ertp';
+import type { Amount, NatValue } from '@agoric/ertp';
 import type { Getter } from 'jotai';
 import { DebtAction } from './adjustVault';
 import { displayFunctionsAtom } from './app';

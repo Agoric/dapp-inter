@@ -10,7 +10,8 @@ import { calculateCurrentDebt } from '@agoric/inter-protocol/src/interest-math';
 import {
   ceilMultiplyBy,
   makeRatioFromAmounts,
-} from '@agoric/zoe/src/contractSupport';
+  multiplyBy,
+} from '@agoric/zoe/src/contractSupport/ratio';
 import clsx from 'clsx';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { isLiquidationPriceBelowGivenPrice, netValue } from 'utils/vaultMath';
@@ -21,12 +22,11 @@ import {
   DebtAction,
   debtActionAtom,
 } from 'store/adjustVault';
-import { AmountMath } from '@agoric/ertp/src/index';
+import { AmountMath } from '@agoric/ertp';
 import CloseVaultDialog from './CloseVaultDialog';
-import { multiplyBy } from '@agoric/zoe/src/contractSupport/index';
 import { motion } from 'framer-motion';
 import LeapLiquidityModal, { Direction } from './leap-elements/LiquidityModal';
-import type { Brand } from '@agoric/ertp/src/index';
+import type { Brand } from '@agoric/ertp';
 
 const cardVariant = {
   active: {
