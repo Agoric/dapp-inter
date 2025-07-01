@@ -41,28 +41,15 @@ User application for Agoric Inter Protocol--Vaults, BLD Boost, Liquidations, etc
    agd keys add gov2 --keyring-backend=test
    ```
 
-   \*If you have access to the mnemonics, use `--interactive` to get a prompt to import them. Without that it will create new keys. You can save the seed phrase somewhere, or even create a keplr account with it for testing. You can use `agd keys list --keyring-backend=test` to check which keys you've created.
+   Note: If you have the mnemonic phrases, use `--interactive` to import them. Otherwise, new keys will be created. Remember to save the seed phrase securely. You can also use it to set up a Keplr account for testing purposes. To see the keys you've created, run `agd keys list --keyring-backend=test`.
 
-3. Start a local chain with psm, vaults, etc.
-
-   ```
-   cd packages/inter-protocol && scripts/start-local-chain.sh
-   ```
-
-4. Go the the [wallet](https://github.com/Agoric/wallet-app) repository and start a local client server:
+3. Run the agoric local chain
 
    ```sh
-   cd wallet-app && yarn install
-   cd wallet && yarn start
+   docker run -d -p 26657:26657 -p 1317:1317 -p 9090:9090 ghcr.io/agoric/agoric-3-proposals:main
    ```
 
-5. Open the [wallet UI](http://localhost:3000/wallet/) and adjust Settings to use the localhost network.
-
-   <img width="410" alt="Screen Shot 2023-01-23 at 11 57 16 AM" src="https://user-images.githubusercontent.com/8848650/214137346-b42942db-3b93-413a-991e-c77e2a30d6f1.png">
-
-   If you created a Keplr account with the seed from YOUR_ACCOUNT_KEY, you should already have a smart wallet provisioned.
-
-6. Return to this repository and `yarn && yarn dev` to start the local server with Hot Module Replacement (which automatically refreshes the UI as you change source files). To connect to your local wallet UI, use http://127.0.0.1:5173/?wallet=local.
+4. Run `yarn && yarn dev` to start the local server with Hot Module Replacement (which automatically refreshes the UI as you change source files). To connect to your local wallet UI, use http://127.0.0.1:5173/?wallet=local.
 
 ## Deployment
 
